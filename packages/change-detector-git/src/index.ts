@@ -19,14 +19,20 @@ interface DetectChangeOptions {
   config: HaetaeConfig
 }
 
+/**
+ * @returns
+ *   - a array of changed file path.
+ *   - an empth array if no change was made
+ *   - null if gitSha is not given
+ */
 async function detectChange({ config }: DetectChangeOptions) {
-  // if (!config.gitSha) {
-  //   // // 'git name-rev --name-only HEAD'
-  //   // const currentBranchName = ''
-  //   // // If you want to list all the files currently being tracked under the branch master, you could use this command:
-  //   // const command = `git ls-tree -r ${currentBranchName} --name-only`
-  //   return '*'
-  // }
+  if (!config.gitSha) {
+    // // 'git name-rev --name-only HEAD'
+    // const currentBranchName = ''
+    // // If you want to list all the files currently being tracked under the branch master, you could use this command:
+    // const command = `git ls-tree -r ${currentBranchName} --name-only`
+    return null
+  }
 
   const command = `git diff --name-only ${config.gitSha}`
   const res = await execAsync(command)
