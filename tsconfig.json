@@ -6,7 +6,7 @@
     "rootDir": ".",
     "baseUrl": "packages",
     "paths": {
-      "@jjangga0214/*": ["*/src"],
+      "@haetae/*": ["*/src"],
       "#foo/*": ["foo/src/*"],
       "#bar/*": ["bar/src/*"],
       "#*": ["*/src"]

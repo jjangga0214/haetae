@@ -67,7 +67,7 @@ module.exports = {
   // A map from regular expressions to module names that allow to stub out resources with a single module
   // moduleNameMapper: {
   //   '^~/(.*)$': '<rootDir>/src/$1',
-  //   '^@jjangga0214/(.*)$': '<rootDir>/../$1/src'
+  //   '^@haetae/(.*)$': '<rootDir>/../$1/src'
   // },
   moduleNameMapper: {
     ...pathsToModuleNameMapper(
