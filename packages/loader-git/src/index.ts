@@ -25,7 +25,7 @@ export interface LoadChangedOptions {
  *   - null if gitSha is not given
  */
 export async function loadChanged({
-  gitSha,
+  gitSha, // TODO: get default param from config, record
   rootDir = configFileRootDir,
 }: LoadChangedOptions) {
   if (!gitSha) {
@@ -41,5 +41,6 @@ export async function loadChanged({
 }
 
 // ;(async (): Promise<void> => {
+// TODO: git submodule test
 //   console.log(await loadChanged({ gitSha: '3f8b7b9' }))
 // })()

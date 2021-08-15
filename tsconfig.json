@@ -9,6 +9,7 @@
       "@haetae/*": ["*/src"],
       "#loader-git/*": ["loader-git/src/*"],
       "#loader-glob/*": ["loader-glob/src/*"],
+      "#utils/*": ["utils/src/*"],
       "#*": ["*/src"]
     },
     "strict": true,
