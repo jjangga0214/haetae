@@ -26,6 +26,6 @@ export async function loadJestTestMatch({
   return loadByGlob({
     // <rootDir> would be replaced by jestConfigDirname by loadByGlob
     patterns: jestTestMatch.map((pattern) => pattern.replace('<rootDir>/', '')),
-    cwd: jestConfigDirname,
+    rootDir: jestConfigDirname,
   })
 }

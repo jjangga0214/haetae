@@ -1,19 +1,22 @@
 import globby from 'globby'
 import path from 'path'
+import { configFileRootDir } from '@haetae/config'
 
 interface LoadByGlobOptions {
   patterns: readonly string[]
-  cwd?: string
+  rootDir?: string
   fixedPatterns?: readonly string[]
 }
 
 export async function loadByGlob({
   patterns,
-  cwd,
+  rootDir = configFileRootDir,
   fixedPatterns = ['!**/node_modules'],
 }: LoadByGlobOptions) {
   return globby(
-    patterns.map((p) => (!cwd ? p : path.join(cwd, p))).concat(fixedPatterns),
+    patterns
+      .map((p) => (!rootDir ? p : path.join(rootDir, p)))
+      .concat(fixedPatterns),
   )
 }
 
