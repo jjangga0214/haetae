@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "tsBuildInfoFile": "../../.build-cache/change-detector-git.tsbuildinfo"
+    "tsBuildInfoFile": "../../.build-cache/loader-changed-git.tsbuildinfo"
   },
   "include": ["src"]
 }

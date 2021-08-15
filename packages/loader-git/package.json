@@ -1,5 +1,5 @@
 {
-  "name": "@haetae/change-detector-git",
+  "name": "@haetae/loader-git",
   "version": "1.0.0",
   "license": "MIT",
   "private": true,
@@ -9,7 +9,7 @@
     "dist"
   ],
   "imports": {
-    "#change-detector-git/*": {
+    "#loader-git/*": {
       "default": "./dist/*.js"
     }
   },
