@@ -7,7 +7,7 @@
     "baseUrl": "packages",
     "paths": {
       "@haetae/*": ["*/src"],
-      "#change-detector-git/*": ["foo/src/*"],
+      "#loader-git/*": ["loader-git/src/*"],
       "#*": ["*/src"]
     },
     "strict": true,
