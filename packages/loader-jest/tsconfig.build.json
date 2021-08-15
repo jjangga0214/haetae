@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "../../.build-cache/loader-jest.tsbuildinfo"
+  },
+  "include": ["src"],
+  "references": [{ "path": "../loader-glob/tsconfig.build.json" }]
+}

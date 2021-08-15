@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.json",
+  "references": [
+    { "path": "../loader-glob/tsconfig.build.json", "prepend": false }
+  ]
+}
