@@ -3,26 +3,29 @@ import path from 'path'
 import { configFileRootDir } from '@haetae/config'
 
 interface LoadByGlobOptions {
-  patterns: readonly string[]
   rootDir?: string
   fixedPatterns?: readonly string[]
 }
 
-export async function loadByGlob({
-  patterns,
-  rootDir = configFileRootDir,
-  fixedPatterns = ['!**/node_modules'],
-}: LoadByGlobOptions) {
-  return globby(
-    patterns
-      .map((p) => (!rootDir ? p : path.join(rootDir, p)))
-      .concat(fixedPatterns),
-  )
+export async function loadByGlob(
+  patterns: readonly string[],
+  {
+    rootDir = configFileRootDir,
+    // This also prevents yarn workspace or lerna's sub node_modules
+    fixedPatterns = [`!${path.join('**', 'node_modules')}`],
+  }: LoadByGlobOptions,
+) {
+  const absolutePatterns = patterns
+    .map((pattern) => {
+      if (rootDir) {
+        if (pattern.startsWith('!')) {
+          return `!${path.join(rootDir, pattern.replace('!', ''))}`
+        }
+        return path.join(rootDir, pattern)
+      }
+      return pattern
+    })
+    .concat(fixedPatterns)
+
+  return globby(absolutePatterns)
 }
-
-// async function main() {
-//   const res = await load({ patterns: ['../../**'] })
-//   console.log(res)
-// }
-
-// main()

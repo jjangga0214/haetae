@@ -6,9 +6,9 @@
     "rootDir": ".",
     "baseUrl": "packages",
     "paths": {
-      "@haetae/*": ["*/src"],
-      "#loader-git/*": ["loader-git/src/*"],
-      "#loader-glob/*": ["loader-glob/src/*"],
+      "@haetae/test-project-*": ["*/src"],
+      "#foo/*": ["foo/src/*"],
+      "#bar/*": ["bar/src/*"],
       "#*": ["*/src"]
     },
     "strict": true,
