@@ -3,10 +3,17 @@ import { strict as assert } from 'assert'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { DeepRequired } from 'utility-types'
+import { Required } from 'utility-types'
 import fs from 'fs'
 import deepEqual from 'deep-equal'
-import { version } from '../package.json'
+
+export const { version } = (() => {
+  const content = fs.readFileSync(
+    path.join(__dirname, '..', 'package.json'),
+    'utf8',
+  )
+  return JSON.parse(content)
+})()
 
 export const defaultConfigFile = 'haetae.config.js'
 
@@ -31,14 +38,15 @@ export const getConfigFilenameFromEnvVar = memoizee((): string => {
 export const getConfigDirnameFromEnvVar = () =>
   path.dirname(getConfigFilenameFromEnvVar())
 
-export type HaetaeRecordEnv = Record<string, any>
+export type HaetaeRecordEnv = Record<string, unknown>
 
 export interface HaetaeRecord {
   time: string // ISO format
   env: HaetaeRecordEnv
-  '@haetae/loader-git'?: {
-    gitSha: string
-  }
+  // '@haetae/loader-git'?: {
+  //   gitSha: string
+  // }
+  [key: string]: unknown
 }
 
 type HaetaePreRecord = Omit<HaetaeRecord, 'time' | 'env'>
@@ -51,32 +59,40 @@ export interface HaetaeStore {
 }
 
 export interface SubCommandTargetOptions {
-  prevRecord?: HaetaeRecord
+  prevRecord?: HaetaeRecord | undefined
 }
 export interface SubCommandEnvOptions {
   haetaeVersion: string
 }
 export interface SubCommandSaveOptions {
-  prevRecord?: HaetaeRecord
+  prevRecord?: HaetaeRecord | undefined
 }
-export interface HaetaeConfig {
+
+export interface HaetaePreCommand {
+  target: (options: SubCommandTargetOptions) => string[] | Promise<string[]>
+  env?: (
+    options: SubCommandEnvOptions,
+  ) => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
+  save: (
+    options: SubCommandSaveOptions,
+  ) => HaetaePreRecord | Promise<HaetaePreRecord>
+}
+
+export type HaetaeCommand = Required<HaetaePreCommand, 'env'>
+
+export interface HaetaePreConfig<Command = HaetaePreCommand> {
   commands: {
-    [command: string]: {
-      target: (options: SubCommandTargetOptions) => string[] | Promise<string[]>
-      env?: (
-        options: SubCommandEnvOptions,
-      ) => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
-      save: (
-        options: SubCommandSaveOptions,
-      ) => HaetaePreRecord | Promise<HaetaePreRecord>
-    }
+    [command: string]: Command
   }
   storeFile?: string
 }
 
-export const defaultStoreFile = 'haetae.json'
-export const getDefaultStoreFilename = () =>
-  path.join(getConfigDirnameFromEnvVar(), defaultStoreFile)
+export type HaetaeConfig = Required<HaetaePreConfig<HaetaeCommand>, 'storeFile'>
+
+export const defaultStoreFile = 'haetae.store.json'
+export const getDefaultStoreFilename = (
+  configDirname: string = getConfigDirnameFromEnvVar(),
+) => path.join(configDirname, defaultStoreFile)
 
 export const defaultSubCommandEnv = ({
   haetaeVersion,
@@ -86,48 +102,73 @@ export const defaultSubCommandEnv = ({
 
 /**
  *
- * @param haetaeConfig: config object provided from user. The function will fill out default values if not already configured..
+ * @param preConfig: config object provided from user.
  * @returns
  */
-export function config(haetaeConfig: HaetaeConfig): DeepRequired<HaetaeConfig> {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  // eslint-disable-next-line no-param-reassign
-  delete haetaeConfig.default
-  for (const command in haetaeConfig.commands) {
-    if (Object.prototype.hasOwnProperty.call(haetaeConfig.commands, command)) {
+export function configure({
+  commands,
+  storeFile,
+}: HaetaePreConfig): HaetaePreConfig {
+  for (const command in commands) {
+    if (Object.prototype.hasOwnProperty.call(commands, command)) {
       assert(
-        typeof haetaeConfig.commands[command].target === 'function',
+        typeof commands[command].target === 'function',
         `commands.${command}.target is required, but has invalid value.`,
       )
       assert(
-        typeof haetaeConfig.commands[command].save === 'function',
+        typeof commands[command].save === 'function',
         `commands.${command}.save function is required, but has invalid value.`,
       )
-      // eslint-disable-next-line no-param-reassign
-      haetaeConfig.commands[command].env =
-        haetaeConfig.commands[command].env || defaultSubCommandEnv
+      assert(
+        commands[command].env === undefined ||
+          typeof commands[command].env === 'function',
+        `commands.${command}.target is not undefined, but not a function.`,
+      )
     }
   }
   return {
-    storeFile: getDefaultStoreFilename(),
-    ...haetaeConfig,
-  } as DeepRequired<HaetaeConfig>
+    storeFile,
+    commands,
+  }
 }
 
 export interface GetConfigOptions {
-  filename?: string // config file path
+  filename?: string | Promise<string> // It should be an absolute path
 }
 
 /**
+ * The function will fill in default values if not already configured..
  * @memoized
  */
 export const getConfig = memoizee(
   async ({
     filename = getConfigFilenameFromEnvVar(),
-  }: GetConfigOptions = {}) => {
-    const userConfig = await import(filename)
-    return config(userConfig)
+  }: GetConfigOptions = {}): Promise<HaetaeConfig> => {
+    const resolvedFilename = await filename
+    const preConfigFromFile = await import(resolvedFilename)
+    const preConfig: HaetaePreConfig = configure(preConfigFromFile)
+    for (const command in preConfig.commands) {
+      if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
+        // eslint-disable-next-line no-param-reassign
+        preConfig.commands[command].env =
+          preConfig.commands[command].env || defaultSubCommandEnv
+      }
+    }
+    if (!preConfig.storeFile) {
+      // It becomes an absolute path, as path.dirname(filename) is also an absolute path.
+      preConfig.storeFile = getDefaultStoreFilename(
+        path.dirname(resolvedFilename),
+      )
+    }
+
+    if (!path.isAbsolute(preConfig.storeFile)) {
+      preConfig.storeFile = path.join(
+        path.dirname(resolvedFilename),
+        preConfig.storeFile,
+      )
+    }
+
+    return preConfig as HaetaeConfig
   },
   {
     normalizer: serialize,
@@ -135,7 +176,7 @@ export const getConfig = memoizee(
 )
 
 export interface GetStoreOptions {
-  filename?: string // record store file path
+  filename?: string | Promise<string> // It should be an absolute path
 }
 
 /**
@@ -144,9 +185,11 @@ export interface GetStoreOptions {
  */
 export const getStore = memoizee(
   async ({
-    filename = getDefaultStoreFilename(),
-  }: GetStoreOptions = {}): Promise<HaetaeStore> =>
-    (await import(filename)) as HaetaeStore,
+    filename = getConfig().then((config) => config.storeFile),
+  }: GetStoreOptions = {}): Promise<HaetaeStore> => {
+    const resolvedFilename = await filename
+    return import(resolvedFilename)
+  },
   {
     normalizer: serialize,
   },
@@ -187,65 +230,87 @@ export async function getRecordByEnv({
 
 export interface InvokeEnvOptions {
   command: string
-  config?: DeepRequired<HaetaeConfig> | Promise<DeepRequired<HaetaeConfig>>
+  config?: HaetaeConfig | Promise<HaetaeConfig>
 }
 
-export async function invokeEnv({
-  command,
-  config = getConfig(),
-}: InvokeEnvOptions) {
-  return (await config)?.commands[command]?.env({ haetaeVersion: version })
-}
+/**
+ * @memoized
+ */
+export const invokeEnv = memoizee(
+  async ({ command, config = getConfig() }: InvokeEnvOptions) =>
+    (await config)?.commands[command]?.env({ haetaeVersion: version }),
+  {
+    normalizer: serialize,
+  },
+)
+
 export interface InvokeTargetOrSaveOptions {
   command: string
-  config?: DeepRequired<HaetaeConfig> | Promise<DeepRequired<HaetaeConfig>>
+  config?: HaetaeConfig | Promise<HaetaeConfig>
   store?: HaetaeStore | Promise<HaetaeStore>
   env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv> // current env
 }
 
 type InvokeTargetOptions = InvokeTargetOrSaveOptions
 
-export async function invokeTarget({
-  command,
-  env,
-  store = getStore(),
-  config = getConfig(),
-}: InvokeTargetOptions) {
-  const prevRecord = await getRecordByEnv({
+/**
+ * @memoized
+ */
+export const invokeTarget = memoizee(
+  async ({
     command,
-    env: (await env) || (await invokeEnv({ command, config })),
-    store,
-  })
-  return (await config).commands[command].target({
-    prevRecord,
-  })
-}
+    env,
+    store = getStore(),
+    config = getConfig(),
+  }: InvokeTargetOptions) => {
+    const prevRecord = await getRecordByEnv({
+      command,
+      env: (await env) || (await invokeEnv({ command, config })),
+      store,
+    })
+    return (await config).commands[command].target({
+      prevRecord,
+    })
+  },
+  {
+    normalizer: serialize,
+  },
+)
 
 export type InvokeSaveOptions = InvokeTargetOrSaveOptions
 
-export async function invokeSave({
-  command,
-  env,
-  store = getStore(),
-  config = getConfig(),
-}: InvokeSaveOptions) {
-  const prevRecord = await getRecordByEnv({
+/**
+ * @memoized
+ */
+export const invokeSave = memoizee(
+  async ({
     command,
-    env: (await env) || (await invokeEnv({ command, config })),
-    store,
-  })
-  return (await config).commands[command].save({
-    prevRecord,
-  })
-}
+    env,
+    store = getStore(),
+    config = getConfig(),
+  }: InvokeSaveOptions) => {
+    const prevRecord = await getRecordByEnv({
+      command,
+      env: (await env) || (await invokeEnv({ command, config })),
+      store,
+    })
+    return (await config).commands[command].save({
+      prevRecord,
+    })
+  },
+  {
+    normalizer: serialize,
+  },
+)
 
-export interface MapStoreOptions extends InvokeTargetOptions {
+export interface MapStoreOptions extends InvokeTargetOrSaveOptions {
   record: HaetaePreRecord | Promise<HaetaePreRecord>
 }
 
 /**
  * This creates a new store from previous store
  * The term map is coined from map function
+ * @param {record}: This is "preRecord"
  */
 export async function mapStore({
   command,
@@ -254,7 +319,7 @@ export async function mapStore({
   store,
   config = getConfig(),
 }: MapStoreOptions) {
-  const newStore: HaetaeStore = await (async () => {
+  const newStore = await (async (): Promise<HaetaeStore> => {
     try {
       return (await store) || (await getStore())
     } catch (error) {
@@ -268,6 +333,7 @@ export async function mapStore({
     }
   })()
   const currentEnv = (await env) || (await invokeEnv({ command, config }))
+  // "pre" is different from "prev", which means "previous". Instead, "pre" means "given from user's config", so default values should be filled in."
   const preRecord =
     (await record) || (await invokeSave({ command, env, store, config }))
 
@@ -291,6 +357,18 @@ export async function mapStore({
   return newStore
 }
 
+export interface SaveStoreOptions {
+  store: HaetaeStore
+  filename?: string
+}
+
+export async function saveStore({
+  store,
+  filename = getDefaultStoreFilename(),
+}: SaveStoreOptions) {
+  fs.writeFileSync(filename, JSON.stringify(store, null, 2))
+}
+
 async function main() {
   // console.log(
   //   await getStore({
@@ -307,6 +385,12 @@ async function main() {
   //     },
   //   }),
   // )
+  const config = await getConfig({
+    filename:
+      '/media/jjangga/SHARE/haetae/packages/core/test/haetae.config.example.js',
+  })
+  console.log(config)
+  console.log(version)
 }
 
 main()
