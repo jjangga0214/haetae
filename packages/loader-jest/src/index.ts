@@ -23,7 +23,7 @@ export async function loadByJestGlob(
   }
   // eslint-disable-next-line import/no-dynamic-require,global-require,@typescript-eslint/no-var-requires
   const jestConfig = require(configPath)
-  const jestConfigDirname = path.dirname(configPath)
+  const jestgetConfigDirnameFromEnvVar = path.dirname(configPath)
   if (!jestConfig.testMatch) {
     onTestMatchNotFound()
   }
@@ -42,11 +42,15 @@ export async function loadByJestGlob(
   const patterns = jestTestMatch
     .map((pattern) => pattern.replace('<rootDir>/', ''))
     // Why split by '/' ?. Because jest.config.js should be written by '/' delimiter even on Windows/
-    .map((pattern) => path.join(jestConfigDirname, ...pattern.split('/')))
+    .map((pattern) =>
+      path.join(jestgetConfigDirnameFromEnvVar, ...pattern.split('/')),
+    )
     .concat(
       jestTestPathIgnorePatterns
         .map((pattern) => pattern.replace('<rootDir>/', ''))
-        .map((pattern) => path.join(jestConfigDirname, ...pattern.split('/')))
+        .map((pattern) =>
+          path.join(jestgetConfigDirnameFromEnvVar, ...pattern.split('/')),
+        )
         .map((pattern) => `!${pattern}`),
     )
 

@@ -1,6 +1,6 @@
 import globby from 'globby'
 import path from 'path'
-import { configFileRootDir } from '@haetae/config'
+import { getConfigDirnameFromEnvVar } from '@haetae/core'
 
 interface LoadByGlobOptions {
   rootDir?: string
@@ -10,7 +10,7 @@ interface LoadByGlobOptions {
 export async function loadByGlob(
   patterns: readonly string[],
   {
-    rootDir = configFileRootDir,
+    rootDir = getConfigDirnameFromEnvVar(),
     // This also prevents yarn workspace or lerna's sub node_modules
     fixedPatterns = [`!${path.join('**', 'node_modules')}`],
   }: LoadByGlobOptions,

@@ -1,6 +1,6 @@
 import childProcess from 'child_process'
 import path from 'path'
-import { configFileRootDir } from '@haetae/config'
+import { getConfigDirnameFromEnvVar } from '@haetae/core'
 
 function execAsync(command: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ function execAsync(command: string): Promise<string> {
   })
 }
 
-export interface LoadChangedOptions {
+export interface LoadByGitChangedOptions {
   gitSha?: string
   rootDir?: string
 }
@@ -24,10 +24,10 @@ export interface LoadChangedOptions {
  *   - an empth array if no change was made
  *   - null if gitSha is not given
  */
-export async function loadChanged({
+export async function loadByGitChanged({
   gitSha, // TODO: get default param from config, record
-  rootDir = configFileRootDir,
-}: LoadChangedOptions) {
+  rootDir = getConfigDirnameFromEnvVar(),
+}: LoadByGitChangedOptions) {
   if (!gitSha) {
     return null
   }
@@ -42,5 +42,6 @@ export async function loadChanged({
 
 // ;(async (): Promise<void> => {
 // TODO: git submodule test
+// TODO: memoization
 //   console.log(await loadChanged({ gitSha: '3f8b7b9' }))
 // })()

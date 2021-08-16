@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "globby": "^11",
-    "@haetae/config": "0.0.1"
+    "@haetae/core": "0.0.1"
   },
   "devDependencies": {}
 }

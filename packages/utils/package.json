@@ -20,8 +20,10 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "dependency-tree": "^8.1.1",
-    "@haetae/config": "0.0.1"
+    "@haetae/core": "0.0.1",
+    "dependency-tree": "^8.1.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "utility-types": "^3.10.0"
+  }
 }

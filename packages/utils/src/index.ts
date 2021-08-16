@@ -1,4 +1,4 @@
-import { configFileRootDir } from '@haetae/config'
+import { getConfigDirnameFromEnvVar } from '@haetae/core'
 import path from 'path'
 import fs from 'fs'
 
@@ -12,7 +12,7 @@ export interface DependsOnOptions {
 
 export async function dependsOn(
   filenames: readonly string[],
-  { tsConfig, rootDir = configFileRootDir }: DependsOnOptions = {},
+  { tsConfig, rootDir = getConfigDirnameFromEnvVar() }: DependsOnOptions = {},
 ) {
   // default option.tsConfig if exists
   if (fs.existsSync(path.join(rootDir, 'tsconfig.json'))) {
@@ -26,7 +26,6 @@ export async function dependsOn(
       filename: target,
       tsConfig,
     })
-    console.log(deepDepsList)
     for (const filename of filenames) {
       if (deepDepsList.includes(filename)) {
         return true
