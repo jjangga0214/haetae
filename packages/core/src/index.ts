@@ -6,6 +6,7 @@ import serialize from 'serialize-javascript'
 import { DeepRequired } from 'utility-types'
 import fs from 'fs'
 import deepEqual from 'deep-equal'
+import { version } from '../package.json'
 
 export const defaultConfigFile = 'haetae.config.js'
 
@@ -40,6 +41,8 @@ export interface HaetaeRecord {
   }
 }
 
+type HaetaePreRecord = Omit<HaetaeRecord, 'time' | 'env'>
+
 export interface HaetaeStore {
   version: string
   commands: {
@@ -48,14 +51,13 @@ export interface HaetaeStore {
 }
 
 export interface SubCommandTargetOptions {
-  prevRecord: HaetaeRecord
+  prevRecord?: HaetaeRecord
 }
 export interface SubCommandEnvOptions {
-  prevRecord: HaetaeRecord
   haetaeVersion: string
 }
 export interface SubCommandSaveOptions {
-  prevRecord: HaetaeRecord
+  prevRecord?: HaetaeRecord
 }
 export interface HaetaeConfig {
   commands: {
@@ -66,7 +68,7 @@ export interface HaetaeConfig {
       ) => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
       save: (
         options: SubCommandSaveOptions,
-      ) => HaetaeRecord | Promise<HaetaeRecord>
+      ) => HaetaePreRecord | Promise<HaetaePreRecord>
     }
   }
   storeFile?: string
@@ -87,7 +89,7 @@ export const defaultSubCommandEnv = ({
  * @param haetaeConfig: config object provided from user. The function will fill out default values if not already configured..
  * @returns
  */
-export function config(haetaeConfig: HaetaeConfig) {
+export function config(haetaeConfig: HaetaeConfig): DeepRequired<HaetaeConfig> {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   // eslint-disable-next-line no-param-reassign
@@ -114,14 +116,16 @@ export function config(haetaeConfig: HaetaeConfig) {
 }
 
 export interface GetConfigOptions {
-  filename: string // config file path
+  filename?: string // config file path
 }
 
 /**
  * @memoized
  */
-export const getHaetaeConfig = memoizee(
-  async ({ filename = getConfigFilenameFromEnvVar() }: GetConfigOptions) => {
+export const getConfig = memoizee(
+  async ({
+    filename = getConfigFilenameFromEnvVar(),
+  }: GetConfigOptions = {}) => {
     const userConfig = await import(filename)
     return config(userConfig)
   },
@@ -135,6 +139,7 @@ export interface GetStoreOptions {
 }
 
 /**
+ * @throw if the file does not exist
  * @memoized
  */
 export const getStore = memoizee(
@@ -169,7 +174,7 @@ export interface GetRecordByEnvOptions extends GetRecordsOptions {
 export async function getRecordByEnv({
   command,
   env,
-  store,
+  store = getStore(),
 }: GetRecordByEnvOptions): Promise<HaetaeRecord | undefined> {
   const records = await getRecords({ command, store })
   for (const record of records) {
@@ -180,18 +185,128 @@ export async function getRecordByEnv({
   return undefined
 }
 
-// async function main() {
-//   console.log(await getStore())
-//   console.log(await getRecords({ command: 'test' }))
-//   console.log(
-//     await getRecordByEnv({
-//       command: 'test',
-//       env: {
-//         os: 'darwin',
-//         haetaeVersion: '0.0.1',
-//       },
-//     }),
-//   )
-// }
+export interface InvokeEnvOptions {
+  command: string
+  config?: DeepRequired<HaetaeConfig> | Promise<DeepRequired<HaetaeConfig>>
+}
 
-// main()
+export async function invokeEnv({
+  command,
+  config = getConfig(),
+}: InvokeEnvOptions) {
+  return (await config)?.commands[command]?.env({ haetaeVersion: version })
+}
+export interface InvokeTargetOrSaveOptions {
+  command: string
+  config?: DeepRequired<HaetaeConfig> | Promise<DeepRequired<HaetaeConfig>>
+  store?: HaetaeStore | Promise<HaetaeStore>
+  env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv> // current env
+}
+
+type InvokeTargetOptions = InvokeTargetOrSaveOptions
+
+export async function invokeTarget({
+  command,
+  env,
+  store = getStore(),
+  config = getConfig(),
+}: InvokeTargetOptions) {
+  const prevRecord = await getRecordByEnv({
+    command,
+    env: (await env) || (await invokeEnv({ command, config })),
+    store,
+  })
+  return (await config).commands[command].target({
+    prevRecord,
+  })
+}
+
+export type InvokeSaveOptions = InvokeTargetOrSaveOptions
+
+export async function invokeSave({
+  command,
+  env,
+  store = getStore(),
+  config = getConfig(),
+}: InvokeSaveOptions) {
+  const prevRecord = await getRecordByEnv({
+    command,
+    env: (await env) || (await invokeEnv({ command, config })),
+    store,
+  })
+  return (await config).commands[command].save({
+    prevRecord,
+  })
+}
+
+export interface MapStoreOptions extends InvokeTargetOptions {
+  record: HaetaePreRecord | Promise<HaetaePreRecord>
+}
+
+/**
+ * This creates a new store from previous store
+ * The term map is coined from map function
+ */
+export async function mapStore({
+  command,
+  env,
+  record,
+  store,
+  config = getConfig(),
+}: MapStoreOptions) {
+  const newStore: HaetaeStore = await (async () => {
+    try {
+      return (await store) || (await getStore())
+    } catch (error) {
+      // When there is no store.
+      return {
+        version,
+        commands: {
+          [command]: [],
+        },
+      }
+    }
+  })()
+  const currentEnv = (await env) || (await invokeEnv({ command, config }))
+  const preRecord =
+    (await record) || (await invokeSave({ command, env, store, config }))
+
+  const newRecord: HaetaeRecord = {
+    ...preRecord,
+    time: new Date().toISOString(),
+    env: currentEnv,
+  }
+
+  newStore.version = version
+  newStore.commands[command] = newStore.commands[command] || []
+
+  for (let index = 0; index < newStore.commands[command].length; index += 1) {
+    const prevRecord = newStore.commands[command][index]
+    if (deepEqual(currentEnv, prevRecord.env)) {
+      newStore.commands[command][index] = newRecord
+      return newStore
+    }
+  }
+  newStore.commands[command].push(newRecord)
+  return newStore
+}
+
+async function main() {
+  // console.log(
+  //   await getStore({
+  //     filename: '/media/jjangga/SHARE/haetae/packages/core2/haetae.json',
+  //   }),
+  // )
+  // console.log(await getRecords({ command: 'test' }))
+  // console.log(
+  //   await getRecordByEnv({
+  //     command: 'test',
+  //     env: {
+  //       os: 'darwin',
+  //       haetaeVersion: '0.0.1',
+  //     },
+  //   }),
+  // )
+}
+
+main()

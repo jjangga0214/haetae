@@ -1,10 +1,10 @@
 import path from 'path'
-import { getHaetaeConfig, getStore } from '@haetae/core'
+import { getConfig, getStore } from '#core'
 
 describe('index', () => {
   it('getConfig', async () => {
     expect.hasAssertions()
-    const config = await getHaetaeConfig({
+    const config = await getConfig({
       filename: path.join(__dirname, 'haetae.config.example.js'),
     })
 
