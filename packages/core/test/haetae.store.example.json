@@ -5,7 +5,7 @@
       {
         "time": "2021-08-16T08:59:07.409Z",
         "env": {
-          "haetaeVersion": "0.0.1",
+          "coreVersion": "0.0.1",
           "os": "darwin"
         },
         "@haetae/loader-git": {
@@ -15,7 +15,7 @@
       {
         "time": "2021-08-16T08:49:07.409Z",
         "env": {
-          "haetaeVersion": "0.0.1",
+          "coreVersion": "0.0.1",
           "os": "linux"
         },
         "@haetae/loader-git": {
@@ -26,7 +26,9 @@
     "lint": [
       {
         "time": "2021-08-16T08:41:21.501Z",
-        "env": {},
+        "env": {
+          "coreVersion": "0.0.1"
+        },
         "@haetae/loader-git": {
           "gitSha": "080bdea"
         }
