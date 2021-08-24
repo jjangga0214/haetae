@@ -12,15 +12,15 @@ describe('index', () => {
       },
     )
 
-    const foo = predicate(
+    const fooResult = predicate(
       path.join(rootDir, 'packages', 'foo', 'test', 'unit', 'index.test.ts'),
     )
 
-    expect(foo).toStrictEqual(false)
+    expect(fooResult).toStrictEqual(false)
 
-    const bar = predicate(
+    const barResult = predicate(
       path.join(rootDir, 'packages', 'bar', 'test', 'unit', 'index.test.ts'),
     )
-    expect(bar).toStrictEqual(true)
+    expect(barResult).toStrictEqual(true)
   })
 })

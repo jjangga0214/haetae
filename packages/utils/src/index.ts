@@ -34,33 +34,3 @@ export async function dependsOn(
     return false
   }
 }
-
-// TODO: unlink
-
-// async function main() {
-//   const rootDir = path.join(__dirname, '..', '..', '..', 'test-project')
-//   const filename = path.join(
-//     rootDir,
-//     'packages',
-//     'bar',
-//     'test',
-//     'unit',
-//     'index.test.ts',
-//   )
-//   const tsConfig = path.join(rootDir, 'tsconfig.json')
-//   const deepDepsList = dependencyTree.toList({
-//     directory: rootDir,
-//     filename,
-//     tsConfig,
-//   })
-//   console.log(rootDir)
-//   console.log(filename)
-//   console.log(tsConfig)
-//   console.log(deepDepsList)
-// }
-
-// main()
-
-// // /media/jjangga/SHARE/haetae/test-project
-// // /media/jjangga/SHARE/haetae/test-project/packages/bar/test/unit/index.test.ts
-// // /media/jjangga/SHARE/haetae/test-project/tsconfig.json
