@@ -1,5 +1,5 @@
 {
-  "name": "@haetae/loader-jest",
+  "name": "@haetae/jest",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
@@ -9,7 +9,7 @@
     "dist"
   ],
   "imports": {
-    "#loader-jest/*": {
+    "#jest/*": {
       "default": "./dist/*.js"
     }
   },
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "globby": "^11",
+    "@haetae/core": "0.0.1",
     "@haetae/utils": "0.0.1"
   },
   "devDependencies": {}

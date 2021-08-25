@@ -1,4 +1,6 @@
 import { loadByGlob } from '@haetae/utils'
+import { getConfigDirnameFromEnvVar } from '@haetae/core'
+
 import path from 'path'
 
 interface LoadByJestGlobOptions {
@@ -10,20 +12,33 @@ interface LoadByJestGlobOptions {
  * It falls back to jest's default testMatch if it's not found in jest.config.js
  */
 export async function loadByJestGlob(
-  configPath: string,
+  configFile: string,
   {
     onTestMatchNotFound = () => undefined,
     onTestPathIgnorePatternsNotFound = () => undefined,
   }: LoadByJestGlobOptions,
 ) {
-  if (!configPath.endsWith('.js')) {
+  if (!configFile) {
+    const defaultConfigFilenames = [
+      path.join(getConfigDirnameFromEnvVar(), 'jest.config.js'),
+      path.join(getConfigDirnameFromEnvVar(), 'jest.config.ts'),
+      path.join(getConfigDirnameFromEnvVar(), 'jest.config.cjs'),
+      path.join(getConfigDirnameFromEnvVar(), 'jest.config.mjs'),
+      path.join(getConfigDirnameFromEnvVar(), 'jest.config.json'),
+    ]
+    // todo: iterate various kinds of config files
+    // eslint-disable-next-line prefer-destructuring, no-param-reassign
+    configFile = defaultConfigFilenames[0]
+  }
+
+  if (!configFile.endsWith('.js')) {
     throw new Error(
       'jest configuration file\'s extension should be ".js". (e.g. jest.config.js)',
     )
   }
   // eslint-disable-next-line import/no-dynamic-require,global-require,@typescript-eslint/no-var-requires
-  const jestConfig = require(configPath)
-  const jestgetConfigDirnameFromEnvVar = path.dirname(configPath)
+  const jestConfig = require(configFile)
+  const jestgetConfigDirnameFromEnvVar = path.dirname(configFile)
   if (!jestConfig.testMatch) {
     onTestMatchNotFound()
   }
