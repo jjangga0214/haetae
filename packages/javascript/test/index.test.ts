@@ -1,5 +1,5 @@
 import path from 'path'
-import { dependsOn } from '#utils'
+import { dependsOn } from '#javascript'
 
 describe('index', () => {
   it('dependsOn', async () => {
