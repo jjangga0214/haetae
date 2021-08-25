@@ -7,6 +7,8 @@ import {
   HaetaeRecord,
   HaetaePreRecord,
 } from '@haetae/core'
+import { glob } from '@haetae/utils'
+
 import serialize from 'serialize-javascript'
 import fs from 'fs'
 
@@ -49,27 +51,25 @@ export const execAsync = (
     })
   })
 
-export interface LoadByGitChangedOptions {
+export interface ChangedFilesOptions {
   gitSha?: string | Promise<string>
   rootDir?: string
-  includeUntracked: boolean
+  includeUntracked?: boolean
+  fallback?: () => string[] | Promise<string[]>
 }
 
-type GitPatchedHaetaeRecord = HaetaeRecord & {
+export type GitPatchedHaetaeRecord = HaetaeRecord & {
   [name: string]: { gitSha: string }
 }
 
 /**
  * @returns
- *   - a array of changed file path.
+ *   - an array of changed filename.
  *   - an empth array if no change was made
- *   - null if gitSha is not given
- */
-
-/**
+ *   - every filenames if gitSha is not given
  * @memoized
  */
-export const loadByGitChanged = memoizee(
+export const changedFiles = memoizee(
   async ({
     gitSha = process.env.HAETAE_GIT_GITSHA ||
       getRecord().then(
@@ -77,14 +77,14 @@ export const loadByGitChanged = memoizee(
       ),
     rootDir = getConfigDirnameFromEnvVar(),
     includeUntracked = true,
-  }: LoadByGitChangedOptions): Promise<string[]> => {
-    if (!gitSha) {
-      // gitSha =
-      //   // Getting root(parentless) branch's initial commit
-      //   await execAsync('git rev-list --max-parents=0 HEAD', {
-      //     cwd: rootDir,
-      //   }).then((res) => res.trim())
-      // todo: glob(['**'])
+    fallback = () =>
+      // list of every files when gitSha is not given or cannot be found on record
+      glob(['**'], {
+        rootDir,
+      }),
+  }: ChangedFilesOptions = {}): Promise<string[]> => {
+    if (!(await gitSha)) {
+      return fallback()
     }
     const res = []
     if (includeUntracked) {
@@ -120,7 +120,7 @@ export const loadByGitChanged = memoizee(
   },
 )
 
-export interface RecordGitOptions {
+export interface RecordOptions {
   gitSha?: string | Promise<string>
   rootDir?: string
   includeUntracked: boolean
@@ -129,14 +129,14 @@ export interface RecordGitOptions {
 /**
  * @memoized
  */
-export const recordGit = memoizee(
+export const record = memoizee(
   async ({
     rootDir = getConfigDirnameFromEnvVar(),
     gitSha = process.env.HAETAE_GIT_GITSHA ||
       execAsync('git rev-parse --verify HEAD', { cwd: rootDir }).then((res) =>
         res.trim(),
       ),
-  }: RecordGitOptions): Promise<HaetaePreRecord> => {
+  }: RecordOptions): Promise<HaetaePreRecord> => {
     if (!gitSha) {
       throw new Error('gitSha is invalid.')
     }

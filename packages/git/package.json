@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@haetae/core": "0.0.1",
+    "@haetae/utils": "0.0.1",
     "memoizee": "^0.4.15",
     "serialize-javascript": "^6.0.0"
   },
