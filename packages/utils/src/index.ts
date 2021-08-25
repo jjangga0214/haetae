@@ -2,13 +2,13 @@ import globby from 'globby'
 import path from 'path'
 import { getConfigDirnameFromEnvVar } from '@haetae/core'
 
-interface LoadByGlobOptions {
+interface globOptions {
   rootDir?: string // This is a facade option for globbyOptions.cwd
   preConfiguredPatterns?: readonly string[]
   globbyOptions?: globby.GlobbyOptions
 }
 
-export async function loadByGlob(
+export async function glob(
   patterns: readonly string[],
   {
     rootDir = getConfigDirnameFromEnvVar(),
@@ -21,7 +21,7 @@ export async function loadByGlob(
       cwd: rootDir,
       gitignore: true,
     },
-  }: LoadByGlobOptions = {},
+  }: globOptions = {},
 ): Promise<string[]> {
   const globbyRes = await globby(
     [...(preConfiguredPatterns as readonly string[]), ...patterns],

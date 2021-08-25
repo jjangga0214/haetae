@@ -1,11 +1,11 @@
 import path from 'path'
-import { loadByGlob } from '@haetae/utils'
+import { glob } from '@haetae/utils'
 
 describe('index', () => {
-  it('loadByGlob', async () => {
+  it('glob', async () => {
     expect.hasAssertions()
     const rootDir = path.join(__dirname, '..', '..', '..', 'test-project')
-    const res = await loadByGlob(['**/*.test.ts'], {
+    const res = await glob(['**/*.test.ts'], {
       rootDir,
     })
 

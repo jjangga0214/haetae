@@ -1,4 +1,4 @@
-import { loadByGlob } from '@haetae/utils'
+import { glob } from '@haetae/utils'
 import { getConfigDirnameFromEnvVar } from '@haetae/core'
 
 import path from 'path'
@@ -69,7 +69,7 @@ export async function loadByJestGlob(
         .map((pattern) => `!${pattern}`),
     )
 
-  return loadByGlob(patterns, {
+  return glob(patterns, {
     rootDir: '',
   })
 }
