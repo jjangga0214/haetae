@@ -3,7 +3,7 @@ import { getConfigDirnameFromEnvVar } from '@haetae/core'
 
 import path from 'path'
 
-interface LoadByJestGlobOptions {
+export interface JestGlobOptions {
   onTestMatchNotFound: () => void
   onTestPathIgnorePatternsNotFound: () => void
 }
@@ -11,12 +11,12 @@ interface LoadByJestGlobOptions {
  * Reads "testMatch" field from jest.config.js
  * It falls back to jest's default testMatch if it's not found in jest.config.js
  */
-export async function loadByJestGlob(
+export async function jestTests(
   configFile: string,
   {
     onTestMatchNotFound = () => undefined,
     onTestPathIgnorePatternsNotFound = () => undefined,
-  }: LoadByJestGlobOptions,
+  }: JestGlobOptions,
 ) {
   if (!configFile) {
     const defaultConfigFilenames = [
