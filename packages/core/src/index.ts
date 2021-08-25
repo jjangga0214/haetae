@@ -15,13 +15,20 @@ export const { version } = (() => {
   return JSON.parse(content)
 })()
 
-let currentCommand = null
+let currentCommand: string | null = null
 
 export const setCurrentCommand = (command: string) => {
   currentCommand = command
 }
 
-export const getCurrentCommand = () => currentCommand
+export const getCurrentCommand = (): string => {
+  if (!currentCommand) {
+    throw new Error(
+      `currentCommand has invalid value or not set: ${currentCommand}`,
+    )
+  }
+  return currentCommand
+}
 
 export const defaultConfigFile = 'haetae.config.js'
 
