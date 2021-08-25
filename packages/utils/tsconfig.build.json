@@ -3,7 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "tsBuildInfoFile": "../../.build-cache/loader-glob.tsbuildinfo"
+    "tsBuildInfoFile": "../../.build-cache/utils.tsbuildinfo"
   },
   "include": ["src"],
   "references": [{ "path": "../core/tsconfig.build.json" }]

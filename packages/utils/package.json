@@ -1,5 +1,5 @@
 {
-  "name": "@haetae/loader-glob",
+  "name": "@haetae/utils",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
@@ -9,7 +9,7 @@
     "dist"
   ],
   "imports": {
-    "#loader-glob/*": {
+    "#glob/*": {
       "default": "./dist/*.js"
     }
   },

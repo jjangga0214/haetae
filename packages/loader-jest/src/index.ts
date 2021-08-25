@@ -1,4 +1,4 @@
-import { loadByGlob } from '@haetae/loader-glob'
+import { loadByGlob } from '@haetae/utils'
 import path from 'path'
 
 interface LoadByJestGlobOptions {
