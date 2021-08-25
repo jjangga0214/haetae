@@ -67,13 +67,13 @@ export interface HaetaeStore {
 }
 
 export interface SubCommandTargetOptions {
-  prevRecord?: HaetaeRecord | null
+  prevRecord?: HaetaeRecord | undefined
 }
 export interface SubCommandEnvOptions {
   coreVersion: string
 }
 export interface SubCommandSaveOptions {
-  prevRecord?: HaetaeRecord | null
+  prevRecord?: HaetaeRecord | undefined
 }
 
 export interface HaetaePreCommand {
@@ -257,14 +257,14 @@ export async function getRecord({
   command = getCurrentCommand(),
   env = invokeEnv({ command }),
   store = getStore(),
-}: GetRecordOptions = {}): Promise<HaetaeRecord | null> {
+}: GetRecordOptions = {}): Promise<HaetaeRecord | undefined> {
   const records = await getRecords({ command, store })
   for (const record of records) {
     if (deepEqual(env, record.env)) {
       return record
     }
   }
-  return null
+  return undefined
 }
 
 export interface InvokeTargetOrSaveOptions {
