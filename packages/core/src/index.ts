@@ -198,7 +198,7 @@ export interface GetStoreOptions {
   // It should be an absolute path
   filename?: string | Promise<string>
   // When there's no store file yet.
-  defaultStore?: HaetaeStore | Promise<HaetaeStore>
+  fallback?: () => HaetaeStore | Promise<HaetaeStore>
 }
 
 /**
@@ -208,13 +208,13 @@ export interface GetStoreOptions {
 export const getStore = memoizee(
   async ({
     filename = getConfig().then((config) => config.storeFile),
-    defaultStore = initNewStore(),
+    fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
     const resolvedFilename = await filename
     try {
       return import(resolvedFilename)
     } catch (error) {
-      return defaultStore
+      return fallback()
     }
   },
   {
