@@ -58,7 +58,7 @@ export type HaetaeRecordEnv = Record<string, unknown>
 export interface HaetaeRecord {
   time: string // ISO format
   env: HaetaeRecordEnv
-  // '@haetae/loader-git'?: {
+  // '@haetae/git'?: {
   //   gitSha: string
   // }
   [key: string]: unknown

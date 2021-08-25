@@ -1,5 +1,5 @@
 {
-  "name": "@haetae/loader-git",
+  "name": "@haetae/git",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
@@ -9,7 +9,7 @@
     "dist"
   ],
   "imports": {
-    "#loader-git/*": {
+    "#git/*": {
       "default": "./dist/*.js"
     }
   },

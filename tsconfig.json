@@ -7,7 +7,7 @@
     "baseUrl": "packages",
     "paths": {
       "@haetae/*": ["*/src"],
-      "#loader-git/*": ["loader-git/src/*"],
+      "#git/*": ["git/src/*"],
       "#utils/*": ["utils/src/*"],
       "#javascript/*": ["javascript/src/*"],
       "#core/*": ["core/src/*"],

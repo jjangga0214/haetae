@@ -8,7 +8,7 @@
           "coreVersion": "0.0.1",
           "os": "darwin"
         },
-        "@haetae/loader-git": {
+        "@haetae/git": {
           "gitSha": "3f8b7b9"
         }
       },
@@ -18,7 +18,7 @@
           "coreVersion": "0.0.1",
           "os": "linux"
         },
-        "@haetae/loader-git": {
+        "@haetae/git": {
           "gitSha": "77c033b"
         }
       }
@@ -29,7 +29,7 @@
         "env": {
           "coreVersion": "0.0.1"
         },
-        "@haetae/loader-git": {
+        "@haetae/git": {
           "gitSha": "080bdea"
         }
       }
