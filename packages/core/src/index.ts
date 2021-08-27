@@ -37,7 +37,7 @@ export const defaultConfigFile = 'haetae.config.js'
  */
 export const getConfigFilenameFromEnvVar = memoizee((): string => {
   const pathValue = process.env.HAETAE_CONFIG_FILE as string
-  assert(pathValue, '$HAETAE_CONFIG_FILE is invalid')
+  assert(pathValue, '$HAETAE_CONFIG_FILE is not given.')
   try {
     if (fs.statSync(pathValue).isDirectory()) {
       const filename = path.join(pathValue as string, defaultConfigFile)
@@ -99,6 +99,7 @@ export interface HaetaePreConfig<Command = HaetaePreCommand> {
   commands: {
     [command: string]: Command
   }
+  // It should be an absolute or relative path (relative to config file path)
   storeFile?: string
 }
 
@@ -159,8 +160,18 @@ export const getConfig = memoizee(
   async ({
     filename = getConfigFilenameFromEnvVar(),
   }: GetConfigOptions = {}): Promise<HaetaeConfig> => {
-    const resolvedFilename = await filename
-    const preConfigFromFile = await import(resolvedFilename)
+    let configFilename = await filename
+    try {
+      if (fs.statSync(configFilename).isDirectory()) {
+        configFilename = path.join(configFilename, defaultConfigFile)
+      }
+    } catch (error) {
+      throw new Error(
+        `Config filename is given as "${configFilename}", but it does not exist.`,
+      )
+    }
+
+    const preConfigFromFile = await import(configFilename)
     const preConfig: HaetaePreConfig = configure(preConfigFromFile)
     for (const command in preConfig.commands) {
       if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
@@ -172,14 +183,20 @@ export const getConfig = memoizee(
     if (!preConfig.storeFile) {
       // It becomes an absolute path, as path.dirname(filename) is also an absolute path.
       preConfig.storeFile = getDefaultStoreFilename(
-        path.dirname(resolvedFilename),
+        path.dirname(configFilename),
       )
     }
 
     if (!path.isAbsolute(preConfig.storeFile)) {
       preConfig.storeFile = path.join(
-        path.dirname(resolvedFilename),
+        path.dirname(configFilename),
         preConfig.storeFile,
+      )
+    }
+
+    if (!preConfig.storeFile.endsWith('.json')) {
+      preConfig.storeFile = getDefaultStoreFilename(
+        path.dirname(preConfig.storeFile),
       )
     }
 
@@ -195,8 +212,7 @@ export function initNewStore(): HaetaeStore {
 }
 
 export interface GetStoreOptions {
-  // It should be an absolute path
-  filename?: string | Promise<string>
+  config?: HaetaeConfig | Promise<HaetaeConfig>
   // When there's no store file yet.
   fallback?: () => HaetaeStore | Promise<HaetaeStore>
 }
@@ -207,10 +223,10 @@ export interface GetStoreOptions {
  */
 export const getStore = memoizee(
   async ({
-    filename = getConfig().then((config) => config.storeFile),
+    config = getConfig(),
     fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
-    const resolvedFilename = await filename
+    const resolvedFilename = (await config).storeFile
     try {
       return import(resolvedFilename)
     } catch (error) {
@@ -249,7 +265,7 @@ export const invokeEnv = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: InvokeEnvOptions = {}) =>
+  }: InvokeEnvOptions = {}): Promise<HaetaeRecordEnv> =>
     (await config)?.commands[await command]?.env({ coreVersion: version }),
   {
     normalizer: serialize,
@@ -290,9 +306,9 @@ export const invokeTarget = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-    store = getStore(),
+    store = getStore({ config }),
     env = invokeEnv({ command, config }),
-  }: InvokeTargetOptions = {}) => {
+  }: InvokeTargetOptions = {}): Promise<string[]> => {
     const prevRecord = await getRecord({
       command,
       env: (await env) || (await invokeEnv({ command, config })),
@@ -316,9 +332,9 @@ export const invokeSave = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-    store = getStore(),
+    store = getStore({ config }),
     env = invokeEnv({ command, config }),
-  }: InvokeSaveOptions = {}) => {
+  }: InvokeSaveOptions = {}): Promise<HaetaePreRecord> => {
     const prevRecord = await getRecord({
       command,
       env,
@@ -333,9 +349,25 @@ export const invokeSave = memoizee(
   },
 )
 
-export interface MapStoreOptions extends InvokeTargetOrSaveOptions {
+export interface MapRecordOptions {
+  env: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
   // "pre" is different from "prev", which means "previous". Instead, "pre" means "given from user's config", so default values should be filled in."
-  preRecord?: HaetaePreRecord | Promise<HaetaePreRecord>
+  preRecord: HaetaePreRecord | Promise<HaetaePreRecord>
+}
+
+export async function mapRecord({
+  env,
+  preRecord,
+}: MapRecordOptions): Promise<HaetaeRecord> {
+  return {
+    time: new Date().toISOString(),
+    env: await env,
+    ...(await preRecord),
+  }
+}
+
+export interface MapStoreOptions extends InvokeTargetOrSaveOptions {
+  record?: HaetaeRecord | Promise<HaetaeRecord>
 }
 
 /**
@@ -345,15 +377,13 @@ export interface MapStoreOptions extends InvokeTargetOrSaveOptions {
 export async function mapStore({
   command = getCurrentCommand(),
   config = getConfig(),
-  store = getStore(),
+  store = getStore({ config }),
   env = invokeEnv({ command, config }),
-  preRecord = invokeSave({ command, env, store, config }),
+  record = mapRecord({
+    env,
+    preRecord: invokeSave({ command, env, store, config }),
+  }),
 }: MapStoreOptions = {}) {
-  const newRecord: HaetaeRecord = {
-    time: new Date().toISOString(),
-    env: await env,
-    ...preRecord,
-  }
   // todo: deep copy the store
   // eslint-disable-next-line no-param-reassign
   store = await store
@@ -370,22 +400,23 @@ export async function mapStore({
     const prevRecord = store.commands[await command][index]
     if (deepEqual(await env, prevRecord.env)) {
       // eslint-disable-next-line no-param-reassign
-      store.commands[await command][index] = newRecord
+      store.commands[await command][index] = await record
       return store
     }
   }
-  store.commands[await command].push(newRecord)
+  store.commands[await command].push(await record)
   return store
 }
 
 export interface SaveStoreOptions {
   store: HaetaeStore
-  filename?: string
+  config?: HaetaeConfig | Promise<HaetaeConfig>
 }
 
 export async function saveStore({
   store,
-  filename = getDefaultStoreFilename(),
+  config = getConfig(),
 }: SaveStoreOptions) {
-  fs.writeFileSync(filename, JSON.stringify(store, null, 2))
+  fs.writeFileSync((await config).storeFile, JSON.stringify(store, null, 2))
+  getStore.clear() // memoization cache clear
 }
