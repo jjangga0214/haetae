@@ -99,6 +99,8 @@ export interface HaetaePreConfig<Command = HaetaePreCommand> {
   commands: {
     [command: string]: Command
   }
+  // maxLimit?: number // Infinity
+  // maxAge?: number // Infinity
   // It should be an absolute or relative path (relative to config file path)
   storeFile?: string
 }
@@ -172,6 +174,7 @@ export const getConfig = memoizee(
     }
 
     const preConfigFromFile = await import(configFilename)
+    delete preConfigFromFile.default
     const preConfig: HaetaePreConfig = configure(preConfigFromFile)
     for (const command in preConfig.commands) {
       if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
@@ -228,7 +231,9 @@ export const getStore = memoizee(
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
     const resolvedFilename = (await config).storeFile
     try {
-      return import(resolvedFilename)
+      const store = await import(resolvedFilename)
+      delete store.default
+      return store
     } catch (error) {
       return fallback()
     }
@@ -417,6 +422,9 @@ export async function saveStore({
   store,
   config = getConfig(),
 }: SaveStoreOptions) {
-  fs.writeFileSync((await config).storeFile, JSON.stringify(store, null, 2))
+  fs.writeFileSync(
+    (await config).storeFile,
+    `${JSON.stringify(store, null, 2)}\n`, // trailing empty line
+  )
   getStore.clear() // memoization cache clear
 }
