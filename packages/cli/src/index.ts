@@ -103,7 +103,7 @@ async function main() {
                     store: newStore,
                     config,
                   })
-                  const record = getRecord({
+                  const record = await getRecord({
                     env: await invokeEnv({ config }),
                     store: getStore({ config }),
                   })
