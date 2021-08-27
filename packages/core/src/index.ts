@@ -50,6 +50,7 @@ export const getConfigFilenameFromEnvVar = memoizee((): string => {
   }
 })
 
+// todo: set/get current config dirname
 export const getConfigDirnameFromEnvVar = () =>
   path.dirname(getConfigFilenameFromEnvVar())
 
@@ -250,7 +251,7 @@ export interface GetRecordsOptions {
 export async function getRecords({
   command = getCurrentCommand(),
   store = getStore(),
-}: GetRecordsOptions = {}): Promise<HaetaeRecord[]> {
+}: GetRecordsOptions = {}): Promise<HaetaeRecord[] | undefined> {
   return (await store).commands[await command]
 }
 
@@ -287,11 +288,14 @@ export async function getRecord({
   store = getStore(),
 }: GetRecordOptions = {}): Promise<HaetaeRecord | undefined> {
   const records = await getRecords({ command, store })
-  for (const record of records) {
-    if (deepEqual(env, record.env)) {
-      return record
+  if (records) {
+    for (const record of records) {
+      if (deepEqual(env, record.env)) {
+        return record
+      }
     }
   }
+
   return undefined
 }
 
