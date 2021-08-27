@@ -8,9 +8,10 @@ import {
   HaetaePreRecord,
 } from '@haetae/core'
 import { glob } from '@haetae/utils'
-
 import serialize from 'serialize-javascript'
 import fs from 'fs'
+
+// todo: git submodule test
 
 export const { name } = (() => {
   const content = fs.readFileSync(
@@ -151,8 +152,13 @@ export const record = memoizee(
   },
 )
 
-// ;(async (): Promise<void> => {
-// TODO: git submodule test
-// TODO: memoization
-//   console.log(await loadChanged({ gitSha: '3f8b7b9' }))
-// })()
+interface BranchOptions {
+  rootDir?: string
+}
+
+export const branch = memoizee(
+  async ({ rootDir = getConfigDirnameFromEnvVar() }: BranchOptions = {}) =>
+    execAsync('git branch --show-current', {
+      cwd: rootDir,
+    }),
+)
