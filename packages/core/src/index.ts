@@ -34,7 +34,7 @@ export const defaultConfigFile = 'haetae.config.js'
 
 let configFilename: string | undefined
 
-export const setConfigFilename = (filename: string) => {
+export const setConfigFilename = (filename: string | undefined) => {
   configFilename = filename
 }
 

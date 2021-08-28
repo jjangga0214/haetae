@@ -1,3 +1,10 @@
-import { exec } from './index'
+import { createCommanderProgram } from './index'
 
-exec()
+async function main() {
+  const program = await createCommanderProgram()
+  if (program) {
+    program.parse(process.argv)
+  }
+}
+
+main()

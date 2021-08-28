@@ -1,6 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { program } from 'commander'
+import { createCommand } from 'commander'
+import yargs from 'yargs/yargs'
+import { hideBin } from 'yargs/helpers'
+
 import {
   setCurrentCommand,
   setConfigFilename,
@@ -22,72 +25,43 @@ export const { version } = (() => {
   return JSON.parse(content)
 })()
 
-export async function exec() {
-  program
-    .name('haetae')
-    .version(version, '-v, --version', 'Show the version.')
-    .helpOption('-h, --help', 'Show helpful descriptions.')
-    .usage(
-      // '[root options] <command> [command options] [<subcommand> [subcommand options]]',
-      '[options] <command> [<subcommand>]',
-    )
-    .description(
-      [
-        'Incremental test, lint, build and more.',
-        'For any languages, platforms, and frameworks.',
-        'The CLI dynamically (at runtime) produces commands and subcommands by your config file.',
-      ].join('\n'),
-      // chalk`{blue hello}`,
-    )
-    .option(
-      '-c, --config <path>',
-      'Config file directory or filename. It can be relative or absolute. (default: $HAETAE_CONFIG_FILE or ./haetae.config.js)',
-    )
-    .option(
-      '-j, --json',
-      "Format output to json if possible. This doesn't affect to commands which has fixed format, or already json format.",
-      false,
-    )
-    .option(
-      '--no-color',
-      'Disable colorized (e.g. red for error) / decorated (e.g. bold text) output.',
-      false,
-    )
-    .addHelpText(
-      'after',
-      [
-        '\nExamples:',
-        '  $ haetae store',
-        '  $ haetae --config /path/to/haetae.config.js test records # [NOTE] "records" is plural.',
-        '  $ haetae --no-color lint record  # [NOTE] "record" is singular.',
-        '  $ haetae --json test target',
-        '  $ HAETAE_CONFIG_FILE=/path/to/haetae.config.js haetae lint save',
-        '  $ haetae build env',
-        '  $ haetae help test',
-      ].join('\n'),
-    )
+export async function createCommanderProgram() {
+  /**
+   * The CLI should be dynamically created by reading config file,
+   * whose path is given by `--config` option from the user.
+   * For commander, in order to read any options from user,
+   * `program.parse(process.argv)` should be called.
+   * However, it has side effect, thus is not proper to invoke before finishing building the CLI.
+   * Hence, hereby yargs is used for getting root options (e.g. `--config`),
+   * which does not have a side effect.
+   * Maybe, in future, we might consider replacing commander by yargs entirely.
+   * However, the CLI is already written with commander,
+   * so it's not one of priorities, and may not be needed at all.
+   */
+  const rootOptions = {
+    config: undefined,
+    json: false,
+    color: true,
+    ...yargs(hideBin(process.argv))
+      .alias('c', 'config')
+      .alias('j', 'json')
+      .help(false) // Needed for yargs not to catch --help option before commander gets it.
+      .version(false).argv, // Needed for yargs not to catch --version option before commander gets it.
+  }
 
-  // .option(
-  //   '-s, --store <path>',
-  //   'Store file directory or filename. It can be relative or absolute.',
-  //   'haetae.store.json',
-  // )
+  // program.parse(process.argv) // DO NOT call this to get rootOptions. Instead, use yargs.
 
-  program.parse(process.argv)
-  const rootOptions = program.opts()
   process.env.FORCE_COLOR = rootOptions.color ? '3' : '0'
   // `chalk` (https://www.npmjs.com/package/chalk) use $FORCE_COLOR
   // `chalk` should be dynamically imported after setting process.env.FORCE_COLOR
   const chalk = (await import('chalk')).default
 
-  // program.parse(process.argv)
   const config = await (async () => {
     try {
-      setConfigFilename(rootOptions.config) // update
+      setConfigFilename(rootOptions.config as string | undefined) // update config filename
       // We need to await to catch error even if retuning a Promise.
       return await getConfig()
     } catch (error) {
-      console.error(error)
       return undefined
     }
   })()
@@ -103,10 +77,63 @@ export async function exec() {
     }
     return
   }
+  const program = createCommand('haetae')
+    // program
+    // .name('haetae')
+    .version(version, '-v, --version', 'Show the version.')
+    .usage(
+      // '[root options] <command> [command options] [<subcommand> [subcommand options]]',
+      '[options] <command> [options] [<subcommand> [options]]',
+    )
+    .description(
+      [
+        chalk`Incremental test, lint, build and more.`,
+        chalk`For any languages, platforms, and frameworks.`,
+        chalk`{blue.bold The CLI dynamically (at runtime) produces commands and subcommands by your config file.}`,
+      ].join('\n'),
+    )
+    .option(
+      '-c, --config <path>',
+      'Config file directory or filename. It can be relative or absolute. (default: $HAETAE_CONFIG_FILE or ./haetae.config.js)',
+    )
+    .option(
+      '-j, --json',
+      "Format output to json if possible. This doesn't affect to commands which has fixed format, or already json format.",
+      false,
+    )
+    .option(
+      '--no-color',
+      'Disable colorized (e.g. red for error) / decorated (e.g. bold text) output.',
+      false,
+    )
+    .helpOption('-h, --help', 'Show helpful descriptions.')
+    .addHelpText(
+      'after',
+      [
+        '\nRepo for any issues, questions and contribution(\u{1f496}):',
+        chalk`{green   https://github.com/jjangga0214/haetae}`,
+      ].join('\n'),
+    )
+    .addHelpText(
+      'after',
+      [
+        chalk`\nExamples:`,
+        chalk`  $ haetae store`,
+        chalk`  $ haetae --config /path/to/haetae.config.js test records {dim.bold # [NOTE] "records" is plural.}`,
+        chalk`  $ haetae --no-color lint record  {dim.bold # [NOTE] "record" is singular.}`,
+        chalk`  $ haetae test target | jest {dim.bold # [NOTE] pipeline to your test runner}`,
+        chalk`  $ haetae lint target | eslint {dim.bold # [NOTE] pipeline to your linter/formatter}`,
+        chalk`  $ haetae --json test target | your-json-operator | your-test-runner`,
+        chalk`  $ haetae build env`,
+        chalk`  $ haetae lint save`,
+        chalk`  $ haetae build --help`,
+      ].join('\n'),
+    )
+    .addHelpCommand(false) // `help` command can be replaced by `--help` option.
 
   program
     .command('store')
-    .description('show content of store file')
+    .description('Show content of store file.')
     .action(async () => {
       console.log(JSON.stringify(await getStore({ config }), null, 2))
     })
@@ -115,7 +142,8 @@ export async function exec() {
     if (Object.prototype.hasOwnProperty.call(config.commands, command)) {
       const cmd = program
         .command(command)
-        .description('user-defined command from config')
+        .description('User-defined command from config.')
+        .addHelpCommand(false) // `help` command can be replaced by `--help` option.
       for (const subCommand in config.commands[command]) {
         if (
           Object.prototype.hasOwnProperty.call(
@@ -125,25 +153,34 @@ export async function exec() {
         ) {
           const subCmd = cmd.command(subCommand)
           if (subCommand === 'env') {
-            subCmd.description('show current env object').action(async () => {
+            subCmd.description('Show current env object.').action(async () => {
               setCurrentCommand(command)
               const env = await invokeEnv({ config })
               console.log(JSON.stringify(env, null, 2))
             })
           } else if (subCommand === 'target') {
-            subCmd.description('show targets').action(async () => {
-              setCurrentCommand(command)
-              const targets = await invokeTarget({ config })
-              if (rootOptions.json) {
-                console.log(JSON.stringify(targets, null, 2))
-              } else {
-                console.log(targets.join('\n'))
-              }
-            })
+            subCmd.description('Show targets.').action(
+              async (
+                _,
+                {
+                  parent: {
+                    parent: { options: rootOptions },
+                  },
+                },
+              ) => {
+                setCurrentCommand(command)
+                const targets = await invokeTarget({ config })
+                if (rootOptions.json) {
+                  console.log(JSON.stringify(targets, null, 2))
+                } else {
+                  console.log(targets.join('\n'))
+                }
+              },
+            )
           } else if (subCommand === 'save') {
             subCmd
               .description(
-                'save a new record to store file and show the new record',
+                'Save a new record to store file and show the new record.',
               )
               .action(async () => {
                 setCurrentCommand(command)
@@ -156,48 +193,80 @@ export async function exec() {
                 console.log(JSON.stringify(record, null, 2))
               })
           }
+          // todo: execute arbitrary commands
+          // todo: sync docs
+          // else {
+          //   subCmd
+          //     .description('User-defined subcommand from config.')
+          //     .action(async () => {
+          //       setCurrentCommand(command)
+          //       const res = await config.commands[command][subCommand]()
+          //       console.log(JSON.stringify(res, null, 2))
+          //     })
+          // }
         }
       } // end for loop
       cmd
         .command('records')
-        .description('print every records of given command.')
-        .action(async () => {
-          setCurrentCommand(command)
-          const records = await getRecords()
-          if (!records) {
-            const message = 'Not found from the store file.'
-            if (rootOptions.json) {
-              console.log(JSON.stringify({ result: 'error', message }, null, 2))
+        .description('Show every records of given command.')
+        .action(
+          async (
+            _,
+            {
+              parent: {
+                parent: { options: rootOptions },
+              },
+            },
+          ) => {
+            setCurrentCommand(command)
+            const records = await getRecords()
+            if (!records) {
+              const message = 'Not found from the store file.'
+              if (rootOptions.json) {
+                console.log(
+                  JSON.stringify({ result: 'error', message }, null, 2),
+                )
+              } else {
+                console.log(chalk`{blue [INFO]} ${message}`)
+              }
             } else {
-              console.log(chalk`{blue [INFO]} ${message}`)
+              console.log(JSON.stringify(records, null, 2))
             }
-          } else {
-            console.log(JSON.stringify(records, null, 2))
-          }
-        })
+          },
+        )
       cmd
         .command('record')
-        .description('show record of given command and current env')
-        .action(async () => {
-          setCurrentCommand(command)
-          const env = await invokeEnv({ config })
-          const record = await getRecord({
-            env,
-          })
-          if (!record) {
-            const message = 'Not found from the store file.'
-            if (rootOptions.json) {
-              console.log(JSON.stringify({ result: 'error', message }, null, 2))
+        .description('Show record of given command and current env.')
+        .action(
+          async (
+            _,
+            {
+              parent: {
+                parent: { options: rootOptions },
+              },
+            },
+          ) => {
+            setCurrentCommand(command)
+            const env = await invokeEnv({ config })
+            const record = await getRecord({
+              env,
+            })
+            if (!record) {
+              const message = 'Not found from the store file.'
+              if (rootOptions.json) {
+                console.log(
+                  JSON.stringify({ result: 'error', message }, null, 2),
+                )
+              } else {
+                console.log(chalk`{blue [INFO]} ${message}`)
+              }
             } else {
-              console.log(chalk`{blue [INFO]} ${message}`)
+              console.log(JSON.stringify(record, null, 2))
             }
-          } else {
-            console.log(JSON.stringify(record, null, 2))
-          }
-        })
+          },
+        )
     }
   }
 
-  program.parse(process.argv)
   return program
 }
