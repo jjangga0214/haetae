@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createCommanderProgram } from './index'
 
 async function main() {
