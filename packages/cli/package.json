@@ -15,7 +15,7 @@
     }
   },
   "bin": {
-    "haetae": "./dist/index.js"
+    "haetae": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",

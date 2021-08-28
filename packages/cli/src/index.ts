@@ -22,7 +22,7 @@ export const { version } = (() => {
   return JSON.parse(content)
 })()
 
-async function main() {
+export async function exec() {
   program
     .name('haetae')
     .version(version, '-v, --version', 'Show the version.')
@@ -74,8 +74,8 @@ async function main() {
   // )
 
   program.parse(process.argv)
-  const options = program.opts()
-  process.env.FORCE_COLOR = options.color ? '3' : '0'
+  const rootOptions = program.opts()
+  process.env.FORCE_COLOR = rootOptions.color ? '3' : '0'
   // `chalk` (https://www.npmjs.com/package/chalk) use $FORCE_COLOR
   // `chalk` should be dynamically imported after setting process.env.FORCE_COLOR
   const chalk = (await import('chalk')).default
@@ -83,7 +83,7 @@ async function main() {
   // program.parse(process.argv)
   const config = await (async () => {
     try {
-      setConfigFilename(options.config) // update
+      setConfigFilename(rootOptions.config) // update
       // We need to await to catch error even if retuning a Promise.
       return await getConfig()
     } catch (error) {
@@ -96,7 +96,7 @@ async function main() {
 
   if (!config) {
     const message = 'Config file is not given.'
-    if (options.json) {
+    if (rootOptions.json) {
       console.error(JSON.stringify({ result: 'error', message }, null, 2))
     } else {
       console.error(chalk`{red [ERROR]} ${message}`)
@@ -134,10 +134,10 @@ async function main() {
             subCmd.description('show targets').action(async () => {
               setCurrentCommand(command)
               const targets = await invokeTarget({ config })
-              if (!options.json) {
-                console.log(targets.join('\n'))
-              } else {
+              if (rootOptions.json) {
                 console.log(JSON.stringify(targets, null, 2))
+              } else {
+                console.log(targets.join('\n'))
               }
             })
           } else if (subCommand === 'save') {
@@ -166,7 +166,7 @@ async function main() {
           const records = await getRecords()
           if (!records) {
             const message = 'Not found from the store file.'
-            if (options.json) {
+            if (rootOptions.json) {
               console.log(JSON.stringify({ result: 'error', message }, null, 2))
             } else {
               console.log(chalk`{blue [INFO]} ${message}`)
@@ -186,7 +186,7 @@ async function main() {
           })
           if (!record) {
             const message = 'Not found from the store file.'
-            if (options.json) {
+            if (rootOptions.json) {
               console.log(JSON.stringify({ result: 'error', message }, null, 2))
             } else {
               console.log(chalk`{blue [INFO]} ${message}`)
@@ -199,6 +199,5 @@ async function main() {
   }
 
   program.parse(process.argv)
+  return program
 }
-
-main()
