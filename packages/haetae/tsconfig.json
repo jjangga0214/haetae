@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "references": [
+    { "path": "../cli/tsconfig.build.json" },
+    { "path": "../core/tsconfig.build.json" },
+    { "path": "../git/tsconfig.build.json" },
+    { "path": "../javascript/tsconfig.build.json" },
+    { "path": "../jest/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
+  ]
+}

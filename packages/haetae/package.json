@@ -1,0 +1,58 @@
+{
+  "name": "haetae",
+  "version": "0.0.1",
+  "description": "Grouping of Haetae's packages, for convenience of users",
+  "license": "MIT",
+  "private": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "imports": {
+    "#haetae/*": {
+      "default": "./dist/*.js"
+    }
+  },
+  "bin": {
+    "haetae": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "clean": "tsc --build tsconfig.build.json --clean && del coverage *.log junit.xml dist && jest --clearCache",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@haetae/cli": "0.0.1",
+    "@haetae/core": "0.0.1",
+    "@haetae/git": "0.0.1",
+    "@haetae/javascript": "0.0.1",
+    "@haetae/jest": "0.0.1",
+    "@haetae/utils": "0.0.1"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "haetae",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae/packages/haetae",
+  "author": {
+    "name": "GIL B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
+  }
+}
