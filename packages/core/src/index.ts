@@ -42,15 +42,18 @@ export const setConfigFilename = (filename: string) => {
  * @memoized
  */
 export const getConfigFilename = memoizee((): string => {
-  const pathValue = configFilename || (process.env.HAETAE_CONFIG_FILE as string)
-  assert(pathValue, '$HAETAE_CONFIG_FILE is not given.')
+  let filename = configFilename || (process.env.HAETAE_CONFIG_FILE as string)
+  assert(filename, '$HAETAE_CONFIG_FILE is not given.')
+  if (!path.isAbsolute(filename)) {
+    filename = path.join(process.cwd(), filename)
+  }
   try {
-    if (fs.statSync(pathValue).isDirectory()) {
-      const filename = path.join(pathValue as string, defaultConfigFile)
+    if (fs.statSync(filename).isDirectory()) {
+      filename = path.join(filename, defaultConfigFile)
       assert(fs.existsSync(filename), 'Path to config file is invalid')
       return filename
     }
-    return pathValue
+    return filename
   } catch (error) {
     throw new Error('Path to config file is non-existent path.')
   }
@@ -228,6 +231,7 @@ export interface GetStoreOptions {
 
 /**
  * @throw if the file does not exist
+ * config.storeFile should be absolute path
  * @memoized
  */
 export const getStore = memoizee(
@@ -235,9 +239,9 @@ export const getStore = memoizee(
     config = getConfig(),
     fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
-    const resolvedFilename = (await config).storeFile
+    const filename = (await config).storeFile
     try {
-      const store = await import(resolvedFilename)
+      const store = await import(filename)
       delete store.default
       return store
     } catch (error) {
