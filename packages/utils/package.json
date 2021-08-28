@@ -16,10 +16,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "clean": "tsc --build tsconfig.build.json --clean && del coverage *.log junit.xml dist && jest --clearCache",
-    "test": "jest",
-    "dev": "ts-node src/index.ts",
-    "start": "node dist/index.js"
+    "prepublish": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
     "globby": "^11",
