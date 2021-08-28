@@ -10,7 +10,7 @@
     "dist"
   ],
   "imports": {
-    "#glob/*": {
+    "#utils/*": {
       "default": "./dist/*.js"
     }
   },
