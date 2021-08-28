@@ -1,6 +1,6 @@
 import globby from 'globby'
 import path from 'path'
-import { getConfigDirnameFromEnvVar } from '@haetae/core'
+import { getConfigDirname } from '@haetae/core'
 
 interface globOptions {
   rootDir?: string // This is a facade option for globbyOptions.cwd
@@ -11,7 +11,7 @@ interface globOptions {
 export async function glob(
   patterns: readonly string[],
   {
-    rootDir = getConfigDirnameFromEnvVar(),
+    rootDir = getConfigDirname(),
     preConfiguredPatterns = [
       `!${path.join('**', 'node_modules')}`,
       `!${path.join('**', 'jspm_packages')}`,

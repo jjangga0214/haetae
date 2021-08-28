@@ -1,4 +1,4 @@
-import { getConfigDirnameFromEnvVar } from '@haetae/core'
+import { getConfigDirname } from '@haetae/core'
 import path from 'path'
 import fs from 'fs'
 
@@ -12,7 +12,7 @@ export interface DependsOnOptions {
 
 export async function dependsOn(
   filenames: readonly string[],
-  { tsConfig, rootDir = getConfigDirnameFromEnvVar() }: DependsOnOptions = {},
+  { tsConfig, rootDir = getConfigDirname() }: DependsOnOptions = {},
 ) {
   // default option.tsConfig if exists
   if (fs.existsSync(path.join(rootDir, 'tsconfig.json'))) {

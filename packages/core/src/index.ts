@@ -15,7 +15,7 @@ export const { version } = (() => {
   return JSON.parse(content)
 })()
 
-let currentCommand: string | null = null
+let currentCommand: string | undefined
 
 export const setCurrentCommand = (command: string) => {
   currentCommand = command
@@ -32,27 +32,32 @@ export const getCurrentCommand = (): string => {
 
 export const defaultConfigFile = 'haetae.config.js'
 
+let configFilename: string | undefined
+
+export const setConfigFilename = (filename: string) => {
+  configFilename = filename
+}
+
 /**
  * @memoized
  */
-export const getConfigFilenameFromEnvVar = memoizee((): string => {
-  const pathValue = process.env.HAETAE_CONFIG_FILE as string
+export const getConfigFilename = memoizee((): string => {
+  const pathValue = configFilename || (process.env.HAETAE_CONFIG_FILE as string)
   assert(pathValue, '$HAETAE_CONFIG_FILE is not given.')
   try {
     if (fs.statSync(pathValue).isDirectory()) {
       const filename = path.join(pathValue as string, defaultConfigFile)
-      assert(fs.existsSync(filename), '$HAETAE_CONFIG_FILE is invalid')
+      assert(fs.existsSync(filename), 'Path to config file is invalid')
       return filename
     }
     return pathValue
   } catch (error) {
-    throw new Error('$HAETAE_CONFIG_FILE is non-existent path.')
+    throw new Error('Path to config file is non-existent path.')
   }
 })
 
 // todo: set/get current config dirname
-export const getConfigDirnameFromEnvVar = () =>
-  path.dirname(getConfigFilenameFromEnvVar())
+export const getConfigDirname = () => path.dirname(getConfigFilename())
 
 export type HaetaeRecordEnv = Record<string, unknown>
 
@@ -110,7 +115,7 @@ export type HaetaeConfig = Required<HaetaePreConfig<HaetaeCommand>, 'storeFile'>
 
 export const defaultStoreFile = 'haetae.store.json'
 export const getDefaultStoreFilename = (
-  configDirname: string = getConfigDirnameFromEnvVar(),
+  configDirname: string = getConfigDirname(),
 ) => path.join(configDirname, defaultStoreFile)
 
 export const defaultSubCommandEnv = ({
@@ -161,7 +166,7 @@ export interface GetConfigOptions {
  */
 export const getConfig = memoizee(
   async ({
-    filename = getConfigFilenameFromEnvVar(),
+    filename = getConfigFilename(),
   }: GetConfigOptions = {}): Promise<HaetaeConfig> => {
     let configFilename = await filename
     try {

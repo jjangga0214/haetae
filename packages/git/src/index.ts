@@ -2,7 +2,7 @@ import childProcess from 'child_process'
 import path from 'path'
 import memoizee from 'memoizee'
 import {
-  getConfigDirnameFromEnvVar,
+  getConfigDirname,
   getRecord,
   HaetaeRecord,
   HaetaePreRecord,
@@ -76,7 +76,7 @@ export const changedFiles = memoizee(
       getRecord().then(
         (r) => ((r as GitPatchedHaetaeRecord) || {})[name]?.gitSha,
       ),
-    rootDir = getConfigDirnameFromEnvVar(),
+    rootDir = getConfigDirname(),
     includeUntracked = true,
     fallback = () =>
       // list of every files when gitSha is not given or cannot be found on record
@@ -132,7 +132,7 @@ export interface RecordOptions {
  */
 export const record = memoizee(
   async ({
-    rootDir = getConfigDirnameFromEnvVar(),
+    rootDir = getConfigDirname(),
     gitSha = process.env.HAETAE_GIT_GITSHA ||
       execAsync('git rev-parse --verify HEAD', { cwd: rootDir }).then((res) =>
         res.trim(),
@@ -157,7 +157,7 @@ interface BranchOptions {
 }
 
 export const branch = memoizee(
-  async ({ rootDir = getConfigDirnameFromEnvVar() }: BranchOptions = {}) =>
+  async ({ rootDir = getConfigDirname() }: BranchOptions = {}) =>
     execAsync('git branch --show-current', {
       cwd: rootDir,
     }),

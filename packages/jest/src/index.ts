@@ -1,30 +1,30 @@
 import { glob } from '@haetae/utils'
-import { getConfigDirnameFromEnvVar } from '@haetae/core'
+import { getConfigDirname } from '@haetae/core'
 
 import path from 'path'
 
-export interface JestGlobOptions {
-  onTestMatchNotFound: () => void
-  onTestPathIgnorePatternsNotFound: () => void
+export interface TestFilesOptions {
+  onTestMatchNotFound?: () => void
+  onTestPathIgnorePatternsNotFound?: () => void
 }
 /**
  * Reads "testMatch" field from jest.config.js
  * It falls back to jest's default testMatch if it's not found in jest.config.js
  */
-export async function jestTests(
-  configFile: string,
+export async function testFiles(
+  configFile?: string, // jest config file. e.g. jest.config.js
   {
     onTestMatchNotFound = () => undefined,
     onTestPathIgnorePatternsNotFound = () => undefined,
-  }: JestGlobOptions,
+  }: TestFilesOptions = {},
 ) {
   if (!configFile) {
     const defaultConfigFilenames = [
-      path.join(getConfigDirnameFromEnvVar(), 'jest.config.js'),
-      path.join(getConfigDirnameFromEnvVar(), 'jest.config.ts'),
-      path.join(getConfigDirnameFromEnvVar(), 'jest.config.cjs'),
-      path.join(getConfigDirnameFromEnvVar(), 'jest.config.mjs'),
-      path.join(getConfigDirnameFromEnvVar(), 'jest.config.json'),
+      path.join(getConfigDirname(), 'jest.config.js'),
+      path.join(getConfigDirname(), 'jest.config.ts'),
+      path.join(getConfigDirname(), 'jest.config.cjs'),
+      path.join(getConfigDirname(), 'jest.config.mjs'),
+      path.join(getConfigDirname(), 'jest.config.json'),
     ]
     // todo: iterate various kinds of config files
     // eslint-disable-next-line prefer-destructuring, no-param-reassign
@@ -36,9 +36,9 @@ export async function jestTests(
       'jest configuration file\'s extension should be ".js". (e.g. jest.config.js)',
     )
   }
-  // eslint-disable-next-line import/no-dynamic-require,global-require,@typescript-eslint/no-var-requires
-  const jestConfig = require(configFile)
-  const jestgetConfigDirnameFromEnvVar = path.dirname(configFile)
+  const jestConfig = await import(configFile)
+  delete jestConfig.default
+  const jestConfigDirname = path.dirname(configFile)
   if (!jestConfig.testMatch) {
     onTestMatchNotFound()
   }
@@ -56,20 +56,16 @@ export async function jestTests(
 
   const patterns = jestTestMatch
     .map((pattern) => pattern.replace('<rootDir>/', ''))
-    // Why split by '/' ?. Because jest.config.js should be written by '/' delimiter even on Windows/
-    .map((pattern) =>
-      path.join(jestgetConfigDirnameFromEnvVar, ...pattern.split('/')),
-    )
+    // Why split by '/' ?. Because field values for paths in jest.config.js are written with '/' delimiter even on Windows
+    .map((pattern) => path.join(jestConfigDirname, ...pattern.split('/')))
     .concat(
       jestTestPathIgnorePatterns
         .map((pattern) => pattern.replace('<rootDir>/', ''))
-        .map((pattern) =>
-          path.join(jestgetConfigDirnameFromEnvVar, ...pattern.split('/')),
-        )
+        .map((pattern) => path.join(jestConfigDirname, ...pattern.split('/')))
         .map((pattern) => `!${pattern}`),
     )
 
   return glob(patterns, {
-    rootDir: '',
+    rootDir: jestConfigDirname,
   })
 }
