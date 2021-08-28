@@ -1,8 +1,9 @@
 {
   "name": "@haetae/core",
   "version": "0.0.1",
+  "description": "Core functionalities for Haetae",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -29,5 +30,32 @@
     "@types/deep-equal": "^1.0.1",
     "@types/memoizee": "^0.4.6",
     "@types/serialize-javascript": "^5.0.1"
+  },
+  "keywords": [
+    "haetae",
+    "haetae-core",
+    "haetae/core",
+    "haetaecore",
+    "core",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae/packages/core",
+  "author": {
+    "name": "GIL B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
   }
 }

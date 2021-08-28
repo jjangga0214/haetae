@@ -1,8 +1,9 @@
 {
   "name": "@haetae/javascript",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "Dependency graph resolver of Javascript ecosystem (e.g. including Typescript, JSX) for Haetae",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -25,5 +26,41 @@
   },
   "devDependencies": {
     "utility-types": "^3.10.0"
+  },
+  "keywords": [
+    "haetae",
+    "haetae-javascript",
+    "haetae/javascript",
+    "haetaejavascript",
+    "haetae-js",
+    "haetae/js",
+    "haetaejs",
+    "javascript",
+    "typescript",
+    "jsx",
+    "webpack",
+    "dependency",
+    "graph",
+    "integration",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae/packages/git",
+  "author": {
+    "name": "GIL B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
   }
 }

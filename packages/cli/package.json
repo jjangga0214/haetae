@@ -1,8 +1,9 @@
 {
   "name": "@haetae/cli",
   "version": "0.0.1",
+  "description": "A CLI for Haetae",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -12,6 +13,9 @@
     "#cli/*": {
       "default": "./dist/*.js"
     }
+  },
+  "bin": {
+    "haetae": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
@@ -24,5 +28,31 @@
     "chalk": "^4.1.2",
     "commander": "^8.1.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "keywords": [
+    "haetae",
+    "haetae-cli",
+    "haetae/cli",
+    "haetaecli",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae/packages/cli",
+  "author": {
+    "name": "GIL B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
+  }
 }

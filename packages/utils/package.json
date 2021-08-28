@@ -1,8 +1,9 @@
 {
   "name": "@haetae/utils",
   "version": "0.0.1",
+  "description": "Utilities for Haetae",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -24,5 +25,34 @@
     "globby": "^11",
     "@haetae/core": "0.0.1"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "keywords": [
+    "haetae",
+    "haetae-utils",
+    "haetae/utils",
+    "haetaeutils",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo",
+    "utils",
+    "utility",
+    "utilities"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae/packages/utils",
+  "author": {
+    "name": "GIL B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
+  }
 }

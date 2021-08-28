@@ -1,8 +1,9 @@
 {
   "name": "@haetae/git",
   "version": "0.0.1",
+  "description": "Git integration for Haetae",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -25,5 +26,33 @@
     "memoizee": "^0.4.15",
     "serialize-javascript": "^6.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "keywords": [
+    "haetae",
+    "haetae-git",
+    "haetae/git",
+    "haetaegit",
+    "git",
+    "integration",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae/packages/git",
+  "author": {
+    "name": "GIL B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
+  }
 }
