@@ -12,26 +12,16 @@
   ],
   "scripts": {
     "build": "lerna run --parallel build",
-    "build:fresh": "yarn clean && yarn build",
-    "clean": "lerna run --parallel clean && shx rm -rf .build-cache *.log coverage junit.xml",
-    "test": "jest",
-    "test:unit": "jest packages/*/test/unit",
-    "test:integration": "jest packages/*/test/integration",
-    "coverage": "jest --coverage",
-    "coverage:unit": "yarn test:unit --coverage",
-    "coverage:integration": "yarn test:integration --coverage",
-    "coverage:show": "live-server coverage",
-    "lint": "eslint --ext .js --ext .ts --ext .md",
-    "lint:ci": "yarn lint . --format junit",
-    "lint:md": "markdownlint --ignore node_modules --ignore .git",
-    "format": "yarn lint --fix",
-    "format:md": "yarn lint:md --fix",
+    "lint": "eslint --ext .js,.ts,.md",
+    "lint:md": "markdownlint",
+    "format": "eslint --ext .js,.ts,.md --fix",
+    "format:md": "markdownlint --fix",
     "husky-skip": "cross-env HUSKY_SKIP_HOOKS=1",
     "commit": "git cz",
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "*.{js,jsx,ts,tsx,md}": [
       "eslint --fix"
     ],
     "*.md": [
@@ -52,6 +42,8 @@
     "cross-env": "^7.0.3",
     "cz-conventional-changelog": "^3.3.0",
     "del-cli": "^4.0.1",
+    "esbuild": "^0.12.22",
+    "esbuild-jest": "^0.5.0",
     "eslint": "^7.31.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
@@ -75,5 +67,28 @@
     "ts-node-dev": "^1.1.8",
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.3.5"
+  },
+  "keywords": [
+    "haetae",
+    "test",
+    "lint",
+    "build",
+    "incremental",
+    "ci",
+    "devOps",
+    "monorepo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jjangga0214/haetae.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jjangga0214/haetae/issues"
+  },
+  "homepage": "https://github.com/jjangga0214/haetae",
+  "author": {
+    "name": "Gil B. Chan",
+    "email": "bnbcmindnpass@gmail.com",
+    "url": "https://github.com/jjangga0214"
   }
 }

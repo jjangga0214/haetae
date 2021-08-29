@@ -154,6 +154,7 @@ module.exports = {
   // timers: "real",
 
   // transform: { '^.+\\.(t|j)sx?$': ['@swc/jest'] },
+  // transform: { '^.+\\.tsx?$': ['esbuild-jest'] },
   // A map from regular expressions to paths to transformers
   // transform: {
   //   '.(ts|tsx)': 'ts-jest',
