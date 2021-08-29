@@ -102,7 +102,7 @@ export async function createCommanderProgram() {
       false,
     )
     .option(
-      '--no-color',
+      '    --no-color',
       'Disable colorized (e.g. red for error) / decorated (e.g. bold text) output.',
       false,
     )
