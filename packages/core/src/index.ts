@@ -164,7 +164,7 @@ export const getConfig = memoizee(
     }
 
     const preConfigFromFile = await import(configFilename)
-    delete preConfigFromFile.default
+    // delete preConfigFromFile.default
     const preConfig: HaetaePreConfig = configure(preConfigFromFile)
     for (const command in preConfig.commands) {
       if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
@@ -222,8 +222,10 @@ export const getStore = memoizee(
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
     const filename = (await config).storeFile
     try {
-      const store = await import(filename)
-      delete store.default
+      const rawStore = fs.readFileSync(filename, {
+        encoding: 'utf8',
+      })
+      const store = JSON.parse(rawStore)
       return store
     } catch (error) {
       return fallback()
@@ -439,6 +441,9 @@ export async function saveStore({
   fs.writeFileSync(
     (await config).storeFile,
     `${JSON.stringify(await store, null, 2)}\n`, // trailing empty line
+    {
+      encoding: 'utf8',
+    },
   )
   getStore.clear() // memoization cache clear
 }
