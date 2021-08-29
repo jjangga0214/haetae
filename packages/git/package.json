@@ -9,11 +9,6 @@
   "files": [
     "dist"
   ],
-  "imports": {
-    "#git/*": {
-      "default": "./dist/*.js"
-    }
-  },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "prepublish": "tsc --build tsconfig.build.json"
@@ -49,7 +44,7 @@
   },
   "homepage": "https://github.com/jjangga0214/haetae/packages/git",
   "author": {
-    "name": "GIL B. Chan",
+    "name": "Gil B. Chan",
     "email": "bnbcmindnpass@gmail.com",
     "url": "https://github.com/jjangga0214"
   }

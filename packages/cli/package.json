@@ -9,11 +9,6 @@
   "files": [
     "dist"
   ],
-  "imports": {
-    "#cli/*": {
-      "default": "./dist/*.js"
-    }
-  },
   "bin": {
     "haetae": "./dist/cli.js"
   },
@@ -50,7 +45,7 @@
   },
   "homepage": "https://github.com/jjangga0214/haetae/packages/cli",
   "author": {
-    "name": "GIL B. Chan",
+    "name": "Gil B. Chan",
     "email": "bnbcmindnpass@gmail.com",
     "url": "https://github.com/jjangga0214"
   }

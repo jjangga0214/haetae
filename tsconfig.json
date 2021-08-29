@@ -6,12 +6,7 @@
     "rootDir": ".",
     "baseUrl": "packages",
     "paths": {
-      "@haetae/*": ["*/src"],
-      "#git/*": ["git/src/*"],
-      "#utils/*": ["utils/src/*"],
-      "#javascript/*": ["javascript/src/*"],
-      "#core/*": ["core/src/*"],
-      "#*": ["*/src"]
+      "@haetae/*": ["*/src"]
     },
     "strict": true,
     "noUnusedLocals": true,
