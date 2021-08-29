@@ -1,44 +1,33 @@
-// const { config } = require('../dist/index')
 const path = require('path')
+// eslint-disable-next-line import/no-extraneous-dependencies
+const { configure } = require('@haetae/core')
 
-const config = (obj) => obj
-
-module.exports = config({
+module.exports = configure({
   commands: {
     test: {
-      // all filespaths should be absolute paths
-      target: ({ prevRecord }) => ['hello.ts', 'there.ts'],
-      env: ({ coreVersion }) => ({
-        nodeVersion: process.version,
-        os: process.platform,
-        coreVersion,
+      target: () => ['hello.ts', 'there.ts'],
+      env: () => ({
+        coreVersion: '0.0.1',
+        os: 'linux',
       }),
-      save: ({ prevRecord }) => ({
-        hello: 'there',
+      save: () => ({
+        '@haetae/git': {
+          gitSha: '77c033b',
+        },
+      }),
+      hello: () => ({
+        hello: 'haetae',
+        hi: 'there',
       }),
     },
     lint: {
-      target: ({ prevRecord }) => [],
-      save: ({ prevRecord }) => prevRecord,
+      target: () => [],
+      save: () => ({
+        '@haetae/git': {
+          gitSha: '080bdea',
+        },
+      }),
     },
   },
   storeFile: path.join(__dirname, 'haetae.store.example.json'),
 })
-
-// module.exports = {
-//   commands: {
-//     test: {
-//       // all filespaths should be absolute paths
-//       target: (previousRecord) =>
-//         loadByGlob(['*.ts']).filter(dependsOn(loadGitChanged())), // can be string[], or string
-//       env: (haetaeVersion) =>
-//         // ${Node Version}-${OS}-${Custom Env Var}
-//         `${process.version}-${process.platform}-${process.env.FOO}`,
-//       save: (previousRecord) => recordByGit(previousRecord), // default
-//     },
-//     lint: {
-//       run: () => glob(['*.ts']).filter(is(gitChanged())),
-//       finally: (previousRecord) => recordByGit(previousRecord),
-//     },
-//   },
-// }

@@ -1,10 +1,11 @@
 import path from 'path'
 import { strict as assert } from 'assert'
+import fs from 'fs'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Required, Optional } from 'utility-types'
-import fs from 'fs'
+import produce from 'immer'
 import deepEqual from 'deep-equal'
 
 export const { version } = (() => {
@@ -86,7 +87,7 @@ export interface HaetaeCommand {
   target: () => string[] | Promise<string[]>
   env: () => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
   save: () => HaetaePreRecord | Promise<HaetaePreRecord>
-  [subcommand: string]: () => any // This can be async functoin
+  [subcommand: string]: () => unknown // This can be async functoin
 }
 
 export type HaetaePreCommand = Optional<
@@ -247,7 +248,7 @@ export async function getRecords({
   return (await store).commands[await command]
 }
 
-export interface InvokeEnvOptions {
+export interface InvokeReservedDynamicSubcommandOptions {
   command?: string | Promise<string>
   config?: HaetaeConfig | Promise<HaetaeConfig>
 }
@@ -259,7 +260,7 @@ export const invokeEnv = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: InvokeEnvOptions = {}): Promise<HaetaeRecordEnv> =>
+  }: InvokeReservedDynamicSubcommandOptions = {}): Promise<HaetaeRecordEnv> =>
     (await config)?.commands[await command]?.env(),
   {
     normalizer: serialize,
@@ -282,7 +283,7 @@ export async function getRecord({
   const records = await getRecords({ command, store })
   if (records) {
     for (const record of records) {
-      if (deepEqual(env, record.env)) {
+      if (deepEqual(await env, record.env)) {
         return record
       }
     }
@@ -291,13 +292,6 @@ export async function getRecord({
   return undefined
 }
 
-export interface InvokeTargetOrSaveOptions {
-  command?: string | Promise<string>
-  config?: HaetaeConfig | Promise<HaetaeConfig>
-}
-
-type InvokeTargetOptions = InvokeTargetOrSaveOptions
-
 /**
  * @memoized
  */
@@ -305,14 +299,12 @@ export const invokeTarget = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: InvokeTargetOptions = {}): Promise<string[]> =>
+  }: InvokeReservedDynamicSubcommandOptions = {}): Promise<string[]> =>
     (await config).commands[await command].target(),
   {
     normalizer: serialize,
   },
 )
-
-export type InvokeSaveOptions = InvokeTargetOrSaveOptions
 
 /**
  * @memoized
@@ -321,7 +313,7 @@ export const invokeSave = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: InvokeSaveOptions = {}): Promise<HaetaePreRecord> => {
+  }: InvokeReservedDynamicSubcommandOptions = {}): Promise<HaetaePreRecord> => {
     // NOTE: `prevRecord` and `preRecord` have different meanings.
     const preRecord = await (await config).commands[await command].save()
     assert(
@@ -339,7 +331,8 @@ export const invokeSave = memoizee(
   },
 )
 
-type InvokeSubcommandOptions = InvokeTargetOrSaveOptions & {
+export interface InvokeSubcommandOptions
+  extends InvokeReservedDynamicSubcommandOptions {
   subcommand: string
 }
 
@@ -347,7 +340,7 @@ export const invokeSubcommand = async ({
   command = getCurrentCommand(),
   config = getConfig(),
   subcommand,
-}: InvokeSubcommandOptions): Promise<any> => {
+}: InvokeSubcommandOptions): Promise<unknown> => {
   assert(
     subcommand !== 'env',
     'Reserved Dynamic Subcommands have dedicated functions. For `env`, call `invokeEnv` directly.',
@@ -403,30 +396,27 @@ export async function mapStore({
     preRecord: invokeSave({ command, config }),
   }),
 }: MapStoreOptions = {}) {
-  // todo: deep copy the store
-  // eslint-disable-next-line no-param-reassign
-  store = await store
-  // eslint-disable-next-line no-param-reassign
-  store.version = version
-  // eslint-disable-next-line no-param-reassign
-  store.commands = store.commands || {}
-  // eslint-disable-next-line no-param-reassign
-  store.commands[await command] = store.commands[await command] || []
+  return produce(await store, async (draft) => {
+    /* eslint-disable no-param-reassign */
+    draft.version = version
+    draft.commands = draft.commands || {}
+    draft.commands[await command] = draft.commands[await command] || []
 
-  for (
-    let index = 0;
-    index < store.commands[await command].length;
-    index += 1
-  ) {
-    const oldRecord = store.commands[await command][index]
-    if (deepEqual(await env, oldRecord.env)) {
-      // eslint-disable-next-line no-param-reassign
-      store.commands[await command][index] = await record
-      return store
+    for (
+      let index = 0;
+      index < draft.commands[await command].length;
+      index += 1
+    ) {
+      const oldRecord = draft.commands[await command][index]
+      if (deepEqual(await env, oldRecord.env)) {
+        draft.commands[await command][index] = await record
+        return draft
+      }
     }
-  }
-  store.commands[await command].push(await record)
-  return store
+    draft.commands[await command].push(await record)
+    /* eslint-enable no-param-reassign */
+    return draft
+  })
 }
 
 export interface SaveStoreOptions {
