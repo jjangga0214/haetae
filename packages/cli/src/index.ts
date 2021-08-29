@@ -10,7 +10,7 @@ import {
   getConfig,
   invokeEnv,
   invokeTarget,
-  mapStore,
+  invokeSubcommand,
   getStore,
   saveStore,
   getRecord,
@@ -144,21 +144,21 @@ export async function createCommanderProgram() {
         .command(command)
         .description('User-defined command from config.')
         .addHelpCommand(false) // `help` command can be replaced by `--help` option.
-      for (const subCommand in config.commands[command]) {
+      for (const subcommand in config.commands[command]) {
         if (
           Object.prototype.hasOwnProperty.call(
             config.commands[command],
-            subCommand,
+            subcommand,
           )
         ) {
-          const subCmd = cmd.command(subCommand)
-          if (subCommand === 'env') {
+          const subCmd = cmd.command(subcommand)
+          if (subcommand === 'env') {
             subCmd.description('Show current env object.').action(async () => {
               setCurrentCommand(command)
               const env = await invokeEnv({ config })
               console.log(JSON.stringify(env, null, 2))
             })
-          } else if (subCommand === 'target') {
+          } else if (subcommand === 'target') {
             subCmd.description('Show targets.').action(
               async (
                 _,
@@ -177,33 +177,28 @@ export async function createCommanderProgram() {
                 }
               },
             )
-          } else if (subCommand === 'save') {
+          } else if (subcommand === 'save') {
             subCmd
               .description(
                 'Save a new record to store file and show the new record.',
               )
               .action(async () => {
                 setCurrentCommand(command)
-                const newStore = await mapStore({ config })
                 await saveStore({
-                  store: newStore,
                   config,
                 })
                 const record = await getRecord()
                 console.log(JSON.stringify(record, null, 2))
               })
+          } else {
+            subCmd
+              .description('User-defined subcommand from config.')
+              .action(async () => {
+                setCurrentCommand(command)
+                const res = await invokeSubcommand({ subcommand })
+                console.log(JSON.stringify(res, null, 2))
+              })
           }
-          // todo: execute arbitrary commands
-          // todo: sync docs
-          // else {
-          //   subCmd
-          //     .description('User-defined subcommand from config.')
-          //     .action(async () => {
-          //       setCurrentCommand(command)
-          //       const res = await config.commands[command][subCommand]()
-          //       console.log(JSON.stringify(res, null, 2))
-          //     })
-          // }
         }
       } // end for loop
       cmd
