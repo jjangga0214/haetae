@@ -358,9 +358,21 @@ export const invokeSave = memoizee(
       env,
       store,
     })
-    return (await config).commands[await command].save({
+    // NOTE: `prevRecord` and `preRecord` have different meanings.
+    const preRecord = await (
+      await config
+    ).commands[await command].save({
       prevRecord,
     })
+    assert(
+      preRecord.time === undefined,
+      'A Reserved Dynamic Subcommand `save` should not return an object with a key named "time". The key "time" is statically reserved by Haetae, and automatically filled in.',
+    )
+    assert(
+      preRecord.env === undefined,
+      'A Reserved Dynamic Subcommand `save` should not return an object with a key named "env". The key "env" is statically reserved by Haetae, and automatically filled in.',
+    )
+    return preRecord
   },
   {
     normalizer: serialize,
