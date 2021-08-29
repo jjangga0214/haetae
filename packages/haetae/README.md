@@ -71,29 +71,27 @@ const { core, git, javascript: js, jest, utils } = require('haetae')
 module.exports = core.configure({
   commands: {
     test: {
-      target: async ({ prevRecord }) => {
+      target: async () =>
         // return any test files which (transitively) depends on changed(git) files
-        return (await utils.glob(['**/*.test.ts'])).filter(
+        (await utils.glob(['**/*.test.ts'])).filter(
           // `js.dependsOn` can detect ts, tsx, js, jsx, tsconfig and webpack,
           // although its package name is `@haetae/javascript`.
           js.dependsOn(git.changedFiles()),
-        )
-      },
-      env: ({ coreVersion }) => ({
+        ),
+      env: () => ({
         nodeVersion: process.version,
         os: process.platform,
-        coreVersion,
+        coreVersion: core.version,
       }),
-      save: async ({ prevRecord }) => git.record(),
+      save: async () => git.record(),
     },
     lint: {
-      target: async ({ prevRecord }) => {
-        // return only changed(git) typescript files
-        return (await git.changedFiles()).filter((filename) =>
-          filename.endsWith('.ts'),
-        )
-      },
-      save: async ({ prevRecord }) => git.record(),
+      target: async () =>
+        // return only changed(git) typescript/tsx files
+        (await git.changedFiles()).filter(
+          (filename) => filename.endsWith('.ts') || filename.endsWith('.tsx'),
+        ),
+      save: async () => git.record(),
     },
   },
 })
