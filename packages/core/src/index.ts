@@ -9,10 +9,9 @@ import produce from 'immer'
 import deepEqual from 'deep-equal'
 
 export const { version } = (() => {
-  const content = fs.readFileSync(
-    path.join(__dirname, '..', 'package.json'),
-    'utf8',
-  )
+  const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
+    encoding: 'utf8',
+  })
   return JSON.parse(content)
 })()
 
@@ -43,7 +42,9 @@ export const setConfigFilename = (filename: string | undefined) => {
  * @memoized
  */
 export const getConfigFilename = memoizee((): string => {
-  let filename = configFilename || (process.env.HAETAE_CONFIG_FILE as string)
+  // TODO: finding config file recursively(parental)
+  let filename =
+    configFilename || (process.env.HAETAE_CONFIG_FILE as string) || '.'
   assert(filename, '$HAETAE_CONFIG_FILE is not given.')
   if (!path.isAbsolute(filename)) {
     filename = path.join(process.cwd(), filename)

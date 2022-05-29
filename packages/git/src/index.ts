@@ -1,6 +1,5 @@
 import childProcess from 'child_process'
 import path from 'path'
-import memoizee from 'memoizee'
 import {
   getConfigDirname,
   getRecord,
@@ -8,7 +7,6 @@ import {
   HaetaePreRecord,
 } from '@haetae/core'
 import { glob } from '@haetae/utils'
-import serialize from 'serialize-javascript'
 
 // todo: git submodule test
 
@@ -49,11 +47,12 @@ export interface ChangedFilesOptions {
   gitSha?: string | Promise<string>
   rootDir?: string
   includeUntracked?: boolean
+  includeIgnored?: boolean
   fallback?: () => string[] | Promise<string[]>
 }
 
 export type GitPatchedHaetaeRecord = HaetaeRecord & {
-  [name: string]: { gitSha: string }
+  [name]: { gitSha: string }
 }
 
 /**
@@ -63,95 +62,83 @@ export type GitPatchedHaetaeRecord = HaetaeRecord & {
  *   - every filenames if gitSha is not given
  * @memoized
  */
-export const changedFiles = memoizee(
-  async ({
-    gitSha = process.env.HAETAE_GIT_GITSHA ||
-      getRecord().then(
-        (r) => ((r as GitPatchedHaetaeRecord) || {})[name]?.gitSha,
-      ),
-    rootDir = getConfigDirname(),
-    includeUntracked = true,
-    fallback = () =>
-      // list of every files when gitSha is not given or cannot be found on record
-      glob(['**'], {
-        rootDir,
-      }),
-  }: ChangedFilesOptions = {}): Promise<string[]> => {
-    if (!(await gitSha)) {
-      return fallback()
-    }
-    const res = []
-    if (includeUntracked) {
-      // untracked changes
-      res.push(
-        ...(
-          await execAsync('git ls-files --others --exclude-standard', {
-            cwd: rootDir,
-          })
-        )
-          .trim()
-          .split('\n'),
-      )
-    }
-
-    if (!gitSha) {
-      throw new Error('gitSha is invalid.')
-    }
-
+export const changedFiles = async ({
+  gitSha = process.env.HAETAE_GIT_GITSHA ||
+    getRecord().then(
+      (r) => ((r as GitPatchedHaetaeRecord) || {})[name]?.gitSha,
+    ),
+  rootDir = getConfigDirname(),
+  includeUntracked = true,
+  includeIgnored = false,
+  fallback = () =>
+    // list of every files when gitSha is not given or cannot be found on record
+    glob(['**'], {
+      rootDir,
+    }),
+}: ChangedFilesOptions = {}): Promise<string[]> => {
+  if (!(await gitSha)) {
+    return fallback()
+  }
+  const res = []
+  if (includeUntracked) {
+    // untracked changes
     res.push(
       ...(
-        await execAsync(`git diff --name-only ${gitSha}`, {
-          cwd: rootDir,
-        })
+        await execAsync(
+          `git ls-files --others${includeIgnored ? '' : ' --exclude-standard'}`,
+          {
+            cwd: rootDir,
+          },
+        )
       )
         .trim()
         .split('\n'),
     )
-    return res.map((filename) => path.join(rootDir, filename))
-  },
-  {
-    normalizer: serialize,
-  },
-)
+  }
+
+  res.push(
+    ...(
+      await execAsync(`git diff --name-only ${gitSha}`, {
+        cwd: rootDir,
+      })
+    )
+      .trim()
+      .split('\n'),
+  )
+  return res.map((filename) => path.join(rootDir, filename))
+}
 
 export interface RecordOptions {
   gitSha?: string | Promise<string>
   rootDir?: string
-  includeUntracked: boolean
+  // TODO
+  // includeUntracked: boolean
 }
 
-/**
- * @memoized
- */
-export const record = memoizee(
-  async ({
-    rootDir = getConfigDirname(),
-    gitSha = process.env.HAETAE_GIT_GITSHA ||
-      execAsync('git rev-parse --verify HEAD', { cwd: rootDir }).then((res) =>
-        res.trim(),
-      ),
-  }: RecordOptions): Promise<HaetaePreRecord> => {
-    if (!gitSha) {
-      throw new Error('gitSha is invalid.')
-    }
-    return {
-      [name]: {
-        gitSha,
-      },
-    }
-  },
-  {
-    normalizer: serialize,
-  },
-)
+export const record = async ({
+  rootDir = getConfigDirname(),
+  gitSha = process.env.HAETAE_GIT_GITSHA ||
+    execAsync('git rev-parse --verify HEAD', { cwd: rootDir }).then((res) =>
+      res.trim(),
+    ),
+}: RecordOptions): Promise<HaetaePreRecord> => {
+  if (!gitSha) {
+    throw new Error('gitSha is invalid.')
+  }
+  return {
+    [name]: {
+      gitSha,
+    },
+  }
+}
 
 export interface BranchOptions {
   rootDir?: string
 }
 
-export const branch = memoizee(
-  async ({ rootDir = getConfigDirname() }: BranchOptions = {}) =>
-    execAsync('git branch --show-current', {
-      cwd: rootDir,
-    }),
-)
+export const branch = async ({
+  rootDir = getConfigDirname(),
+}: BranchOptions = {}) =>
+  execAsync('git branch --show-current', {
+    cwd: rootDir,
+  })

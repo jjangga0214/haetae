@@ -26,8 +26,10 @@ For examples,
 
 **Haetae** enables all kinds of incremental tasks, including test, lint, build, and more, with ease.
 
-It requires nodejs to run, but it's not only for nodejs ecosystem.
-Actually, it's for any languages, frameworks and platforms.
+Haetae is written in (compiled to) js, so requires nodejs runtime.
+But regardless of that, it's purpose is for any languages, frameworks and platforms.
+For now, it only officially supports javascript, JSX, typescript, and TSX.
+However, more language supports are possibly to be added in future.
 
 ## Getting Started
 
@@ -35,7 +37,7 @@ In this section, you'd be guided to understand the basic usage. For more detail,
 
 ### Installation
 
-```shell
+```sh
 npm install --save-dev haetae
 # or
 yarn add --dev haetae
@@ -43,9 +45,17 @@ yarn add --dev haetae
 pnpm add --save-dev haetae
 ```
 
-**Haetae** is loosely coupled. The main funtionalities are implemented by [`@haetae/cli`](./packages/cli) and [`@haetae/core`](./packages/core). They are the minimum required depedencies you need to have (For plugin writer, the required minimum is `@haetae/core`). Of course, for additional features, there're some others packages as well(e.g. `@haetae/*`). So you can freely pick only what you need.
+Or
 
-On the other hand, the package [`haetae`](./packages/haetae) is battery-included for general scenarios. It includes several frequently-used packages, [`@haetae/cli`](./packages/cli), [`@haetae/core`](./packages/core), [`@haetae/git`](./packages/git), [`@haetae/utils`](./packages/utils), and [`@haetae/javascript`](./packages/javascript). Though it depends on multiple packages, as each one's size is small, `haetae` is also quite lightweight.
+```sh
+npm install --save-dev @haetae/core @haetae/cli @haetae/...
+```
+
+**Haetae** is loosely coupled. The main funtionalities are implemented by [`@haetae/cli`](./packages/cli) and [`@haetae/core`](./packages/core). They are the minimum required depedencies you need to have (For plugin writer, the required minimum is `@haetae/core`).
+
+Of course, for additional features, there're some other official packages as well (e.g. `@haetae/*`). So you can freely pick only what you need.
+
+On the other hand, the package [`haetae`](./packages/haetae) is the all-in-one package, battery-included for general scenarios. It includes every official packages, [`@haetae/cli`](./packages/cli), [`@haetae/core`](./packages/core), [`@haetae/git`](./packages/git), [`@haetae/utils`](./packages/utils), and [`@haetae/javascript`](./packages/javascript). Though it depends on multiple packages, as each one's size is small, `haetae` is also quite lightweight.
 
 So the choice between the two - _"picking only what you need(`@haetae/*`)"_ VS _"a single battery-included package(`haetae`)"_ - is up to you.
 
@@ -53,12 +63,13 @@ In this _"Getting Started"_ section, we are assumed to simply depend on `haetae`
 
 ### Writing a config file (`haetae.config.js`)
 
-After the installation, create a new config file named **haetae.config.js** (next to your package.json).
+After the installation, create a new config file named **haetae.config.js** under the project root directory (next to your package.json).
 
 ```js
 const { core, git, js, utils } = require('haetae')
 
-// using `core.configure` is optional, but it helps you by type checking (on IDE level)
+// You can just export pure json without `core.configure`.
+// But `core.configure` would help you by type-checking (on IDE level)
 module.exports = core.configure({
   commands: {
     // `commands.*` must have `run` and `env` functions.
@@ -70,9 +81,10 @@ module.exports = core.configure({
           .filter(js.dependsOn(git.changedFiles()))
 
         if (filesToTest.length > 0) {
-          // Execute tests (Replace jest with your test runner)
-          // "$ jest path/to/foo.test.ts path/to/bar.test.ts ..."
-          await utils.exec(`jest ${filesToTest.join(' ')}`)
+          // Execute tests
+          // (Replace jest and yarn with your test runner and package manager)
+          await utils.exec(`yarn jest ${filesToTest.join(' ')}`)
+          // Equals to "yarn jest path/to/foo.test.ts path/to/bar.test.ts ..."
         }
 
         // `commands.*.run` must return a json to record.
