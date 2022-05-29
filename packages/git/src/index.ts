@@ -9,19 +9,12 @@ import {
 } from '@haetae/core'
 import { glob } from '@haetae/utils'
 import serialize from 'serialize-javascript'
-import fs from 'fs'
 
 // todo: git submodule test
 
-export const { name } = (() => {
-  const content = fs.readFileSync(
-    path.join(__dirname, '..', 'package.json'),
-    'utf8',
-  )
-  return JSON.parse(content)
-})()
+export const name = '@haetae/git'
 
-interface ExecOptions {
+export interface ExecOptions {
   uid?: number | undefined
   gid?: number | undefined
   cwd?: string | URL | undefined
@@ -152,7 +145,7 @@ export const record = memoizee(
   },
 )
 
-interface BranchOptions {
+export interface BranchOptions {
   rootDir?: string
 }
 

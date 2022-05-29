@@ -2,7 +2,7 @@ import globby from 'globby'
 import path from 'path'
 import { getConfigDirname } from '@haetae/core'
 
-interface globOptions {
+export interface globOptions {
   rootDir?: string // This is a facade option for globbyOptions.cwd
   preConfiguredPatterns?: readonly string[]
   globbyOptions?: globby.GlobbyOptions

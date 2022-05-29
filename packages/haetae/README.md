@@ -1,6 +1,6 @@
 # `haetae`
 
-Grouping of frequentely used packages(`@haetae/*`) for [**Haetae**](https://github.com/jjangga0214/haetae).
+Grouping of frequently used packages(`@haetae/*`) for [**Haetae**](https://github.com/jjangga0214/haetae).
 
 [![license](https://img.shields.io/badge/license-MIT-ff4081.svg?style=flat-square&labelColor=black)](https://github.com/jjangga0214/haetae/blob/main/LICENSE)
 ![test](https://img.shields.io/badge/test-jest-7c4dff.svg?style=flat-square&labelColor=black)
@@ -15,9 +15,10 @@ Grouping of frequentely used packages(`@haetae/*`) for [**Haetae**](https://gith
 ## Haetae
 
 **Haetae** enables incremental test, lint, build, and more, for any languages, platforms, and frameworks.
+
 **Haetae**'s main functionalities are implemented by [`@haetae/cli`](https://github.com/jjangga0214/haetae/tree/main/packages/cli) and [`@haetae/core`](https://github.com/jjangga0214/haetae/tree/main/packages/core).
 
-This pacakge(`haetae`) is not **Haetae** itself, but a convenient grouping of frequently used packages, including `@haetae/cli` and `@haetae/core`.
+This pacakge(`haetae`) is a convenient grouping of frequently used packages, including `@haetae/cli` and `@haetae/core`.
 
 For understanding **Haetae** itself first, please read [the repository(monorepo)](https://github.com/jjangga0214/haetae)'s README, not this packages' README.
 
@@ -27,8 +28,7 @@ Haetae is very loosely coupled.
 Heatae enables flexible configuration for any kind of incremental tasks.
 So, you can freely set how it works.
 
-But there're still some patterns and toolsets frequently used in general scenario.
-That's why the Haetae organization implements several offical packages.
+But there're still some patterns and toolsets frequently used in general scenario. That's why the Haetae organization implements several offical packages.
 
 Though you can of course selectively depend on only what you really need, sometimes you just want them all as a single package for convenience.
 
