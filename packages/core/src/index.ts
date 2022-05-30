@@ -4,7 +4,7 @@ import fs from 'fs'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Required, Optional } from 'utility-types'
+import { Required } from 'utility-types'
 import produce from 'immer'
 import deepEqual from 'deep-equal'
 
@@ -85,20 +85,13 @@ export interface HaetaeStore {
 }
 
 export interface HaetaeCommand {
-  target: () => string[] | Promise<string[]>
+  run: () => HaetaePreRecord | Promise<HaetaePreRecord>
   env: () => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
-  save: () => HaetaePreRecord | Promise<HaetaePreRecord>
-  [subcommand: string]: () => unknown // This can be async functoin
 }
 
-export type HaetaePreCommand = Optional<
-  HaetaeCommand,
-  'target' | 'env' | 'save'
->
-
-export interface HaetaePreConfig<Command = HaetaePreCommand> {
+export interface HaetaePreConfig {
   commands: {
-    [command: string]: Command
+    [command: string]: HaetaeCommand
   }
   // maxLimit?: number // Infinity
   // maxAge?: number // Infinity
@@ -106,7 +99,7 @@ export interface HaetaePreConfig<Command = HaetaePreCommand> {
   storeFile?: string
 }
 
-export type HaetaeConfig = Required<HaetaePreConfig<HaetaeCommand>, 'storeFile'>
+export type HaetaeConfig = Required<HaetaePreConfig, 'storeFile'>
 
 export const defaultStoreFile = 'haetae.store.json'
 export const getDefaultStoreFilename = (
@@ -124,16 +117,15 @@ export function configure({
 }: HaetaePreConfig): HaetaePreConfig {
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
-      for (const subcommand in commands[command]) {
-        if (
-          Object.prototype.hasOwnProperty.call(commands[command], subcommand)
-        ) {
-          assert(
-            typeof commands[command][subcommand] === 'function',
-            `commands.${command}.${subcommand} is invalid. It should be a function.`,
-          )
-        }
-      }
+      const { run, env } = commands[command]
+      assert(
+        typeof run === 'function',
+        `commands.${command}.run is invalid. It should be a function.`,
+      )
+      assert(
+        typeof env === 'function',
+        `commands.${command}.env is invalid. It should be a function.`,
+      )
     }
   }
   return {
@@ -168,13 +160,13 @@ export const getConfig = memoizee(
     const preConfigFromFile = await import(configFilename)
     // delete preConfigFromFile.default
     const preConfig: HaetaePreConfig = configure(preConfigFromFile)
-    for (const command in preConfig.commands) {
-      if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
-        // eslint-disable-next-line no-param-reassign
-        preConfig.commands[command].env =
-          preConfig.commands[command].env || (() => ({}))
-      }
-    }
+    // TODO: let env able to be given as a object, not a function?
+    // for (const command in preConfig.commands) {
+    //   if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
+    //     eslint-disable-next-line no-param-reassign
+    //     preConfig.commands[command].env =
+    //   }
+    // }
     if (!preConfig.storeFile) {
       // It becomes an absolute path, as path.dirname(filename) is also an absolute path.
       preConfig.storeFile = getDefaultStoreFilename(
@@ -189,6 +181,8 @@ export const getConfig = memoizee(
       )
     }
 
+    // When it's given as a directory
+    // Keep in mind that store file might not exist, yet. So you must not use `fs.statSync(preConfig.storeFile).isDirectory()`
     if (!preConfig.storeFile.endsWith('.json')) {
       preConfig.storeFile = getDefaultStoreFilename(
         path.dirname(preConfig.storeFile),
@@ -214,7 +208,7 @@ export interface GetStoreOptions {
 
 /**
  * @throw if the file does not exist
- * config.storeFile should be absolute path
+ * `config.storeFile` should be absolute path
  * @memoized
  */
 export const getStore = memoizee(
@@ -223,20 +217,22 @@ export const getStore = memoizee(
     fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
     const filename = (await config).storeFile
+    let rawStore
     try {
-      const rawStore = fs.readFileSync(filename, {
+      rawStore = fs.readFileSync(filename, {
         encoding: 'utf8',
       })
-      const store = JSON.parse(rawStore)
-      return store
     } catch (error) {
       return fallback()
     }
+    const store = JSON.parse(rawStore)
+    return store
   },
   {
     normalizer: serialize,
   },
 )
+
 export interface GetRecordsOptions {
   command?: string | Promise<string> // record store file path
   store?: HaetaeStore | Promise<HaetaeStore>
@@ -249,7 +245,7 @@ export async function getRecords({
   return (await store).commands[await command]
 }
 
-export interface InvokeReservedDynamicSubcommandOptions {
+export interface CommandFromConfig {
   command?: string | Promise<string>
   config?: HaetaeConfig | Promise<HaetaeConfig>
 }
@@ -261,21 +257,37 @@ export const invokeEnv = memoizee(
   async ({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: InvokeReservedDynamicSubcommandOptions = {}): Promise<HaetaeRecordEnv> =>
+  }: CommandFromConfig = {}): Promise<HaetaeRecordEnv> =>
     (await config)?.commands[await command]?.env(),
   {
     normalizer: serialize,
   },
 )
 
+export const invokeRun = async ({
+  command = getCurrentCommand(),
+  config = getConfig(),
+}: CommandFromConfig = {}): Promise<HaetaePreRecord> => {
+  const preRecord = (await config)?.commands[await command]?.run()
+  assert(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    preRecord.time === undefined,
+    'A Reserved Dynamic Subcommand `save` should not return an object with a key named "time". The key "time" is statically reserved by Haetae, and automatically filled in.',
+  )
+  assert(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    preRecord.env === undefined,
+    'A Reserved Dynamic Subcommand `save` should not return an object with a key named "env". The key "env" is statically reserved by Haetae, and automatically filled in.',
+  )
+  return preRecord
+}
+
 export interface GetRecordOptions extends GetRecordsOptions {
   env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
 }
 
-/**
- * The 'Env' in the function name does not mean environment variable.
- * It means `HaetaeRecordEnv`
- */
 export async function getRecord({
   command = getCurrentCommand(),
   env = invokeEnv({ command }),
@@ -291,71 +303,6 @@ export async function getRecord({
   }
 
   return undefined
-}
-
-/**
- * @memoized
- */
-export const invokeTarget = memoizee(
-  async ({
-    command = getCurrentCommand(),
-    config = getConfig(),
-  }: InvokeReservedDynamicSubcommandOptions = {}): Promise<string[]> =>
-    (await config).commands[await command].target(),
-  {
-    normalizer: serialize,
-  },
-)
-
-/**
- * @memoized
- */
-export const invokeSave = memoizee(
-  async ({
-    command = getCurrentCommand(),
-    config = getConfig(),
-  }: InvokeReservedDynamicSubcommandOptions = {}): Promise<HaetaePreRecord> => {
-    // NOTE: `prevRecord` and `preRecord` have different meanings.
-    const preRecord = await (await config).commands[await command].save()
-    assert(
-      preRecord.time === undefined,
-      'A Reserved Dynamic Subcommand `save` should not return an object with a key named "time". The key "time" is statically reserved by Haetae, and automatically filled in.',
-    )
-    assert(
-      preRecord.env === undefined,
-      'A Reserved Dynamic Subcommand `save` should not return an object with a key named "env". The key "env" is statically reserved by Haetae, and automatically filled in.',
-    )
-    return preRecord
-  },
-  {
-    normalizer: serialize,
-  },
-)
-
-export interface InvokeSubcommandOptions
-  extends InvokeReservedDynamicSubcommandOptions {
-  subcommand: string
-}
-
-export const invokeSubcommand = async ({
-  command = getCurrentCommand(),
-  config = getConfig(),
-  subcommand,
-}: InvokeSubcommandOptions): Promise<unknown> => {
-  assert(
-    subcommand !== 'env',
-    'Reserved Dynamic Subcommands have dedicated functions. For `env`, call `invokeEnv` directly.',
-  )
-  assert(
-    subcommand !== 'target',
-    'Reserved Dynamic Subcommands have dedicated functions. For `target`, call `invokeTarget` directly.',
-  )
-  assert(
-    subcommand !== 'save',
-    'Reserved Dynamic Subcommands have dedicated functions. For `save`, call `invokeSave` directly.',
-  )
-
-  return (await config).commands[await command][subcommand]()
 }
 
 export interface MapRecordOptions {
@@ -394,7 +341,7 @@ export async function mapStore({
   env = invokeEnv({ command, config }),
   record = mapRecord({
     env,
-    preRecord: invokeSave({ command, config }),
+    preRecord: invokeRun({ command, config }),
   }),
 }: MapStoreOptions = {}) {
   return produce(await store, async (draft) => {
@@ -429,6 +376,7 @@ export async function saveStore({
   config = getConfig(),
   store = mapStore({ config }),
 }: SaveStoreOptions = {}) {
+  // TODO: await
   fs.writeFileSync(
     (await config).storeFile,
     `${JSON.stringify(await store, null, 2)}\n`, // trailing empty line
