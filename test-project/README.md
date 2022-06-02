@@ -12,7 +12,7 @@ An example monorepo boilerplate for nodejs.
 
 This works well, and I've been carefully maintained it.
 
-Just clone this! Then read and compare with README.
+Just clone this! Then read and compare with **readme**.
 
 You'd grasp how this repo works.
 

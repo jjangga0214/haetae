@@ -133,3 +133,7 @@ You can read each packages' detailed docs of how each functions work.
 1. The core
 
 ## Concepts
+
+## License
+
+MIT License. Copyright © 2021, GIL B. Chan <github.com/jjangga0214> <bnbcmindnpass@gmail.com>

@@ -56,7 +56,7 @@ export const getConfigFilename = memoizee((): string => {
       return filename
     }
     return filename
-  } catch (error) {
+  } catch {
     throw new Error('Path to config file is non-existent path.')
   }
 })
@@ -151,7 +151,7 @@ export const getConfig = memoizee(
       if (fs.statSync(configFilename).isDirectory()) {
         configFilename = path.join(configFilename, defaultConfigFile)
       }
-    } catch (error) {
+    } catch {
       throw new Error(
         `Config filename is given as "${configFilename}", but it does not exist.`,
       )
@@ -163,7 +163,7 @@ export const getConfig = memoizee(
     // TODO: let env able to be given as a object, not a function?
     // for (const command in preConfig.commands) {
     //   if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
-    //     eslint-disable-next-line no-param-reassign
+
     //     preConfig.commands[command].env =
     //   }
     // }
@@ -216,13 +216,13 @@ export const getStore = memoizee(
     config = getConfig(),
     fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
-    const filename = (await config).storeFile
+    const { storeFile: filename } = await config
     let rawStore
     try {
       rawStore = fs.readFileSync(filename, {
         encoding: 'utf8',
       })
-    } catch (error) {
+    } catch {
       return fallback()
     }
     const store = JSON.parse(rawStore)
@@ -242,6 +242,7 @@ export async function getRecords({
   command = getCurrentCommand(),
   store = getStore(),
 }: GetRecordsOptions = {}): Promise<HaetaeRecord[] | undefined> {
+  // eslint-disable-next-line unicorn/no-await-expression-member
   return (await store).commands[await command]
 }
 
@@ -258,6 +259,7 @@ export const invokeEnv = memoizee(
     command = getCurrentCommand(),
     config = getConfig(),
   }: CommandFromConfig = {}): Promise<HaetaeRecordEnv> =>
+    // eslint-disable-next-line unicorn/no-await-expression-member
     (await config)?.commands[await command]?.env(),
   {
     normalizer: serialize,
@@ -268,6 +270,7 @@ export const invokeRun = async ({
   command = getCurrentCommand(),
   config = getConfig(),
 }: CommandFromConfig = {}): Promise<HaetaePreRecord> => {
+  // eslint-disable-next-line unicorn/no-await-expression-member
   const preRecord = (await config)?.commands[await command]?.run()
   assert(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -290,18 +293,17 @@ export interface GetRecordOptions extends GetRecordsOptions {
 
 export async function getRecord({
   command = getCurrentCommand(),
-  env = invokeEnv({ command }),
+  env: environment = invokeEnv({ command }),
   store = getStore(),
 }: GetRecordOptions = {}): Promise<HaetaeRecord | undefined> {
   const records = await getRecords({ command, store })
   if (records) {
     for (const record of records) {
-      if (deepEqual(await env, record.env)) {
+      if (deepEqual(await environment, record.env)) {
         return record
       }
     }
   }
-
   return undefined
 }
 
@@ -338,9 +340,9 @@ export async function mapStore({
   command = getCurrentCommand(),
   config = getConfig(),
   store = getStore({ config }),
-  env = invokeEnv({ command, config }),
+  env: environment = invokeEnv({ command, config }),
   record = mapRecord({
-    env,
+    env: environment,
     preRecord: invokeRun({ command, config }),
   }),
 }: MapStoreOptions = {}) {
@@ -356,7 +358,7 @@ export async function mapStore({
       index += 1
     ) {
       const oldRecord = draft.commands[await command][index]
-      if (deepEqual(await env, oldRecord.env)) {
+      if (deepEqual(await environment, oldRecord.env)) {
         draft.commands[await command][index] = await record
         return draft
       }
@@ -378,8 +380,9 @@ export async function saveStore({
 }: SaveStoreOptions = {}) {
   // TODO: await
   fs.writeFileSync(
+    // eslint-disable-next-line unicorn/no-await-expression-member
     (await config).storeFile,
-    `${JSON.stringify(await store, null, 2)}\n`, // trailing empty line
+    `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
     {
       encoding: 'utf8',
     },

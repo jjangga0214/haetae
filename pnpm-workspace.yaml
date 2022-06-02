@@ -1,0 +1,5 @@
+# REF: https://pnpm.io/ko/pnpm-workspace_yaml
+packages:
+  - 'packages/**'
+
+link-workspace-packages: "deep"

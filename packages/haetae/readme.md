@@ -20,7 +20,7 @@ Grouping of frequently used packages(`@haetae/*`) for [**Haetae**](https://githu
 
 This pacakge(`haetae`) is a convenient grouping of frequently used packages, including `@haetae/cli` and `@haetae/core`.
 
-For understanding **Haetae** itself first, please read [the repository(monorepo)](https://github.com/jjangga0214/haetae)'s README, not this packages' README.
+For understanding **Haetae** itself first, please read [the repository(monorepo)](https://github.com/jjangga0214/haetae)'s **readme**, not this packages' **readme**.
 
 ## Why?
 
@@ -51,7 +51,7 @@ This is identical from [`@haetae/cli`](https://github.com/jjangga0214/haetae/tre
 
 This package(`haetae`) has a very simple source code.
 
-```ts
+```js
 export * as cli from '@haetae/cli'
 export * as core from '@haetae/core'
 export * as git from '@haetae/git'
@@ -71,27 +71,15 @@ const { core, git, javascript: js, jest, utils } = require('haetae')
 module.exports = core.configure({
   commands: {
     test: {
-      target: async () =>
-        // return any test files which (transitively) depends on changed(git) files
-        (await utils.glob(['**/*.test.ts'])).filter(
-          // `js.dependsOn` can detect ts, tsx, js, jsx, tsconfig and webpack,
-          // although its package name is `@haetae/javascript`.
-          js.dependsOn(git.changedFiles()),
-        ),
+      run: async () => {},
       env: () => ({
         nodeVersion: process.version,
         os: process.platform,
         coreVersion: core.version,
       }),
-      save: async () => git.record(),
     },
     lint: {
-      target: async () =>
-        // return only changed(git) typescript/tsx files
-        (await git.changedFiles()).filter(
-          (filename) => filename.endsWith('.ts') || filename.endsWith('.tsx'),
-        ),
-      save: async () => git.record(),
+      run: async () => {},
     },
   },
 })

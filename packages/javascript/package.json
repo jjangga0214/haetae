@@ -17,9 +17,6 @@
     "@haetae/core": "0.0.1",
     "dependency-tree": "^8.1.1"
   },
-  "devDependencies": {
-    "utility-types": "^3.10.0"
-  },
   "keywords": [
     "haetae",
     "haetae-javascript",
