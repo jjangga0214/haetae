@@ -1,7 +1,6 @@
 import { getConfigDirname } from '@haetae/core'
 import path from 'path'
 import fs from 'fs'
-
 import dependencyTree from 'dependency-tree'
 
 export interface DependsOnOptions {

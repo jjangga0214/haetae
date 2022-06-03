@@ -24,8 +24,8 @@ describe('index', () => {
   it('getStore', async () => {
     expect.hasAssertions()
 
-    expect((await getStore()).version).toStrictEqual('0.0.1')
-    expect((await getStore()).commands.test[0].time).toStrictEqual(
+    expect((await getStore()).version).toBe('0.0.1')
+    expect((await getStore()).commands.test[0].time).toBe(
       '2021-08-16T08:59:07.409Z',
     )
   })
@@ -77,7 +77,7 @@ describe('index', () => {
       command: 'test',
       store: newStore,
     })
-    expect(originalRecord?.time !== newRecord?.time).toStrictEqual(true)
+    expect(originalRecord?.time !== newRecord?.time).toBe(true)
     const newStore2 = await mapStore({
       command: 'test',
       record: newRecord,

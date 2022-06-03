@@ -1,5 +1,5 @@
 const path = require('path')
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 const { configure } = require('@haetae/core')
 
 module.exports = configure({
