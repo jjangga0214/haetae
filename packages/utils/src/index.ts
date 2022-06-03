@@ -2,7 +2,7 @@ import globby from 'globby'
 import path from 'path'
 import { getConfigDirname } from '@haetae/core'
 
-export interface globOptions {
+export interface GlobOptions {
   rootDir?: string // This is a facade option for globbyOptions.cwd
   preConfiguredPatterns?: readonly string[]
   globbyOptions?: globby.GlobbyOptions
@@ -21,11 +21,11 @@ export async function glob(
       cwd: rootDir,
       gitignore: true,
     },
-  }: globOptions = {},
+  }: GlobOptions = {},
 ): Promise<string[]> {
-  const globbyRes = await globby(
+  const globbyResult = await globby(
     [...(preConfiguredPatterns as readonly string[]), ...patterns],
     globbyOptions,
   )
-  return globbyRes.map((p) => path.join(rootDir, p))
+  return globbyResult.map((p) => path.join(rootDir, p))
 }
