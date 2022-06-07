@@ -242,7 +242,6 @@ export async function getRecords({
   command = getCurrentCommand(),
   store = getStore(),
 }: GetRecordsOptions = {}): Promise<HaetaeRecord[] | undefined> {
-  // eslint-disable-next-line unicorn/no-await-expression-member
   return (await store).commands[await command]
 }
 
@@ -259,7 +258,6 @@ export const invokeEnv = memoizee(
     command = getCurrentCommand(),
     config = getConfig(),
   }: CommandFromConfig = {}): Promise<HaetaeRecordEnv> =>
-    // eslint-disable-next-line unicorn/no-await-expression-member
     (await config)?.commands[await command]?.env(),
   {
     normalizer: serialize,
@@ -270,7 +268,6 @@ export const invokeRun = async ({
   command = getCurrentCommand(),
   config = getConfig(),
 }: CommandFromConfig = {}): Promise<HaetaePreRecord> => {
-  // eslint-disable-next-line unicorn/no-await-expression-member
   const preRecord = (await config)?.commands[await command]?.run()
   assert(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -380,7 +377,6 @@ export async function saveStore({
 }: SaveStoreOptions = {}) {
   // TODO: await
   fs.writeFileSync(
-    // eslint-disable-next-line unicorn/no-await-expression-member
     (await config).storeFile,
     `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
     {
