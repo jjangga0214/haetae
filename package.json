@@ -28,7 +28,8 @@
   "eslintConfig": {
     "extends": "@jjangga0214/eslint-config",
     "rules": {
-      "unicorn/no-await-expression-member": "off"
+      "unicorn/no-await-expression-member": "off",
+      "unicorn/prefer-module": "off"
     }
   },
   "devDependencies": {
