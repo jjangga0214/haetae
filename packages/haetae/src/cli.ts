@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-import '@haetae/cli/dist/cli'
+import { run } from '@haetae/cli'
+
+run()
