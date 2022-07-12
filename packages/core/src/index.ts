@@ -1,5 +1,5 @@
 import path from 'path'
-import { strict as assert } from 'assert'
+import assert from 'assert/strict'
 import fs from 'fs'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
@@ -122,6 +122,7 @@ export function configure({
         typeof run === 'function',
         `commands.${command}.run is invalid. It should be a function.`,
       )
+      // TODO: https://github.com/jjangga0214/haetae/issues/4
       assert(
         typeof env === 'function',
         `commands.${command}.env is invalid. It should be a function.`,
@@ -160,19 +161,17 @@ export const getConfig = memoizee(
     const preConfigFromFile = await import(configFilename)
     // delete preConfigFromFile.default
     const preConfig: HaetaePreConfig = configure(preConfigFromFile)
-    // TODO: let env able to be given as a object, not a function?
-    // for (const command in preConfig.commands) {
-    //   if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
 
-    //     preConfig.commands[command].env =
-    //   }
-    // }
-    if (!preConfig.storeFile) {
-      // It becomes an absolute path, as path.dirname(filename) is also an absolute path.
-      preConfig.storeFile = getDefaultStoreFilename(
-        path.dirname(configFilename),
-      )
+    for (const command in preConfig.commands) {
+      if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
+        // Setting default: env
+        preConfig.commands[command].env =
+          preConfig.commands[command].env || (() => ({}))
+      }
     }
+
+    // Setting default: storeFile
+    preConfig.storeFile = preConfig.storeFile || '.'
 
     if (!path.isAbsolute(preConfig.storeFile)) {
       preConfig.storeFile = path.join(
@@ -182,8 +181,8 @@ export const getConfig = memoizee(
     }
 
     // When it's given as a directory
-    // Keep in mind that store file might not exist, yet. So you must not use `fs.statSync(preConfig.storeFile).isDirectory()`
     if (!preConfig.storeFile.endsWith('.json')) {
+      // Keep in mind that store file might not exist, yet. So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`
       preConfig.storeFile = getDefaultStoreFilename(
         path.dirname(preConfig.storeFile),
       )
@@ -273,13 +272,13 @@ export const invokeRun = async ({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     preRecord.time === undefined,
-    'A Reserved Dynamic Subcommand `save` should not return an object with a key named "time". The key "time" is statically reserved by Haetae, and automatically filled in.',
+    'A command function should not return an record(object) with a key named "time". The key "time" is statically reserved by Haetae, and automatically filled in.',
   )
   assert(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     preRecord.env === undefined,
-    'A Reserved Dynamic Subcommand `save` should not return an object with a key named "env". The key "env" is statically reserved by Haetae, and automatically filled in.',
+    'A command function should not return an record(object) with a key named "env". The key "env" is statically reserved by Haetae, and automatically filled in.',
   )
   return preRecord
 }
@@ -290,13 +289,13 @@ export interface GetRecordOptions extends GetRecordsOptions {
 
 export async function getRecord({
   command = getCurrentCommand(),
-  env: environment = invokeEnv({ command }),
+  env = invokeEnv({ command }),
   store = getStore(),
 }: GetRecordOptions = {}): Promise<HaetaeRecord | undefined> {
   const records = await getRecords({ command, store })
   if (records) {
     for (const record of records) {
-      if (deepEqual(await environment, record.env)) {
+      if (deepEqual(await env, record.env)) {
         return record
       }
     }
@@ -311,8 +310,8 @@ export interface MapRecordOptions {
 }
 
 export async function mapRecord({
-  env,
-  preRecord,
+  env = invokeEnv(),
+  preRecord = invokeRun(),
 }: MapRecordOptions): Promise<HaetaeRecord> {
   return {
     time: new Date().toISOString(),
@@ -337,9 +336,9 @@ export async function mapStore({
   command = getCurrentCommand(),
   config = getConfig(),
   store = getStore({ config }),
-  env: environment = invokeEnv({ command, config }),
+  env = invokeEnv({ command, config }),
   record = mapRecord({
-    env: environment,
+    env,
     preRecord: invokeRun({ command, config }),
   }),
 }: MapStoreOptions = {}) {
@@ -355,7 +354,7 @@ export async function mapStore({
       index += 1
     ) {
       const oldRecord = draft.commands[await command][index]
-      if (deepEqual(await environment, oldRecord.env)) {
+      if (deepEqual(await env, oldRecord.env)) {
         draft.commands[await command][index] = await record
         return draft
       }
