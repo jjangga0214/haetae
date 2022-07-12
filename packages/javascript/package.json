@@ -1,6 +1,6 @@
 {
   "name": "@haetae/javascript",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Dependency graph resolver of Javascript ecosystem (e.g. including Typescript, JSX) for Haetae",
   "license": "MIT",
   "private": false,
@@ -14,7 +14,7 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "@haetae/core": "0.0.1",
+    "@haetae/core": "workspace:^",
     "dependency-tree": "^8.1.1"
   },
   "keywords": [
