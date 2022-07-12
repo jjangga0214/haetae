@@ -18,7 +18,7 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "@haetae/core": "0.0.1",
+    "@haetae/core": "workspace:^",
     "chalk": "^4.1.2",
     "commander": "^8.1.0",
     "yargs": "^17.5.1"
