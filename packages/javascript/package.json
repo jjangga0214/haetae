@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "prepublish": "tsc --build tsconfig.build.json"
+    "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
     "@haetae/core": "0.0.1",

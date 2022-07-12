@@ -78,6 +78,7 @@ module.exports = core.configure({
         // An array of test files which (transitively) depend on changed (git) files
         const filesToTest = utils
           .glob(['**/*.test.ts']) // Get an array of files by glob pattern.
+          // Leave test files only if one of its (transitive) dependency file changed or test file itself changed.
           .filter(js.dependsOn(git.changedFiles()))
 
         if (filesToTest.length > 0) {
