@@ -17,12 +17,11 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "@haetae/cli": "0.0.1",
-    "@haetae/core": "0.0.1",
-    "@haetae/git": "0.0.1",
-    "@haetae/javascript": "0.0.1",
-    "@haetae/jest": "0.0.1",
-    "@haetae/utils": "0.0.1"
+    "@haetae/cli": "workspace:^",
+    "@haetae/core": "workspace:^",
+    "@haetae/git": "workspace:^",
+    "@haetae/javascript": "workspace:^",
+    "@haetae/utils": "workspace:^"
   },
   "devDependencies": {},
   "keywords": [
