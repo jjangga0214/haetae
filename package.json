@@ -35,13 +35,14 @@
   "devDependencies": {
     "@commitlint/cli": "^16.0.1",
     "@jjangga0214/commitlint-config": "^1.0.5",
-    "@jjangga0214/eslint-config": "^2.7.0",
-    "@jjangga0214/jest-config": "^2.3.0",
+    "@jjangga0214/eslint-config": "^3.0.1",
+    "@jjangga0214/jest-config": "^3.0.1",
     "@jjangga0214/markdownlint-config": "^1.0.1",
     "@jjangga0214/prettier-config": "^2.0.1",
     "@jjangga0214/tsconfig": "^3.2.0",
     "@swc/core": "^1.2.125",
     "@swc/helpers": "^0.2.12",
+    "@swc/jest": "^0.2.21",
     "@types/node": "^16.11.18",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^4.28.4",
@@ -87,8 +88,6 @@
     "url": "https://github.com/jjangga0214"
   },
   "dependencies": {
-    "eslint-plugin-react": "^7.30.0",
-    "eslint-plugin-react-hooks": "^4.5.0",
     "jest": "^28.1.0",
     "utility-types": "^3.10.0"
   }
