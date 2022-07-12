@@ -1,11 +1,4 @@
 #!/usr/bin/env node
-import { createCommanderProgram } from './index'
+import { run } from './index'
 
-async function main() {
-  const program = await createCommanderProgram()
-  if (program) {
-    program.parse(process.argv)
-  }
-}
-
-main()
+run()

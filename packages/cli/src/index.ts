@@ -1,21 +1,27 @@
-import fs from 'fs'
-import path from 'path'
-import { createCommand } from 'commander'
+#!/usr/bin/env node
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
-
+import path from 'path'
+import fs from 'fs'
 import {
   setCurrentCommand,
-  setConfigFilename,
-  getConfig,
   invokeEnv,
-  invokeTarget,
-  invokeSubcommand,
-  getStore,
+  setConfigFilename,
+  defaultConfigFile,
+  defaultStoreFile,
   saveStore,
+  getStore,
   getRecord,
   getRecords,
 } from '@haetae/core'
+import assert from 'assert/strict'
+
+// export function hideBinary(argv: string[]): string[] {
+//   if (process.env.NODE_ENV === 'development') {
+//     return argv.slice(6)
+//   }
+//   return hideBin(argv)
+// }
 
 export const { version } = (() => {
   const content = fs.readFileSync(
@@ -25,243 +31,108 @@ export const { version } = (() => {
   return JSON.parse(content)
 })()
 
-export async function createCommanderProgram() {
-  /**
-   * The CLI should be dynamically created by reading config file,
-   * whose path is given by `--config` option from the user.
-   * For commander, in order to read any options from user,
-   * `program.parse(process.argv)` should be called.
-   * However, it has side effect, thus is not proper to invoke before finishing building the CLI.
-   * Hence, hereby yargs is used for getting root options (e.g. `--config`),
-   * which does not have a side effect.
-   * Maybe, in future, we might consider replacing commander by yargs entirely.
-   * However, the CLI is already written with commander,
-   * so it's not one of priorities, and may not be needed at all.
-   */
-  const rootOptions = {
-    config: undefined,
-    json: false,
-    color: true,
-    ...yargs(hideBin(process.argv))
-      .alias('c', 'config')
-      .alias('j', 'json')
-      .help(false) // Needed for yargs not to catch --help option before commander gets it.
-      .version(false).argv, // Needed for yargs not to catch --version option before commander gets it.
-  }
-
-  // program.parse(process.argv) // DO NOT call this to get rootOptions. Instead, use yargs.
-
-  process.env.FORCE_COLOR = rootOptions.color ? '3' : '0'
-  // `chalk` (https://www.npmjs.com/package/chalk) use $FORCE_COLOR
-  // `chalk` should be dynamically imported after setting process.env.FORCE_COLOR
-  const chalk = (await import('chalk')).default
-
-  const config = await (async () => {
-    try {
-      setConfigFilename(rootOptions.config as string | undefined) // update config filename
-      // We need to await to catch error even if retuning a Promise.
-      return await getConfig()
-    } catch (error) {
-      return undefined
-    }
-  })()
-
-  // todo: impl global error handler
-
-  if (!config) {
-    const message = 'Config file is not given.'
-    if (rootOptions.json) {
-      console.error(JSON.stringify({ result: 'error', message }, null, 2))
-    } else {
-      console.error(chalk`{red [ERROR]} ${message}`)
-    }
-    return
-  }
-  const program = createCommand('haetae')
-    // program
-    // .name('haetae')
-    .version(version, '-v, --version', 'Show the version.')
-    .usage(
-      // '[root options] <command> [command options] [<subcommand> [subcommand options]]',
-      '[options] <command> [options] [<subcommand> [options]]',
-    )
-    .description(
-      [
-        chalk`Incremental test, lint, build and more.`,
-        chalk`For any languages, platforms, and frameworks.`,
-        chalk`{blue.bold The CLI dynamically (at runtime) produces commands and subcommands by your config file.}`,
-      ].join('\n'),
-    )
-    .option(
-      '-c, --config <path>',
-      'Config file directory or filename. It can be relative or absolute. (default: $HAETAE_CONFIG_FILE or ./haetae.config.js)',
-    )
-    .option(
-      '-j, --json',
-      "Format output to json if possible. This doesn't affect to commands which has fixed format, or already json format.",
-      false,
-    )
-    .option(
-      '    --no-color',
-      'Disable colorized (e.g. red for error) / decorated (e.g. bold text) output.',
-      false,
-    )
-    .helpOption('-h, --help', 'Show helpful descriptions.')
-    .addHelpText(
-      'after',
-      [
-        '\nRepo for any issues, questions and contribution(\u{1f496}):',
-        chalk`{green   https://github.com/jjangga0214/haetae}`,
-      ].join('\n'),
-    )
-    .addHelpText(
-      'after',
-      [
-        chalk`\nExamples:`,
-        chalk`  $ haetae store`,
-        chalk`  $ haetae --config /path/to/haetae.config.js test records {dim.bold # [NOTE] "records" is plural.}`,
-        chalk`  $ haetae --no-color lint record  {dim.bold # [NOTE] "record" is singular.}`,
-        chalk`  $ haetae test target | jest {dim.bold # [NOTE] pipeline to your test runner}`,
-        chalk`  $ haetae lint target | eslint {dim.bold # [NOTE] pipeline to your linter/formatter}`,
-        chalk`  $ haetae --json test target | your-json-operator | your-test-runner`,
-        chalk`  $ haetae build env`,
-        chalk`  $ haetae lint save`,
-        chalk`  $ haetae build --help`,
-      ].join('\n'),
-    )
-    .addHelpCommand(false) // `help` command can be replaced by `--help` option.
-
-  program
-    .command('store')
-    .description('Show content of store file.')
-    .action(async () => {
-      console.log(JSON.stringify(await getStore({ config }), null, 2))
+export async function run() {
+  const y = await yargs(hideBin(process.argv))
+    .scriptName('haetae')
+    .usage('$0 <command>')
+    .alias('h', 'help')
+    .alias('v', 'version')
+    .options({
+      c: {
+        alias: 'config',
+        type: 'string',
+        description: `Config file path. Default to "./${defaultConfigFile}" or the environment variable $HAETAE_CONFIG_FILE`,
+      },
+      s: {
+        alias: 'store',
+        type: 'string',
+        description: 'Store file path',
+      },
+      r: {
+        alias: 'record',
+        type: 'boolean',
+        description: 'All/partial record(s)',
+      },
+      e: {
+        alias: 'env',
+        type: 'boolean',
+        description: 'Current environment',
+      },
     })
-  // dynamically add commands and subcommands by reading config file.
-  for (const command in config.commands) {
-    if (Object.prototype.hasOwnProperty.call(config.commands, command)) {
-      const cmd = program
-        .command(command)
-        .description('User-defined command from config.')
-        .addHelpCommand(false) // `help` command can be replaced by `--help` option.
-      for (const subcommand in config.commands[command]) {
-        if (
-          Object.prototype.hasOwnProperty.call(
-            config.commands[command],
-            subcommand,
-          )
-        ) {
-          const subCmd = cmd.command(subcommand)
-          if (subcommand === 'env') {
-            subCmd.description('Show current env object.').action(async () => {
-              setCurrentCommand(command)
-              const env = await invokeEnv({ config })
-              console.log(JSON.stringify(env, null, 2))
-            })
-          } else if (subcommand === 'target') {
-            subCmd.description('Show targets.').action(
-              async (
-                _,
-                {
-                  parent: {
-                    parent: { options: rootOptions },
-                  },
-                },
-              ) => {
-                setCurrentCommand(command)
-                const targets = await invokeTarget({ config })
-                if (rootOptions.json) {
-                  console.log(JSON.stringify(targets, null, 2))
-                } else {
-                  console.log(targets.join('\n'))
-                }
-              },
-            )
-          } else if (subcommand === 'save') {
-            subCmd
-              .description(
-                'Save a new record to store file and show the new record.',
-              )
-              .action(async () => {
-                setCurrentCommand(command)
-                await saveStore({
-                  config,
-                })
-                const record = await getRecord()
-                console.log(JSON.stringify(record, null, 2))
-              })
-          } else {
-            subCmd
-              .description('User-defined subcommand from config.')
-              .action(async () => {
-                setCurrentCommand(command)
-                const res = await invokeSubcommand({ subcommand })
-                console.log(JSON.stringify(res, null, 2))
-              })
-          }
-        }
-      } // end for loop
-      cmd
-        .command('records')
-        .description('Show every records of given command.')
-        .action(
-          async (
-            _,
-            {
-              parent: {
-                parent: { options: rootOptions },
-              },
-            },
-          ) => {
-            setCurrentCommand(command)
-            const records = await getRecords()
-            if (!records) {
-              const message = 'Not found from the store file.'
-              if (rootOptions.json) {
-                console.log(
-                  JSON.stringify({ result: 'error', message }, null, 2),
-                )
-              } else {
-                console.log(chalk`{blue [INFO]} ${message}`)
-              }
-            } else {
-              console.log(JSON.stringify(records, null, 2))
-            }
-          },
-        )
-      cmd
-        .command('record')
-        .description('Show record of given command and current env.')
-        .action(
-          async (
-            _,
-            {
-              parent: {
-                parent: { options: rootOptions },
-              },
-            },
-          ) => {
-            setCurrentCommand(command)
-            const env = await invokeEnv({ config })
-            const record = await getRecord({
-              env,
-            })
-            if (!record) {
-              const message = 'Not found from the store file.'
-              if (rootOptions.json) {
-                console.log(
-                  JSON.stringify({ result: 'error', message }, null, 2),
-                )
-              } else {
-                console.log(chalk`{blue [INFO]} ${message}`)
-              }
-            } else {
-              console.log(JSON.stringify(record, null, 2))
-            }
-          },
-        )
+    .example([
+      [`$0 -c ./${defaultConfigFile} <...>`, 'Specify config file path.'],
+      [
+        `$0 -s ./${defaultStoreFile} <...>`,
+        'Specify store file path, ignoring "storeFile" field in config file.',
+      ],
+      [
+        '$0 <command>',
+        'Run the given command and save the new record to store file',
+      ],
+      ['$0 -r', 'Show all content of the store file'],
+      ['$0 -r <command>', 'Show all records of the given command'],
+      ['$0 -e <command>', 'Show current env of the given command'],
+      [
+        '$0 -r -e <command>',
+        'Show a record of current env of the given command',
+      ],
+    ])
+
+  // `y` should be instantiated for type check. Do NOT create `argv` directly.
+  const argv = await y.argv
+
+  // 1. Set config file path
+  if (argv.c) {
+    setConfigFilename(argv.c)
+  } else {
+    const cwdConfigFile = path.join(process.cwd(), defaultConfigFile)
+    try {
+      assert(
+        fs.statSync(cwdConfigFile).isFile(),
+        `${cwdConfigFile} must be a file.`,
+      )
+      setConfigFilename(cwdConfigFile)
+    } catch {
+      //
     }
   }
 
-  return program
+  // 2. Set store file path
+  if (argv.s) {
+    // TODO: https://github.com/jjangga0214/haetae/issues/13
+  }
+
+  if (argv._.length === 0) {
+    // When command is not given
+
+    assert(argv.e === false, 'Option "e" must be given with <command>')
+    assert(
+      argv.r === true,
+      'Option "r" must be given when <command> is not given',
+    )
+    const store = await getStore()
+    console.log(JSON.stringify(store, undefined, 2))
+  } else if (argv._.length === 1) {
+    // When a command is given
+
+    const command = argv._[0]
+    assert(typeof command === 'string')
+    // Set current command
+    setCurrentCommand(command)
+
+    if (argv.r && argv.e) {
+      const record = await getRecord()
+      console.log(JSON.stringify(record, undefined, 2))
+    } else if (argv.e) {
+      const env = await invokeEnv()
+      console.log(JSON.stringify(env, undefined, 2))
+    } else if (argv.r) {
+      const records = await getRecords()
+      console.log(JSON.stringify(records, undefined, 2))
+    } else {
+      await saveStore()
+    }
+  } else {
+    console.error(' Too many commands. Only one command is allowed.')
+  }
 }

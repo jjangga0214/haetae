@@ -13,16 +13,19 @@
     "haetae": "./dist/cli.js"
   },
   "scripts": {
+    "ts": "ts-node -r tsconfig-paths/register",
     "build": "tsc --build tsconfig.build.json",
-    "prepublish": "tsc --build tsconfig.build.json"
+    "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
     "@haetae/core": "0.0.1",
     "chalk": "^4.1.2",
     "commander": "^8.1.0",
-    "yargs": "^17.1.1"
+    "yargs": "^17.5.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/yargs": "^17.0.10"
+  },
   "keywords": [
     "haetae",
     "haetae-cli",
