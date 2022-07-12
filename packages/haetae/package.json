@@ -10,7 +10,8 @@
     "dist"
   ],
   "bin": {
-    "haetae": "./dist/cli.js"
+    "haetae": "./dist/cli.js",
+    "ht": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
