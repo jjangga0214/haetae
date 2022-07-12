@@ -105,7 +105,7 @@ export async function run() {
   if (argv._.length === 0) {
     // When command is not given
 
-    assert(argv.e === false, 'Option "e" must be given with <command>')
+    assert(!argv.e, 'Option "e" must be given with <command>')
     assert(
       argv.r === true,
       'Option "r" must be given when <command> is not given',
