@@ -1,47 +1,22 @@
-import childProcess from 'child_process'
 import path from 'path'
+import fs from 'fs'
 import {
   getConfigDirname,
   getRecord,
   HaetaeRecord,
   HaetaePreRecord,
 } from '@haetae/core'
-import { glob } from '@haetae/utils'
+import { glob, exec } from '@haetae/utils'
 
 // todo: git submodule test
 
-export const name = '@haetae/git'
-
-export interface ExecOptions {
-  uid?: number | undefined
-  gid?: number | undefined
-  cwd?: string | URL | undefined
-  env?: NodeJS.ProcessEnv | undefined
-  /**
-   * @default true
-   */
-  windowsHide?: boolean | undefined
-  /**
-   * @default 0
-   */
-  timeout?: number | undefined
-  shell?: string | undefined
-  maxBuffer?: number | undefined
-  killSignal?: NodeJS.Signals | number | undefined
-}
-
-export const execAsync = (
-  command: string,
-  options: ExecOptions = {},
-): Promise<string> =>
-  new Promise((resolve, reject) => {
-    childProcess.exec(command, options, (err, stdout, stderr) => {
-      if (stdout) {
-        resolve(stdout)
-      }
-      reject(err || stderr)
-    })
-  })
+export const { name } = (() => {
+  const content = fs.readFileSync(
+    path.join(__dirname, '..', 'package.json'),
+    'utf8',
+  )
+  return JSON.parse(content)
+})()
 
 export interface ChangedFilesOptions {
   gitSha?: string | Promise<string>
@@ -52,7 +27,7 @@ export interface ChangedFilesOptions {
 }
 
 export type GitPatchedHaetaeRecord = HaetaeRecord & {
-  [name]: { gitSha: string }
+  [name: string]: { gitSha: string }
 }
 
 /**
@@ -84,7 +59,7 @@ export const changedFiles = async ({
     // untracked changes
     res.push(
       ...(
-        await execAsync(
+        await exec(
           `git ls-files --others${includeIgnored ? '' : ' --exclude-standard'}`,
           {
             cwd: rootDir,
@@ -98,7 +73,7 @@ export const changedFiles = async ({
 
   res.push(
     ...(
-      await execAsync(`git diff --name-only ${gitSha}`, {
+      await exec(`git diff --name-only ${gitSha}`, {
         cwd: rootDir,
       })
     )
@@ -111,19 +86,17 @@ export const changedFiles = async ({
 export interface RecordOptions {
   gitSha?: string | Promise<string>
   rootDir?: string
-  // TODO
-  // includeUntracked: boolean
 }
 
-export const record = async ({
+export async function record({
   rootDir = getConfigDirname(),
   gitSha = process.env.HAETAE_GIT_GITSHA ||
-    execAsync('git rev-parse --verify HEAD', { cwd: rootDir }).then((res) =>
+    exec('git rev-parse --verify HEAD', { cwd: rootDir }).then((res) =>
       res.trim(),
     ),
-}: RecordOptions): Promise<HaetaePreRecord> => {
+}: RecordOptions): Promise<HaetaePreRecord> {
   if (!gitSha) {
-    throw new Error('gitSha is invalid.')
+    throw new Error('gitSha is not given.')
   }
   return {
     [name]: {
@@ -136,9 +109,11 @@ export interface BranchOptions {
   rootDir?: string
 }
 
-export const branch = async ({
+export async function branch({
   rootDir = getConfigDirname(),
-}: BranchOptions = {}) =>
-  execAsync('git branch --show-current', {
+}: BranchOptions = {}) {
+  const res = await exec('git branch --show-current', {
     cwd: rootDir,
   })
+  return res.trim()
+}
