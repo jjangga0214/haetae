@@ -10,12 +10,13 @@
     "dist"
   ],
   "scripts": {
+    "ts": "ts-node -r tsconfig-paths/register",
     "build": "tsc --build tsconfig.build.json",
-    "prepublish": "tsc --build tsconfig.build.json"
+    "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
     "globby": "^11",
-    "@haetae/core": "0.0.1"
+    "@haetae/core": "workspace:^"
   },
   "devDependencies": {},
   "keywords": [

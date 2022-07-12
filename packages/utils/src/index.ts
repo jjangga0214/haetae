@@ -1,5 +1,6 @@
 import globby from 'globby'
 import path from 'path'
+import childProcess from 'child_process'
 import { getConfigDirname } from '@haetae/core'
 
 export interface GlobOptions {
@@ -12,6 +13,7 @@ export async function glob(
   patterns: readonly string[],
   {
     rootDir = getConfigDirname(),
+    // TODO: refactor
     preConfiguredPatterns = [
       `!${path.join('**', 'node_modules')}`,
       `!${path.join('**', 'jspm_packages')}`,
@@ -23,9 +25,43 @@ export async function glob(
     },
   }: GlobOptions = {},
 ): Promise<string[]> {
-  const globbyResult = await globby(
+  const res = await globby(
     [...(preConfiguredPatterns as readonly string[]), ...patterns],
     globbyOptions,
   )
-  return globbyResult.map((p) => path.join(rootDir, p))
+  return res.map((p) => path.join(rootDir, p))
+}
+
+export interface ExecOptions {
+  uid?: number | undefined
+  gid?: number | undefined
+  cwd?: string | URL | undefined
+  env?: NodeJS.ProcessEnv | undefined
+  /**
+   * @default true
+   */
+  windowsHide?: boolean | undefined
+  /**
+   * @default 0
+   */
+  timeout?: number | undefined
+  shell?: string | undefined
+  maxBuffer?: number | undefined
+  killSignal?: NodeJS.Signals | number | undefined
+}
+
+export async function exec(
+  command: string,
+  options: ExecOptions = {},
+): Promise<string> {
+  // eslint-disable-next-line no-param-reassign
+  options.cwd = options.cwd || getConfigDirname()
+  return new Promise((resolve, reject) => {
+    childProcess.exec(command, options, (error, stdout, stderr) => {
+      if (stdout) {
+        resolve(stdout)
+      }
+      reject(error || stderr)
+    })
+  })
 }
