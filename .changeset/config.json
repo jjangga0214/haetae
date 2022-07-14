@@ -3,13 +3,7 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
-  "linked": [
-    ["haetae", "@haetae/cli"],
-    ["haetae", "@haetae/core"],
-    ["haetae", "@haetae/git"],
-    ["haetae", "@haetae/javascript"],
-    ["haetae", "@haetae/utils"]
-  ],
+  "linked": [["haetae", "@haetae/*"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
