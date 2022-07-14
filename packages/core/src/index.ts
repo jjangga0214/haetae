@@ -102,9 +102,6 @@ export interface HaetaePreConfig {
 export type HaetaeConfig = Required<HaetaePreConfig, 'storeFile'>
 
 export const defaultStoreFile = 'haetae.store.json'
-export const getDefaultStoreFilename = (
-  configDirname: string = getConfigDirname(),
-) => path.join(configDirname, defaultStoreFile)
 
 /**
  *
@@ -180,12 +177,11 @@ export const getConfig = memoizee(
       )
     }
 
-    // When it's given as a directory
+    // When it's given as a directory.
+    // Keep in mind that store file might not exist, yet.
+    // So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`.
     if (!preConfig.storeFile.endsWith('.json')) {
-      // Keep in mind that store file might not exist, yet. So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`
-      preConfig.storeFile = getDefaultStoreFilename(
-        path.dirname(preConfig.storeFile),
-      )
+      preConfig.storeFile = path.join(preConfig.storeFile, defaultStoreFile)
     }
 
     return preConfig as HaetaeConfig
