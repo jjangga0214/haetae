@@ -8,4 +8,4 @@ import { hello } from '#foo/hello'
 
 hello('world')
 
-export const doubleNumbers = (data: number[]) => data.map((i) => i * 2)
+export const doubleNumbers = (data: readonly number[]) => data.map((i) => i * 2)
