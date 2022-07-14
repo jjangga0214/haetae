@@ -3,7 +3,6 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [],
-  "linked": [["haetae", "@haetae/*"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
