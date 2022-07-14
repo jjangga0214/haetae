@@ -4,6 +4,7 @@ importers:
 
   .:
     specifiers:
+      '@changesets/changelog-github': ^0.4.5
       '@changesets/cli': ^2.23.2
       '@commitlint/cli': ^16.0.1
       '@jjangga0214/commitlint-config': ^1.0.5
@@ -41,6 +42,7 @@ importers:
       jest: 28.1.2_4maxphccb5fztufhofwcslq6fm
       utility-types: 3.10.0
     devDependencies:
+      '@changesets/changelog-github': 0.4.5
       '@changesets/cli': 2.23.2
       '@commitlint/cli': 16.3.0_@swc+core@1.2.212
       '@jjangga0214/commitlint-config': 1.0.5_wxammkz6pk3znqt64f6grxllri
@@ -502,6 +504,16 @@ packages:
       '@changesets/types': 5.0.0
     dev: true
 
+  /@changesets/changelog-github/0.4.5:
+    resolution: {integrity: sha512-J36QJml3mXYm88PLY2qGepmb7j6LA3NM/wuUy6XBwh14qzVTRek+3Xww5oqeZhpK5lK8ELxGahdhSdYQzMv0kA==}
+    dependencies:
+      '@changesets/get-github-info': 0.5.1
+      '@changesets/types': 5.0.0
+      dotenv: 8.6.0
+    transitivePeerDependencies:
+      - encoding
+    dev: true
+
   /@changesets/cli/2.23.2:
     resolution: {integrity: sha512-o7CWC+mcwOmA3yK5axqHOSYPYEjX/x+nq/s9aX78AyzH1SQZa6L5HX4P9uUXibyjcKynklkmusxv8vN8+hJggA==}
     hasBin: true
@@ -567,6 +579,15 @@ packages:
       chalk: 2.4.2
       fs-extra: 7.0.1
       semver: 5.7.1
+    dev: true
+
+  /@changesets/get-github-info/0.5.1:
+    resolution: {integrity: sha512-w2yl3AuG+hFuEEmT6j1zDlg7GQLM/J2UxTmk0uJBMdRqHni4zXGe/vUlPfLom5KfX3cRfHc0hzGvloDPjWFNZw==}
+    dependencies:
+      dataloader: 1.4.0
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
     dev: true
 
   /@changesets/get-release-plan/3.0.10:
@@ -2578,6 +2599,10 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /dataloader/1.4.0:
+    resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+    dev: true
+
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -2832,6 +2857,11 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       is-obj: 2.0.0
+    dev: true
+
+  /dotenv/8.6.0:
+    resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
+    engines: {node: '>=10'}
     dev: true
 
   /eastasianwidth/0.2.0:
@@ -5185,6 +5215,18 @@ packages:
     resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
     dev: false
 
+  /node-fetch/2.6.7:
+    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+    dependencies:
+      whatwg-url: 5.0.0
+    dev: true
+
   /node-int64/0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
@@ -6256,6 +6298,10 @@ packages:
     dependencies:
       is-number: 7.0.0
 
+  /tr46/0.0.3:
+    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+    dev: true
+
   /trim-newlines/3.0.1:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
     engines: {node: '>=8'}
@@ -6534,6 +6580,17 @@ packages:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
     dependencies:
       defaults: 1.0.3
+    dev: true
+
+  /webidl-conversions/3.0.1:
+    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+    dev: true
+
+  /whatwg-url/5.0.0:
+    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
+    dependencies:
+      tr46: 0.0.3
+      webidl-conversions: 3.0.1
     dev: true
 
   /which-boxed-primitive/1.0.2:
