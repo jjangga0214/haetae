@@ -12,9 +12,11 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - uses: pnpm/action-setup@v2
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
         with:
           version: 7
           run_install: false # For cache
@@ -24,7 +26,7 @@ jobs:
         run: echo "::set-output name=nvmrc::$(cat .nvmrc)"
 
       # pnpm should be installed before the setup-node action. REF: https://github.com/actions/setup-node/issues/530
-      - name: Set up Node.js
+      - name: Set Up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: ${{ steps.nvmrc.outputs.nvmrc }}
@@ -34,8 +36,8 @@ jobs:
         id: pnpm-cache
         run: echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
 
-      - uses: actions/cache@v3
-        name: Set up pnpm cache
+      - name: Set Up pnpm cache
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -45,7 +47,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --silent
 
-      - name: Create Release Pull Request
+      - name: Create Release PR or Publish
         uses: changesets/action@v1
         with:
           commit: 'chore: release'
