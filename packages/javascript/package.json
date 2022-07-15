@@ -1,6 +1,6 @@
 {
   "name": "@haetae/javascript",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Dependency graph resolver of Javascript ecosystem (e.g. including Typescript, JSX) for Haetae",
   "license": "MIT",
   "private": false,

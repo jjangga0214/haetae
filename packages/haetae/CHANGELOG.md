@@ -1,5 +1,18 @@
 # haetae
 
+## 0.0.5
+
+### Patch Changes
+
+- [`2519c75`](https://github.com/jjangga0214/haetae/commit/2519c75646778e9f882755f7185bb737ae589b67) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Export `packageName` and `packageVersion`.
+
+- Updated dependencies [[`18cc10f`](https://github.com/jjangga0214/haetae/commit/18cc10fe6504e2ba7c13c40e78237bbe20abc07b), [`1066512`](https://github.com/jjangga0214/haetae/commit/1066512bd353a517d5f57d25b72b65d7be80720e), [`28b7e9a`](https://github.com/jjangga0214/haetae/commit/28b7e9acee17f478c83b425fcffd70f3d6e49f96), [`1066512`](https://github.com/jjangga0214/haetae/commit/1066512bd353a517d5f57d25b72b65d7be80720e), [`3e7c141`](https://github.com/jjangga0214/haetae/commit/3e7c141e4fb2225d7ba7599210560ceb877c0216), [`75a4eae`](https://github.com/jjangga0214/haetae/commit/75a4eae728877c48945c4fcf84936c2b81f2600d), [`2519c75`](https://github.com/jjangga0214/haetae/commit/2519c75646778e9f882755f7185bb737ae589b67), [`2519c75`](https://github.com/jjangga0214/haetae/commit/2519c75646778e9f882755f7185bb737ae589b67), [`18cc10f`](https://github.com/jjangga0214/haetae/commit/18cc10fe6504e2ba7c13c40e78237bbe20abc07b), [`28b7e9a`](https://github.com/jjangga0214/haetae/commit/28b7e9acee17f478c83b425fcffd70f3d6e49f96)]:
+  - @haetae/core@0.0.6
+  - @haetae/javascript@0.0.4
+  - @haetae/git@0.0.4
+  - @haetae/cli@0.0.5
+  - @haetae/utils@0.0.5
+
 ## 0.0.4
 
 ### Patch Changes
