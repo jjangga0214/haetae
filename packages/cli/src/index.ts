@@ -23,7 +23,7 @@ import assert from 'assert/strict'
 //   return hideBin(argv)
 // }
 
-export const { version } = (() => {
+export const { name, version } = (() => {
   const content = fs.readFileSync(
     path.join(__dirname, '..', 'package.json'),
     'utf8',

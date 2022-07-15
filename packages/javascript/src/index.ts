@@ -34,3 +34,10 @@ export async function dependsOn(
     return false
   }
 }
+
+export const { name, version } = (() => {
+  const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
+    encoding: 'utf8',
+  })
+  return JSON.parse(content)
+})()

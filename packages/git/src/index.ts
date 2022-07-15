@@ -10,7 +10,7 @@ import { glob, exec } from '@haetae/utils'
 
 // todo: git submodule test
 
-export const { name } = (() => {
+export const { name, version } = (() => {
   const content = fs.readFileSync(
     path.join(__dirname, '..', 'package.json'),
     'utf8',

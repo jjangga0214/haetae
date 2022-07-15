@@ -1,5 +1,6 @@
-import globby from 'globby'
+import fs from 'fs'
 import path from 'path'
+import globby from 'globby'
 import childProcess from 'child_process'
 import { getConfigDirname } from '@haetae/core'
 
@@ -55,3 +56,10 @@ export async function exec(
     })
   })
 }
+
+export const { name, version } = (() => {
+  const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
+    encoding: 'utf8',
+  })
+  return JSON.parse(content)
+})()

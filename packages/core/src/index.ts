@@ -8,7 +8,7 @@ import { Required } from 'utility-types'
 import produce from 'immer'
 import deepEqual from 'deep-equal'
 
-export const { version } = (() => {
+export const { name, version } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })
