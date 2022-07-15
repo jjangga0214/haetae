@@ -66,7 +66,7 @@ export const getConfigDirname = () => path.dirname(getConfigFilename())
 export type HaetaeRecordEnv = Record<string, unknown>
 
 export interface HaetaeRecord {
-  time: string // ISO format
+  time: number | string // ISO format
   env: HaetaeRecordEnv
   // '@haetae/git'?: {
   //   commit: string
@@ -196,6 +196,7 @@ export function initNewStore(): HaetaeStore {
 
 export interface GetStoreOptions {
   config?: HaetaeConfig | Promise<HaetaeConfig>
+  filename?: string | Promise<string>
   // When there's no store file yet.
   fallback?: () => HaetaeStore | Promise<HaetaeStore>
 }
@@ -208,12 +209,12 @@ export interface GetStoreOptions {
 export const getStore = memoizee(
   async ({
     config = getConfig(),
+    filename = (async () => (await config).storeFile)(),
     fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
-    const { storeFile: filename } = await config
     let rawStore
     try {
-      rawStore = fs.readFileSync(filename, {
+      rawStore = fs.readFileSync(await filename, {
         encoding: 'utf8',
       })
     } catch {
@@ -309,17 +310,19 @@ export async function getRecord({
 }
 
 export interface MapRecordOptions {
-  env: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
+  time?: number | string
+  env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
   // "pre" is different from "prev", which means "previous". Instead, "pre" means "given from user's config", so default values should be filled in."
-  preRecord: HaetaePreRecord | Promise<HaetaePreRecord>
+  preRecord?: HaetaePreRecord | Promise<HaetaePreRecord>
 }
 
 export async function mapRecord({
+  time = new Date().toISOString(),
   env = invokeEnv(),
   preRecord = invokeRun(),
 }: MapRecordOptions): Promise<HaetaeRecord> {
   return {
-    time: new Date().toISOString(),
+    time,
     env: await env,
     ...(await preRecord),
   }
@@ -328,8 +331,6 @@ export async function mapRecord({
 export interface MapStoreOptions {
   command?: string | Promise<string>
   store?: HaetaeStore | Promise<HaetaeStore>
-  env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
-  config?: HaetaeConfig | Promise<HaetaeConfig>
   record?: HaetaeRecord | Promise<HaetaeRecord>
 }
 
@@ -339,49 +340,49 @@ export interface MapStoreOptions {
  */
 export async function mapStore({
   command = getCurrentCommand(),
-  config = getConfig(),
-  store = getStore({ config }),
-  env = invokeEnv({ command, config }),
+  store = getStore(),
   record = mapRecord({
-    env,
-    preRecord: invokeRun({ command, config }),
+    env: invokeEnv({ command }),
+    preRecord: invokeRun({ command }),
   }),
 }: MapStoreOptions = {}) {
   return produce(await store, async (draft) => {
     /* eslint-disable no-param-reassign */
+    record = await record
+    command = await command
     draft.version = packageVersion
     draft.commands = draft.commands || {}
-    draft.commands[await command] = draft.commands[await command] || []
-
-    const records = draft.commands[await command]
+    draft.commands[command] = draft.commands[command] || []
+    const records = draft.commands[command]
     for (const [index, oldRecord] of records.entries()) {
       try {
-        if (await compareEnvs(env, oldRecord.env)) {
-          records[index] = await record
+        if (await compareEnvs(record.env, oldRecord.env)) {
+          records[index] = record
           return draft
         }
       } catch {
+        // console.error(error)
         throw new Error('`env` must be able to be stringified.')
       }
     }
-    draft.commands[await command].push(await record)
+    draft.commands[command].push(await record)
     /* eslint-enable no-param-reassign */
     return draft
   })
 }
 
 export interface SaveStoreOptions {
-  config?: HaetaeConfig | Promise<HaetaeConfig>
+  filename?: string | Promise<string>
   store?: HaetaeStore | Promise<HaetaeStore>
 }
 
 export async function saveStore({
-  config = getConfig(),
-  store = mapStore({ config }),
+  filename = getConfig().then((config) => config.storeFile),
+  store = mapStore(),
 }: SaveStoreOptions = {}) {
   // TODO: await
   fs.writeFileSync(
-    (await config).storeFile,
+    await filename,
     `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
     {
       encoding: 'utf8',
