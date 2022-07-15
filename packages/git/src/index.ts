@@ -74,7 +74,10 @@ export interface ChangedFilesOptions extends RecordOptions {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
-  fallback?: () => string[] | Promise<string[]> | never
+  // When commit ID is not given,
+  // or commit ID cannot be found from record,
+  // or `git diff` fails (e.g. by forced push
+  fallback?: (error?: Error) => string[] | Promise<string[]> | never
 }
 
 /**
@@ -92,11 +95,7 @@ export const changedFiles = async ({
   rootDir = getConfigDirname(),
   includeUntracked = true,
   includeIgnored = false,
-  fallback = () =>
-    // list of every files when commit ID is not given or cannot be found on record
-    glob(['**'], {
-      rootDir,
-    }),
+  fallback = () => glob(['**'], { rootDir }),
 }: ChangedFilesOptions = {}): Promise<string[]> => {
   if (!(await isInstalled())) {
     throw new Error('git is not installed on the system, or $PATH is not set.')
@@ -111,31 +110,37 @@ export const changedFiles = async ({
     return fallback()
   }
 
-  const res = (
-    await exec(`git diff --name-only ${commit}`, {
-      cwd: rootDir,
-    })
-  )
-    .trim()
-    .split('\n')
-
-  if (includeUntracked) {
-    // untracked changes
-    res.push(
-      ...(
-        await exec(
-          `git ls-files --others${includeIgnored ? '' : ' --exclude-standard'}`,
-          {
-            cwd: rootDir,
-          },
-        )
-      )
-        .trim()
-        .split('\n'),
+  try {
+    const res = (
+      await exec(`git diff --name-only ${commit}`, {
+        cwd: rootDir,
+      })
     )
-  }
+      .trim()
+      .split('\n')
 
-  return res.map((filename) => path.join(rootDir, filename))
+    if (includeUntracked) {
+      // untracked changes
+      res.push(
+        ...(
+          await exec(
+            `git ls-files --others${
+              includeIgnored ? '' : ' --exclude-standard'
+            }`,
+            {
+              cwd: rootDir,
+            },
+          )
+        )
+          .trim()
+          .split('\n'),
+      )
+    }
+
+    return res.map((filename) => path.join(rootDir, filename))
+  } catch (error) {
+    return fallback(error as Error)
+  }
 }
 
 export interface BranchOptions {
