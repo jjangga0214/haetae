@@ -16,6 +16,9 @@
   "dependencies": {
     "dependency-tree": "^8.1.1"
   },
+  "devDependencies": {
+    "@haetae/core": "workspace:^"
+  },
   "peerDependencies": {
     "@haetae/core": "workspace:^"
   },

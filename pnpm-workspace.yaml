@@ -2,4 +2,4 @@
 packages:
   - 'packages/**'
 
-link-workspace-packages: "deep"
+link-workspace-packages: deep

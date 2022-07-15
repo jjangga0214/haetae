@@ -18,7 +18,10 @@
     "memoizee": "^0.4.15",
     "serialize-javascript": "^6.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@haetae/core": "workspace:^",
+    "@haetae/utils": "workspace:^"
+  },
   "peerDependencies": {
     "@haetae/core": "workspace:^",
     "@haetae/utils": "workspace:^"

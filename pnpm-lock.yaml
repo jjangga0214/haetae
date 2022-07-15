@@ -107,11 +107,16 @@ importers:
 
   packages/git:
     specifiers:
+      '@haetae/core': workspace:^
+      '@haetae/utils': workspace:^
       memoizee: ^0.4.15
       serialize-javascript: ^6.0.0
     dependencies:
       memoizee: 0.4.15
       serialize-javascript: 6.0.0
+    devDependencies:
+      '@haetae/core': link:../core
+      '@haetae/utils': link:../utils
 
   packages/haetae:
     specifiers:
@@ -129,15 +134,21 @@ importers:
 
   packages/javascript:
     specifiers:
+      '@haetae/core': workspace:^
       dependency-tree: ^8.1.1
     dependencies:
       dependency-tree: 8.1.2
+    devDependencies:
+      '@haetae/core': link:../core
 
   packages/utils:
     specifiers:
+      '@haetae/core': workspace:^
       globby: ^11
     dependencies:
       globby: 11.1.0
+    devDependencies:
+      '@haetae/core': link:../core
 
 packages:
 
