@@ -195,10 +195,15 @@ export function initNewStore(): HaetaeStore {
 }
 
 export interface GetStoreOptions {
-  config?: HaetaeConfig | Promise<HaetaeConfig>
   filename?: string | Promise<string>
   // When there's no store file yet.
-  fallback?: () => HaetaeStore | Promise<HaetaeStore>
+  fallback?: ({
+    filename,
+    error,
+  }: {
+    filename: string
+    error: Error
+  }) => HaetaeStore | Promise<HaetaeStore> | never
 }
 
 /**
@@ -208,17 +213,17 @@ export interface GetStoreOptions {
  */
 export const getStore = memoizee(
   async ({
-    config = getConfig(),
-    filename = (async () => (await config).storeFile)(),
+    filename = (async () => (await getConfig()).storeFile)(),
     fallback = initNewStore,
   }: GetStoreOptions = {}): Promise<HaetaeStore> => {
     let rawStore
+
     try {
       rawStore = fs.readFileSync(await filename, {
         encoding: 'utf8',
       })
-    } catch {
-      return fallback()
+    } catch (error) {
+      return fallback({ filename: await filename, error: error as Error })
     }
     const store = JSON.parse(rawStore)
     return store
