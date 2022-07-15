@@ -70,13 +70,15 @@ export async function record({
   }
 }
 
-export interface ChangedFilesOptions extends RecordOptions {
+export interface ChangedFilesOptions {
+  from?: string | Promise<string | undefined | null | void>
+  to?: string | Promise<string | undefined | null | void>
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
   // When commit ID is not given,
   // or commit ID cannot be found from record,
-  // or `git diff` fails (e.g. by forced push
+  // or `git diff` fails (e.g. by forced push)
   fallback?: (error?: Error) => string[] | Promise<string[]> | never
 }
 
@@ -88,10 +90,11 @@ export interface ChangedFilesOptions extends RecordOptions {
  * @memoized
  */
 export const changedFiles = async ({
-  commit = process.env.HAETAE_GIT_COMMIT ||
+  from = process.env.HAETAE_GIT_COMMIT ||
     getRecord().then(
       (r) => ((r as GitPatchedHaetaeRecord) || {})[packageName]?.commit,
     ),
+  to = 'HEAD',
   rootDir = getConfigDirname(),
   includeUntracked = true,
   includeIgnored = false,
@@ -106,13 +109,13 @@ export const changedFiles = async ({
 
   // When there is no record,
   // or the record does not have commit
-  if (!(await commit)) {
+  if (!(await from) || !(await to)) {
     return fallback()
   }
 
   try {
     const res = (
-      await exec(`git diff --name-only ${commit}`, {
+      await exec(`git diff --name-only ${from} ${to}`, {
         cwd: rootDir,
       })
     )
