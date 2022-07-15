@@ -9,8 +9,8 @@ export interface DependsOnOptions {
   // TODO: more options
 }
 
-export async function dependsOn(
-  filenames: readonly string[] | Promise<readonly string[]>,
+export function dependsOn(
+  filenames: readonly string[],
   { tsConfig, rootDir = getConfigDirname() }: DependsOnOptions = {},
 ) {
   // default option.tsConfig if exists
@@ -18,7 +18,7 @@ export async function dependsOn(
     // eslint-disable-next-line no-param-reassign
     tsConfig = tsConfig || path.join(rootDir, 'tsconfig.json')
   }
-  const resolvedFilenames = await filenames
+
   return (target: string): boolean => {
     // This includes target file itself as well.
     const deepDepsList = dependencyTree.toList({
@@ -26,7 +26,7 @@ export async function dependsOn(
       filename: target,
       tsConfig,
     })
-    for (const filename of resolvedFilenames) {
+    for (const filename of filenames) {
       if (deepDepsList.includes(filename)) {
         return true
       }
