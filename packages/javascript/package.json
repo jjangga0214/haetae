@@ -14,8 +14,10 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "@haetae/core": "workspace:^",
     "dependency-tree": "^8.1.1"
+  },
+  "peerDependencies": {
+    "@haetae/core": "workspace:^"
   },
   "keywords": [
     "haetae",

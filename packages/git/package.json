@@ -15,12 +15,14 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "@haetae/core": "workspace:^",
-    "@haetae/utils": "workspace:^",
     "memoizee": "^0.4.15",
     "serialize-javascript": "^6.0.0"
   },
   "devDependencies": {},
+  "peerDependencies": {
+    "@haetae/core": "workspace:^",
+    "@haetae/utils": "workspace:^"
+  },
   "keywords": [
     "haetae",
     "haetae-git",

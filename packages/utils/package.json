@@ -15,10 +15,12 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "globby": "^11",
-    "@haetae/core": "workspace:^"
+    "globby": "^11"
   },
   "devDependencies": {},
+  "peerDependencies": {
+    "@haetae/core": "workspace:^"
+  },
   "keywords": [
     "haetae",
     "haetae-utils",
