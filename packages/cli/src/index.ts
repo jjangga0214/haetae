@@ -23,7 +23,7 @@ import assert from 'assert/strict'
 //   return hideBin(argv)
 // }
 
-export const { name, version } = (() => {
+export const { name: packageName, version: packageVersion } = (() => {
   const content = fs.readFileSync(
     path.join(__dirname, '..', 'package.json'),
     'utf8',
@@ -34,14 +34,14 @@ export const { name, version } = (() => {
 export async function run() {
   const y = await yargs(hideBin(process.argv))
     .scriptName('haetae')
-    .usage('$0 <command>')
+    .usage('$0 [options] <command>')
     .alias('h', 'help')
     .alias('v', 'version')
     .options({
       c: {
         alias: 'config',
         type: 'string',
-        description: `Config file path. Default to "./${defaultConfigFile}" or the environment variable $HAETAE_CONFIG_FILE`,
+        description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or "${defaultConfigFile}"`,
       },
       s: {
         alias: 'store',
