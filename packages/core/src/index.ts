@@ -6,7 +6,6 @@ import serialize from 'serialize-javascript'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Required } from 'utility-types'
 import produce from 'immer'
-import deepEqual from 'deep-equal'
 
 export const { name: packageName, version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
@@ -283,6 +282,16 @@ export interface GetRecordOptions extends GetRecordsOptions {
   env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
 }
 
+/**
+ * @returns true if those envs are identical, false otherwise.
+ */
+export async function compareEnvs(
+  one: HaetaeRecordEnv | Promise<HaetaeRecordEnv>,
+  theOther: HaetaeRecordEnv | Promise<HaetaeRecordEnv>,
+) {
+  return JSON.stringify(await one) === JSON.stringify(await theOther)
+}
+
 export async function getRecord({
   command = getCurrentCommand(),
   env = invokeEnv({ command }),
@@ -291,7 +300,7 @@ export async function getRecord({
   const records = await getRecords({ command, store })
   if (records) {
     for (const record of records) {
-      if (deepEqual(await env, record.env)) {
+      if (await compareEnvs(env, record.env)) {
         return record
       }
     }
@@ -344,15 +353,15 @@ export async function mapStore({
     draft.commands = draft.commands || {}
     draft.commands[await command] = draft.commands[await command] || []
 
-    for (
-      let index = 0;
-      index < draft.commands[await command].length;
-      index += 1
-    ) {
-      const oldRecord = draft.commands[await command][index]
-      if (deepEqual(await env, oldRecord.env)) {
-        draft.commands[await command][index] = await record
-        return draft
+    const records = draft.commands[await command]
+    for (const [index, oldRecord] of records.entries()) {
+      try {
+        if (await compareEnvs(env, oldRecord.env)) {
+          records[index] = await record
+          return draft
+        }
+      } catch {
+        throw new Error('`env` must be able to be stringified.')
       }
     }
     draft.commands[await command].push(await record)
