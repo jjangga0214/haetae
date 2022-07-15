@@ -7,4 +7,4 @@
 '@haetae/utils': patch
 ---
 
-Export `name` and `version`.
+Export `packageName` and `packageVersion`.

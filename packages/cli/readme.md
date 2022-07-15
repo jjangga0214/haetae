@@ -93,7 +93,7 @@ Otherwise are not generated. Rather, they are fixed statically and literally res
   - default (when not configured): Prints `{}` as stdout, not stderr.
   - behavior: Prints env object of your computer. Output is always json format.
 - `save`:
-  - contract: The corresponding function in config file should return an object(json). The object can be empty(`{}`). Though not required, in general, keys of object are package name for namespace to save their information for next execution. (e.g. `{ '@haetae/git': { gitSha: "1803de" } }`)
+  - contract: The corresponding function in config file should return an object(json). The object can be empty(`{}`). Though not required, in general, keys of object are package name for namespace to save their information for next execution. (e.g. `{ '@haetae/git': { commit: "1803de" } }`)
   - default (when not configured): Prints `{}` as stdout, not stderr.
   - bahavior: This saves a record returned from corresponding function in config file. Store file is modified by this operation.
 

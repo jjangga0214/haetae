@@ -57,7 +57,7 @@ export async function exec(
   })
 }
 
-export const { name, version } = (() => {
+export const { name: packageName, version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })

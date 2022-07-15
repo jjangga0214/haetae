@@ -8,7 +8,7 @@ import { Required } from 'utility-types'
 import produce from 'immer'
 import deepEqual from 'deep-equal'
 
-export const { name, version } = (() => {
+export const { name: packageName, version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })
@@ -70,7 +70,7 @@ export interface HaetaeRecord {
   time: string // ISO format
   env: HaetaeRecordEnv
   // '@haetae/git'?: {
-  //   gitSha: string
+  //   commit: string
   // }
   [key: string]: unknown
 }
@@ -192,7 +192,7 @@ export const getConfig = memoizee(
 )
 
 export function initNewStore(): HaetaeStore {
-  return { version, commands: {} }
+  return { version: packageVersion, commands: {} }
 }
 
 export interface GetStoreOptions {
@@ -340,7 +340,7 @@ export async function mapStore({
 }: MapStoreOptions = {}) {
   return produce(await store, async (draft) => {
     /* eslint-disable no-param-reassign */
-    draft.version = version
+    draft.version = packageVersion
     draft.commands = draft.commands || {}
     draft.commands[await command] = draft.commands[await command] || []
 
