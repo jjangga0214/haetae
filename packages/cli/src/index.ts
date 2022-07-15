@@ -13,6 +13,7 @@ import {
   getStore,
   getRecord,
   getRecords,
+  mapStore,
 } from '@haetae/core'
 import assert from 'assert/strict'
 
@@ -97,23 +98,25 @@ export async function run() {
     }
   }
 
-  // 2. Set store file path
-  if (argv.s) {
-    // TODO: https://github.com/jjangga0214/haetae/issues/13
-  }
+  // 2. Get store
+  // If `argv.s` is undefined, `filename` will be resolved as default value
+  // Why function, not value? Because `invokeEnv` for `-e` alone does not need store.
+  // Therefore, lazy loading is needed.
+  const store = () => getStore({ filename: argv.s })
 
+  // 3. Run
   if (argv._.length === 0) {
-    // When command is not given
+    // 3.1. When command is not given
 
     assert(!argv.e, 'Option "e" must be given with <command>')
     assert(
       argv.r === true,
       'Option "r" must be given when <command> is not given',
     )
-    const store = await getStore()
-    console.log(JSON.stringify(store, undefined, 2))
+
+    console.log(JSON.stringify(await store(), undefined, 2))
   } else if (argv._.length === 1) {
-    // When a command is given
+    // 3.2. When a command is given
 
     const command = argv._[0]
     assert(typeof command === 'string')
@@ -121,18 +124,25 @@ export async function run() {
     setCurrentCommand(command)
 
     if (argv.r && argv.e) {
-      const record = await getRecord()
+      const record = await getRecord({ store: await store() })
       console.log(JSON.stringify(record, undefined, 2))
     } else if (argv.e) {
       const env = await invokeEnv()
       console.log(JSON.stringify(env, undefined, 2))
     } else if (argv.r) {
-      const records = await getRecords()
+      const records = await getRecords({ store: await store() })
       console.log(JSON.stringify(records, undefined, 2))
     } else {
-      await saveStore()
+      await saveStore({
+        // if `argv.s` is undefined, `filename` will be resolved as default value
+        filename: argv.s,
+        store: mapStore({
+          store: await store(),
+        }),
+      })
     }
   } else {
+    // 3.3. When multiple commands are given
     console.error(' Too many commands. Only one command is allowed.')
   }
 }
