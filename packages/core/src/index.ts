@@ -42,7 +42,7 @@ export const getConfigFilename = memoizee((): string => {
   // TODO: finding config file recursively(parental)
   let filename =
     configFilename || (process.env.HAETAE_CONFIG_FILE as string) || '.'
-  assert(filename, '$HAETAE_CONFIG_FILE is not given.')
+  assert(!!filename, '$HAETAE_CONFIG_FILE is not given.')
   if (!path.isAbsolute(filename)) {
     filename = path.join(process.cwd(), filename)
   }
@@ -64,16 +64,16 @@ export const getConfigDirname = () => path.dirname(getConfigFilename())
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type HaetaeRecordEnv = any
 
+/**
+ * e.g. { '@haetae/git': { commit: string } }
+ */
+export type HaetaeRecordData = Record<string, unknown>
+
 export interface HaetaeRecord {
   time: number
   env: HaetaeRecordEnv
-  // '@haetae/git'?: {
-  //   commit: string
-  // }
-  [key: string]: unknown
+  data: HaetaeRecordData
 }
-
-export type HaetaePreRecord = Omit<HaetaeRecord, 'time' | 'env'>
 
 export interface HaetaeStore {
   version: string
@@ -83,15 +83,14 @@ export interface HaetaeStore {
 }
 
 export interface HaetaePreCommand {
-  run: () => HaetaePreRecord | Promise<HaetaePreRecord>
-  env:
+  run: () => HaetaeRecordData | Promise<HaetaeRecordData>
+  env?:
     | (() => HaetaeRecordEnv | Promise<HaetaeRecordEnv>)
     | HaetaeRecordEnv
     | Promise<HaetaeRecordEnv>
 }
 
-export interface HaetaeCommand {
-  run: () => HaetaePreRecord | Promise<HaetaePreRecord>
+export interface HaetaeCommand extends HaetaePreCommand {
   env: () => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
 }
 
@@ -115,7 +114,6 @@ export interface HaetaeConfig {
 export const defaultStoreFile = 'haetae.store.json'
 
 /**
- *
  * @param preConfig: config object provided from user.
  * @returns
  */
@@ -127,7 +125,10 @@ export function configure({
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
       // Setting default: env
-      commands[command].env = commands[command].env || (() => ({}))
+      if (commands[command].env === undefined) {
+        commands[command].env = () => ({})
+      }
+
       // Convert it to a function if not
       if (typeof commands[command].env !== 'function') {
         commands[command].env = () => commands[command].env
@@ -154,7 +155,7 @@ export function configure({
 
   /* eslint-enable no-param-reassign */
   return {
-    commands,
+    commands: commands as HaetaeConfig['commands'],
     storeFile,
   }
 }
@@ -275,22 +276,8 @@ export const invokeEnv = memoizee(
 export const invokeRun = async ({
   command = getCurrentCommand(),
   config = getConfig(),
-}: CommandFromConfig = {}): Promise<HaetaePreRecord> => {
-  const preRecord = (await config)?.commands[await command]?.run()
-  assert(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    preRecord.time === undefined,
-    'A command function should not return an record(object) with a key named "time". The key "time" is statically reserved by Haetae, and automatically filled in.',
-  )
-  assert(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    preRecord.env === undefined,
-    'A command function should not return an record(object) with a key named "env". The key "env" is statically reserved by Haetae, and automatically filled in.',
-  )
-  return preRecord
-}
+}: CommandFromConfig = {}): Promise<HaetaeRecordData> =>
+  (await config)?.commands[await command]?.run()
 
 export interface GetRecordOptions extends GetRecordsOptions {
   env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
@@ -326,18 +313,18 @@ export interface MapRecordOptions {
   time?: number
   env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
   // "pre" is different from "prev", which means "previous". Instead, "pre" means "given from user's config", so default values should be filled in."
-  preRecord?: HaetaePreRecord | Promise<HaetaePreRecord>
+  data?: HaetaeRecordData | Promise<HaetaeRecordData>
 }
 
 export async function mapRecord({
   time = Date.now(),
   env = invokeEnv(),
-  preRecord = invokeRun(),
+  data = invokeRun(),
 }: MapRecordOptions): Promise<HaetaeRecord> {
   return {
     time,
     env: await env,
-    ...(await preRecord),
+    data: await data,
   }
 }
 
@@ -356,7 +343,7 @@ export async function mapStore({
   store = getStore(),
   record = mapRecord({
     env: invokeEnv({ command }),
-    preRecord: invokeRun({ command }),
+    data: invokeRun({ command }),
   }),
 }: MapStoreOptions = {}) {
   return produce(await store, async (draft) => {
