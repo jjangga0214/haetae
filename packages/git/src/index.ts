@@ -4,7 +4,7 @@ import {
   getConfigDirname,
   getRecord,
   HaetaeRecord,
-  HaetaePreRecord,
+  HaetaeRecordData,
 } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
 
@@ -55,11 +55,10 @@ export interface RecordOptions {
 }
 
 export async function record({
-  commit = process.env.HAETAE_GIT_GITSHA ||
-    exec('git rev-parse --verify HEAD', { cwd: getConfigDirname() })
-      .then((res) => res.trim())
-      .catch(() => {}),
-}: RecordOptions): Promise<HaetaePreRecord> {
+  commit = exec('git rev-parse --verify HEAD', { cwd: getConfigDirname() })
+    .then((res) => res.trim())
+    .catch(() => {}),
+}: RecordOptions): Promise<HaetaeRecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
   }
@@ -90,10 +89,9 @@ export interface ChangedFilesOptions {
  * @memoized
  */
 export const changedFiles = async ({
-  from = process.env.HAETAE_GIT_COMMIT ||
-    getRecord().then(
-      (r) => ((r as GitPatchedHaetaeRecord) || {})[packageName]?.commit,
-    ),
+  from = getRecord().then(
+    (r) => ((r as GitPatchedHaetaeRecord) || {})[packageName]?.commit,
+  ),
   to = 'HEAD',
   rootDir = getConfigDirname(),
   includeUntracked = true,
