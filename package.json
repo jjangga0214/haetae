@@ -90,7 +90,6 @@
     "url": "https://github.com/jjangga0214"
   },
   "dependencies": {
-    "jest": "^28.1.0",
-    "utility-types": "^3.10.0"
+    "jest": "^28.1.0"
   }
 }

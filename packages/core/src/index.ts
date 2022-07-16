@@ -3,8 +3,6 @@ import assert from 'assert/strict'
 import fs from 'fs'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { Required } from 'utility-types'
 import produce from 'immer'
 
 export const { name: packageName, version: packageVersion } = (() => {
@@ -63,10 +61,11 @@ export const getConfigFilename = memoizee((): string => {
 // todo: set/get current config dirname
 export const getConfigDirname = () => path.dirname(getConfigFilename())
 
-export type HaetaeRecordEnv = Record<string, unknown>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type HaetaeRecordEnv = any
 
 export interface HaetaeRecord {
-  time: number | string // ISO format
+  time: number | string
   env: HaetaeRecordEnv
   // '@haetae/git'?: {
   //   commit: string
@@ -83,6 +82,14 @@ export interface HaetaeStore {
   }
 }
 
+export interface HaetaePreCommand {
+  run: () => HaetaePreRecord | Promise<HaetaePreRecord>
+  env:
+    | (() => HaetaeRecordEnv | Promise<HaetaeRecordEnv>)
+    | HaetaeRecordEnv
+    | Promise<HaetaeRecordEnv>
+}
+
 export interface HaetaeCommand {
   run: () => HaetaePreRecord | Promise<HaetaePreRecord>
   env: () => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
@@ -90,7 +97,7 @@ export interface HaetaeCommand {
 
 export interface HaetaePreConfig {
   commands: {
-    [command: string]: HaetaeCommand
+    [command: string]: HaetaePreCommand
   }
   // maxLimit?: number // Infinity
   // maxAge?: number // Infinity
@@ -98,7 +105,12 @@ export interface HaetaePreConfig {
   storeFile?: string
 }
 
-export type HaetaeConfig = Required<HaetaePreConfig, 'storeFile'>
+export interface HaetaeConfig {
+  commands: {
+    [command: string]: HaetaeCommand
+  }
+  storeFile: string
+}
 
 export const defaultStoreFile = 'haetae.store.json'
 
@@ -109,25 +121,41 @@ export const defaultStoreFile = 'haetae.store.json'
  */
 export function configure({
   commands,
-  storeFile,
-}: HaetaePreConfig): HaetaePreConfig {
+  storeFile = '.',
+}: HaetaePreConfig): HaetaeConfig {
+  /* eslint-disable no-param-reassign */
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
-      const { run, env } = commands[command]
+      // Setting default: env
+      commands[command].env = commands[command].env || (() => ({}))
+      // Convert it to a function if not
+      if (typeof commands[command].env !== 'function') {
+        commands[command].env = () => commands[command].env
+      }
+
       assert(
-        typeof run === 'function',
+        typeof commands[command].run === 'function',
         `commands.${command}.run is invalid. It should be a function.`,
-      )
-      // TODO: https://github.com/jjangga0214/haetae/issues/4
-      assert(
-        typeof env === 'function',
-        `commands.${command}.env is invalid. It should be a function.`,
       )
     }
   }
+
+  assert(
+    typeof storeFile === 'string',
+    `'storeFile' is misconfigured. It should be string.`,
+  )
+
+  // When it's given as a directory.
+  // Keep in mind that store file might not exist, yet.
+  // So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`.
+  if (!storeFile.endsWith('.json')) {
+    storeFile = path.join(storeFile, defaultStoreFile)
+  }
+
+  /* eslint-enable no-param-reassign */
   return {
-    storeFile,
     commands,
+    storeFile,
   }
 }
 
@@ -154,36 +182,16 @@ export const getConfig = memoizee(
       )
     }
 
-    const preConfigFromFile = await import(configFilename)
-    // delete preConfigFromFile.default
-    const preConfig: HaetaePreConfig = configure(preConfigFromFile)
+    const config = configure(await import(configFilename))
 
-    for (const command in preConfig.commands) {
-      if (Object.prototype.hasOwnProperty.call(preConfig.commands, command)) {
-        // Setting default: env
-        preConfig.commands[command].env =
-          preConfig.commands[command].env || (() => ({}))
-      }
-    }
-
-    // Setting default: storeFile
-    preConfig.storeFile = preConfig.storeFile || '.'
-
-    if (!path.isAbsolute(preConfig.storeFile)) {
-      preConfig.storeFile = path.join(
+    if (!path.isAbsolute(config.storeFile)) {
+      config.storeFile = path.join(
         path.dirname(configFilename),
-        preConfig.storeFile,
+        config.storeFile,
       )
     }
 
-    // When it's given as a directory.
-    // Keep in mind that store file might not exist, yet.
-    // So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`.
-    if (!preConfig.storeFile.endsWith('.json')) {
-      preConfig.storeFile = path.join(preConfig.storeFile, defaultStoreFile)
-    }
-
-    return preConfig as HaetaeConfig
+    return config
   },
   {
     normalizer: serialize,
