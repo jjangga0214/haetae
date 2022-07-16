@@ -65,7 +65,7 @@ export const getConfigDirname = () => path.dirname(getConfigFilename())
 export type HaetaeRecordEnv = any
 
 export interface HaetaeRecord {
-  time: number | string
+  time: number
   env: HaetaeRecordEnv
   // '@haetae/git'?: {
   //   commit: string
@@ -323,14 +323,14 @@ export async function getRecord({
 }
 
 export interface MapRecordOptions {
-  time?: number | string
+  time?: number
   env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
   // "pre" is different from "prev", which means "previous". Instead, "pre" means "given from user's config", so default values should be filled in."
   preRecord?: HaetaePreRecord | Promise<HaetaePreRecord>
 }
 
 export async function mapRecord({
-  time = new Date().toISOString(),
+  time = Date.now(),
   env = invokeEnv(),
   preRecord = invokeRun(),
 }: MapRecordOptions): Promise<HaetaeRecord> {
