@@ -89,7 +89,7 @@ module.exports = core.configure({
         }
 
         // `commands.*.run` must return a json to record.
-        return git.record()
+        return git.recordData()
       },
       env: async () => ({
         nodeVersion: process.version,
@@ -122,7 +122,7 @@ The subcommand `test` is not a reserved keyword. This is just matched with what 
    if found -> override
    if not -> create
 
-If test fails by exiting non-zero(0) code, `utils.exec` throws an error. Then, the store is not updated by returned json(`git.record()` in this example). Thus, for the next time, we can expect Haetae to run tests includeing the failed ones(re-run) as store is not changed.
+If test fails by exiting non-zero(0) code, `utils.exec` throws an error. Then, the store is not updated by returned json(`git.recordData()` in this example). Thus, for the next time, we can expect Haetae to run tests includeing the failed ones(re-run) as store is not changed.
 
 You can read each packages' detailed docs of how each functions work.
 

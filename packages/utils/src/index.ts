@@ -39,27 +39,34 @@ export interface ExecOptions {
   shell?: string | undefined
   maxBuffer?: number | undefined
   killSignal?: NodeJS.Signals | number | undefined
+  /**
+   * Customized options (not for childProcess.exec)
+   */
+  trim?: boolean
 }
 
 export async function exec(
   command: string,
-  options: ExecOptions = {},
+  // eslint-disable-next-line unicorn/no-object-as-default-parameter
+  options: ExecOptions = { trim: true },
 ): Promise<string> {
   // eslint-disable-next-line no-param-reassign
   options.cwd = options.cwd || getConfigDirname()
   return new Promise((resolve, reject) => {
     childProcess.exec(command, options, (error, stdout, stderr) => {
       if (stdout) {
-        resolve(stdout)
+        resolve(options.trim ? stdout.trim() : stdout)
       }
       reject(error || stderr)
     })
   })
 }
 
-export const { name: packageName, version: packageVersion } = (() => {
+export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })
-  return JSON.parse(content)
+  return JSON.parse(content) as { version: string }
 })()
+
+export const packageName = '@haetae/utils'

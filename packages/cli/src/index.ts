@@ -24,13 +24,15 @@ import assert from 'assert/strict'
 //   return hideBin(argv)
 // }
 
-export const { name: packageName, version: packageVersion } = (() => {
+export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(
     path.join(__dirname, '..', 'package.json'),
     'utf8',
   )
-  return JSON.parse(content)
+  return JSON.parse(content) as { version: string }
 })()
+
+export const packageName = '@haetae/cli'
 
 export async function run() {
   const y = await yargs(hideBin(process.argv))

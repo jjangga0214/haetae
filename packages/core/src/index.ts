@@ -5,12 +5,14 @@ import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import produce from 'immer'
 
-export const { name: packageName, version: packageVersion } = (() => {
+export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })
-  return JSON.parse(content)
+  return JSON.parse(content) as { version: string }
 })()
+
+export const packageName = '@haetae/core'
 
 let currentCommand: string | undefined
 
@@ -61,53 +63,53 @@ export const getConfigFilename = memoizee((): string => {
 // todo: set/get current config dirname
 export const getConfigDirname = () => path.dirname(getConfigFilename())
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type HaetaeRecordEnv = any
-
-/**
- * e.g. { '@haetae/git': { commit: string } }
- */
-export type HaetaeRecordData = Record<string, unknown>
-
-export interface HaetaeRecord {
+export interface HaetaeRecord<D = unknown, E = unknown> {
+  data: D
+  env: E
   time: number
-  env: HaetaeRecordEnv
-  data: HaetaeRecordData
 }
 
-export interface HaetaeStore {
+export interface HaetaeStore<D = unknown, E = unknown> {
   version: string
   commands: {
-    [command: string]: HaetaeRecord[]
+    [command: string]: HaetaeRecord<D, E>[]
   }
 }
+export type HaetaeCommandEnv<E = unknown> = () => E | Promise<E>
 
-export interface HaetaePreCommand {
-  run: () => HaetaeRecordData | Promise<HaetaeRecordData>
-  env?:
-    | (() => HaetaeRecordEnv | Promise<HaetaeRecordEnv>)
-    | HaetaeRecordEnv
-    | Promise<HaetaeRecordEnv>
+export type HaetaePreCommandEnv<E = unknown> =
+  | HaetaeCommandEnv<E>
+  | E
+  | Promise<E>
+
+export interface HaetaePreCommand<D = unknown, E = unknown> {
+  run: () => D | Promise<D>
+  env?: HaetaePreCommandEnv<E>
 }
 
-export interface HaetaeCommand extends HaetaePreCommand {
-  env: () => HaetaeRecordEnv | Promise<HaetaeRecordEnv>
+export interface HaetaeCommand<D = unknown, E = unknown>
+  extends HaetaePreCommand<D, E> {
+  env: HaetaeCommandEnv<E>
 }
 
-export interface HaetaePreConfig {
+export interface HaetaePreConfig<D = unknown, E = unknown> {
   commands: {
-    [command: string]: HaetaePreCommand
+    [command: string]: HaetaePreCommand<D, E>
   }
   // maxLimit?: number // Infinity
   // maxAge?: number // Infinity
   // It should be an absolute or relative path (relative to config file path)
+  env?: HaetaePreCommandEnv<E>
+  recordData?: () => D | Promise<D>
   storeFile?: string
 }
 
-export interface HaetaeConfig {
+export interface HaetaeConfig<D = unknown, E = unknown> {
   commands: {
-    [command: string]: HaetaeCommand
+    [command: string]: HaetaeCommand<D, E>
   }
+  env: HaetaeCommandEnv<E>
+  recordData: () => D | Promise<D>
   storeFile: string
 }
 
@@ -117,30 +119,23 @@ export const defaultStoreFile = 'haetae.store.json'
  * @param preConfig: config object provided from user.
  * @returns
  */
-export function configure({
+export function configure<D = unknown, E = unknown>({
   commands,
+  env = () => ({} as E),
+  recordData = () => ({} as D),
   storeFile = '.',
-}: HaetaePreConfig): HaetaeConfig {
+}: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
-  for (const command in commands) {
-    if (Object.prototype.hasOwnProperty.call(commands, command)) {
-      // Setting default: env
-      if (commands[command].env === undefined) {
-        commands[command].env = () => ({})
-      }
 
-      // Convert it to a function if not
-      if (typeof commands[command].env !== 'function') {
-        commands[command].env = () => commands[command].env
-      }
-
-      assert(
-        typeof commands[command].run === 'function',
-        `commands.${command}.run is invalid. It should be a function.`,
-      )
-    }
+  // Convert it to a function if not
+  if (typeof env !== 'function') {
+    env = (() => env) as HaetaeCommandEnv<E>
   }
 
+  assert(
+    typeof recordData === 'function',
+    `'recordData' is misconfigured. It should be a function.`,
+  )
   assert(
     typeof storeFile === 'string',
     `'storeFile' is misconfigured. It should be string.`,
@@ -153,9 +148,30 @@ export function configure({
     storeFile = path.join(storeFile, defaultStoreFile)
   }
 
+  for (const command in commands) {
+    if (Object.prototype.hasOwnProperty.call(commands, command)) {
+      // Setting default: env
+      if (commands[command].env === undefined) {
+        commands[command].env = env
+      }
+
+      // Convert it to a function if not
+      if (typeof commands[command].env !== 'function') {
+        commands[command].env = () => commands[command].env as E
+      }
+
+      assert(
+        typeof commands[command].run === 'function',
+        `commands.${command}.run is invalid. It should be a function.`,
+      )
+    }
+  }
+
   /* eslint-enable no-param-reassign */
   return {
-    commands: commands as HaetaeConfig['commands'],
+    commands: commands as HaetaeConfig<D, E>['commands'],
+    env: env as HaetaeCommandEnv<E>,
+    recordData,
     storeFile,
   }
 }
@@ -169,9 +185,9 @@ export interface GetConfigOptions {
  * @memoized
  */
 export const getConfig = memoizee(
-  async ({
+  async <D = unknown, E = unknown>({
     filename = getConfigFilename(),
-  }: GetConfigOptions = {}): Promise<HaetaeConfig> => {
+  }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
     let configFilename = await filename
     try {
       if (fs.statSync(configFilename).isDirectory()) {
@@ -183,7 +199,7 @@ export const getConfig = memoizee(
       )
     }
 
-    const config = configure(await import(configFilename))
+    const config = configure<D, E>(await import(configFilename))
 
     if (!path.isAbsolute(config.storeFile)) {
       config.storeFile = path.join(
@@ -199,11 +215,11 @@ export const getConfig = memoizee(
   },
 )
 
-export function initNewStore(): HaetaeStore {
+export function initNewStore<D = unknown, E = unknown>(): HaetaeStore<D, E> {
   return { version: packageVersion, commands: {} }
 }
 
-export interface GetStoreOptions {
+export interface GetStoreOptions<D = unknown, E = unknown> {
   filename?: string | Promise<string>
   // When there's no store file yet.
   fallback?: ({
@@ -212,7 +228,7 @@ export interface GetStoreOptions {
   }: {
     filename: string
     error: Error
-  }) => HaetaeStore | Promise<HaetaeStore> | never
+  }) => HaetaeStore<D, E> | Promise<HaetaeStore<D, E>> | never
 }
 
 /**
@@ -221,10 +237,10 @@ export interface GetStoreOptions {
  * @memoized
  */
 export const getStore = memoizee(
-  async ({
+  async <D = unknown, E = unknown>({
     filename = (async () => (await getConfig()).storeFile)(),
-    fallback = initNewStore,
-  }: GetStoreOptions = {}): Promise<HaetaeStore> => {
+    fallback = () => initNewStore<D, E>(),
+  }: GetStoreOptions<D, E> = {}): Promise<HaetaeStore<D, E>> => {
     let rawStore
 
     try {
@@ -242,62 +258,70 @@ export const getStore = memoizee(
   },
 )
 
-export interface GetRecordsOptions {
+export interface GetRecordsOptions<D = unknown, E = unknown> {
   command?: string | Promise<string> // record store file path
-  store?: HaetaeStore | Promise<HaetaeStore>
+  store?: HaetaeStore<D, E> | Promise<HaetaeStore<D, E>>
 }
 
-export async function getRecords({
+export async function getRecords<D = unknown, E = unknown>({
   command = getCurrentCommand(),
   store = getStore(),
-}: GetRecordsOptions = {}): Promise<HaetaeRecord[] | undefined> {
+}: GetRecordsOptions<D, E> = {}): Promise<HaetaeRecord<D, E>[] | undefined> {
   return (await store).commands[await command]
 }
 
-export interface CommandFromConfig {
+export interface CommandFromConfig<D = unknown, E = unknown> {
   command?: string | Promise<string>
-  config?: HaetaeConfig | Promise<HaetaeConfig>
+  config?: HaetaeConfig<D, E> | Promise<HaetaeConfig<D, E>>
 }
 
 /**
  * @memoized
  */
 export const invokeEnv = memoizee(
-  async ({
+  async <E = unknown>({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: CommandFromConfig = {}): Promise<HaetaeRecordEnv> =>
-    (await config)?.commands[await command]?.env(),
+  }: CommandFromConfig<unknown, E> = {}): Promise<E> =>
+    (await config).commands[await command].env(),
   {
     normalizer: serialize,
   },
 )
 
-export const invokeRun = async ({
+export const invokeRun = async <D = unknown>({
   command = getCurrentCommand(),
   config = getConfig(),
-}: CommandFromConfig = {}): Promise<HaetaeRecordData> =>
-  (await config)?.commands[await command]?.run()
+}: CommandFromConfig<D, unknown> = {}): Promise<D> => {
+  // eslint-disable-next-line no-param-reassign
+  config = await config
+  const recordData = await config.commands[await command].run()
+  if (recordData === undefined) {
+    return config.recordData()
+  }
+  return recordData
+}
 
-export interface GetRecordOptions extends GetRecordsOptions {
-  env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
+export interface GetRecordOptions<D = unknown, E = unknown>
+  extends GetRecordsOptions<D, E> {
+  env?: E | Promise<E>
 }
 
 /**
  * @returns true if those envs are identical, false otherwise.
  */
-export async function compareEnvs(
-  one: HaetaeRecordEnv | Promise<HaetaeRecordEnv>,
-  theOther: HaetaeRecordEnv | Promise<HaetaeRecordEnv>,
+export async function compareEnvs<E = unknown>(
+  one: E | Promise<E>,
+  theOther: E | Promise<E>,
 ) {
   return JSON.stringify(await one) === JSON.stringify(await theOther)
 }
 
-export async function getRecord({
+export async function getRecord<D = unknown, E = unknown>({
   command = getCurrentCommand(),
   env = invokeEnv({ command }),
   store = getStore(),
-}: GetRecordOptions = {}): Promise<HaetaeRecord | undefined> {
+}: GetRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E> | undefined> {
   const records = await getRecords({ command, store })
   if (records) {
     for (const record of records) {
@@ -309,43 +333,42 @@ export async function getRecord({
   return undefined
 }
 
-export interface MapRecordOptions {
+export interface MapRecordOptions<D = unknown, E = unknown> {
+  data?: D | Promise<D>
+  env?: E | Promise<E>
   time?: number
-  env?: HaetaeRecordEnv | Promise<HaetaeRecordEnv>
-  // "pre" is different from "prev", which means "previous". Instead, "pre" means "given from user's config", so default values should be filled in."
-  data?: HaetaeRecordData | Promise<HaetaeRecordData>
 }
 
-export async function mapRecord({
-  time = Date.now(),
-  env = invokeEnv(),
+export async function mapRecord<D = unknown, E = unknown>({
   data = invokeRun(),
-}: MapRecordOptions): Promise<HaetaeRecord> {
+  env = invokeEnv(),
+  time = Date.now(),
+}: MapRecordOptions<D, E>): Promise<HaetaeRecord<D, E>> {
   return {
-    time,
-    env: await env,
     data: await data,
+    env: await env,
+    time,
   }
 }
 
-export interface MapStoreOptions {
+export interface MapStoreOptions<D = unknown, E = unknown> {
   command?: string | Promise<string>
-  store?: HaetaeStore | Promise<HaetaeStore>
-  record?: HaetaeRecord | Promise<HaetaeRecord>
+  store?: HaetaeStore<D, E> | Promise<HaetaeStore<D, E>>
+  record?: HaetaeRecord<D, E> | Promise<HaetaeRecord<D, E>>
 }
 
 /**
  * This creates a new store from previous store
  * The term map is coined from map function
  */
-export async function mapStore({
+export async function mapStore<D = unknown, E = unknown>({
   command = getCurrentCommand(),
   store = getStore(),
   record = mapRecord({
-    env: invokeEnv({ command }),
     data: invokeRun({ command }),
+    env: invokeEnv({ command }),
   }),
-}: MapStoreOptions = {}) {
+}: MapStoreOptions<D, E> = {}) {
   return produce(await store, async (draft) => {
     /* eslint-disable no-param-reassign */
     record = await record
@@ -356,8 +379,11 @@ export async function mapStore({
     const records = draft.commands[command]
     for (const [index, oldRecord] of records.entries()) {
       try {
-        if (await compareEnvs(record.env, oldRecord.env)) {
-          records[index] = record
+        if (await compareEnvs(record.env, oldRecord.env as E)) {
+          records.splice(index, 1)
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          records.unshift(record)
           return draft
         }
       } catch {
@@ -365,7 +391,9 @@ export async function mapStore({
         throw new Error('`env` must be able to be stringified.')
       }
     }
-    draft.commands[command].push(await record)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    records.unshift(record)
     /* eslint-enable no-param-reassign */
     return draft
   })

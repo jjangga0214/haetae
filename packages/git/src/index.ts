@@ -1,25 +1,22 @@
 import path from 'path'
 import fs from 'fs'
-import {
-  getConfigDirname,
-  getRecord,
-  HaetaeRecord,
-  HaetaeRecordData,
-} from '@haetae/core'
+import { getConfigDirname, getRecord } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
 
 // todo: git submodule test
 
-export const { name: packageName, version: packageVersion } = (() => {
+export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(
     path.join(__dirname, '..', 'package.json'),
     'utf8',
   )
-  return JSON.parse(content)
+  return JSON.parse(content) as { version: string }
 })()
 
-export type GitPatchedHaetaeRecord = HaetaeRecord & {
-  [name: string]: { commit: string }
+export const packageName = '@haetae/git'
+
+export interface GitHaetaeRecordData {
+  [packageName]: { commit: string }
 }
 
 /**
@@ -44,27 +41,27 @@ export async function isInitialized({ rootDir = getConfigDirname() } = {}) {
     const res = await exec('git rev-parse --is-inside-work-tree', {
       cwd: rootDir,
     })
-    return res.trim() === 'true'
+    return res === 'true'
   } catch {
     return false
   }
 }
 
 export interface RecordOptions {
-  commit?: string | Promise<string | undefined | null | void>
+  commit?: string | Promise<string | undefined | void>
 }
 
-export async function record({
-  commit = exec('git rev-parse --verify HEAD', { cwd: getConfigDirname() })
-    .then((res) => res.trim())
-    .catch(() => {}),
-}: RecordOptions): Promise<HaetaeRecordData> {
+export async function recordData({
+  commit = exec('git rev-parse --verify HEAD', {
+    cwd: getConfigDirname(),
+  }).catch(() => {}),
+}: RecordOptions): Promise<GitHaetaeRecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
   }
   return {
     [packageName]: {
-      commit,
+      commit: (await commit) as string,
     },
   }
 }
@@ -89,9 +86,12 @@ export interface ChangedFilesOptions {
  * @memoized
  */
 export const changedFiles = async ({
-  from = getRecord().then(
-    (r) => ((r as GitPatchedHaetaeRecord) || {})[packageName]?.commit,
-  ),
+  from = getRecord<GitHaetaeRecordData>()
+    .then(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      (res) => res?.data![packageName]?.commit,
+    )
+    .catch(() => {}),
   to = 'HEAD',
   rootDir = getConfigDirname(),
   includeUntracked = true,
@@ -116,9 +116,7 @@ export const changedFiles = async ({
       await exec(`git diff --name-only ${from} ${to}`, {
         cwd: rootDir,
       })
-    )
-      .trim()
-      .split('\n')
+    ).split('\n')
 
     if (includeUntracked) {
       // untracked changes
@@ -132,9 +130,7 @@ export const changedFiles = async ({
               cwd: rootDir,
             },
           )
-        )
-          .trim()
-          .split('\n'),
+        ).split('\n'),
       )
     }
 
@@ -151,8 +147,7 @@ export interface BranchOptions {
 export async function branch({
   rootDir = getConfigDirname(),
 }: BranchOptions = {}) {
-  const res = await exec('git branch --show-current', {
+  return exec('git branch --show-current', {
     cwd: rootDir,
   })
-  return res.trim()
 }

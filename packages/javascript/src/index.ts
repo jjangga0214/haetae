@@ -35,9 +35,11 @@ export function dependsOn(
   }
 }
 
-export const { name: packageName, version: packageVersion } = (() => {
+export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })
-  return JSON.parse(content)
+  return JSON.parse(content) as { version: string }
 })()
+
+export const packageName = '@haetae/javascript'

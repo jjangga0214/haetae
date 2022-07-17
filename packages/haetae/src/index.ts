@@ -7,9 +7,10 @@ export * as git from '@haetae/git'
 export * as javascript from '@haetae/javascript'
 export * as utils from '@haetae/utils'
 
-export const { name: packageName, version: packageVersion } = (() => {
+export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
     encoding: 'utf8',
   })
   return JSON.parse(content)
 })()
+export const packageName = 'haetae'
