@@ -17,13 +17,6 @@ import {
 } from '@haetae/core'
 import assert from 'assert/strict'
 
-// export function hideBinary(argv: string[]): string[] {
-//   if (process.env.NODE_ENV === 'development') {
-//     return argv.slice(6)
-//   }
-//   return hideBin(argv)
-// }
-
 export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(
     path.join(__dirname, '..', 'package.json'),
@@ -45,6 +38,7 @@ export async function run() {
         alias: 'config',
         type: 'string',
         description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or "${defaultConfigFile}"`,
+        default: process.env.HAETAE_CONFIG_FILE,
       },
       s: {
         alias: 'store',
@@ -55,16 +49,19 @@ export async function run() {
         alias: 'record',
         type: 'boolean',
         description: 'All/partial record(s)',
+        default: false,
       },
       d: {
         alias: 'record-data',
         type: 'boolean',
         description: 'All/partial record(s) data',
+        default: false,
       },
       e: {
         alias: 'env',
         type: 'boolean',
         description: 'Current environment',
+        default: false,
       },
     })
     .conflicts('r', 'd')

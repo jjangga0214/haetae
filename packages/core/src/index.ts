@@ -33,7 +33,9 @@ export const defaultConfigFile = 'haetae.config.js'
 
 let configFilename: string | undefined
 
-export const setConfigFilename = (filename: string | undefined) => {
+export const setConfigFilename = (
+  filename: string | undefined = defaultConfigFile,
+) => {
   configFilename = filename
 }
 
@@ -42,21 +44,20 @@ export const setConfigFilename = (filename: string | undefined) => {
  */
 export const getConfigFilename = memoizee((): string => {
   // TODO: finding config file recursively(parental)
-  let filename =
-    configFilename || (process.env.HAETAE_CONFIG_FILE as string) || '.'
-  assert(!!filename, '$HAETAE_CONFIG_FILE is not given.')
+  let filename = configFilename || '.'
+  assert(!!filename, '`configFilename` is not set.')
   if (!path.isAbsolute(filename)) {
     filename = path.join(process.cwd(), filename)
   }
   try {
     if (fs.statSync(filename).isDirectory()) {
       filename = path.join(filename, defaultConfigFile)
-      assert(fs.existsSync(filename), 'Path to config file is invalid')
+      assert(fs.existsSync(filename))
       return filename
     }
     return filename
   } catch {
-    throw new Error('Path to config file is non-existent path.')
+    throw new Error(`Path to config file(${filename}) is non-existent path.`)
   }
 })
 
