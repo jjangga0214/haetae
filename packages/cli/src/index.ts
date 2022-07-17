@@ -5,8 +5,7 @@ import path from 'path'
 import fs from 'fs'
 import assert from 'assert/strict'
 import findUp from 'find-up'
-import envinfo from 'envinfo'
-
+import signale from 'signale'
 import {
   setCurrentCommand,
   invokeEnv,
@@ -19,6 +18,7 @@ import {
   getRecords,
   mapStore,
 } from '@haetae/core'
+import { runInfo } from './info'
 
 export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(
@@ -134,32 +134,7 @@ export async function execute() {
     if (argv.r) {
       console.log(JSON.stringify(await store(), undefined, 2))
     } else if (argv.i) {
-      const info = await envinfo.run(
-        {
-          System: ['OS', 'CPU', 'Memory', 'Shell'],
-          Binaries: ['Node', 'Yarn', 'npm'],
-          npmPackages: [
-            'haetae',
-            '@haetae/core',
-            '@haetae/cli',
-            '@haetae/git',
-            '@haetae/javascript',
-            '@haetae/utils',
-          ],
-          npmGlobalPackages: [
-            'haetae',
-            '@haetae/core',
-            '@haetae/cli',
-            '@haetae/git',
-            '@haetae/javascript',
-            '@haetae/utils',
-          ],
-          Utilities: ['Git'],
-        },
-        { json: true },
-      )
-
-      console.log(info)
+      await runInfo()
     } else {
       throw new Error('Option "r" must be given when <command> is not given.')
     }
@@ -201,10 +176,13 @@ export async function execute() {
           store: await store(),
         }),
       })
+      signale.success(
+        'Command is successfully executed and new record is stored.',
+      )
     }
   } else {
     // 3.3. When multiple commands are given
-    console.error('Too many commands. Only one command is allowed.')
+    throw new Error('Too many commands. Only one command is allowed.')
   }
 }
 
@@ -212,6 +190,7 @@ export async function run() {
   try {
     await execute()
   } catch (error) {
-    console.error(error)
+    signale.fatal(error)
+    process.exit(1)
   }
 }
