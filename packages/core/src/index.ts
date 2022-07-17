@@ -140,6 +140,10 @@ export function configure<D = unknown, E = unknown>({
     typeof storeFile === 'string',
     `'storeFile' is misconfigured. It should be string.`,
   )
+  if (!path.isAbsolute(storeFile)) {
+    // Change posix path to platform-specific path
+    storeFile = path.join(...storeFile.split('/'))
+  }
 
   // When it's given as a directory.
   // Keep in mind that store file might not exist, yet.
