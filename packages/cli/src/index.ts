@@ -41,7 +41,6 @@ export async function execute() {
         alias: 'config',
         type: 'string',
         description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or finding "${defaultConfigFile}" by walking up parent directories.`,
-        default: process.env.HAETAE_CONFIG_FILE || findUp(defaultConfigFile), // CAUTION: findUp returns Promise!,
       },
       s: {
         alias: 'store',
@@ -52,25 +51,21 @@ export async function execute() {
         alias: 'record',
         type: 'boolean',
         description: 'All/partial record(s)',
-        default: false,
       },
       d: {
         alias: 'record-data',
         type: 'boolean',
         description: 'All/partial record(s) data',
-        default: false,
       },
       e: {
         alias: 'env',
         type: 'boolean',
         description: 'Current environment',
-        default: false,
       },
       i: {
         alias: 'info',
         type: 'boolean',
         description: 'System, binary, dependencies information',
-        default: false,
       },
     })
     .conflicts('r', 'd')
@@ -80,7 +75,6 @@ export async function execute() {
     .conflicts('i', 'r')
     .conflicts('i', 'c')
     .conflicts('i', 'e')
-
     .example([
       [`$0 -c ./${defaultConfigFile} <...>`, 'Specify config file path.'],
       [
@@ -113,7 +107,12 @@ export async function execute() {
   const argv = await y.argv
 
   // 1. Set config file path
-  setConfigFilename(await argv.c) // Throws error if config file does not exist.
+
+  setConfigFilename(
+    argv.c ||
+      process.env.HAETAE_CONFIG_FILE ||
+      (await findUp(defaultConfigFile)),
+  ) // Throws error if config file does not exist.
 
   // 2. Get store
   // If `argv.s` is undefined, `filename` will be resolved as default value
