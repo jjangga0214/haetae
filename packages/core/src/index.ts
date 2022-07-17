@@ -45,7 +45,6 @@ export const setConfigFilename = (
 export const getConfigFilename = memoizee((): string => {
   // TODO: finding config file recursively(parental)
   let filename = configFilename || '.'
-  assert(!!filename, '`configFilename` is not set.')
   if (!path.isAbsolute(filename)) {
     filename = path.join(process.cwd(), filename)
   }

@@ -3,6 +3,8 @@ import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
 import path from 'path'
 import fs from 'fs'
+import assert from 'assert/strict'
+import findUp from 'find-up'
 import {
   setCurrentCommand,
   invokeEnv,
@@ -15,7 +17,6 @@ import {
   getRecords,
   mapStore,
 } from '@haetae/core'
-import assert from 'assert/strict'
 
 export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(
@@ -37,8 +38,8 @@ export async function run() {
       c: {
         alias: 'config',
         type: 'string',
-        description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or "${defaultConfigFile}"`,
-        default: process.env.HAETAE_CONFIG_FILE,
+        description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or finding "${defaultConfigFile}" by walking up parent directories.`,
+        default: process.env.HAETAE_CONFIG_FILE || findUp(defaultConfigFile), // CAUTION: findUp returns Promise!,
       },
       s: {
         alias: 'store',
@@ -93,20 +94,7 @@ export async function run() {
   const argv = await y.argv
 
   // 1. Set config file path
-  if (argv.c) {
-    setConfigFilename(argv.c)
-  } else {
-    const cwdConfigFile = path.join(process.cwd(), defaultConfigFile)
-    try {
-      assert(
-        fs.statSync(cwdConfigFile).isFile(),
-        `${cwdConfigFile} must be a file.`,
-      )
-      setConfigFilename(cwdConfigFile)
-    } catch {
-      //
-    }
-  }
+  setConfigFilename(await argv.c) // Throws error if config file does not exist.
 
   // 2. Get store
   // If `argv.s` is undefined, `filename` will be resolved as default value
