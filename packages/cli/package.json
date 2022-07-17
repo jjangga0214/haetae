@@ -22,10 +22,12 @@
     "@haetae/core": "workspace:^",
     "chalk": "^4.1.2",
     "commander": "^8.1.0",
+    "envinfo": "^7.8.1",
     "find-up": "^5",
     "yargs": "^17.5.1"
   },
   "devDependencies": {
+    "@types/envinfo": "^7.8.1",
     "@types/yargs": "^17.0.10"
   },
   "keywords": [

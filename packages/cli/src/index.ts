@@ -5,6 +5,8 @@ import path from 'path'
 import fs from 'fs'
 import assert from 'assert/strict'
 import findUp from 'find-up'
+import envinfo from 'envinfo'
+
 import {
   setCurrentCommand,
   invokeEnv,
@@ -28,7 +30,7 @@ export const { version: packageVersion } = (() => {
 
 export const packageName = '@haetae/cli'
 
-export async function run() {
+export async function execute() {
   const y = await yargs(hideBin(process.argv))
     .scriptName('haetae')
     .usage('$0 [options] <command>')
@@ -64,8 +66,21 @@ export async function run() {
         description: 'Current environment',
         default: false,
       },
+      i: {
+        alias: 'info',
+        type: 'boolean',
+        description: 'System, binary, dependencies information',
+        default: false,
+      },
     })
     .conflicts('r', 'd')
+    .conflicts('d', 'r')
+    .conflicts('i', 'c')
+    .conflicts('i', 's')
+    .conflicts('i', 'r')
+    .conflicts('i', 'c')
+    .conflicts('i', 'e')
+
     .example([
       [`$0 -c ./${defaultConfigFile} <...>`, 'Specify config file path.'],
       [
@@ -88,6 +103,10 @@ export async function run() {
         '$0 -d -e <command>',
         'Show a record data of current env of the given command',
       ],
+      [
+        '$0 -i',
+        'Show information needed for reporting an issue on GitHub repository',
+      ],
     ])
 
   // `y` should be instantiated for type check. Do NOT create `argv` directly.
@@ -102,14 +121,49 @@ export async function run() {
   // Therefore, lazy loading is needed.
   const store = () => getStore({ filename: argv.s })
 
+  if (argv.i) {
+    assert(argv._.length === 0, 'Option `-i` cannot be used with <command>.')
+  }
+  if (argv.e) {
+    assert(argv._.length > 0, 'Option `-e` must be given with <command>.')
+  }
+
   // 3. Run
   if (argv._.length === 0) {
     // 3.1. When command is not given
 
-    assert(!argv.e, 'Option "e" must be given with <command>')
-    assert(argv.r, 'Option "r" must be given when <command> is not given')
+    if (argv.r) {
+      console.log(JSON.stringify(await store(), undefined, 2))
+    } else if (argv.i) {
+      const info = await envinfo.run(
+        {
+          System: ['OS', 'CPU', 'Memory', 'Shell'],
+          Binaries: ['Node', 'Yarn', 'npm'],
+          npmPackages: [
+            'haetae',
+            '@haetae/core',
+            '@haetae/cli',
+            '@haetae/git',
+            '@haetae/javascript',
+            '@haetae/utils',
+          ],
+          npmGlobalPackages: [
+            'haetae',
+            '@haetae/core',
+            '@haetae/cli',
+            '@haetae/git',
+            '@haetae/javascript',
+            '@haetae/utils',
+          ],
+          Utilities: ['Git'],
+        },
+        { json: true },
+      )
 
-    console.log(JSON.stringify(await store(), undefined, 2))
+      console.log(info)
+    } else {
+      throw new Error('Option "r" must be given when <command> is not given.')
+    }
   } else if (argv._.length === 1) {
     // 3.2. When a command is given
 
@@ -151,6 +205,14 @@ export async function run() {
     }
   } else {
     // 3.3. When multiple commands are given
-    console.error(' Too many commands. Only one command is allowed.')
+    console.error('Too many commands. Only one command is allowed.')
+  }
+}
+
+export async function run() {
+  try {
+    await execute()
+  } catch (error) {
+    console.error(error)
   }
 }
