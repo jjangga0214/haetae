@@ -8,7 +8,7 @@ importers:
       '@changesets/cli': ^2.23.2
       '@commitlint/cli': ^16.0.1
       '@jjangga0214/commitlint-config': ^1.0.5
-      '@jjangga0214/eslint-config': ^3.0.4
+      '@jjangga0214/eslint-config': ^3.1.0
       '@jjangga0214/jest-config': ^3.0.2
       '@jjangga0214/markdownlint-config': ^1.0.1
       '@jjangga0214/prettier-config': ^2.0.1
@@ -44,7 +44,7 @@ importers:
       '@changesets/cli': 2.23.2
       '@commitlint/cli': 16.3.0_@swc+core@1.2.212
       '@jjangga0214/commitlint-config': 1.0.5_wxammkz6pk3znqt64f6grxllri
-      '@jjangga0214/eslint-config': 3.0.4_an7tuk7dhn3qai6be2vosn3kxu
+      '@jjangga0214/eslint-config': 3.1.0_an7tuk7dhn3qai6be2vosn3kxu
       '@jjangga0214/jest-config': 3.0.2_bx4377ansadbeovgfygo5lfska
       '@jjangga0214/markdownlint-config': 1.0.1_markdownlint-cli@0.30.0
       '@jjangga0214/prettier-config': 2.0.1_prettier@2.7.1
@@ -1247,8 +1247,8 @@ packages:
       - '@swc/wasm'
     dev: true
 
-  /@jjangga0214/eslint-config/3.0.4_an7tuk7dhn3qai6be2vosn3kxu:
-    resolution: {integrity: sha512-hJ2hKy9jAbhpy4ioNkzsNJl8lQDdJDdNbjRvFfv2X0YIvOSKlTswXrE+UxbGaxmaoz4sGneWxk+lZnM52nhK4A==}
+  /@jjangga0214/eslint-config/3.1.0_an7tuk7dhn3qai6be2vosn3kxu:
+    resolution: {integrity: sha512-BTiSKkwRVtpEIvhNoPSuW5Pzhg0GS52XoFPcBv9aLvWGOFp/gK8UqvXrYPvhomeoLv25cf/UFqBBIim5dZnCqw==}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': ^5.8.1
       eslint: '>=8.0.0'

@@ -1,7 +1,7 @@
 {
   "extends": "@jjangga0214/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "module": "CommonJS",
     "rootDir": ".",
     "baseUrl": "packages",
