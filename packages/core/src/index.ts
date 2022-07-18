@@ -242,8 +242,8 @@ export interface GetStoreOptions<D = unknown, E = unknown> {
  */
 export const getStore = memoizee(
   async <D = unknown, E = unknown>({
-    filename = (async () => (await getConfig()).storeFile)(),
-    fallback = () => initNewStore<D, E>(),
+    filename = getConfig().then((c) => c.storeFile),
+    fallback = () => initNewStore(),
   }: GetStoreOptions<D, E> = {}): Promise<HaetaeStore<D, E>> => {
     let rawStore
 
@@ -271,7 +271,7 @@ export async function getRecords<D = unknown, E = unknown>({
   command = getCurrentCommand(),
   store = getStore(),
 }: GetRecordsOptions<D, E> = {}): Promise<HaetaeRecord<D, E>[] | undefined> {
-  return (await store).commands[await command]
+  return (await store).commands[await command] // `undefined` if non-existent
 }
 
 export interface CommandFromConfig<D = unknown, E = unknown> {
@@ -286,8 +286,11 @@ export const invokeEnv = memoizee(
   async <E = unknown>({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: CommandFromConfig<unknown, E> = {}): Promise<E> =>
-    (await config).commands[await command].env(),
+  }: CommandFromConfig<unknown, E> = {}): Promise<E> => {
+    const haetaeCommand = (await config).commands[await command]
+    assert(!!haetaeCommand, `Command "${await command}" is not configured.`)
+    return haetaeCommand.env()
+  },
   {
     normalizer: serialize,
   },
@@ -297,11 +300,12 @@ export const invokeRun = async <D = unknown>({
   command = getCurrentCommand(),
   config = getConfig(),
 }: CommandFromConfig<D, unknown> = {}): Promise<D> => {
-  // eslint-disable-next-line no-param-reassign
-  config = await config
-  const recordData = await config.commands[await command].run()
+  const haetaeCommand = (await config).commands[await command]
+  assert(!!haetaeCommand, `Command "${await command}" is not configured.`)
+
+  const recordData = await haetaeCommand.run()
   if (recordData === undefined) {
-    return config.recordData()
+    return (await config).recordData()
   }
   return recordData
 }
@@ -334,7 +338,7 @@ export async function getRecord<D = unknown, E = unknown>({
       }
     }
   }
-  return undefined
+  return undefined // `undefined` if non-existent
 }
 
 export interface MapRecordOptions<D = unknown, E = unknown> {
@@ -409,7 +413,7 @@ export interface SaveStoreOptions {
 }
 
 export async function saveStore({
-  filename = getConfig().then((config) => config.storeFile),
+  filename = getConfig().then((c) => c.storeFile),
   store = mapStore(),
 }: SaveStoreOptions = {}) {
   // TODO: await
