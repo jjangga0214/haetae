@@ -1,5 +1,15 @@
 # @haetae/git
 
+## 0.0.5
+
+### Patch Changes
+
+- [`15f0098`](https://github.com/jjangga0214/haetae/commit/15f0098f983a9fbfc5805153e32b97407367741e) Thanks [@jjangga0214](https://github.com/jjangga0214)! - (BREAKING CHANGE) Removed `$HAETAE_GIT_COMMIT` and `HAETAE_GIT_GITSHA`.
+
+- Updated dependencies [[`b1a4a86`](https://github.com/jjangga0214/haetae/commit/b1a4a86bc725fb3f3e5ba71cb7422455e272cf2a), [`23eb1f3`](https://github.com/jjangga0214/haetae/commit/23eb1f3dad8e55e178c6375064b41b5a2e33fe6e), [`afa12ee`](https://github.com/jjangga0214/haetae/commit/afa12eee27560856fa40754f9d04aaa3bf920c1d), [`1b325c1`](https://github.com/jjangga0214/haetae/commit/1b325c1e5de124fbbd09cd3910cf77b30164f990), [`1b325c1`](https://github.com/jjangga0214/haetae/commit/1b325c1e5de124fbbd09cd3910cf77b30164f990), [`b1a4a86`](https://github.com/jjangga0214/haetae/commit/b1a4a86bc725fb3f3e5ba71cb7422455e272cf2a)]:
+  - @haetae/core@0.0.7
+  - @haetae/utils@0.0.6
+
 ## 0.0.4
 
 ### Patch Changes
