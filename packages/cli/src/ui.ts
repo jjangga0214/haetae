@@ -3,6 +3,7 @@ import { HaetaeRecord } from '@haetae/core'
 import chalk from 'chalk'
 import stripAnsi from 'strip-ansi'
 import signale from 'signale'
+import dayjs from 'dayjs'
 import { getInfo } from './info'
 
 export function wrapBlock(lines: string[]): string[] {
@@ -25,10 +26,17 @@ export function processColons(lines: string[]): string[] {
   )
 }
 
+export const al = {
+  key: 'value',
+  key2: 1,
+}
+
 export function processRecord(record: HaetaeRecord): string {
   const padding = ' '.repeat(5)
   const lines = [
-    `🕗 ${chalk.cyan('time')}: ${record.time}`, // TODO: to human readable string
+    `🕗 ${chalk.cyan('time')}: ${dayjs(record.time).format(
+      'YYYY MMM DD HH:mm:ss', // REF: https://day.js.org/docs/en/parse/string-format
+    )}`,
     `🌱 ${chalk.green('env')}:`,
     ...`${yaml.stringify(record.env)}` // TODO: handle empty object or undefined
       .trim()

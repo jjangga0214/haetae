@@ -85,6 +85,7 @@ importers:
       chalk: ^4.1.2
       clipboardy: ^2.0.0
       commander: ^8.1.0
+      dayjs: ^1.11.4
       envinfo: ^7.8.1
       find-up: ^5
       signale: ^1.4.0
@@ -96,6 +97,7 @@ importers:
       chalk: 4.1.2
       clipboardy: 2.3.0
       commander: 8.3.0
+      dayjs: 1.11.4
       envinfo: 7.8.1
       find-up: 5.0.0
       signale: 1.4.0
@@ -2747,6 +2749,10 @@ packages:
   /dataloader/1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
     dev: true
+
+  /dayjs/1.11.4:
+    resolution: {integrity: sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==}
+    dev: false
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
