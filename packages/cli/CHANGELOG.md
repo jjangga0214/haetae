@@ -1,5 +1,11 @@
 # @haetae/cli
 
+## 0.0.7
+
+### Patch Changes
+
+- [`155eb39`](https://github.com/jjangga0214/haetae/commit/155eb390b4fb3181e9cc3fda8902e8c964cb48b4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed pure esm deps issue. Now depending on commonjs deps.
+
 ## 0.0.6
 
 ### Patch Changes
