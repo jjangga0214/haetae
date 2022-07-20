@@ -10,7 +10,7 @@ Incremental tasks - test, lint, build, and more - for any environment.
 [![Commitizen friendly](https://img.shields.io/badge/Commitizen-cz_conventional_changelog-dd2c00.svg?style=flat-square&labelColor=black)](http://commitizen.github.io/cz-cli/)
 ![pr welcome](https://img.shields.io/badge/PRs-welcome-09FF33.svg?style=flat-square&labelColor=black)
 
-🚧 WIP
+🚧 WIP (The readme is out of date. It is to be rewritten soon.)
 
 ## Why?
 
