@@ -45,37 +45,16 @@ export function processRecord(record: HaetaeRecord): string {
     { renderedKey: `🌱 ${chalk.green('env')}:`, value: record.env },
     { renderedKey: `💾 ${chalk.yellow('data')}:`, value: record.data },
   ]) {
-    switch (value) {
-      case value === null || value === undefined: {
-        lines.push(`${renderedKey} ${chalk.dim(JSON.stringify(value))}`)
-        break
-      }
-      case Array.isArray(value) && isEmpty(value): {
-        lines.push(
-          `${renderedKey} empty array(${chalk.dim(JSON.stringify(value))})`,
-        )
-        break
-      }
-      // Since array is also an object, we need to check if it's an array before checking if it's an object
-      case isObject(value) && isEmpty(value): {
-        lines.push(
-          `${renderedKey} empty object(${chalk.dim(JSON.stringify(value))})`,
-        )
-        break
-      }
-      case !isObject(value): {
-        lines.push(`${renderedKey} ${value}`)
-        break
-      }
-      default: {
-        lines.push(
-          renderedKey,
-          ...`${yaml.stringify(value)}`
-            .trim()
-            .split('\n')
-            .map((l) => `${padding}${l}`),
-        )
-      }
+    if (!isObject(value) || (isObject(value) && isEmpty(value))) {
+      lines.push(`${renderedKey} ${chalk.dim(yaml.stringify(value))}`)
+    } else {
+      lines.push(
+        renderedKey,
+        ...`${yaml.stringify(value)}`
+          .trim()
+          .split('\n')
+          .map((l) => `${padding}${l}`),
+      )
     }
   }
 
