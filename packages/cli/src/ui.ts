@@ -48,7 +48,6 @@ export function processInfo(info: Awaited<ReturnType<typeof getInfo>>) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const lines = []
-  const colorizedLines = []
 
   const versionAndPathDelimiter = ' • '
   // eslint-disable-next-line guard-for-in
@@ -59,31 +58,22 @@ export function processInfo(info: Awaited<ReturnType<typeof getInfo>>) {
       if (typeof value === 'string') {
         // When `value` is string
         lines.push(`${key}: ${value}`)
-        colorizedLines.push(`${key}: ${value}`)
       } else if (typeof value === 'object') {
         // When `value` is `VersionAndPath`
         lines.push(
-          `${key}: ${value.version}${versionAndPathDelimiter}${value.path}`,
-        )
-        colorizedLines.push(
           `${key}: ${value.version}${chalk.dim.bold(
             versionAndPathDelimiter,
           )}${chalk.dim(value.path)}`,
         )
       } else {
         // When `value` is undefined
-        lines.push(`${key}: ${'N/A'}`)
-        colorizedLines.push(`${key}: ${chalk.dim('N/A')}`)
+        lines.push(`${key}: ${chalk.dim('N/A')}`)
       }
     }
   }
 
-  const message = lines.join('\n')
-  const colorizedMessage = processColons(colorizedLines).join('\n')
-  return {
-    plain: message,
-    colorized: colorizedMessage,
-  }
+  const message = processColons(lines).join('\n')
+  return message
 }
 
 enum JsonSimpleResponseStatus {

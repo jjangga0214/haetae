@@ -9,6 +9,7 @@ import signale from 'signale'
 import chalk from 'chalk'
 import clipboard from 'clipboardy'
 import yaml from 'yaml'
+import stripAnsi from 'strip-ansi'
 import {
   setCurrentCommand,
   invokeEnv,
@@ -167,9 +168,9 @@ export async function run() {
           signale.info(
             `Your system information is copied to the clipboard without color code.\nPaste it when creating an issue.\n<https://github.com/jjangga0214/haetae/issues>\n`,
           )
-          const { colorized, plain } = ui.processInfo(info)
-          clipboard.writeSync(plain)
-          console.log(colorized)
+          const message = ui.processInfo(info)
+          clipboard.writeSync(stripAnsi(message))
+          console.log(message)
         }
       } else {
         throw new Error(
