@@ -1,5 +1,4 @@
 import envinfo from 'envinfo'
-import signale from 'signale'
 
 interface VersionAndPath {
   version: string
