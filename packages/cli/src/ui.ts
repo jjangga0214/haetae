@@ -4,6 +4,8 @@ import chalk from 'chalk'
 import stripAnsi from 'strip-ansi'
 import signale from 'signale'
 import dayjs from 'dayjs'
+import isObject from 'lodash.isobject'
+import isEmpty from 'lodash.isempty'
 import { getInfo } from './info'
 
 export function wrapBlock(lines: string[]): string[] {
@@ -37,17 +39,45 @@ export function processRecord(record: HaetaeRecord): string {
     `🕗 ${chalk.cyan('time')}: ${dayjs(record.time).format(
       'YYYY MMM DD HH:mm:ss', // REF: https://day.js.org/docs/en/parse/string-format
     )}`,
-    `🌱 ${chalk.green('env')}:`,
-    ...`${yaml.stringify(record.env)}` // TODO: handle empty object or undefined
-      .trim()
-      .split('\n')
-      .map((l) => `${padding}${l}`),
-    `💾 ${chalk.yellow('data')}:`,
-    ...`${yaml.stringify(record.data)}` // TODO: handle empty object or undefined
-      .trim()
-      .split('\n')
-      .map((l) => `${padding}${l}`),
   ]
+
+  for (const { renderedKey, value } of [
+    { renderedKey: `🌱 ${chalk.green('env')}:`, value: record.env },
+    { renderedKey: `💾 ${chalk.yellow('data')}:`, value: record.data },
+  ]) {
+    switch (value) {
+      case value === null || value === undefined: {
+        lines.push(`${renderedKey} ${chalk.dim(JSON.stringify(value))}`)
+        break
+      }
+      case Array.isArray(value) && isEmpty(value): {
+        lines.push(
+          `${renderedKey} empty array(${chalk.dim(JSON.stringify(value))})`,
+        )
+        break
+      }
+      // Since array is also an object, we need to check if it's an array before checking if it's an object
+      case isObject(value) && isEmpty(value): {
+        lines.push(
+          `${renderedKey} empty object(${chalk.dim(JSON.stringify(value))})`,
+        )
+        break
+      }
+      case !isObject(value): {
+        lines.push(`${renderedKey} ${value}`)
+        break
+      }
+      default: {
+        lines.push(
+          renderedKey,
+          ...`${yaml.stringify(value)}`
+            .trim()
+            .split('\n')
+            .map((l) => `${padding}${l}`),
+        )
+      }
+    }
+  }
 
   return processColons(wrapBlock(lines)).join('\n')
 }

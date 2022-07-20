@@ -26,6 +26,8 @@
     "dayjs": "^1.11.4",
     "envinfo": "^7.8.1",
     "find-up": "^5",
+    "lodash.isempty": "^4.4.0",
+    "lodash.isobject": "^3.0.2",
     "signale": "^1.4.0",
     "strip-ansi": "^6.0.0",
     "yaml": "^2.1.1",
@@ -33,6 +35,8 @@
   },
   "devDependencies": {
     "@types/envinfo": "^7.8.1",
+    "@types/lodash.isempty": "^4.4.7",
+    "@types/lodash.isobject": "^3.0.7",
     "@types/signale": "^1.4.4",
     "@types/yargs": "^17.0.10"
   },
