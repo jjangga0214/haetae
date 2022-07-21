@@ -8,7 +8,6 @@ import findUp from 'find-up'
 import signale from 'signale'
 import chalk from 'chalk'
 import clipboard from 'clipboardy'
-import yaml from 'yaml'
 import stripAnsi from 'strip-ansi'
 import {
   setCurrentCommand,
@@ -209,7 +208,7 @@ export async function run() {
             'No record data matching with current environment is found for the command',
           )} ${chalk.bold(command)}`,
           result: recordData,
-          render: JSON.stringify, // TODO: yaml
+          render: (result) => ui.asBlock(result),
         })
       } else if (argv.e) {
         const env = await invokeEnv()
@@ -222,7 +221,7 @@ export async function run() {
             'Env is defined in config (on command level or root level), but returned `undefined` for the command',
           )} ${chalk.bold(command)}`,
           result: env,
-          render: JSON.stringify, // TODO: yaml
+          render: (result) => ui.asBlock(result),
         })
       } else if (argv.r) {
         const records = await getRecords({ store: await store() })
@@ -250,7 +249,8 @@ export async function run() {
             command,
           )}`,
           result: recordDataList,
-          render: JSON.stringify, // TODO: yaml
+          render: (result) =>
+            result.map((recordData) => ui.asBlock(recordData)).join('\n\n'),
         })
       } else {
         await saveStore({

@@ -9,6 +9,9 @@ import isEmpty from 'lodash.isempty'
 import { getInfo } from './info'
 
 export function wrapBlock(lines: string[]): string[] {
+  if (lines.length === 1) {
+    return [`${chalk.dim('[')} ${lines[0]}`]
+  }
   return lines.map((line, index) => {
     if (index === 0) {
       return `${chalk.dim('⎡')} ${line}`
@@ -28,25 +31,33 @@ export function processColons(lines: string[]): string[] {
   )
 }
 
-export const al = {
-  key: 'value',
-  key2: 1,
+export function isToBeSingleLine(value: unknown): boolean {
+  return !isObject(value) || (isObject(value) && isEmpty(value))
 }
 
-export function processRecord(record: HaetaeRecord): string {
+export function asBlock(value: unknown): string {
+  if (isToBeSingleLine(value)) {
+    return yaml.stringify(value).trim()
+  }
+  const rawLines = yaml.stringify(value).split('\n')
+  const lines = processColons(wrapBlock(rawLines))
+  return lines.join('\n')
+}
+
+export function processRecord({ time, env, data }: HaetaeRecord): string {
   const padding = ' '.repeat(5)
   const lines = [
-    `🕗 ${chalk.cyan('time')}: ${dayjs(record.time).format(
+    `🕗 ${chalk.cyan('time')}: ${dayjs(time).format(
       'YYYY MMM DD HH:mm:ss', // REF: https://day.js.org/docs/en/parse/string-format
-    )}`,
+    )} ${chalk.dim(`(timestamp: ${time})`)}`,
   ]
 
   for (const { renderedKey, value } of [
-    { renderedKey: `🌱 ${chalk.green('env')}:`, value: record.env },
-    { renderedKey: `💾 ${chalk.yellow('data')}:`, value: record.data },
+    { renderedKey: `🌱 ${chalk.green('env')}:`, value: env },
+    { renderedKey: `💾 ${chalk.yellow('data')}:`, value: data },
   ]) {
-    if (!isObject(value) || (isObject(value) && isEmpty(value))) {
-      lines.push(`${renderedKey} ${chalk.dim(yaml.stringify(value))}`)
+    if (isToBeSingleLine(value)) {
+      lines.push(`${renderedKey} ${chalk.dim(yaml.stringify(value).trim())}`)
     } else {
       lines.push(
         renderedKey,
