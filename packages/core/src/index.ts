@@ -4,6 +4,7 @@ import fs from 'fs'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import produce from 'immer'
+import deepEqual from 'deep-equal'
 
 export const { version: packageVersion } = (() => {
   const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
@@ -322,7 +323,13 @@ export async function compareEnvs<E = unknown>(
   one: E | Promise<E>,
   theOther: E | Promise<E>,
 ) {
-  return JSON.stringify(await one) === JSON.stringify(await theOther)
+  return deepEqual(
+    JSON.parse(JSON.stringify(await one)),
+    JSON.parse(JSON.stringify(await theOther)),
+    {
+      strict: true,
+    },
+  )
 }
 
 export async function getRecord<D = unknown, E = unknown>({
