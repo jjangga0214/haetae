@@ -38,7 +38,7 @@ function isToBeSingleLine(value: unknown): boolean {
 
 export function asBlock<T>(value: T): string | T {
   if (isToBeSingleLine(value)) {
-    return value
+    return wrapBlock([`${value}`])[0]
   }
   const rawLines = yaml.stringify(value).trim().split('\n')
   const lines = processColons(wrapBlock(rawLines))

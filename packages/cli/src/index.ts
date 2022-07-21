@@ -196,10 +196,10 @@ export async function run() {
           toJson: !!argv.j,
           message: `${chalk.dim(
             'Record matching with current environment is found for the command',
-          )} ${chalk.bold(command)}`,
+          )} ${chalk.bold.underline(command)}`,
           noResultMessage: `${chalk.dim(
             'No record matching with current environment is found for the command',
-          )} ${chalk.bold(command)}`,
+          )} ${chalk.bold.underline(command)}`,
           result: record,
           render: ui.processRecord,
         })
@@ -209,10 +209,10 @@ export async function run() {
           toJson: !!argv.j,
           message: `${chalk.dim(
             'Record matching with current environment is found for the command',
-          )} ${chalk.bold(command)}`,
+          )} ${chalk.bold.underline(command)}`,
           noResultMessage: `${chalk.dim(
             'No record data matching with current environment is found for the command',
-          )} ${chalk.bold(command)}`,
+          )} ${chalk.bold.underline(command)}`,
           result: recordData,
           render: (result) => ui.asBlock(result),
         })
@@ -222,10 +222,10 @@ export async function run() {
           toJson: !!argv.j,
           message: `${chalk.dim(
             'Current environment is successfully executed for the command',
-          )} ${chalk.bold(command)}`,
+          )} ${chalk.bold.underline(command)}`,
           noResultMessage: `${chalk.dim(
             'Env is defined in config (on command level or root level), but returned `undefined` for the command',
-          )} ${chalk.bold(command)}`,
+          )} ${chalk.bold.underline(command)}`,
           result: env,
           render: (result) => ui.asBlock(result),
         })
@@ -234,7 +234,7 @@ export async function run() {
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.bold.underline(records?.length)} ${chalk.dim(
-            'records are found for the command',
+            'record data are found for the command',
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `There is no record for the command ${chalk.bold(
             command,
@@ -251,7 +251,7 @@ export async function run() {
           message: `${chalk.bold.underline(recordDataList?.length)} ${chalk.dim(
             'records are found for the command',
           )} ${chalk.bold.underline(command)}`,
-          noResultMessage: `There is no record for the command ${chalk.bold(
+          noResultMessage: `There is no record for the command ${chalk.bold.underline(
             command,
           )}`,
           result: recordDataList,
