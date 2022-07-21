@@ -14,14 +14,14 @@ export interface ToIndexedDependencyRelationshipsOptions {
 }
 
 export interface IndexedDependencyRelationships {
-  [dependent: string]: string[] // dependencies[]
+  [dependent: string]: Set<string> // dependencies[]
 }
 
 export function toIndexedDependencyRelationships({
   rootDir = getConfigDirname(),
   relationships,
 }: ToIndexedDependencyRelationshipsOptions): IndexedDependencyRelationships {
-  const absoluteGraph: Record<string, string[]> = {}
+  const absoluteGraph: IndexedDependencyRelationships = {}
   const toAbsolute = (file: string) =>
     path.isAbsolute(file) ? file : path.join(rootDir, file)
 
@@ -31,8 +31,10 @@ export function toIndexedDependencyRelationships({
     dependents = dependents.map((dependent) => toAbsolute(dependent))
     dependencies = dependencies.map((dependency) => toAbsolute(dependency))
     for (const dependent of dependents) {
-      absoluteGraph[dependent] = absoluteGraph[dependent] || []
-      absoluteGraph[dependent].push(...dependencies)
+      absoluteGraph[dependent] = absoluteGraph[dependent] || new Set<string>()
+      for (const dependency of dependencies) {
+        absoluteGraph[dependent].add(dependency)
+      }
     }
   }
   return absoluteGraph
@@ -64,7 +66,7 @@ export function dependsOn(
     // eslint-disable-next-line no-param-reassign
     tsConfig = tsConfig || path.join(rootDir, 'tsconfig.json')
   }
-  const IndexedRelationships = toIndexedDependencyRelationships({
+  const indexedRelationships = toIndexedDependencyRelationships({
     rootDir,
     relationships,
   })
@@ -80,7 +82,7 @@ export function dependsOn(
       if (deepDepsList.includes(filename)) {
         return true
       }
-      if (IndexedRelationships[target].includes(filename)) {
+      if (indexedRelationships[target].has(filename)) {
         return true
       }
     }
