@@ -1,5 +1,12 @@
 # haetae
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`9bcea20`](https://github.com/jjangga0214/haetae/commit/9bcea2009f933dface69a226909d2afa047d1a93), [`22da759`](https://github.com/jjangga0214/haetae/commit/22da75948486b8ecb780b1d07f13426a82d91c87), [`cce03e0`](https://github.com/jjangga0214/haetae/commit/cce03e03e1232b6bdcf49a8e424328c5a62158d9), [`b274857`](https://github.com/jjangga0214/haetae/commit/b27485728a5a6951623406cbb42fba0995e5ad3a)]:
+  - @haetae/cli@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes
