@@ -5,42 +5,41 @@
       "name": "Run via 'node <source>'",
       "type": "node",
       "request": "launch",
-      "cwd": ".",
+      "cwd": "${fileDirname}",
       "runtimeExecutable": "node",
       "runtimeArgs": ["${input:filepath}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run via 'yarn ts-node'",
+      "name": "Run via 'pnpm ts'",
       "request": "launch",
       "type": "node",
-      "cwd": ".",
-      "runtimeExecutable": "yarn",
-      "runtimeArgs": ["ts-node", "${input:filepath}"],
+      "cwd": "${fileDirname}",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["ts", "${input:filepath}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run via 'yarn workspace <project> dev'",
-      "type": "node",
+      "name": "Run via 'pnpm test'",
       "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "yarn",
-      "runtimeArgs": ["workspace", "${input:projectPackage}", "dev"],
+      "type": "node",
+      "cwd": "${fileDirname}",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["test", "${input:filepath}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run via 'yarn workspace <project> test' --testNamePattern",
-      "type": "node",
+      "name": "Run via 'pnpm test --testNamePattern'",
       "request": "launch",
-      "cwd": ".",
-      "runtimeExecutable": "yarn",
+      "type": "node",
+      "cwd": "${fileDirname}",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": [
-        "workspace",
-        "${input:projectPackage}",
         "test",
+        "${input:filepath}",
         "--testNamePattern",
         "${input:--testNamePattern}"
       ],
@@ -53,11 +52,6 @@
       "id": "filepath",
       "type": "promptString",
       "description": "What is the file path relative from cwd?"
-    },
-    {
-      "id": "projectPackage",
-      "type": "promptString",
-      "description": "What is the package name?"
     },
     {
       "id": "--testNamePattern",
