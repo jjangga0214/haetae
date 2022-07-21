@@ -110,7 +110,7 @@ export async function run() {
         ],
         [
           '$0 -i',
-          'Show information needed for reporting an issue on GitHub repository',
+          'Show your system, binary, dependencies information needed for reporting an issue on GitHub repository',
         ],
       ])
 
@@ -154,7 +154,9 @@ export async function run() {
         if (argv.j) {
           ui.json.success(message, haetaeStore)
         } else {
-          ui.json.json(haetaeStore) // TODO: yaml format
+          const result = await ui.processStore(haetaeStore)
+          signale.success(chalk.dim(`The store is successfully loaded\n`))
+          console.log(result)
         }
       } else if (argv.i) {
         const info = await getInfo()
@@ -165,7 +167,11 @@ export async function run() {
           )
         } else {
           signale.info(
-            `Your system information is copied to the clipboard without color code.\nPaste it when creating an issue.\n<https://github.com/jjangga0214/haetae/issues>\n`,
+            `${chalk.dim(
+              'Your runtime information is copied to the clipboard without color code. Paste it when creating an issue.\n',
+            )}${chalk.bold.blue('➜ ')}${chalk.underline.bold(
+              'https://github.com/jjangga0214/haetae/issues',
+            )}\n`,
           )
           const message = ui.processInfo(info)
           clipboard.writeSync(stripAnsi(message))

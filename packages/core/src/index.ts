@@ -44,7 +44,6 @@ export const setConfigFilename = (
  * @memoized
  */
 export const getConfigFilename = memoizee((): string => {
-  // TODO: finding config file recursively(parental)
   let filename = configFilename || '.'
   if (!path.isAbsolute(filename)) {
     filename = path.join(process.cwd(), filename)
@@ -423,7 +422,7 @@ export async function saveStore({
   filename = getConfig().then((c) => c.storeFile),
   store = mapStore(),
 }: SaveStoreOptions = {}) {
-  // TODO: await
+  // TODO: await?
   fs.writeFileSync(
     await filename,
     `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
