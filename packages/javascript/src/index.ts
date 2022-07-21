@@ -32,7 +32,7 @@ export function toIndexedDependencyRelationships({
     dependencies = dependencies.map((dependency) => toAbsolute(dependency))
     for (const dependent of dependents) {
       absoluteGraph[dependent] = absoluteGraph[dependent] || []
-      absoluteGraph[dependent].push(...absoluteGraph[dependent])
+      absoluteGraph[dependent].push(...dependencies)
     }
   }
   return absoluteGraph
@@ -80,7 +80,7 @@ export function dependsOn(
       if (deepDepsList.includes(filename)) {
         return true
       }
-      if (IndexedRelationships[filename].includes(target)) {
+      if (IndexedRelationships[target].includes(filename)) {
         return true
       }
     }
