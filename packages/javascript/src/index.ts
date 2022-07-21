@@ -17,6 +17,7 @@ export interface IndexedDependencyRelationships {
   [dependent: string]: Set<string> // dependencies[]
 }
 
+// TODO: test
 export function toIndexedDependencyRelationships({
   rootDir = getConfigDirname(),
   relationships,
@@ -47,6 +48,7 @@ export interface DependsOnOptions {
   relationships?: readonly DependencyRelationship[] // you can manually specify additional dependency graph
 }
 
+// TODO: test
 /**
  * @param relationships // You can specify any dependency graph regardless of extension
  * [ // When foo depends on bar and baz.
@@ -82,7 +84,7 @@ export function dependsOn(
       if (deepDepsList.includes(filename)) {
         return true
       }
-      if (indexedRelationships[target].has(filename)) {
+      if (indexedRelationships[target]?.has(filename)) {
         return true
       }
     }
