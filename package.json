@@ -12,6 +12,7 @@
     "ts": "ts-node -r tsconfig-paths/register",
     "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md --fix",
     "lint:md": "markdownlint --fix",
+    "test": "jest",
     "husky-skip": "cross-env HUSKY=0",
     "commit": "git cz",
     "prepare": "husky install"
