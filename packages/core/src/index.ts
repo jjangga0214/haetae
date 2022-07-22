@@ -63,9 +63,11 @@ export const getConfigFilename = memoizee((): string => {
 // todo: set/get current config dirname
 export const getConfigDirname = () => path.dirname(getConfigFilename())
 
+export const defaultStoreFile = 'haetae.store.json'
+
 export interface HaetaeRecord<D = unknown, E = unknown> {
-  data: D
-  env: E
+  data: D | null
+  env: E | null
   time: number
 }
 
@@ -75,22 +77,38 @@ export interface HaetaeStore<D = unknown, E = unknown> {
     [command: string]: HaetaeRecord<D, E>[]
   }
 }
-export type HaetaeCommandEnv<E = unknown> = () => E | Promise<E>
 
 export type HaetaePreCommandEnv<E = unknown> =
   | HaetaeCommandEnv<E>
   | E
-  | Promise<E>
+  | null
+  | undefined
+  | Promise<E | null | undefined>
+
+export type HaetaeCommandEnv<E = unknown> = () =>
+  | E
+  | null
+  | undefined
+  | void
+  | Promise<E | null | undefined>
 
 export interface HaetaePreCommand<D = unknown, E = unknown> {
-  run: () => D | Promise<D>
+  run: () => D | null | undefined | void | Promise<D | null | undefined>
   env?: HaetaePreCommandEnv<E>
 }
 
-export interface HaetaeCommand<D = unknown, E = unknown>
-  extends HaetaePreCommand<D, E> {
+export interface HaetaeCommand<D = unknown, E = unknown> {
+  run: () => D | null | undefined | void | Promise<D | null | undefined>
   env: HaetaeCommandEnv<E>
 }
+
+export type RootEnv<E = unknown> = (
+  envFromCommand: E | null,
+) => E | null | Promise<E | null>
+
+export type RootRecordData<D = unknown> = (
+  recordDataFromCommand: D | null,
+) => D | null | Promise<D | null>
 
 export interface HaetaePreConfig<D = unknown, E = unknown> {
   commands: {
@@ -98,9 +116,9 @@ export interface HaetaePreConfig<D = unknown, E = unknown> {
   }
   // maxLimit?: number // Infinity
   // maxAge?: number // Infinity
+  env?: RootEnv<E>
+  recordData?: RootRecordData<D>
   // It should be an absolute or relative path (relative to config file path)
-  env?: HaetaePreCommandEnv<E>
-  recordData?: () => D | Promise<D>
   storeFile?: string
 }
 
@@ -108,12 +126,25 @@ export interface HaetaeConfig<D = unknown, E = unknown> {
   commands: {
     [command: string]: HaetaeCommand<D, E>
   }
-  env: HaetaeCommandEnv<E>
-  recordData: () => D | Promise<D>
+  env: RootEnv<E>
+  recordData: RootRecordData<D>
   storeFile: string
 }
 
-export const defaultStoreFile = 'haetae.store.json'
+export function defaultEnv<E>(envFromCommand: E | null): E | null {
+  return envFromCommand
+}
+
+export function defaultRecordData<D>(
+  recordDataFromCommand: D | null,
+): D | null {
+  if (recordDataFromCommand === null) {
+    // // eslint-disable-next-line no-param-reassign
+    // recordDataFromCommand = {}
+    // TODO: add git record
+  }
+  return recordDataFromCommand
+}
 
 /**
  * @param preConfig: config object provided from user.
@@ -121,17 +152,18 @@ export const defaultStoreFile = 'haetae.store.json'
  */
 export function configure<D = unknown, E = unknown>({
   commands,
-  env = () => ({} as E),
-  recordData = () => ({} as D),
+  env = (envFromCommand) => defaultEnv(envFromCommand),
+  recordData = (recordDataFromCommand) =>
+    defaultRecordData(recordDataFromCommand),
   storeFile = '.',
 }: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
 
   // Convert it to a function if not
-  if (typeof env !== 'function') {
-    env = (() => env) as HaetaeCommandEnv<E>
-  }
-
+  assert(
+    typeof env === 'function',
+    `'env' is misconfigured. It should be a function.`,
+  )
   assert(
     typeof recordData === 'function',
     `'recordData' is misconfigured. It should be a function.`,
@@ -154,14 +186,10 @@ export function configure<D = unknown, E = unknown>({
 
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
-      // Setting default: env
-      if (commands[command].env === undefined) {
-        commands[command].env = env
-      }
-
       // Convert it to a function if not
       if (typeof commands[command].env !== 'function') {
-        commands[command].env = () => commands[command].env as E
+        commands[command].env = () =>
+          commands[command].env as ReturnType<HaetaeCommandEnv<E>>
       }
 
       assert(
@@ -174,7 +202,7 @@ export function configure<D = unknown, E = unknown>({
   /* eslint-enable no-param-reassign */
   return {
     commands: commands as HaetaeConfig<D, E>['commands'],
-    env: env as HaetaeCommandEnv<E>,
+    env,
     recordData,
     storeFile,
   }
@@ -286,10 +314,12 @@ export const invokeEnv = memoizee(
   async <E = unknown>({
     command = getCurrentCommand(),
     config = getConfig(),
-  }: CommandFromConfig<unknown, E> = {}): Promise<E> => {
+  }: CommandFromConfig<unknown, E> = {}): Promise<E | null> => {
     const haetaeCommand = (await config).commands[await command]
     assert(!!haetaeCommand, `Command "${await command}" is not configured.`)
-    return haetaeCommand.env()
+    const env = await haetaeCommand.env()
+    // eslint-disable-next-line unicorn/no-null
+    return (await config).env(env === undefined ? null : env)
   },
   {
     normalizer: serialize,
@@ -299,20 +329,19 @@ export const invokeEnv = memoizee(
 export const invokeRun = async <D = unknown>({
   command = getCurrentCommand(),
   config = getConfig(),
-}: CommandFromConfig<D, unknown> = {}): Promise<D> => {
+}: CommandFromConfig<D, unknown> = {}): Promise<D | null> => {
   const haetaeCommand = (await config).commands[await command]
   assert(!!haetaeCommand, `Command "${await command}" is not configured.`)
 
   const recordData = await haetaeCommand.run()
-  if (recordData === undefined) {
-    return (await config).recordData()
-  }
-  return recordData
+  // eslint-disable-next-line unicorn/no-null
+  return (await config).recordData(recordData === undefined ? null : recordData)
+  // return recordData
 }
 
 export interface GetRecordOptions<D = unknown, E = unknown>
   extends GetRecordsOptions<D, E> {
-  env?: E | Promise<E>
+  env?: E | null | Promise<E | null>
 }
 
 /**
@@ -348,8 +377,8 @@ export async function getRecord<D = unknown, E = unknown>({
 }
 
 export interface MapRecordOptions<D = unknown, E = unknown> {
-  data?: D | Promise<D>
-  env?: E | Promise<E>
+  data?: D | null | Promise<D | null>
+  env?: E | null | Promise<E | null>
   time?: number
 }
 
