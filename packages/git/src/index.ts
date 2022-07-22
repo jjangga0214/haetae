@@ -51,13 +51,18 @@ export interface BranchOptions {
   rootDir?: string
 }
 
+/**
+ * @returns branch name. return falsy if it's detached HEAD.
+ */
 export async function branch({
   rootDir = getConfigDirname(),
-}: BranchOptions = {}) {
+}: BranchOptions = {}): Promise<string> {
   return exec('git branch --show-current', {
     cwd: rootDir,
   })
 }
+
+// This is to avoid naming collision for `recordData`.
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const _branch = branch
 

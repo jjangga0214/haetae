@@ -117,6 +117,19 @@ export async function run() {
     // `y` should be instantiated for type check. Do NOT create `argv` directly.
     const argv = await y.argv
 
+    if (argv.i) {
+      assert(argv._.length === 0, 'Option `-i` cannot be used with <command>.')
+    }
+    if (argv.e) {
+      assert(argv._.length > 0, 'Option `-e` must be given with <command>.')
+    }
+    if (argv.j) {
+      assert(
+        argv.r || argv.d || argv.e || argv.i,
+        'Option `-j` must be given with at least one of `-r`, `-d`, `-e`, `-i`.',
+      )
+    }
+
     // 1. Set config file path
 
     setConfigFilename(
@@ -130,13 +143,6 @@ export async function run() {
     // Why function, not value? Because `invokeEnv` for `-e` alone does not need store.
     // Therefore, lazy loading is needed.
     const store = () => getStore({ filename: argv.s })
-
-    if (argv.i) {
-      assert(argv._.length === 0, 'Option `-i` cannot be used with <command>.')
-    }
-    if (argv.e) {
-      assert(argv._.length > 0, 'Option `-e` must be given with <command>.')
-    }
 
     // 3. Run
     if (argv._.length === 0) {
@@ -183,7 +189,7 @@ export async function run() {
         )
       }
     } else if (argv._.length === 1) {
-      // 3.2. When a command is given
+      // 3.2. When a single command is given
 
       const command = argv._[0]
       assert(typeof command === 'string')
