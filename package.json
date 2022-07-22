@@ -38,7 +38,7 @@
     "@commitlint/cli": "^16.0.1",
     "@jjangga0214/commitlint-config": "^1.0.5",
     "@jjangga0214/eslint-config": "^3.1.0",
-    "@jjangga0214/jest-config": "^3.0.2",
+    "@jjangga0214/jest-config": "^3.1.0",
     "@jjangga0214/markdownlint-config": "^1.0.1",
     "@jjangga0214/prettier-config": "^2.0.1",
     "@jjangga0214/tsconfig": "^3.2.0",
@@ -55,7 +55,6 @@
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jest": "^25.3.4",
-    "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-markdown": "^2.2.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-unicorn": "^39.0.0",
@@ -65,8 +64,8 @@
     "markdownlint-cli": "^0.30.0",
     "prettier": "^2.5.1",
     "ts-jest": "^28.0.7",
-    "ts-node": "^10.1.0",
-    "tsconfig-paths": "^3.10.1",
+    "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.12.1",
     "typescript": "^4.5.4"
   },
   "keywords": [
