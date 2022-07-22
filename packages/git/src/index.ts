@@ -16,7 +16,7 @@ export const { version: packageVersion } = (() => {
 export const packageName = '@haetae/git'
 
 export interface GitHaetaeRecordData {
-  [packageName]: { commit: string }
+  [packageName]: { commit: string; branch: string }
 }
 
 /**
@@ -47,14 +47,30 @@ export async function isInitialized({ rootDir = getConfigDirname() } = {}) {
   }
 }
 
+export interface BranchOptions {
+  rootDir?: string
+}
+
+export async function branch({
+  rootDir = getConfigDirname(),
+}: BranchOptions = {}) {
+  return exec('git branch --show-current', {
+    cwd: rootDir,
+  })
+}
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const _branch = branch
+
 export interface RecordOptions {
   commit?: string | Promise<string | undefined | void>
+  branch?: string | Promise<string>
 }
 
 export async function recordData({
   commit = exec('git rev-parse --verify HEAD', {
     cwd: getConfigDirname(),
   }).catch(() => {}),
+  branch = _branch(),
 }: RecordOptions): Promise<GitHaetaeRecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
@@ -62,6 +78,7 @@ export async function recordData({
   return {
     [packageName]: {
       commit: (await commit) as string,
+      branch: (await branch) || ('detached HEAD' as string),
     },
   }
 }
@@ -138,16 +155,4 @@ export const changedFiles = async ({
   } catch (error) {
     return fallback(error as Error)
   }
-}
-
-export interface BranchOptions {
-  rootDir?: string
-}
-
-export async function branch({
-  rootDir = getConfigDirname(),
-}: BranchOptions = {}) {
-  return exec('git branch --show-current', {
-    cwd: rootDir,
-  })
 }
