@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
-import path from 'path'
-import fs from 'fs'
 import assert from 'assert/strict'
 import findUp from 'find-up'
 import signale from 'signale'
@@ -21,7 +19,6 @@ import {
   getRecords,
   mapStore,
 } from '@haetae/core'
-
 import { getInfo } from './info'
 import * as ui from './ui'
 
