@@ -434,3 +434,12 @@ export async function saveStore({
   )
   getStore.clear() // memoization cache clear
 }
+
+export async function deleteStore({
+  filename = getConfig().then((c) => c.storeFile),
+}: {
+  filename?: string | Promise<string>
+} = {}) {
+  fs.unlinkSync(await filename)
+  getStore.clear() // memoization cache clear
+}
