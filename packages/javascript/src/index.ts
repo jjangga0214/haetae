@@ -93,5 +93,3 @@ export function dependsOn(
     return false
   }
 }
-
-export const packageName = '@haetae/javascript'
