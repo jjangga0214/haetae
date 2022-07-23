@@ -80,6 +80,7 @@ importers:
       '@types/envinfo': ^7.8.1
       '@types/lodash.isempty': ^4.4.7
       '@types/lodash.isobject': ^3.0.7
+      '@types/semver': ^7.3.10
       '@types/signale': ^1.4.4
       '@types/yargs': ^17.0.10
       chalk: ^4.1.2
@@ -92,6 +93,7 @@ importers:
       lodash.isempty: ^4.4.0
       lodash.isobject: ^3.0.2
       read-pkg: ^5.2.0
+      semver: ^7.3.7
       signale: ^1.4.0
       strip-ansi: ^6.0.0
       yaml: ^2.1.1
@@ -108,6 +110,7 @@ importers:
       lodash.isempty: 4.4.0
       lodash.isobject: 3.0.2
       read-pkg: 5.2.0
+      semver: 7.3.7
       signale: 1.4.0
       strip-ansi: 6.0.1
       yaml: 2.1.1
@@ -116,6 +119,7 @@ importers:
       '@types/envinfo': 7.8.1
       '@types/lodash.isempty': 4.4.7
       '@types/lodash.isobject': 3.0.7
+      '@types/semver': 7.3.10
       '@types/signale': 1.4.4
       '@types/yargs': 17.0.10
 
@@ -202,13 +206,17 @@ importers:
   packages/utils:
     specifiers:
       '@haetae/core': workspace:^
+      '@types/semver': ^7.3.10
       globby: ^11
       read-pkg: ^5.2.0
+      semver: ^7.3.7
     dependencies:
       globby: 11.1.0
       read-pkg: 5.2.0
+      semver: 7.3.7
     devDependencies:
       '@haetae/core': link:../core
+      '@types/semver': 7.3.10
 
 packages:
 
