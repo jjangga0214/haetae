@@ -13,7 +13,7 @@ export const { version: packageVersion } = (() => {
   return JSON.parse(content) as { version: string }
 })()
 
-export const packageName = '@haetae/core'
+type PromiseOr<T> = Promise<T> | T
 
 let currentCommand: string | undefined
 
@@ -80,35 +80,29 @@ export interface HaetaeStore<D = unknown, E = unknown> {
 
 export type HaetaePreCommandEnv<E = unknown> =
   | HaetaeCommandEnv<E>
-  | E
-  | null
-  | undefined
-  | Promise<E | null | undefined>
+  | PromiseOr<E | null | undefined>
 
-export type HaetaeCommandEnv<E = unknown> = () =>
-  | E
-  | null
-  | undefined
-  | void
-  | Promise<E | null | undefined>
+export type HaetaeCommandEnv<E = unknown> = () => void | PromiseOr<
+  E | null | undefined
+>
 
 export interface HaetaePreCommand<D = unknown, E = unknown> {
-  run: () => D | null | undefined | void | Promise<D | null | undefined>
+  run: () => void | PromiseOr<D | null | undefined>
   env?: HaetaePreCommandEnv<E>
 }
 
 export interface HaetaeCommand<D = unknown, E = unknown> {
-  run: () => D | null | undefined | void | Promise<D | null | undefined>
+  run: () => void | PromiseOr<D | null | undefined>
   env: HaetaeCommandEnv<E>
 }
 
 export type RootEnv<E = unknown> = (
   envFromCommand: E | null,
-) => E | null | Promise<E | null>
+) => PromiseOr<E | null>
 
 export type RootRecordData<D = unknown> = (
   recordDataFromCommand: D | null,
-) => D | null | Promise<D | null>
+) => PromiseOr<D | null>
 
 export interface HaetaePreConfig<D = unknown, E = unknown> {
   commands: {
@@ -131,30 +125,14 @@ export interface HaetaeConfig<D = unknown, E = unknown> {
   storeFile: string
 }
 
-export function defaultEnv<E>(envFromCommand: E | null): E | null {
-  return envFromCommand
-}
-
-export function defaultRecordData<D>(
-  recordDataFromCommand: D | null,
-): D | null {
-  if (recordDataFromCommand === null) {
-    // // eslint-disable-next-line no-param-reassign
-    // recordDataFromCommand = {}
-    // TODO: add git record
-  }
-  return recordDataFromCommand
-}
-
 /**
  * @param preConfig: config object provided from user.
  * @returns
  */
 export function configure<D = unknown, E = unknown>({
   commands,
-  env = (envFromCommand) => defaultEnv(envFromCommand),
-  recordData = (recordDataFromCommand) =>
-    defaultRecordData(recordDataFromCommand),
+  env = (envFromCommand) => envFromCommand,
+  recordData = (recordDataFromCommand) => recordDataFromCommand,
   storeFile = '.',
 }: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
@@ -336,7 +314,6 @@ export const invokeRun = async <D = unknown>({
   const recordData = await haetaeCommand.run()
   // eslint-disable-next-line unicorn/no-null
   return (await config).recordData(recordData === undefined ? null : recordData)
-  // return recordData
 }
 
 export interface GetRecordOptions<D = unknown, E = unknown>

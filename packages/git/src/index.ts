@@ -76,7 +76,7 @@ export async function recordData({
     cwd: getConfigDirname(),
   }).catch(() => {}),
   branch = _branch(),
-}: RecordOptions): Promise<GitHaetaeRecordData> {
+}: RecordOptions = {}): Promise<GitHaetaeRecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
   }

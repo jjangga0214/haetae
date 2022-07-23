@@ -57,7 +57,7 @@ export async function exec(
       if (stdout) {
         resolve(options.trim ? stdout.trim() : stdout)
       }
-      reject(error || stderr)
+      reject(error || options.trim ? stderr.trim() : stderr)
     })
   })
 }
