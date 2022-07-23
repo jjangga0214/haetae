@@ -7,7 +7,7 @@ export { default as pkg } from './pkg'
 // todo: git submodule test
 
 export interface GitHaetaeRecordData {
-  [pkg.name]: { commit: string; branch: string }
+  [pkg.name]: { commit: string; branch: string; pkgVersion: string }
 }
 
 /**
@@ -60,6 +60,7 @@ const _branch = branch
 export interface RecordOptions {
   commit?: string | Promise<string | undefined | void>
   branch?: string | Promise<string>
+  pkgVersion?: string
 }
 
 export async function recordData({
@@ -67,6 +68,7 @@ export async function recordData({
     cwd: getConfigDirname(),
   }).catch(() => {}),
   branch = _branch(),
+  pkgVersion = pkg.version.value,
 }: RecordOptions = {}): Promise<GitHaetaeRecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
@@ -75,6 +77,7 @@ export async function recordData({
     [pkg.name]: {
       commit: (await commit) as string,
       branch: (await branch) || ('detached HEAD' as string),
+      pkgVersion,
     },
   }
 }
