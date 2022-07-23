@@ -1,6 +1,6 @@
 export * as cli from '@haetae/cli'
 export * as core from '@haetae/core'
 export * as git from '@haetae/git'
-export * as javascript from '@haetae/javascript'
+export * as js from '@haetae/javascript'
 export * as utils from '@haetae/utils'
 export { default as pkg } from './pkg'
