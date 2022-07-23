@@ -15,10 +15,13 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
-    "globby": "^11"
+    "globby": "^11",
+    "read-pkg": "^5.2.0",
+    "semver": "^7.3.7"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:^"
+    "@haetae/core": "workspace:^",
+    "@types/semver": "^7.3.10"
   },
   "peerDependencies": {
     "@haetae/core": "workspace:^"

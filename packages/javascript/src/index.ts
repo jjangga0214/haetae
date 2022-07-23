@@ -3,6 +3,8 @@ import path from 'path'
 import fs from 'fs'
 import dependencyTree from 'dependency-tree'
 
+export { default as pkg } from './pkg'
+
 export interface DependencyRelationship {
   dependents: readonly string[] | string
   dependencies: readonly string[] | string
@@ -91,12 +93,5 @@ export function dependsOn(
     return false
   }
 }
-
-export const { version: packageVersion } = (() => {
-  const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
-    encoding: 'utf8',
-  })
-  return JSON.parse(content) as { version: string }
-})()
 
 export const packageName = '@haetae/javascript'

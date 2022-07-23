@@ -29,6 +29,8 @@
     "immer": "^9.0.5",
     "lodash.isempty": "^4.4.0",
     "lodash.isobject": "^3.0.2",
+    "read-pkg": "^5.2.0",
+    "semver": "^7.3.7",
     "signale": "^1.4.0",
     "strip-ansi": "^6.0.0",
     "yaml": "^2.1.1",
@@ -38,6 +40,7 @@
     "@types/envinfo": "^7.8.1",
     "@types/lodash.isempty": "^4.4.7",
     "@types/lodash.isobject": "^3.0.7",
+    "@types/semver": "^7.3.10",
     "@types/signale": "^1.4.4",
     "@types/yargs": "^17.0.10"
   },

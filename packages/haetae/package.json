@@ -22,9 +22,10 @@
     "@haetae/core": "workspace:^",
     "@haetae/git": "workspace:^",
     "@haetae/javascript": "workspace:^",
-    "@haetae/utils": "workspace:^"
+    "@haetae/utils": "workspace:^",
+    "read-pkg": "^5.2.0",
+    "semver": "^7.3.7"
   },
-  "devDependencies": {},
   "keywords": [
     "haetae",
     "test",
@@ -47,5 +48,8 @@
     "name": "Gil B. Chan",
     "email": "bnbcmindnpass@gmail.com",
     "url": "https://github.com/jjangga0214"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.3.10"
   }
 }

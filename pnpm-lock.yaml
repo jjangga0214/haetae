@@ -13,6 +13,7 @@ importers:
       '@jjangga0214/markdownlint-config': ^1.0.1
       '@jjangga0214/prettier-config': ^2.0.1
       '@jjangga0214/tsconfig': ^3.2.0
+      '@schemastore/package': ^0.0.6
       '@swc/core': ^1.2.125
       '@swc/helpers': ^0.2.12
       '@swc/jest': ^0.2.21
@@ -48,6 +49,7 @@ importers:
       '@jjangga0214/markdownlint-config': 1.0.1_markdownlint-cli@0.30.0
       '@jjangga0214/prettier-config': 2.0.1_prettier@2.7.1
       '@jjangga0214/tsconfig': 3.2.0_oxqjshuhqtd5qme7zllcjnl6ai
+      '@schemastore/package': 0.0.6
       '@swc/core': 1.2.218
       '@swc/helpers': 0.2.14
       '@swc/jest': 0.2.22_@swc+core@1.2.218
@@ -91,6 +93,7 @@ importers:
       immer: ^9.0.5
       lodash.isempty: ^4.4.0
       lodash.isobject: ^3.0.2
+      read-pkg: ^5.2.0
       signale: ^1.4.0
       strip-ansi: ^6.0.0
       yaml: ^2.1.1
@@ -106,6 +109,7 @@ importers:
       immer: 9.0.15
       lodash.isempty: 4.4.0
       lodash.isobject: 3.0.2
+      read-pkg: 5.2.0
       signale: 1.4.0
       strip-ansi: 6.0.1
       yaml: 2.1.1
@@ -121,33 +125,45 @@ importers:
     specifiers:
       '@types/deep-equal': ^1.0.1
       '@types/memoizee': ^0.4.6
+      '@types/semver': ^7.3.10
       '@types/serialize-javascript': ^5.0.1
       deep-equal: ^2.0.5
       immer: ^9.0.5
       memoizee: ^0.4.15
+      read-pkg: ^5.2.0
+      semver: ^7.3.7
       serialize-javascript: ^6.0.0
     dependencies:
       deep-equal: 2.0.5
       immer: 9.0.15
       memoizee: 0.4.15
+      read-pkg: 5.2.0
+      semver: 7.3.7
       serialize-javascript: 6.0.0
     devDependencies:
       '@types/deep-equal': 1.0.1
       '@types/memoizee': 0.4.8
+      '@types/semver': 7.3.10
       '@types/serialize-javascript': 5.0.2
 
   packages/git:
     specifiers:
       '@haetae/core': workspace:^
       '@haetae/utils': workspace:^
+      '@types/semver': ^7.3.10
       memoizee: ^0.4.15
+      read-pkg: ^5.2.0
+      semver: ^7.3.7
       serialize-javascript: ^6.0.0
     dependencies:
       memoizee: 0.4.15
+      read-pkg: 5.2.0
+      semver: 7.3.7
       serialize-javascript: 6.0.0
     devDependencies:
       '@haetae/core': link:../core
       '@haetae/utils': link:../utils
+      '@types/semver': 7.3.10
 
   packages/haetae:
     specifiers:
@@ -156,28 +172,43 @@ importers:
       '@haetae/git': workspace:^
       '@haetae/javascript': workspace:^
       '@haetae/utils': workspace:^
+      '@types/semver': ^7.3.10
+      read-pkg: ^5.2.0
+      semver: ^7.3.7
     dependencies:
       '@haetae/cli': link:../cli
       '@haetae/core': link:../core
       '@haetae/git': link:../git
       '@haetae/javascript': link:../javascript
       '@haetae/utils': link:../utils
+      read-pkg: 5.2.0
+      semver: 7.3.7
+    devDependencies:
+      '@types/semver': 7.3.10
 
   packages/javascript:
     specifiers:
       '@haetae/core': workspace:^
+      '@types/semver': ^7.3.10
       dependency-tree: ^8.1.1
+      read-pkg: ^5.2.0
+      semver: ^7.3.7
     dependencies:
       dependency-tree: 8.1.2
+      read-pkg: 5.2.0
+      semver: 7.3.7
     devDependencies:
       '@haetae/core': link:../core
+      '@types/semver': 7.3.10
 
   packages/utils:
     specifiers:
       '@haetae/core': workspace:^
       globby: ^11
+      read-pkg: ^5.2.0
     dependencies:
       globby: 11.1.0
+      read-pkg: 5.2.0
     devDependencies:
       '@haetae/core': link:../core
 
@@ -196,7 +227,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/highlight': 7.18.6
-    dev: true
 
   /@babel/compat-data/7.18.8:
     resolution: {integrity: sha512-HSmX4WZPPK3FUxYp7g2T6EyO8j96HlZJlxmKPSh6KAcqwyDrfx7hKjXpAW/0FhFfTJsR0Yt4lAjLI2coMptIHQ==}
@@ -351,7 +381,6 @@ packages:
       '@babel/helper-validator-identifier': 7.18.6
       chalk: 2.4.2
       js-tokens: 4.0.0
-    dev: true
 
   /@babel/parser/7.18.9:
     resolution: {integrity: sha512-9uJveS9eY9DJ0t64YbIBZICtJy8a5QrDEVdiLCG97fVLpDTpGX7t8mMSb6OWw6Lrnjqj4O8zwjELX3dhoMgiBg==}
@@ -1436,6 +1465,10 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
 
+  /@schemastore/package/0.0.6:
+    resolution: {integrity: sha512-uNloNHoyHttSSdeuEkkSC+mdxJXMKlcUPOMb//qhQbIQijXg8x54VmAw3jm6GJZQ5DBtIqGBd66zEQCDCChQVA==}
+    dev: true
+
   /@sinclair/typebox/0.24.20:
     resolution: {integrity: sha512-kVaO5aEFZb33nPMTZBxiPEkY+slxiPtqC7QX8f9B3eGOMBvEfuMfxp9DSTTCsRJPumPKjrge4yagyssO4q6qzQ==}
     dev: true
@@ -1743,7 +1776,6 @@ packages:
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
-    dev: true
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -1755,6 +1787,10 @@ packages:
 
   /@types/semver/6.2.3:
     resolution: {integrity: sha512-KQf+QAMWKMrtBMsB8/24w53tEsxllMj6TuA80TT/5igJalLI/zm0L3oXRbIAl4Ohfc85gyHX/jhMwsVkmhLU4A==}
+    dev: true
+
+  /@types/semver/7.3.10:
+    resolution: {integrity: sha512-zsv3fsC7S84NN6nPK06u79oWgrPVd0NvOyqgghV1haPaFcVxIrP4DLomRwGAXk0ui4HZA7mOcSFL98sMVW9viw==}
     dev: true
 
   /@types/serialize-javascript/5.0.2:
@@ -4028,7 +4064,6 @@ packages:
 
   /hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
-    dev: true
 
   /hosted-git-info/4.1.0:
     resolution: {integrity: sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==}
@@ -4928,7 +4963,6 @@ packages:
 
   /js-tokens/4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
-    dev: true
 
   /js-yaml/3.14.1:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
@@ -4957,7 +4991,6 @@ packages:
 
   /json-parse-even-better-errors/2.3.1:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
-    dev: true
 
   /json-schema-traverse/0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
@@ -5050,7 +5083,6 @@ packages:
 
   /lines-and-columns/1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
-    dev: true
 
   /linkify-it/3.0.3:
     resolution: {integrity: sha512-ynTsyrFSdE5oZ/O9GEf00kPngmOfVwazR5GKDq6EYfhlpFug3J2zybX56a2PRRpc9P+FuSoGNAwjlbDs9jJBPQ==}
@@ -5515,7 +5547,6 @@ packages:
       resolve: 1.22.1
       semver: 5.7.1
       validate-npm-package-license: 3.0.4
-    dev: true
 
   /normalize-package-data/3.0.3:
     resolution: {integrity: sha512-p2W1sgqij3zMMyRC067Dg16bfzVH+w7hyegmpIvZ4JNjqtGOVAIvLmjBx3yP7YTe9vKJgkoNOPjwQGogDoMXFA==}
@@ -5753,7 +5784,6 @@ packages:
       error-ex: 1.3.2
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
-    dev: true
 
   /parse-passwd/1.0.0:
     resolution: {integrity: sha512-1Y1A//QUXEZK7YKz+rD9WydcE1+EuPr6ZBgKecAB8tmoW6UFv0NREVJe1p+jRxtThkcbbKkfwIbWJe/IeE6m2Q==}
@@ -5990,7 +6020,6 @@ packages:
       normalize-package-data: 2.5.0
       parse-json: 5.2.0
       type-fest: 0.6.0
-    dev: true
 
   /read-yaml-file/1.1.0:
     resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
@@ -6336,22 +6365,18 @@ packages:
     dependencies:
       spdx-expression-parse: 3.0.1
       spdx-license-ids: 3.0.11
-    dev: true
 
   /spdx-exceptions/2.3.0:
     resolution: {integrity: sha512-/tTrYOC7PPI1nUAgx34hUpqXuyJG+DTHJTnIULG4rDygi4xu/tfgmq1e1cIRwRzwZgo4NLySi+ricLkZkw4i5A==}
-    dev: true
 
   /spdx-expression-parse/3.0.1:
     resolution: {integrity: sha512-cbqHunsQWnJNE6KhVSMsMeH5H/L9EpymbzqTQ3uLwNCLZ1Q481oWaofqH7nO6V07xlXwY6PhQdQ2IedWx/ZK4Q==}
     dependencies:
       spdx-exceptions: 2.3.0
       spdx-license-ids: 3.0.11
-    dev: true
 
   /spdx-license-ids/3.0.11:
     resolution: {integrity: sha512-Ctl2BrFiM0X3MANYgj3CkygxhRmr9mi6xhejbdO960nF6EDJApTYpn0BQnDKlnNBULKiCN1n3w9EBkHK8ZWg+g==}
-    dev: true
 
   /split2/3.2.2:
     resolution: {integrity: sha512-9NThjpgZnifTkJpzTZ7Eue85S49QwpNhZTq6GRJwObb6jnLFNGB7Qm73V5HewTROPyxD0C29xqmaI68bQtV+hg==}
@@ -6831,7 +6856,6 @@ packages:
   /type-fest/0.6.0:
     resolution: {integrity: sha512-q+MB8nYR1KDLrgr4G5yemftpMC7/QLqVndBmEEdqzmNj5dcFOO4Oo8qlwZE3ULT3+Zim1F8Kq4cBnikNhlCMlg==}
     engines: {node: '>=8'}
-    dev: true
 
   /type-fest/0.8.1:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
@@ -6933,7 +6957,6 @@ packages:
     dependencies:
       spdx-correct: 3.1.1
       spdx-expression-parse: 3.0.1
-    dev: true
 
   /walker/1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}

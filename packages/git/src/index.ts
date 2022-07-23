@@ -1,22 +1,13 @@
 import path from 'path'
-import fs from 'fs'
 import { getConfigDirname, getRecord } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
+import pkg from './pkg'
 
+export { default as pkg } from './pkg'
 // todo: git submodule test
 
-export const { version: packageVersion } = (() => {
-  const content = fs.readFileSync(
-    path.join(__dirname, '..', 'package.json'),
-    'utf8',
-  )
-  return JSON.parse(content) as { version: string }
-})()
-
-export const packageName = '@haetae/git'
-
 export interface GitHaetaeRecordData {
-  [packageName]: { commit: string; branch: string }
+  [pkg.name]: { commit: string; branch: string }
 }
 
 /**
@@ -81,7 +72,7 @@ export async function recordData({
     throw new Error('Cannot get commit ID of HEAD.')
   }
   return {
-    [packageName]: {
+    [pkg.name]: {
       commit: (await commit) as string,
       branch: (await branch) || ('detached HEAD' as string),
     },
@@ -111,7 +102,7 @@ export const changedFiles = async ({
   from = getRecord<GitHaetaeRecordData>()
     .then(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      (res) => res?.data![packageName]?.commit,
+      (res) => res?.data![pkg.name]?.commit,
     )
     .catch(() => {}),
   to = 'HEAD',

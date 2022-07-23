@@ -5,13 +5,9 @@ import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import produce from 'immer'
 import deepEqual from 'deep-equal'
+import pkg from './pkg'
 
-export const { version: packageVersion } = (() => {
-  const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
-    encoding: 'utf8',
-  })
-  return JSON.parse(content) as { version: string }
-})()
+export { default as pkg } from './pkg'
 
 type PromiseOr<T> = Promise<T> | T
 
@@ -226,7 +222,7 @@ export const getConfig = memoizee(
 )
 
 export function initNewStore<D = unknown, E = unknown>(): HaetaeStore<D, E> {
-  return { version: packageVersion, commands: {} }
+  return { version: pkg.version.value, commands: {} }
 }
 
 export interface GetStoreOptions<D = unknown, E = unknown> {
@@ -393,7 +389,7 @@ export async function mapStore<D = unknown, E = unknown>({
     /* eslint-disable no-param-reassign */
     record = await record
     command = await command
-    draft.version = packageVersion
+    draft.version = pkg.version.value
     draft.commands = draft.commands || {}
     draft.commands[command] = draft.commands[command] || []
     const records = draft.commands[command]

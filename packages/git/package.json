@@ -16,11 +16,14 @@
   },
   "dependencies": {
     "memoizee": "^0.4.15",
+    "read-pkg": "^5.2.0",
+    "semver": "^7.3.7",
     "serialize-javascript": "^6.0.0"
   },
   "devDependencies": {
     "@haetae/core": "workspace:^",
-    "@haetae/utils": "workspace:^"
+    "@haetae/utils": "workspace:^",
+    "@types/semver": "^7.3.10"
   },
   "peerDependencies": {
     "@haetae/core": "workspace:^",

@@ -1,8 +1,9 @@
-import fs from 'fs'
 import path from 'path'
 import globby from 'globby'
 import childProcess from 'child_process'
 import { getConfigDirname } from '@haetae/core'
+
+export { default as pkg } from './pkg'
 
 export interface GlobOptions {
   rootDir?: string // This is a facade option for globbyOptions.cwd
@@ -61,12 +62,3 @@ export async function exec(
     })
   })
 }
-
-export const { version: packageVersion } = (() => {
-  const content = fs.readFileSync(path.join(__dirname, '..', 'package.json'), {
-    encoding: 'utf8',
-  })
-  return JSON.parse(content) as { version: string }
-})()
-
-export const packageName = '@haetae/utils'

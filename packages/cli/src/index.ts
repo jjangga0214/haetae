@@ -25,15 +25,7 @@ import {
 import { getInfo } from './info'
 import * as ui from './ui'
 
-export const { version: packageVersion } = (() => {
-  const content = fs.readFileSync(
-    path.join(__dirname, '..', 'package.json'),
-    'utf8',
-  )
-  return JSON.parse(content) as { version: string }
-})()
-
-export const packageName = '@haetae/cli'
+export { default as pkg } from './pkg'
 
 export async function run() {
   let y
