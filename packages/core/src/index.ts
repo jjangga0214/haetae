@@ -349,17 +349,17 @@ export async function getRecord<D = unknown, E = unknown>({
   return undefined // `undefined` if non-existent
 }
 
-export interface MapRecordOptions<D = unknown, E = unknown> {
+export interface FormRecordOptions<D = unknown, E = unknown> {
   data?: D | null | Promise<D | null>
   env?: E | null | Promise<E | null>
   time?: number
 }
 
-export async function mapRecord<D = unknown, E = unknown>({
+export async function formRecord<D = unknown, E = unknown>({
   data = invokeRun(),
   env = invokeEnv(),
   time = Date.now(),
-}: MapRecordOptions<D, E>): Promise<HaetaeRecord<D, E>> {
+}: FormRecordOptions<D, E>): Promise<HaetaeRecord<D, E>> {
   return {
     data: await data,
     env: await env,
@@ -380,7 +380,7 @@ export interface MapStoreOptions<D = unknown, E = unknown> {
 export async function mapStore<D = unknown, E = unknown>({
   command = getCurrentCommand(),
   store = getStore(),
-  record = mapRecord({
+  record = formRecord({
     data: invokeRun({ command }),
     env: invokeEnv({ command }),
   }),
