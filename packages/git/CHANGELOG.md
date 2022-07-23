@@ -1,5 +1,15 @@
 # @haetae/git
 
+## 0.0.6
+
+### Patch Changes
+
+- [`55331d9`](https://github.com/jjangga0214/haetae/commit/55331d96b263482f044e4679270953c318dfb088) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Include branch name in record data.
+
+- Updated dependencies [[`f22727d`](https://github.com/jjangga0214/haetae/commit/f22727d146e9038246b546a33d350579eceee453)]:
+  - @haetae/core@0.0.8
+  - @haetae/utils@0.0.7
+
 ## 0.0.5
 
 ### Patch Changes

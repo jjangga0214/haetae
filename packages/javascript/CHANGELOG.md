@@ -1,5 +1,14 @@
 # @haetae/javascript
 
+## 0.0.6
+
+### Patch Changes
+
+- [`cf4e360`](https://github.com/jjangga0214/haetae/commit/cf4e3608b91d95e8c0c8062ded80e2d208ca0ef3) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Now you can specify dependency relationships manually to `dependsOn`.
+
+- Updated dependencies [[`f22727d`](https://github.com/jjangga0214/haetae/commit/f22727d146e9038246b546a33d350579eceee453)]:
+  - @haetae/core@0.0.8
+
 ## 0.0.5
 
 ### Patch Changes

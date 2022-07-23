@@ -1,5 +1,11 @@
 # @haetae/core
 
+## 0.0.8
+
+### Patch Changes
+
+- [`f22727d`](https://github.com/jjangga0214/haetae/commit/f22727d146e9038246b546a33d350579eceee453) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE** root `env` and `recordData` are to be mapper function that takes env/recordData as an argument from command's `env` and `run` and then returns the final result to be stored.
+
 ## 0.0.7
 
 ### Patch Changes

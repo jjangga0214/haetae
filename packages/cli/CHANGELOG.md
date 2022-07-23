@@ -1,5 +1,14 @@
 # @haetae/cli
 
+## 0.0.9
+
+### Patch Changes
+
+- [`25844d6`](https://github.com/jjangga0214/haetae/commit/25844d6aefe34c414b71aa34659d3351f6a4b8f4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed rendering for single line value and some messages.
+
+- Updated dependencies [[`f22727d`](https://github.com/jjangga0214/haetae/commit/f22727d146e9038246b546a33d350579eceee453)]:
+  - @haetae/core@0.0.8
+
 ## 0.0.8
 
 ### Patch Changes
