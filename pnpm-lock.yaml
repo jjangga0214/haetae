@@ -13,7 +13,6 @@ importers:
       '@jjangga0214/markdownlint-config': ^1.0.1
       '@jjangga0214/prettier-config': ^2.0.1
       '@jjangga0214/tsconfig': ^3.2.0
-      '@schemastore/package': ^0.0.6
       '@swc/core': ^1.2.125
       '@swc/helpers': ^0.2.12
       '@swc/jest': ^0.2.21
@@ -49,7 +48,6 @@ importers:
       '@jjangga0214/markdownlint-config': 1.0.1_markdownlint-cli@0.30.0
       '@jjangga0214/prettier-config': 2.0.1_prettier@2.7.1
       '@jjangga0214/tsconfig': 3.2.0_oxqjshuhqtd5qme7zllcjnl6ai
-      '@schemastore/package': 0.0.6
       '@swc/core': 1.2.218
       '@swc/helpers': 0.2.14
       '@swc/jest': 0.2.22_@swc+core@1.2.218
@@ -1464,10 +1462,6 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
-
-  /@schemastore/package/0.0.6:
-    resolution: {integrity: sha512-uNloNHoyHttSSdeuEkkSC+mdxJXMKlcUPOMb//qhQbIQijXg8x54VmAw3jm6GJZQ5DBtIqGBd66zEQCDCChQVA==}
-    dev: true
 
   /@sinclair/typebox/0.24.20:
     resolution: {integrity: sha512-kVaO5aEFZb33nPMTZBxiPEkY+slxiPtqC7QX8f9B3eGOMBvEfuMfxp9DSTTCsRJPumPKjrge4yagyssO4q6qzQ==}
