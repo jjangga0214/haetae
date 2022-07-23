@@ -1,6 +1,6 @@
 {
   "name": "haetae",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Grouping of Haetae's packages, for convenience of users",
   "license": "MIT",
   "private": false,
