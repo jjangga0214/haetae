@@ -2,6 +2,13 @@ import { AssertionError } from 'assert/strict'
 import path from 'path'
 import { configure } from '../src/index'
 
+function p(posixPath: string) {
+  return path.join(
+    posixPath.startsWith('/') ? '/' : '',
+    ...posixPath.split('/'),
+  )
+}
+
 describe('configure()', () => {
   describe('when storeFile is given', () => {
     test('as absolute file path, it is not modified.', () => {
@@ -17,13 +24,11 @@ describe('configure()', () => {
     test('as relative posix file path, it might be modified to platform compatible relative path.', () => {
       const storeFile = '../path/to/haetae.store.json'
       const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(
-        path.join('..', 'path', 'to', 'haetae.store.json'),
-      )
+      expect(config.storeFile).toBe(p(storeFile))
     })
 
     test('as relative Windows file path, it is not modified.', () => {
-      const storeFile = '..path\\to\\haetae.store.json'
+      const storeFile = '..\\path\\to\\haetae.store.json'
       const config = configure({ commands: {}, storeFile })
       expect(config.storeFile).toBe(storeFile)
     })
@@ -31,13 +36,13 @@ describe('configure()', () => {
     test('as absolute dir path, it is modified to absolute file path.', () => {
       const storeFile = __dirname
       const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(path.join(storeFile, 'haetae.store.json'))
+      expect(config.storeFile).toBe(p(`${storeFile}/haetae.store.json`))
     })
 
     test('as relative dir path, it is modified to relative file path.', () => {
       const storeFile = '..'
       const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(path.join(storeFile, 'haetae.store.json'))
+      expect(config.storeFile).toBe(p(`${storeFile}/haetae.store.json`))
     })
   })
 
