@@ -5,6 +5,9 @@ import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import produce from 'immer'
 import deepEqual from 'deep-equal'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
 import pkg from './pkg'
 
 export { default as pkg } from './pkg'
@@ -106,7 +109,7 @@ export interface HaetaePreConfig<D = unknown, E = unknown> {
   env?: RootEnv<E>
   recordData?: RootRecordData<D>
   recordRemoval?: {
-    age?: number // by milliseconds // e.g. 90 * 24 * 60 * 60 * 1000 => 90 days
+    age?: string | number // by milliseconds if number // e.g. 90 * 24 * 60 * 60 * 1000 => 90days
     count?: number // e.g. 10 => Only leave equal to or less than 10 records
   }
   // It should be an absolute or relative path (relative to config file path)
@@ -141,7 +144,13 @@ export function configure<D = unknown, E = unknown>({
   storeFile = '.',
 }: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
-
+  if (typeof age === 'string') {
+    age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
+    assert(
+      !!age,
+      `'recordRemoval.age' is given as an invalid string. Refer to https://github.com/vercel/ms for supported value.`,
+    )
+  }
   // Convert it to a function if not
   assert(
     typeof env === 'function',
