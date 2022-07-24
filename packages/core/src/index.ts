@@ -99,15 +99,16 @@ export type RootEnv<E = unknown> = (
 export type RootRecordData<D = unknown> = (
   recordDataFromCommand: D | null,
 ) => PromiseOr<D | null>
-
 export interface HaetaePreConfig<D = unknown, E = unknown> {
   commands: {
     [command: string]: HaetaePreCommand<D, E>
   }
-  // maxLimit?: number // Infinity
-  // maxAge?: number // Infinity
   env?: RootEnv<E>
   recordData?: RootRecordData<D>
+  recordRemoval?: {
+    age?: number // by milliseconds // e.g. 90 * 24 * 60 * 60 * 1000 => 90 days
+    count?: number // e.g. 10 => Only leave equal to or less than 10 records
+  }
   // It should be an absolute or relative path (relative to config file path)
   storeFile?: string
 }
@@ -118,6 +119,10 @@ export interface HaetaeConfig<D = unknown, E = unknown> {
   }
   env: RootEnv<E>
   recordData: RootRecordData<D>
+  recordRemoval: {
+    age: number
+    count: number
+  }
   storeFile: string
 }
 
@@ -129,6 +134,10 @@ export function configure<D = unknown, E = unknown>({
   commands,
   env = (envFromCommand) => envFromCommand,
   recordData = (recordDataFromCommand) => recordDataFromCommand,
+  recordRemoval: {
+    age = Number.POSITIVE_INFINITY,
+    count = Number.POSITIVE_INFINITY,
+  } = {},
   storeFile = '.',
 }: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
@@ -146,6 +155,15 @@ export function configure<D = unknown, E = unknown>({
     typeof storeFile === 'string',
     `'storeFile' is misconfigured. It should be string.`,
   )
+  assert(
+    age >= 0,
+    `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
+  )
+  assert(
+    count >= 0,
+    `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
+  )
+
   if (!path.isAbsolute(storeFile)) {
     // Change posix path to platform-specific path
     storeFile = path.join(...storeFile.split('/'))
@@ -178,6 +196,10 @@ export function configure<D = unknown, E = unknown>({
     commands: commands as HaetaeConfig<D, E>['commands'],
     env,
     recordData,
+    recordRemoval: {
+      age,
+      count,
+    },
     storeFile,
   }
 }
@@ -320,17 +342,19 @@ export interface GetRecordOptions<D = unknown, E = unknown>
 /**
  * @returns true if those envs are identical, false otherwise.
  */
-export async function compareEnvs<E = unknown>(
-  one: E | Promise<E>,
-  theOther: E | Promise<E>,
-) {
-  return deepEqual(
-    JSON.parse(JSON.stringify(await one)),
-    JSON.parse(JSON.stringify(await theOther)),
-    {
-      strict: true,
-    },
-  )
+export function compareEnvs(one: unknown, theOther: unknown): boolean {
+  let sOne
+  let sTheOther
+  try {
+    sOne = JSON.stringify(one)
+    sTheOther = JSON.stringify(theOther)
+  } catch {
+    throw new Error('`env` must be able to be stringified.')
+  }
+
+  return deepEqual(JSON.parse(sOne), JSON.parse(sTheOther), {
+    strict: true,
+  })
 }
 
 export async function getRecord<D = unknown, E = unknown>({
@@ -341,7 +365,7 @@ export async function getRecord<D = unknown, E = unknown>({
   const records = await getRecords({ command, store })
   if (records) {
     for (const record of records) {
-      if (await compareEnvs(env, record.env)) {
+      if (compareEnvs(await env, record.env)) {
         return record
       }
     }
@@ -368,9 +392,10 @@ export async function formRecord<D = unknown, E = unknown>({
 }
 
 export interface MapStoreOptions<D = unknown, E = unknown> {
-  command?: string | Promise<string>
-  store?: HaetaeStore<D, E> | Promise<HaetaeStore<D, E>>
-  record?: HaetaeRecord<D, E> | Promise<HaetaeRecord<D, E>>
+  config?: PromiseOr<HaetaeConfig>
+  command?: PromiseOr<string>
+  store?: PromiseOr<HaetaeStore<D, E>>
+  record?: PromiseOr<HaetaeRecord<D, E>>
 }
 
 /**
@@ -378,6 +403,7 @@ export interface MapStoreOptions<D = unknown, E = unknown> {
  * The term map is coined from map function
  */
 export async function mapStore<D = unknown, E = unknown>({
+  config = getConfig(),
   command = getCurrentCommand(),
   store = getStore(),
   record = formRecord({
@@ -386,31 +412,29 @@ export async function mapStore<D = unknown, E = unknown>({
   }),
 }: MapStoreOptions<D, E> = {}) {
   return produce(await store, async (draft) => {
-    /* eslint-disable no-param-reassign */
-    record = await record
-    command = await command
+    /* eslint-disable @typescript-eslint/naming-convention, no-param-reassign */
+    const _config = await config
+    const _record = await record
+    const _command = await command
     draft.version = pkg.version.value
     draft.commands = draft.commands || {}
-    draft.commands[command] = draft.commands[command] || []
-    const records = draft.commands[command]
-    for (const [index, oldRecord] of records.entries()) {
-      try {
-        if (await compareEnvs(record.env, oldRecord.env as E)) {
-          records.splice(index, 1)
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          records.unshift(record)
-          return draft
-        }
-      } catch {
-        // console.error(error)
-        throw new Error('`env` must be able to be stringified.')
-      }
-    }
+    // Do NOT change the original array! (e.g. use `slice` instead of `splice`)
+    // That's because the store object is memoized by shallow copy.
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    records.unshift(record)
-    /* eslint-enable no-param-reassign */
+    draft.commands[_command] = [
+      _record,
+      ...(draft.commands[_command] || []).filter(
+        (oldRecord) => !compareEnvs(_record.env, oldRecord.env),
+      ),
+    ].filter((r) => Date.now() - r.time < _config.recordRemoval.age)
+
+    draft.commands[_command] = draft.commands[_command].slice(
+      0,
+      _config.recordRemoval.count,
+    )
+
+    /* eslint-enable @typescript-eslint/naming-convention,  no-param-reassign  */
     return draft
   })
 }
