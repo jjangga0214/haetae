@@ -26,10 +26,14 @@ async function getPackagesInfo() {
   for (const key in packagesInfo) {
     if (Object.prototype.hasOwnProperty.call(packagesInfo, key)) {
       try {
-        const { packageVersion } = await import(key)
+        const {
+          pkg: {
+            version: { value: version },
+          },
+        } = await import(key)
         const packagePath = require.resolve(key)
         packagesInfo[key as HaetaePackage] = {
-          version: packageVersion as string,
+          version,
           path: packagePath,
         }
       } catch {
