@@ -1,5 +1,13 @@
 # @haetae/git
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`add1591`](https://github.com/jjangga0214/haetae/commit/add15916fc532d644c6957d0c97d79feea406584), [`56a82ef`](https://github.com/jjangga0214/haetae/commit/56a82ef7f8398670c39176149212d07090109aa4)]:
+  - @haetae/core@0.0.10
+  - @haetae/utils@0.0.9
+
 ## 0.0.7
 
 ### Patch Changes

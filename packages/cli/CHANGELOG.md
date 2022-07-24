@@ -1,5 +1,14 @@
 # @haetae/cli
 
+## 0.0.11
+
+### Patch Changes
+
+- [`9a3f921`](https://github.com/jjangga0214/haetae/commit/9a3f921cbfa036e57169ecbb77b72872ab3a4b9f) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed an issue that versions of the packages `haetae` and `@haetae/*` are not printed when `-i` option is given.
+
+- Updated dependencies [[`add1591`](https://github.com/jjangga0214/haetae/commit/add15916fc532d644c6957d0c97d79feea406584), [`56a82ef`](https://github.com/jjangga0214/haetae/commit/56a82ef7f8398670c39176149212d07090109aa4)]:
+  - @haetae/core@0.0.10
+
 ## 0.0.10
 
 ### Patch Changes

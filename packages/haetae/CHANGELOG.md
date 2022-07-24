@@ -1,5 +1,16 @@
 # haetae
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [[`add1591`](https://github.com/jjangga0214/haetae/commit/add15916fc532d644c6957d0c97d79feea406584), [`9a3f921`](https://github.com/jjangga0214/haetae/commit/9a3f921cbfa036e57169ecbb77b72872ab3a4b9f), [`56a82ef`](https://github.com/jjangga0214/haetae/commit/56a82ef7f8398670c39176149212d07090109aa4)]:
+  - @haetae/core@0.0.10
+  - @haetae/cli@0.0.11
+  - @haetae/git@0.0.8
+  - @haetae/javascript@0.0.8
+  - @haetae/utils@0.0.9
+
 ## 0.0.10
 
 ### Patch Changes
