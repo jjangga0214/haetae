@@ -1,5 +1,13 @@
 # @haetae/core
 
+## 0.0.10
+
+### Patch Changes
+
+- [`add1591`](https://github.com/jjangga0214/haetae/commit/add15916fc532d644c6957d0c97d79feea406584) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE** `compareEnvs` does not receive Promise as arguments from now on. It's also now a synchronous function.
+
+- [`56a82ef`](https://github.com/jjangga0214/haetae/commit/56a82ef7f8398670c39176149212d07090109aa4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Introduced `recordRemoval` option in config. This is yo automatically remove unnecessary records. `age` and/or `count` can be configured.
+
 ## 0.0.9
 
 ### Patch Changes
