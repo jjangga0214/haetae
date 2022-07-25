@@ -1,7 +1,8 @@
-import path from 'path'
+import upath from 'upath'
 import globby from 'globby'
 import childProcess from 'child_process'
 import { getConfigDirname } from '@haetae/core'
+import hasha from 'hasha'
 
 export { default as pkg } from './pkg'
 
@@ -21,7 +22,9 @@ export async function glob(
   }: GlobOptions = {},
 ): Promise<string[]> {
   const res = await globby(patterns, globbyOptions)
-  return res.map((p) => path.join(rootDir, p))
+  return res.map((file) =>
+    upath.isAbsolute(file) ? file : upath.resolve(rootDir, file),
+  )
 }
 
 export interface ExecOptions {
@@ -61,4 +64,28 @@ export async function exec(
       reject(error || options.trim ? stderr.trim() : stderr)
     })
   })
+}
+
+export interface HashFilesOptions {
+  algorithm?: hasha.AlgorithmName
+  rootDir?: string
+}
+
+// TODO: glob patterns and directories
+/**
+ * The order of files affects to the final hash.
+ * For example, `hashFile(['foo.ts', 'bar.ts'])` !== `hashFile(['bar.ts', 'foo.ts'])`
+ */
+export async function hashFiles(
+  files: string[],
+  { algorithm = 'sha256', rootDir = getConfigDirname() }: HashFilesOptions = {},
+): Promise<string> {
+  const hashes = await Promise.all(
+    files
+      .map((file) =>
+        upath.isAbsolute(file) ? file : upath.resolve(rootDir, file),
+      )
+      .map((file) => hasha.fromFile(file, { algorithm })),
+  )
+  return hasha.async(hashes.join('\n'), { algorithm })
 }
