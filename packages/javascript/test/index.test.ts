@@ -1,5 +1,9 @@
 import path from 'path'
-import { toIndexedDependencyRelationships, dependsOn } from '@haetae/javascript'
+import {
+  dependsOn,
+  toIndexedDependencyRelationships,
+  version,
+} from '@haetae/javascript'
 
 function p(posixPath: string) {
   return path.join(...posixPath.split('/'))
@@ -79,6 +83,13 @@ describe('index', () => {
           p('<rootDir>/path/to/baz2.ts'),
         ]),
       })
+    })
+  })
+  describe('version', () => {
+    // TODO: add yarn berry test
+    test('basic usage', async () => {
+      const versionInfo = await version('semver', { rootDir: __dirname })
+      expect(versionInfo.major).toBe(7)
     })
   })
 })

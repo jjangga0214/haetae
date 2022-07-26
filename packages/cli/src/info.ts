@@ -48,7 +48,7 @@ async function getPackagesInfo() {
           // Fallback to package.json
           // This fallback will not work with yarn berry.
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore // `readPkgUp`'s typing and implementation are mismatched.
+          // @ts-ignore // `readPkgUp`'s typing and implementation are mismatched. // ISSUE: https://github.com/sindresorhus/read-pkg-up/issues/21
           const res = await readPkgUp({
             cwd: upath.dirname(entrypoint),
           })
