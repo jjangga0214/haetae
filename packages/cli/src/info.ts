@@ -1,4 +1,7 @@
+import assert from 'assert/strict'
 import envinfo from 'envinfo'
+import readPkgUp from 'read-pkg-up'
+import upath from 'upath'
 
 interface VersionAndPath {
   version: string
@@ -26,15 +29,38 @@ async function getPackagesInfo() {
   for (const key in packagesInfo) {
     if (Object.prototype.hasOwnProperty.call(packagesInfo, key)) {
       try {
-        const {
-          pkg: {
-            version: { value: version },
-          },
-        } = await import(key)
-        const packagePath = require.resolve(key)
+        /**
+         * `@haetae/*` and `haetae` export `pkg.version`.
+         * This is a contract which can be theoretically changed in the future, by breaking change.
+         * So, why depending on `pkg.version` here?
+         * You might think just reading package.json of them would be more safe.
+         * However, with yarn berry, we cannot access to the package.json of the other packages.
+         * Note that access to package.json of the package itself is allowed even with yarn berry.
+         * For example, source code of `@haetae/cli` can read package.json of `@haetae/cli` with yarn berry.
+         * But, source code of `@haetae/cli` can NOT read package.json of `@haetae/core` with yarn berry.
+         * For npm, yarn classic, or pnpm, there is no such restriction.
+         */
+        const entrypoint = require.resolve(key)
+        const mod = await import(key)
+        let version = mod.pkg?.version?.value // contract
+
+        if (!version) {
+          // Fallback to package.json
+          // This fallback will not work with yarn berry.
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore // `readPkgUp`'s typing and implementation are mismatched.
+          const res = await readPkgUp({
+            cwd: upath.dirname(entrypoint),
+          })
+
+          assert(res?.packageJson.name, key)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          version = res!.packageJson.version
+        }
+
         packagesInfo[key as HaetaePackage] = {
           version,
-          path: packagePath,
+          path: entrypoint,
         }
       } catch {
         //

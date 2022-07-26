@@ -30,9 +30,11 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isobject": "^3.0.2",
     "read-pkg": "^5.2.0",
+    "read-pkg-up": "^7.0.1",
     "semver": "^7.3.7",
     "signale": "^1.4.0",
     "strip-ansi": "^6.0.0",
+    "upath": "^2.0.1",
     "yaml": "^2.1.1",
     "yargs": "^17.5.1"
   },

@@ -1,8 +1,8 @@
-import path from 'path'
 import readPkg from 'read-pkg'
 import { major, minor, patch, prerelease } from 'semver'
+import upath from 'upath'
 
-const pkg = readPkg.sync({ cwd: path.join(__dirname, '..') })
+const pkg = readPkg.sync({ cwd: upath.resolve(__dirname, '..') })
 
 export default {
   name: '@haetae/cli' as const,
