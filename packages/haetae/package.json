@@ -24,7 +24,8 @@
     "@haetae/javascript": "workspace:^",
     "@haetae/utils": "workspace:^",
     "read-pkg": "^5.2.0",
-    "semver": "^7.3.7"
+    "semver": "^7.3.7",
+    "upath": "^2.0.1"
   },
   "keywords": [
     "haetae",

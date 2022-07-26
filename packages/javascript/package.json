@@ -18,7 +18,8 @@
   "dependencies": {
     "dependency-tree": "^8.1.1",
     "read-pkg": "^5.2.0",
-    "semver": "^7.3.7"
+    "semver": "^7.3.7",
+    "upath": "^2.0.1"
   },
   "devDependencies": {
     "@haetae/core": "workspace:^",

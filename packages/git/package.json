@@ -18,7 +18,8 @@
     "memoizee": "^0.4.15",
     "read-pkg": "^5.2.0",
     "semver": "^7.3.7",
-    "serialize-javascript": "^6.0.0"
+    "serialize-javascript": "^6.0.0",
+    "upath": "^2.0.1"
   },
   "devDependencies": {
     "@haetae/core": "workspace:^",

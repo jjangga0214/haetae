@@ -140,6 +140,7 @@ importers:
       read-pkg: ^5.2.0
       semver: ^7.3.7
       serialize-javascript: ^6.0.0
+      upath: ^2.0.1
     dependencies:
       deep-equal: 2.0.5
       immer: 9.0.15
@@ -148,6 +149,7 @@ importers:
       read-pkg: 5.2.0
       semver: 7.3.7
       serialize-javascript: 6.0.0
+      upath: 2.0.1
     devDependencies:
       '@types/deep-equal': 1.0.1
       '@types/memoizee': 0.4.8
@@ -163,11 +165,13 @@ importers:
       read-pkg: ^5.2.0
       semver: ^7.3.7
       serialize-javascript: ^6.0.0
+      upath: ^2.0.1
     dependencies:
       memoizee: 0.4.15
       read-pkg: 5.2.0
       semver: 7.3.7
       serialize-javascript: 6.0.0
+      upath: 2.0.1
     devDependencies:
       '@haetae/core': link:../core
       '@haetae/utils': link:../utils
@@ -183,6 +187,7 @@ importers:
       '@types/semver': ^7.3.10
       read-pkg: ^5.2.0
       semver: ^7.3.7
+      upath: ^2.0.1
     dependencies:
       '@haetae/cli': link:../cli
       '@haetae/core': link:../core
@@ -191,6 +196,7 @@ importers:
       '@haetae/utils': link:../utils
       read-pkg: 5.2.0
       semver: 7.3.7
+      upath: 2.0.1
     devDependencies:
       '@types/semver': 7.3.10
 
@@ -201,10 +207,12 @@ importers:
       dependency-tree: ^8.1.1
       read-pkg: ^5.2.0
       semver: ^7.3.7
+      upath: ^2.0.1
     dependencies:
       dependency-tree: 8.1.2
       read-pkg: 5.2.0
       semver: 7.3.7
+      upath: 2.0.1
     devDependencies:
       '@haetae/core': link:../core
       '@types/semver': 7.3.10
