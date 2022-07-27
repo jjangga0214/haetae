@@ -1,4 +1,4 @@
-import path from 'path'
+import upath from 'upath'
 import assert from 'assert/strict'
 import fs from 'fs'
 import memoizee from 'memoizee'
@@ -41,15 +41,17 @@ export const setConfigFilename = (
 
 /**
  * @memoized
+ * @returns {string}: always an absolute, normalized path.
  */
 export const getConfigFilename = memoizee((): string => {
   let filename = configFilename || '.'
-  if (!path.isAbsolute(filename)) {
-    filename = path.join(process.cwd(), filename)
+  if (!upath.isAbsolute(filename)) {
+    filename = upath.join(process.cwd(), filename)
   }
+  filename = upath.normalize(filename)
   try {
     if (fs.statSync(filename).isDirectory()) {
-      filename = path.join(filename, defaultConfigFile)
+      filename = upath.join(filename, defaultConfigFile)
       assert(fs.existsSync(filename))
       return filename
     }
@@ -60,7 +62,7 @@ export const getConfigFilename = memoizee((): string => {
 })
 
 // todo: set/get current config dirname
-export const getConfigDirname = () => path.dirname(getConfigFilename())
+export const getConfigDirname = () => upath.dirname(getConfigFilename())
 
 export const defaultStoreFile = 'haetae.store.json'
 
@@ -173,17 +175,14 @@ export function configure<D = unknown, E = unknown>({
     `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
   )
 
-  if (!path.isAbsolute(storeFile)) {
-    // Change posix path to platform-specific path
-    storeFile = path.join(...storeFile.split('/'))
-  }
-
   // When it's given as a directory.
   // Keep in mind that store file might not exist, yet.
   // So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`.
   if (!storeFile.endsWith('.json')) {
-    storeFile = path.join(storeFile, defaultStoreFile)
+    storeFile = upath.join(storeFile, defaultStoreFile)
   }
+
+  storeFile = upath.normalize(storeFile)
 
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
@@ -225,10 +224,16 @@ export const getConfig = memoizee(
   async <D = unknown, E = unknown>({
     filename = getConfigFilename(),
   }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
-    let configFilename = await filename
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    let _filename = await filename
     try {
-      if (fs.statSync(configFilename).isDirectory()) {
-        configFilename = path.join(configFilename, defaultConfigFile)
+      /**
+       * `getConfigFilename` always returns an non-directory path.
+       * However, hereby check is done again.
+       * This is because a consumer can directly call `getConfig` through sdk, not CLI.
+       */
+      if (fs.statSync(_filename).isDirectory()) {
+        _filename = upath.join(_filename, defaultConfigFile)
       }
     } catch {
       throw new Error(
@@ -236,13 +241,10 @@ export const getConfig = memoizee(
       )
     }
 
-    const config = configure<D, E>(await import(configFilename))
+    const config = configure<D, E>(await import(_filename))
 
-    if (!path.isAbsolute(config.storeFile)) {
-      config.storeFile = path.join(
-        path.dirname(configFilename),
-        config.storeFile,
-      )
+    if (!upath.isAbsolute(config.storeFile)) {
+      config.storeFile = upath.join(upath.dirname(_filename), config.storeFile)
     }
 
     return config
