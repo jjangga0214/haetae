@@ -1,4 +1,4 @@
-import path from 'path'
+import upath from 'upath'
 import { getConfigDirname, getRecord } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
 import pkg from './pkg'
@@ -150,7 +150,7 @@ export const changedFiles = async ({
       )
     }
 
-    return res.map((filename) => path.join(rootDir, filename))
+    return res.map((filename) => upath.join(rootDir, filename))
   } catch (error) {
     return fallback(error as Error)
   }
