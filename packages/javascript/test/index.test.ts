@@ -69,11 +69,3 @@ describe('dependsOn', () => {
     ).toBe(false)
   })
 })
-
-describe('version', () => {
-  // TODO: add yarn berry test
-  test('basic usage', async () => {
-    const versionInfo = await version('semver', { rootDir: __dirname })
-    expect(versionInfo.major).toBe(7)
-  })
-})
