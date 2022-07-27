@@ -1,4 +1,4 @@
-import { doubleNumbers } from '#foo'
+import { doubleNumbers } from '../../src/index'
 
 describe('this is an unit test', () => {
   it('doubleNumbers', () => {

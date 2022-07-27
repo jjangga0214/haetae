@@ -54,6 +54,7 @@ jobs:
           title: 'chore: release'
           version: pnpm changeset version
           publish: pnpm publish -r
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,95 +1,132 @@
-import path from 'path'
-import {
-  dependsOn,
-  toIndexedDependencyRelationships,
-  version,
-} from '@haetae/javascript'
+import upath from 'upath'
+import { dependsOn, graph, version } from '@haetae/javascript'
 
-function p(posixPath: string) {
-  return path.join(...posixPath.split('/'))
-}
+describe('dependsOn', () => {
+  // TODO: add tests for other various environments
+  const rootDir = upath.join(__dirname, '../../../test-project')
+  const dependOnBarIndex = dependsOn(
+    [upath.join(rootDir, 'packages/bar/src/index.ts')],
+    {
+      rootDir,
+    },
+  )
+  const dependOnFooHello = dependsOn(
+    [upath.join(rootDir, 'packages/foo/src/hello.ts')],
+    {
+      rootDir,
+    },
+  )
+  // TODO: uncomment this test once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
+  // eslint-disable-next-line jest/no-commented-out-tests
+  // test('through typescript path mapping', async () => {
+  //   expect(
+  //     dependOnBarIndex(
+  //       upath.join(rootDir, 'packages/bar/test/index.test.ts'),
+  //     ),
+  //   ).toBe(true)
+  // })
 
-describe('index', () => {
-  describe('dependsOn', () => {
-    test('basic usage', async () => {
-      expect.hasAssertions()
-      const rootDir = path.join(__dirname, '..', '..', '..', 'test-project')
-      const predicate = await dependsOn(
-        [path.join(rootDir, 'packages', 'bar', 'src', 'index.ts')],
+  test('from a same package', async () => {
+    expect(
+      dependOnFooHello(upath.join(rootDir, 'packages/foo/src/index.ts')),
+    ).toBe(true)
+
+    expect(
+      dependOnFooHello(
+        /**
+         * `foo/test/integration/index.test.ts` file does not use path mapping,
+         * unlike `foo/test/unit/index.test.ts`.
+         */
+        upath.join(rootDir, 'packages/foo/test/integration/index.test.ts'),
+      ),
+    ).toBe(true)
+  })
+
+  test('from a different package', async () => {
+    expect(
+      dependOnBarIndex(upath.join(rootDir, 'packages/foo/src/index.ts')),
+    ).toBe(false)
+    // TODO: uncomment these expectation once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
+    // expect(
+    //   dependOnFooHello(upath.join(rootDir, 'packages/bar/src/index.ts')),
+    // ).toBe(true)
+    // expect(
+    //   dependOnFooHello(
+    //     upath.join(rootDir, 'packages/bar/test/unit/index.test.ts'),
+    //   ),
+    // ).toBe(true)
+  })
+
+  test('itself', async () => {
+    expect(
+      dependOnBarIndex(upath.join(rootDir, 'packages/bar/src/index.ts')),
+    ).toBe(true)
+  })
+
+  test('from a non-existent path', async () => {
+    expect(
+      dependOnFooHello(upath.join(rootDir, 'path/to/non-existent.ts')),
+    ).toBe(false)
+  })
+})
+
+describe('graph', () => {
+  test('basic usage', () => {
+    const result = graph({
+      rootDir: '<rootDir>',
+      edges: [
         {
-          rootDir,
+          dependents: ['path/to/foo.ts'],
+          dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
         },
-      )
+      ],
+    })
 
-      const fooResult = predicate(
-        path.join(rootDir, 'packages', 'foo', 'test', 'unit', 'index.test.ts'),
-      )
-
-      expect(fooResult).toBe(false)
-
-      const barResult = predicate(
-        path.join(rootDir, 'packages', 'bar', 'test', 'unit', 'index.test.ts'),
-      )
-      expect(barResult).toBe(true)
+    expect(result).toStrictEqual({
+      '<rootDir>/path/to/foo.ts': new Set([
+        '<rootDir>/path/to/bar.ts',
+        '<rootDir>/path/to/baz.ts',
+      ]),
     })
   })
 
-  describe('toIndexedDependencyRelationships', () => {
-    test('basic usage', () => {
-      const result = toIndexedDependencyRelationships({
-        rootDir: '<rootDir>',
-        relationships: [
-          {
-            dependents: [p('path/to/foo.ts')],
-            dependencies: [p('path/to/bar.ts'), p('path/to/baz.ts')],
-          },
-        ],
-      })
-      // TODO: path.join(rootDir, '')
-      expect(result).toStrictEqual({
-        [p('<rootDir>/path/to/foo.ts')]: new Set([
-          p('<rootDir>/path/to/bar.ts'),
-          p('<rootDir>/path/to/baz.ts'),
-        ]),
-      })
+  test('advanced usage', () => {
+    const result = graph({
+      rootDir: '<rootDir>',
+      edges: [
+        {
+          dependents: ['path/to/foo.ts', 'path/to/foo2.ts'],
+          dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
+        },
+        {
+          dependents: ['path/to/foo2.ts', 'path/to/foo3.ts'],
+          dependencies: ['path/to/bar2.ts', 'path/to/baz2.ts'],
+        },
+      ],
     })
-    test('advanced usage', () => {
-      const result = toIndexedDependencyRelationships({
-        rootDir: '<rootDir>',
-        relationships: [
-          {
-            dependents: [p('path/to/foo.ts'), p('path/to/foo2.ts')],
-            dependencies: [p('path/to/bar.ts'), p('path/to/baz.ts')],
-          },
-          {
-            dependents: [p('path/to/foo2.ts'), p('path/to/foo3.ts')],
-            dependencies: [p('path/to/bar2.ts'), p('path/to/baz2.ts')],
-          },
-        ],
-      })
-      expect(result).toStrictEqual({
-        [p('<rootDir>/path/to/foo.ts')]: new Set([
-          p('<rootDir>/path/to/bar.ts'),
-          p('<rootDir>/path/to/baz.ts'),
-        ]),
-        [p('<rootDir>/path/to/foo2.ts')]: new Set([
-          p('<rootDir>/path/to/bar.ts'),
-          p('<rootDir>/path/to/baz.ts'),
-          p('<rootDir>/path/to/bar2.ts'),
-          p('<rootDir>/path/to/baz2.ts'),
-        ]),
-        [p('<rootDir>/path/to/foo3.ts')]: new Set([
-          p('<rootDir>/path/to/bar2.ts'),
-          p('<rootDir>/path/to/baz2.ts'),
-        ]),
-      })
+    expect(result).toStrictEqual({
+      '<rootDir>/path/to/foo.ts': new Set([
+        '<rootDir>/path/to/bar.ts',
+        '<rootDir>/path/to/baz.ts',
+      ]),
+      '<rootDir>/path/to/foo2.ts': new Set([
+        '<rootDir>/path/to/bar.ts',
+        '<rootDir>/path/to/baz.ts',
+        '<rootDir>/path/to/bar2.ts',
+        '<rootDir>/path/to/baz2.ts',
+      ]),
+      '<rootDir>/path/to/foo3.ts': new Set([
+        '<rootDir>/path/to/bar2.ts',
+        '<rootDir>/path/to/baz2.ts',
+      ]),
     })
   })
-  describe('version', () => {
-    // TODO: add yarn berry test
-    test('basic usage', async () => {
-      const versionInfo = await version('semver', { rootDir: __dirname })
-      expect(versionInfo.major).toBe(7)
-    })
+})
+
+describe('version', () => {
+  // TODO: add yarn berry test
+  test('basic usage', async () => {
+    const versionInfo = await version('semver', { rootDir: __dirname })
+    expect(versionInfo.major).toBe(7)
   })
 })

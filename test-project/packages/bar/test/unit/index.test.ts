@@ -1,4 +1,5 @@
 import { run } from '#bar'
+// import { run } from '../../src/index'
 
 describe('index', () => {
   it('run', () => {

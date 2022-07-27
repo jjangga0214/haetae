@@ -10,74 +10,72 @@ import { major, minor, patch, prerelease } from 'semver'
 
 export { default as pkg } from './pkg'
 
-export interface DependencyRelationship {
-  dependents: readonly string[] | string
-  dependencies: readonly string[] | string
+export interface Edge {
+  dependents: readonly string[]
+  dependencies: readonly string[]
 }
 
-export interface ToIndexedDependencyRelationshipsOptions {
+export interface GraphOptions {
   rootDir?: string
-  relationships: readonly DependencyRelationship[]
+  edges: readonly Edge[]
 }
 
-export interface IndexedDependencyRelationships {
+export interface Graph {
   [dependent: string]: Set<string> // dependencies[]
 }
 
 // TODO: test
-export function toIndexedDependencyRelationships({
+export function graph({
   rootDir = getConfigDirname(),
-  relationships,
-}: ToIndexedDependencyRelationshipsOptions): IndexedDependencyRelationships {
-  const absoluteGraph: IndexedDependencyRelationships = {}
+  edges,
+}: GraphOptions): Graph {
+  const depsGraph: Graph = {}
   const toAbsolute = (file: string) =>
-    upath.isAbsolute(file) ? file : upath.resolve(rootDir, file)
+    upath.isAbsolute(file) ? file : upath.join(rootDir, file)
 
-  for (let { dependencies, dependents } of relationships) {
-    dependents = Array.isArray(dependents) ? dependents : [dependents]
-    dependencies = Array.isArray(dependencies) ? dependencies : [dependencies]
-    dependents = dependents.map((dependent) => toAbsolute(dependent))
-    dependencies = dependencies.map((dependency) => toAbsolute(dependency))
+  for (let { dependencies, dependents } of edges) {
+    dependents = dependents
+      .map((dependent) => toAbsolute(dependent))
+      .map((dependent) => upath.normalize(dependent))
+    dependencies = dependencies
+      .map((dependency) => toAbsolute(dependency))
+      .map((dependency) => upath.normalize(dependency))
     for (const dependent of dependents) {
-      absoluteGraph[dependent] = absoluteGraph[dependent] || new Set<string>()
+      depsGraph[dependent] = depsGraph[dependent] || new Set<string>()
       for (const dependency of dependencies) {
-        absoluteGraph[dependent].add(dependency)
+        depsGraph[dependent].add(dependency)
       }
     }
   }
-  return absoluteGraph
+  return depsGraph
 }
 
 export interface DependsOnOptions {
   tsConfig?: string
   rootDir?: string
   // TODO: more options
-  relationships?: readonly DependencyRelationship[] // you can manually specify additional dependency graph
+  edges?: readonly Edge[] // you can manually specify additional dependency graph
 }
 
 // TODO: test
 /**
- * @param relationships // You can specify any dependency graph regardless of extension
+ * @param edges // You can specify any dependency graph regardless of extension
  * [ // When foo depends on bar and baz.
  *   { 'dependents': ['path/to/foo.ts'], dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
  * ]
  */
 export function dependsOn(
   filenames: readonly string[],
-  {
-    tsConfig,
-    rootDir = getConfigDirname(),
-    relationships = [],
-  }: DependsOnOptions = {},
+  { tsConfig, rootDir = getConfigDirname(), edges = [] }: DependsOnOptions = {},
 ) {
   // default option.tsConfig if exists
   if (fs.existsSync(upath.join(rootDir, 'tsconfig.json'))) {
     // eslint-disable-next-line no-param-reassign
     tsConfig = tsConfig || upath.join(rootDir, 'tsconfig.json')
   }
-  const indexedRelationships = toIndexedDependencyRelationships({
+  const depsGraph = graph({
     rootDir,
-    relationships,
+    edges,
   })
 
   return (target: string): boolean => {
@@ -91,7 +89,10 @@ export function dependsOn(
       if (deepDepsList.includes(filename)) {
         return true
       }
-      if (indexedRelationships[target]?.has(filename)) {
+      if (depsGraph[target]?.has(filename)) {
+        return true
+      }
+      if (target === filename) {
         return true
       }
     }
@@ -153,7 +154,7 @@ export async function version(
       }
       throw new Error(' ')
     } catch {
-      throw new Error(`Verison for package ${packageName} cannot be resolved.`)
+      throw new Error(`Version for package ${packageName} cannot be resolved.`)
     }
   }
 }
