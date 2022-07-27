@@ -1,5 +1,5 @@
 import upath from 'upath'
-import { dependsOn, graph, version } from '@haetae/javascript'
+import { dependsOn, version } from '@haetae/javascript'
 
 describe('dependsOn', () => {
   // TODO: add tests for other various environments
@@ -67,59 +67,6 @@ describe('dependsOn', () => {
     expect(
       dependOnFooHello(upath.join(rootDir, 'path/to/non-existent.ts')),
     ).toBe(false)
-  })
-})
-
-describe('graph', () => {
-  test('basic usage', () => {
-    const result = graph({
-      rootDir: '<rootDir>',
-      edges: [
-        {
-          dependents: ['path/to/foo.ts'],
-          dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
-        },
-      ],
-    })
-
-    expect(result).toStrictEqual({
-      '<rootDir>/path/to/foo.ts': new Set([
-        '<rootDir>/path/to/bar.ts',
-        '<rootDir>/path/to/baz.ts',
-      ]),
-    })
-  })
-
-  test('advanced usage', () => {
-    const result = graph({
-      rootDir: '<rootDir>',
-      edges: [
-        {
-          dependents: ['path/to/foo.ts', 'path/to/foo2.ts'],
-          dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
-        },
-        {
-          dependents: ['path/to/foo2.ts', 'path/to/foo3.ts'],
-          dependencies: ['path/to/bar2.ts', 'path/to/baz2.ts'],
-        },
-      ],
-    })
-    expect(result).toStrictEqual({
-      '<rootDir>/path/to/foo.ts': new Set([
-        '<rootDir>/path/to/bar.ts',
-        '<rootDir>/path/to/baz.ts',
-      ]),
-      '<rootDir>/path/to/foo2.ts': new Set([
-        '<rootDir>/path/to/bar.ts',
-        '<rootDir>/path/to/baz.ts',
-        '<rootDir>/path/to/bar2.ts',
-        '<rootDir>/path/to/baz2.ts',
-      ]),
-      '<rootDir>/path/to/foo3.ts': new Set([
-        '<rootDir>/path/to/bar2.ts',
-        '<rootDir>/path/to/baz2.ts',
-      ]),
-    })
   })
 })
 

@@ -29,7 +29,8 @@
     "@types/semver": "^7.3.10"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:^"
+    "@haetae/core": "workspace:^",
+    "@haetae/utils": "workspace:^"
   },
   "keywords": [
     "haetae",

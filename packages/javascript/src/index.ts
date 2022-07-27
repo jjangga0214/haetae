@@ -7,57 +7,16 @@ import findUp from 'find-up'
 import yaml from 'yaml'
 import { getConfigDirname } from '@haetae/core'
 import { major, minor, patch, prerelease } from 'semver'
+import { Graph, graph } from '@haetae/utils'
 
 export { default as pkg } from './pkg'
-
-export interface Edge {
-  dependents: readonly string[]
-  dependencies: readonly string[]
-}
-
-export interface GraphOptions {
-  rootDir?: string
-  edges: readonly Edge[]
-}
-
-export interface Graph {
-  [dependent: string]: Set<string> // dependencies[]
-}
-
-// TODO: test
-export function graph({
-  rootDir = getConfigDirname(),
-  edges,
-}: GraphOptions): Graph {
-  const depsGraph: Graph = {}
-  const toAbsolute = (file: string) =>
-    upath.isAbsolute(file) ? file : upath.join(rootDir, file)
-
-  for (let { dependencies, dependents } of edges) {
-    dependents = dependents
-      .map((dependent) => toAbsolute(dependent))
-      .map((dependent) => upath.normalize(dependent))
-    dependencies = dependencies
-      .map((dependency) => toAbsolute(dependency))
-      .map((dependency) => upath.normalize(dependency))
-    for (const dependent of dependents) {
-      depsGraph[dependent] = depsGraph[dependent] || new Set<string>()
-      for (const dependency of dependencies) {
-        depsGraph[dependent].add(dependency)
-      }
-    }
-  }
-  return depsGraph
-}
 
 export interface DependsOnOptions {
   tsConfig?: string
   rootDir?: string
-  // TODO: more options
-  edges?: readonly Edge[] // you can manually specify additional dependency graph
+  additionalGraph?: Graph // you can manually specify additional dependency graph
 }
 
-// TODO: test
 /**
  * @param edges // You can specify any dependency graph regardless of extension
  * [ // When foo depends on bar and baz.
@@ -66,17 +25,17 @@ export interface DependsOnOptions {
  */
 export function dependsOn(
   filenames: readonly string[],
-  { tsConfig, rootDir = getConfigDirname(), edges = [] }: DependsOnOptions = {},
+  {
+    tsConfig,
+    rootDir = getConfigDirname(),
+    additionalGraph = graph({ edges: [] }),
+  }: DependsOnOptions = {},
 ) {
   // default option.tsConfig if exists
   if (fs.existsSync(upath.join(rootDir, 'tsconfig.json'))) {
     // eslint-disable-next-line no-param-reassign
     tsConfig = tsConfig || upath.join(rootDir, 'tsconfig.json')
   }
-  const depsGraph = graph({
-    rootDir,
-    edges,
-  })
 
   return (target: string): boolean => {
     // This includes target file itself as well.
@@ -89,7 +48,7 @@ export function dependsOn(
       if (deepDepsList.includes(filename)) {
         return true
       }
-      if (depsGraph[target]?.has(filename)) {
+      if (additionalGraph[target]?.has(filename)) {
         return true
       }
       if (target === filename) {
@@ -103,6 +62,7 @@ export function dependsOn(
 export interface VersionOptions {
   rootDir?: string
 }
+// TODO: test
 export async function version(
   packageName: string,
   { rootDir = getConfigDirname() }: VersionOptions = {},
