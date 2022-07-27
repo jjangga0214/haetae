@@ -3,3 +3,4 @@ dist
 test-project
 coverage
 .changeset
+CHANGELOG.md

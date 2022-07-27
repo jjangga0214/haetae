@@ -1,5 +1,5 @@
 import upath from 'upath'
-import { dependsOn, version } from '@haetae/javascript'
+import { dependsOn } from '@haetae/javascript'
 
 describe('dependsOn', () => {
   // TODO: add tests for other various environments
