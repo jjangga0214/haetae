@@ -1,5 +1,15 @@
 # @haetae/git
 
+## 0.0.9
+
+### Patch Changes
+
+- [`cba20c9`](https://github.com/jjangga0214/haetae/commit/cba20c9a859fe6ba1413f30ed236efe0d9fcc7d0) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `changedFiles` returns file paths with slash(`/`) as a delimiter, which means, on Windows, legacy Windows delimiter(`\`) is not returned.
+
+- Updated dependencies [[`c60afa9`](https://github.com/jjangga0214/haetae/commit/c60afa9c0f9c7809afcd0ee8682d41e0a8623673), [`37e5302`](https://github.com/jjangga0214/haetae/commit/37e53028b10ae712e1ef0890f7f8dfdff94cff76)]:
+  - @haetae/core@0.0.11
+  - @haetae/utils@0.0.10
+
 ## 0.0.8
 
 ### Patch Changes

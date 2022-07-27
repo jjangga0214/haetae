@@ -1,5 +1,42 @@
 # @haetae/javascript
 
+## 0.0.9
+
+### Patch Changes
+
+- [`37e5302`](https://github.com/jjangga0214/haetae/commit/37e53028b10ae712e1ef0890f7f8dfdff94cff76) Thanks [@jjangga0214](https://github.com/jjangga0214)! - A new function `version` is added.
+  If you depend on a certain package, and you want to get its exact version, the new function would help you.
+  For example, you can specify version of a dep in `env`, like the below example.
+
+  **example:**
+
+  ```js
+  {
+    env: async () => ({
+      // This would make sure when eslint version
+      eslint: (await version('eslint')).major,
+    })
+  }
+  ```
+
+* [`37e5302`](https://github.com/jjangga0214/haetae/commit/37e53028b10ae712e1ef0890f7f8dfdff94cff76) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE** `toIndexedDependencyRelationships` is moved from `@haetae/javascript` to `@haetae/utils` and renamed to `graph`. `@haetae/javascript`'s `dependsOn` now takes `additionalGraph`, not `relationships`.
+
+  **example:**
+
+  ```js
+  js.dependsOn(['foo.ts', 'bar.ts'], {
+    additionalGraph: utils.graph({
+      edges: [
+        // specify your additional dependency graph
+      ],
+    }),
+  })
+  ```
+
+* Updated dependencies [[`c60afa9`](https://github.com/jjangga0214/haetae/commit/c60afa9c0f9c7809afcd0ee8682d41e0a8623673), [`37e5302`](https://github.com/jjangga0214/haetae/commit/37e53028b10ae712e1ef0890f7f8dfdff94cff76)]:
+  - @haetae/core@0.0.11
+  - @haetae/utils@0.0.10
+
 ## 0.0.8
 
 ### Patch Changes

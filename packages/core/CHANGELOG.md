@@ -1,5 +1,11 @@
 # @haetae/core
 
+## 0.0.11
+
+### Patch Changes
+
+- [`c60afa9`](https://github.com/jjangga0214/haetae/commit/c60afa9c0f9c7809afcd0ee8682d41e0a8623673) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Every path is converted/returned with slash(`/`) as a delimiter, which means, on Windows, legacy Windows delimiter(`\`) is not returned. However, you can still put the legacy style path as a argument or config field.
+
 ## 0.0.10
 
 ### Patch Changes
