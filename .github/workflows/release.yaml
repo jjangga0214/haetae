@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-
+# for `concurrency`, release should be an independent workflow. (e.g. from test, lint, etc)
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
@@ -58,3 +58,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          HUSKY: 0 # For changesets/action to commit, let's ignore husky
