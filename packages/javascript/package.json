@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@haetae/core": "workspace:^",
+    "@haetae/utils": "workspace:^",
     "@types/semver": "^7.3.10"
   },
   "peerDependencies": {
