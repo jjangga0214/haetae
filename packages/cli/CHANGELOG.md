@@ -1,5 +1,12 @@
 # @haetae/cli
 
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies [[`c60afa9`](https://github.com/jjangga0214/haetae/commit/c60afa9c0f9c7809afcd0ee8682d41e0a8623673)]:
+  - @haetae/core@0.0.11
+
 ## 0.0.11
 
 ### Patch Changes
