@@ -7,17 +7,18 @@ import findUp from 'find-up'
 import yaml from 'yaml'
 import { getConfigDirname } from '@haetae/core'
 import { major, minor, patch, prerelease } from 'semver'
-import { Graph, graph } from '@haetae/utils'
+import { DepsGraph, graph } from '@haetae/utils'
 
 export { default as pkg } from './pkg'
 
 export interface DependsOnOptions {
   tsConfig?: string
   rootDir?: string
-  additionalGraph?: Graph // you can manually specify additional dependency graph
+  additionalGraph?: DepsGraph // you can manually specify additional dependency graph
 }
 
 /**
+ * @param rootDir has to be absolute path
  * @param edges // You can specify any dependency graph regardless of extension
  * [ // When foo depends on bar and baz.
  *   { 'dependents': ['path/to/foo.ts'], dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
@@ -36,6 +37,12 @@ export function dependsOn(
     // eslint-disable-next-line no-param-reassign
     tsConfig = tsConfig || upath.join(rootDir, 'tsconfig.json')
   }
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const _filenames = filenames
+    .map((filename) =>
+      upath.isAbsolute(filename) ? filename : upath.join(rootDir, filename),
+    )
+    .map((filename) => upath.normalize(filename))
 
   return (target: string): boolean => {
     // This includes target file itself as well.
@@ -44,7 +51,7 @@ export function dependsOn(
       filename: target,
       tsConfig,
     })
-    for (const filename of filenames) {
+    for (const filename of _filenames) {
       if (deepDepsList.includes(filename)) {
         return true
       }

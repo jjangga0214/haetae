@@ -7,24 +7,25 @@ import hasha from 'hasha'
 export { default as pkg } from './pkg'
 
 export interface GlobOptions {
-  rootDir?: string // This is a facade option for globbyOptions.cwd
+  rootDir?: string // should be absolute path // This is a facade option for globbyOptions.cwd
   globbyOptions?: globby.GlobbyOptions
 }
 
 export async function glob(
   patterns: readonly string[],
-  {
-    rootDir = getConfigDirname(),
-    globbyOptions = {
-      cwd: rootDir,
-      gitignore: true,
-    },
-  }: GlobOptions = {},
+  { rootDir = getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
 ): Promise<string[]> {
+  // eslint-disable-next-line no-param-reassign
+  globbyOptions.cwd = globbyOptions.cwd || rootDir
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  // eslint-disable-next-line no-param-reassign
+  globbyOptions.gitignore =
+    globbyOptions.gitignore === undefined ? true : globbyOptions.gitignore
   const res = await globby(patterns, globbyOptions)
-  return res.map((file) =>
-    upath.isAbsolute(file) ? file : upath.resolve(rootDir, file),
-  )
+  return res
+    .map((file) => (upath.isAbsolute(file) ? file : upath.join(rootDir, file)))
+    .map((file) => upath.normalize(file))
 }
 
 export interface ExecOptions {
@@ -83,32 +84,33 @@ export async function hashFiles(
   const hashes = await Promise.all(
     files
       .map((file) =>
-        upath.isAbsolute(file) ? file : upath.resolve(rootDir, file),
+        upath.isAbsolute(file) ? file : upath.join(rootDir, file),
       )
+      .map((file) => upath.normalize(file))
       .map((file) => hasha.fromFile(file, { algorithm })),
   )
   return hasha.async(hashes.join('\n'), { algorithm })
 }
 
-export interface Edge {
+export interface DepsEdge {
   dependents: readonly string[]
   dependencies: readonly string[]
 }
 
 export interface GraphOptions {
   rootDir?: string
-  edges: readonly Edge[]
+  edges: readonly DepsEdge[]
 }
 
-export interface Graph {
+export interface DepsGraph {
   [dependent: string]: Set<string> // dependencies[]
 }
 
 export function graph({
   rootDir = getConfigDirname(),
   edges,
-}: GraphOptions): Graph {
-  const depsGraph: Graph = {}
+}: GraphOptions): DepsGraph {
+  const depsGraph: DepsGraph = {}
   const toAbsolute = (file: string) =>
     upath.isAbsolute(file) ? file : upath.join(rootDir, file)
 
