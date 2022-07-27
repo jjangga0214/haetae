@@ -45,7 +45,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install Dependencies
-        run: pnpm install --silent
+        run: pnpm install --silent --frozen-lockfile
 
       - name: Create Release PR or Publish
         uses: changesets/action@v1

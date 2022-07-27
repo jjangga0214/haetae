@@ -28,7 +28,7 @@ export function dependsOn(
   {
     tsConfig,
     rootDir = getConfigDirname(),
-    additionalGraph = graph({ edges: [] }),
+    additionalGraph = graph({ edges: [], rootDir }),
   }: DependsOnOptions = {},
 ) {
   // default option.tsConfig if exists
