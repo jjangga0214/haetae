@@ -10,9 +10,9 @@ For example, you can specify version of a dep in `env`, like the below example.
 
 ```js
 {
-  env: async () => {
+  env: async () => ({
     // This would make sure when eslint version
     eslint: (await version('eslint')).major
-  }
+  })
 }
 ```
