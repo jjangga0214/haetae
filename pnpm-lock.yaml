@@ -203,6 +203,7 @@ importers:
   packages/javascript:
     specifiers:
       '@haetae/core': workspace:^
+      '@haetae/utils': workspace:^
       '@types/semver': ^7.3.10
       dependency-tree: ^8.1.1
       find-up: ^5
@@ -221,6 +222,7 @@ importers:
       yaml: 2.1.1
     devDependencies:
       '@haetae/core': link:../core
+      '@haetae/utils': link:../utils
       '@types/semver': 7.3.10
 
   packages/utils:
