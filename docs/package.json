@@ -1,0 +1,20 @@
+{
+  "name": "@haetae/docs",
+  "version": "0.0.1",
+  "description": "Docs For Haetae",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "ts": "ts-node -r tsconfig-paths/register",
+    "dev": "next",
+    "start": "next start",
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "^12.1.0",
+    "nextra": "^1.1.0",
+    "nextra-theme-docs": "^1.2.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  }
+}
