@@ -18,8 +18,10 @@
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
+  "peerDependencies": {
+    "@haetae/core": "workspace:^"
+  },
   "dependencies": {
-    "@haetae/core": "workspace:^",
     "chalk": "^4.1.2",
     "clipboardy": "^2.0.0",
     "commander": "^8.1.0",

@@ -8,6 +8,7 @@
     "node": ">=18.0.0",
     "pnpm": ">=7"
   },
+  "packageManager": "pnpm@7.5.1",
   "scripts": {
     "ts": "ts-node -r tsconfig-paths/register",
     "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md --fix",

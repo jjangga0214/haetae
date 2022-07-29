@@ -1,0 +1,8 @@
+{
+  "haetae": "haetae",
+  "haetae-core": "@haetae/core",
+  "haetae-utils": "@haetae/utils",
+  "haetae-javascript": "@haetae/javascript",
+  "haetae-git": "@haetae/git",
+  "haetae-cli": "@haetae/cli"
+}

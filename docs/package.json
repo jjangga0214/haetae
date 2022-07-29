@@ -8,7 +8,8 @@
     "ts": "ts-node -r tsconfig-paths/register",
     "dev": "next",
     "start": "next start",
-    "build": "next build"
+    "build": "next build",
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "^12.1.0",
