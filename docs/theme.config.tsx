@@ -66,5 +66,4 @@ export default {
   // footerText: <>MIT {new Date().getFullYear()} © jjangga0214 (bnbcmindnpass@gmail.com).</>,
   footerText: <>MIT 2022 © jjangga0214 {'<bnbcmindnpass@gmail.com>'}</>,
   unstable_faviconGlyph: '👋',
-
 }
