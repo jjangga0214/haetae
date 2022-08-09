@@ -1,3 +1,5 @@
+import PkgManagerTabs from '../../components/PkgManagerTabs'
+
 # `@haetae/git`
 
 `@haetae/git` is a convenient **git** integration with Haetae.<br/>
@@ -18,7 +20,43 @@ If you don't use git as a version control system, you don't need this package.
 
 ## Installation
 
-```@haetae/git
+Installation is done by two steps. Installing `@haetae/git` and its `peerDependencies`.
+
+<br />
+
+
+{/*<!-- markdownlint-disable -->*/}
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npm install @haetae/git
+    # As devDependencies
+    npm install --save-dev @haetae/git
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    yarn add @haetae/git
+    # As devDependencies
+    yarn add --dev @haetae/git
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    pnpm add @haetae/git
+    # As devDependencies
+    pnpm add --save-dev @haetae/git
+    ```
+  </>
+</PkgManagerTabs>
+
+{/*<!-- markdownlint-disable -->*/}
+
+```bash
 # For npm, as dependencies
 npm install @haetae/git
 # For npm, as devDependencies
@@ -38,23 +76,37 @@ pnpm add --save-dev @haetae/git
 After then, you should additionally install `peerDependencies` as well.<br/>
 Make sure you install compaitible versions.<br/>
 
-#### To automatically install `peerDependencies`:
+### To automatically install `peerDependencies`:
 
 For automatic resolution and installation, you may want to use [`install-peerdeps`](https://www.npmjs.com/package/install-peerdeps).
 
-```bash
-# For npm, as dependencies
-npx install-peerdeps @haetae/git
-# For npm, as devDependencies
-npx install-peerdeps --dev @haetae/git
+{/*<!-- markdownlint-disable -->*/}
 
-# For yarn, as dependencies
-npx install-peerdeps --yarn @haetae/git
-# For yarn, as devDependencies
-npx install-peerdeps --yarn --dev @haetae/git
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps @haetae/git
+    # As devDependencies
+    npx install-peerdeps --dev @haetae/git
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --yarn @haetae/git
+    # As devDependencies
+    npx install-peerdeps --yarn --dev @haetae/git
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --pnpm @haetae/git
+    # As devDependencies
+    npx install-peerdeps --pnpm --dev @haetae/git
+    ```
+  </>
+</PkgManagerTabs>
 
-# For pnpm, as dependencies
-npx install-peerdeps --pnpm @haetae/git
-# For pnpm, as devDependencies
-npx install-peerdeps --pnpm --dev @haetae/git
-```
+{/*<!-- markdownlint-disable -->*/}
