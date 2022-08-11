@@ -114,9 +114,9 @@ const { core, pkg } = require('haetae')
 module.exports = core.configure({
   // Other options are ommitted for brevity.
   commands: {
-    myCommand:{
+    myAwesomeCommand:{
       env: {
-        // Different OS are to be treated as different environment.
+        // Different OS are to be treated as different environments.
         os: process.platform
         // Different major + minor versions of `haetae` as well.
         haetae: pkg.version.untilMinor
