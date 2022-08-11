@@ -1,3 +1,4 @@
+import Callout from 'nextra-theme-docs/callout'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 
 # `@haetae/utils`
@@ -19,6 +20,11 @@ import PkgManagerTabs from '../../components/PkgManagerTabs'
 - [`@haetae/git`](./haetae-git)
 
 ## Installation
+
+<Callout>
+  **Are you developing a library(e.g. plugin) for Haetae?** <br />
+  It might be more suitable to specify `@haetae/utils` as `peerDependencies` than `dependencies`.
+</Callout>
 
 ### To automatically install `@haetae/utils` and its `peerDependencies`
 
@@ -89,7 +95,7 @@ First, install `@haetae/utils` itself.
 </PkgManagerTabs>
 
 Then, check out `peerDependencies` and manually handle them.<br/>
-(e.g. Install them as dependencies or set them as `peerDependencies`)
+(e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
 ```bash
 # This does not install, but just show peerDependencies.

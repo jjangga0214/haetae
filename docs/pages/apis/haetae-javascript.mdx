@@ -4,12 +4,13 @@ import PkgManagerTabs from '../../components/PkgManagerTabs'
 # `@haetae/javascript`
 
 `@haetae/javascript` provides features for javascript ecosystem.<br/>
+For instance, you can find out which module depends on which module.<br/>
 If your project do not use javascript-related languages, you don't need this package.
 
 <Callout>
+  **Ecosystem Supported**<br />
   CJS (CommonJS), ESM (ES6 module), AMD, Typescript, JSX, TSX, Sass, Stylus,
-  Less, CSS (PostCSS), nodejs-only modules, browser-only modules are **ALL
-  SUPPORTED.**
+  Less, CSS (PostCSS), nodejs-only modules, browser-only modules are all supported.
 </Callout>
 
 ## Depends on (`peerDependencies`)
@@ -26,6 +27,11 @@ If your project do not use javascript-related languages, you don't need this pac
 - [`haetae`](./haetae)
 
 ## Installation
+
+<Callout>
+  **Are you developing a library(e.g. plugin) for Haetae?** <br />
+  It might be more suitable to specify `@haetae/javascript` as `peerDependencies` than `dependencies`.
+</Callout>
 
 ### To automatically install `@haetae/javascript` and its `peerDependencies`
 
@@ -96,7 +102,7 @@ First, install `@haetae/javascript` itself.
 </PkgManagerTabs>
 
 Then, check out `peerDependencies` and manually handle them.<br/>
-(e.g. Install them as dependencies or set them as `peerDependencies`)
+(e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
 ```bash
 # This does not install, but just show peerDependencies.

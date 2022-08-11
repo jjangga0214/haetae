@@ -1,4 +1,5 @@
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import Callout from 'nextra-theme-docs/callout'
 
 # `@haetae/cli`
 
@@ -18,6 +19,11 @@ If you use Haetae only by programatic api (e.g. other `@haetae/*` packages), you
 - [`haetae`](./haetae)
 
 ## Installation
+
+<Callout>
+  **Are you developing a library(e.g. plugin) for Haetae?** <br />
+  It might be more suitable to specify `@haetae/cli` as `peerDependencies` than `dependencies`.
+</Callout>
 
 ### To automatically install `@haetae/cli` and its `peerDependencies`
 
@@ -88,7 +94,7 @@ First, install `@haetae/cli` itself.
 </PkgManagerTabs>
 
 Then, check out `peerDependencies` and manually handle them.<br/>
-(e.g. Install them as dependencies or set them as `peerDependencies`)
+(e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
 ```bash
 # This does not install, but just show peerDependencies.
