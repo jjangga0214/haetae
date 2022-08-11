@@ -1,9 +1,10 @@
+import Callout from 'nextra-theme-docs/callout'
+import PkgManagerTabs from '../../components/PkgManagerTabs'
+
 # `@haetae/core`
 
 `@haetae/core` contains every core feature for Haetae.<br/>
-It handles config file and store file.<br/>
-It also evaluates `env` and executes `run` of your command.<br/>
-It provides every core feature Haetae needs.<br/>
+For instance, it handles config file, store file, and your command's `env` and `run`.<br/>
 If you want to use Haetae by programatic api, you probably need this package.
 
 ## Used by
@@ -15,3 +16,39 @@ If you want to use Haetae by programatic api, you probably need this package.
 - [`haetae/git`](./haetae-git)
 - [`haetae/cli`](./haetae-cli)
 - [`haetae`](./haetae)
+
+## Installation
+
+<Callout>
+Unlike other `@haetae/*` packages, `@haetae/core` doesn't have `peerDependencies`.
+Just purely installing `@haetae/core` itself is enough.
+</Callout>
+
+<br/>
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npm install @haetae/core
+    # As devDependencies
+    npm install --save-dev @haetae/core
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    yarn add @haetae/core
+    # As devDependencies
+    yarn add --dev @haetae/core
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    pnpm add @haetae/core
+    # As devDependencies
+    pnpm add --save-dev @haetae/core
+    ```
+  </>
+</PkgManagerTabs>

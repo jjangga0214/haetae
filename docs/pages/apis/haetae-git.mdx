@@ -20,9 +20,46 @@ If you don't use git as a version control system, you don't need this package.
 
 ## Installation
 
-Installation is done by two steps. Installing `@haetae/git` and its `peerDependencies`.
+### To automatically install `@haetae/git` and its `peerDependencies`
 
-<br />
+You may want to install `@haetae/git` and its `peerDependencies` all at once. <br/>
+[`install-peerdeps`](https://www.npmjs.com/package/install-peerdeps) is a good tool for that.
+
+<br/>
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps @haetae/git
+    # As devDependencies
+    npx install-peerdeps --dev @haetae/git
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --yarn @haetae/git
+    # As devDependencies
+    npx install-peerdeps --yarn --dev @haetae/git
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --pnpm @haetae/git
+    # As devDependencies
+    npx install-peerdeps --pnpm --dev @haetae/git
+    ```
+  </>
+</PkgManagerTabs>
+
+### To manually handle installation
+
+You might want to manually deal with installation.<br/>
+First, install `@haetae/git` itself.
+
+<br/>
 
 <PkgManagerTabs>
   <>
@@ -51,36 +88,10 @@ Installation is done by two steps. Installing `@haetae/git` and its `peerDepende
   </>
 </PkgManagerTabs>
 
-After that, you should additionally install `peerDependencies` as well.<br/>
-Make sure you install compaitible versions.<br/>
+Then, check out `peerDependencies` and manually handle them.<br/>
+(e.g. Install them as dependencies or set them as `peerDependencies`)
 
-### To automatically install `peerDependencies`
-
-For automatic resolution and installation, you may want to use [`install-peerdeps`](https://www.npmjs.com/package/install-peerdeps).
-
-<PkgManagerTabs>
-  <>
-    ```bash
-    # As dependencies
-    npx install-peerdeps @haetae/git
-    # As devDependencies
-    npx install-peerdeps --dev @haetae/git
-    ```
-  </>
-  <>
-    ```bash
-    # As dependencies
-    npx install-peerdeps --yarn @haetae/git
-    # As devDependencies
-    npx install-peerdeps --yarn --dev @haetae/git
-    ```
-  </>
-  <>
-    ```bash
-    # As dependencies
-    npx install-peerdeps --pnpm @haetae/git
-    # As devDependencies
-    npx install-peerdeps --pnpm --dev @haetae/git
-    ```
-  </>
-</PkgManagerTabs>
+```bash
+# This does not install, but just show peerDependencies.
+npm info @haetae/git peerDependencies
+```

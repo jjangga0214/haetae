@@ -1,4 +1,5 @@
 import Callout from 'nextra-theme-docs/callout'
+import PkgManagerTabs from '../../components/PkgManagerTabs'
 
 # `@haetae/javascript`
 
@@ -23,3 +24,81 @@ If your project do not use javascript-related languages, you don't need this pac
 **Note**: This is not exhaustive and lists only Haetae's packages.
 
 - [`haetae`](./haetae)
+
+## Installation
+
+### To automatically install `@haetae/javascript` and its `peerDependencies`
+
+You may want to install `@haetae/javascript` and its `peerDependencies` all at once. <br/>
+[`install-peerdeps`](https://www.npmjs.com/package/install-peerdeps) is a good tool for that.
+
+<br/>
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps @haetae/javascript
+    # As devDependencies
+    npx install-peerdeps --dev @haetae/javascript
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --yarn @haetae/javascript
+    # As devDependencies
+    npx install-peerdeps --yarn --dev @haetae/javascript
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --pnpm @haetae/javascript
+    # As devDependencies
+    npx install-peerdeps --pnpm --dev @haetae/javascript
+    ```
+  </>
+</PkgManagerTabs>
+
+### To manually handle installation
+
+You might want to manually deal with installation.<br/>
+First, install `@haetae/javascript` itself.
+
+<br/>
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npm install @haetae/javascript
+    # As devDependencies
+    npm install --save-dev @haetae/javascript
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    yarn add @haetae/javascript
+    # As devDependencies
+    yarn add --dev @haetae/javascript
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    pnpm add @haetae/javascript
+    # As devDependencies
+    pnpm add --save-dev @haetae/javascript
+    ```
+  </>
+</PkgManagerTabs>
+
+Then, check out `peerDependencies` and manually handle them.<br/>
+(e.g. Install them as dependencies or set them as `peerDependencies`)
+
+```bash
+# This does not install, but just show peerDependencies.
+npm info @haetae/javascript peerDependencies
+```

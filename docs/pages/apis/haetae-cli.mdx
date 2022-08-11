@@ -1,7 +1,9 @@
+import PkgManagerTabs from '../../components/PkgManagerTabs'
+
 # `@haetae/cli`
 
 `@haetae/cli` contains every feature for Haetae's CLI.<br/>
-If you use Haetae only by programatic api (e.g. `@haetae/*`), you don't need this package.
+If you use Haetae only by programatic api (e.g. other `@haetae/*` packages), you probably don't need this package.
 
 ## Depends on (`peerDependencies`)
 
@@ -14,3 +16,81 @@ If you use Haetae only by programatic api (e.g. `@haetae/*`), you don't need thi
 **Note**: This is not exhaustive and lists only Haetae's packages.
 
 - [`haetae`](./haetae)
+
+## Installation
+
+### To automatically install `@haetae/cli` and its `peerDependencies`
+
+You may want to install `@haetae/cli` and its `peerDependencies` all at once. <br/>
+[`install-peerdeps`](https://www.npmjs.com/package/install-peerdeps) is a good tool for that.
+
+<br/>
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps @haetae/cli
+    # As devDependencies
+    npx install-peerdeps --dev @haetae/cli
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --yarn @haetae/cli
+    # As devDependencies
+    npx install-peerdeps --yarn --dev @haetae/cli
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    npx install-peerdeps --pnpm @haetae/cli
+    # As devDependencies
+    npx install-peerdeps --pnpm --dev @haetae/cli
+    ```
+  </>
+</PkgManagerTabs>
+
+### To manually handle installation
+
+You might want to manually deal with installation.<br/>
+First, install `@haetae/cli` itself.
+
+<br/>
+
+<PkgManagerTabs>
+  <>
+    ```bash
+    # As dependencies
+    npm install @haetae/cli
+    # As devDependencies
+    npm install --save-dev @haetae/cli
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    yarn add @haetae/cli
+    # As devDependencies
+    yarn add --dev @haetae/cli
+    ```
+  </>
+  <>
+    ```bash
+    # As dependencies
+    pnpm add @haetae/cli
+    # As devDependencies
+    pnpm add --save-dev @haetae/cli
+    ```
+  </>
+</PkgManagerTabs>
+
+Then, check out `peerDependencies` and manually handle them.<br/>
+(e.g. Install them as dependencies or set them as `peerDependencies`)
+
+```bash
+# This does not install, but just show peerDependencies.
+npm info @haetae/cli peerDependencies
+```
