@@ -47,3 +47,102 @@ Unlike other `@haetae/*` packages, `haetae` does not have `peerDependencies`.
     ```
   </>
 </PkgManagerTabs>
+
+## Usage
+
+The package `haetae` exports other `@haetae/*` packages all at once. <br/>
+It's source code is _roughly_ like the snippet below.
+
+```ts
+export * as core from '@haetae/core'
+export * as utils from '@haetae/utils'
+export * as js from '@haetae/javascript'
+export * as git from '@haetae/git'
+export * as cli from '@haetae/cli'
+export const pkg = { /* ... */ }
+```
+
+So you probably use `haetae` on the config file like this.
+
+**haetae.config.js**:
+
+```js
+const { core, utils, js, git, cli, pkg  } = require('haetae')
+
+module.exports = core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    // ...
+  },
+})
+```
+
+## CLI
+
+`haetae` also exports `cli` as API.
+However, you probably don't need it.
+Because, in general, the CLI features are to be used as CLI, not as API.
+`haetae` is a CLI by itself, providing exactly same features of `@haetae/cli`.
+**For detailed usage as CLI, refer to [`@haetae/cli`](./haetae-cli).**
+
+## API
+
+### `pkg`
+
+This contains the package's meta information, `name` and `version`.<br/>
+For example, let's assume the package version is ***`1.2.3-beta.4`***.<br/>
+Then the value would be like this.
+
+```ts
+const { pkg } = require('haetae')
+
+pkg.name // "haetae"
+pkg.version.value // "1.2.3-beta.4"
+pkg.version.major // "1"
+pkg.version.minor // "2"
+pkg.version.patch // "3"
+pkg.version.prerelease // ["beta", "4"]
+pkg.version.untilMinor //  "1.2"
+pkg.version.untilPatch // "1.2.3"
+```
+
+If you want, `version` could be used in `env` in a handy way.
+
+```js
+const { core, pkg } = require('haetae')
+
+module.exports = core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myCommand:{
+      env: {
+        // Different OS are to be treated as different environment.
+        os: process.platform
+        // Different major + minor versions of `haetae` as well.
+        haetae: pkg.version.untilMinor
+      },
+      run: () => { /* ... */ }
+    }
+  },
+})
+```
+
+### `core`
+
+Refer to [`@haetae/core`](./haetae-core).
+
+### `utils`
+
+Refer to [`@haetae/utils`](./haetae-utils).
+
+### `js`
+
+Refer to [`@haetae/javascript`](./haetae-javascript).
+
+### `git`
+
+Refer to [`@haetae/git`](./haetae-git).
+
+### `cli`
+
+Refer to [`@haetae/cli`](./haetae-cli).
