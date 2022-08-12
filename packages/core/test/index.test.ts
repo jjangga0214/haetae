@@ -1,28 +1,67 @@
 import { AssertionError } from 'assert/strict'
-import { configure } from '../src/index'
+import upath from 'upath'
+import { configure, setStoreFilename } from '../src/index'
 
 describe('configure()', () => {
   describe('when storeFile is given', () => {
-    test('as Windows legacy back-slash path, it is modified to slash path.', () => {
-      const winAbsStoreFile = 'C:\\path\\to\\haetae.store.json'
-      const winConfig = configure({ commands: {}, storeFile: winAbsStoreFile })
-      expect(winConfig.storeFile).toBe('C:/path/to/haetae.store.json')
-
-      const winRelStoreFile = '..\\path\\to\\\\haetae.store.json'
-      const config = configure({ commands: {}, storeFile: winRelStoreFile })
-      expect(config.storeFile).toBe('../path/to/haetae.store.json')
+    // eslint-disable-next-line jest/no-hooks
+    afterEach(() => {
+      // eslint-disable-next-line unicorn/no-null
+      setStoreFilename(null)
     })
+    if (process.platform === 'win32') {
+      test('as Windows legacy back-slash path, it is modified to slash path.', () => {
+        const winConfig = configure({
+          commands: {},
+          storeFile: 'C:\\path\\to\\haetae.store.json',
+        })
+        expect(winConfig.storeFile).toBe('C:/path/to/haetae.store.json')
 
-    test('as a relative file path, it is stil a relative path.', () => {
+        const config = configure({
+          commands: {},
+          storeFile: '..\\path\\to\\\\haetae.store.json',
+        })
+        expect(config.storeFile).toBe('../path/to/haetae.store.json')
+      })
+    }
+
+    test('as a relative file path, it becomes a absolute path.', () => {
       const storeFile = '../path/to/haetae.store.json'
       const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(storeFile)
+      expect(config.storeFile).toBe(upath.resolve(storeFile))
     })
 
     test('as non-json path, it is modified to json file path.', () => {
       const storeFile = '<rootDir>'
       const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(`${storeFile}/haetae.store.json`)
+      expect(config.storeFile).toBe(
+        upath.resolve(`${storeFile}/.haetae/store.json`),
+      )
+    })
+  })
+
+  describe('when storeFile is already set', () => {
+    // eslint-disable-next-line jest/no-hooks
+    afterEach(() => {
+      // eslint-disable-next-line unicorn/no-null
+      setStoreFilename(null)
+    })
+    test('given storeFile is ignored', () => {
+      const storeFile = '<rootDir>'
+      setStoreFilename(storeFile)
+      const config = configure({ commands: {}, storeFile: '<anotherDir>' })
+      expect(config.storeFile).toBe(
+        upath.resolve(`${storeFile}/.haetae/store.json`),
+      )
+    })
+
+    test('storeFile is resolved without given value', () => {
+      const storeFile = '<rootDir>'
+      setStoreFilename(storeFile)
+      const config = configure({ commands: {} })
+      expect(config.storeFile).toBe(
+        upath.resolve(`${storeFile}/.haetae/store.json`),
+      )
     })
   })
 

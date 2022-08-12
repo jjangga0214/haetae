@@ -45,15 +45,13 @@ export const setConfigFilename = (
  */
 export const getConfigFilename = memoizee((): string => {
   let filename = configFilename || '.'
+  filename = upath.normalize(filename)
   if (!upath.isAbsolute(filename)) {
     filename = upath.join(process.cwd(), filename)
   }
-  filename = upath.normalize(filename)
   try {
     if (fs.statSync(filename).isDirectory()) {
       filename = upath.join(filename, defaultConfigFile)
-      assert(fs.existsSync(filename))
-      return filename
     }
     return filename
   } catch {
@@ -65,6 +63,29 @@ export const getConfigFilename = memoizee((): string => {
 export const getConfigDirname = () => upath.dirname(getConfigFilename())
 
 export const defaultStoreFile = '.haetae/store.json'
+
+let storeFilename: string | undefined | null
+
+export const setStoreFilename = (
+  filename: string | null = defaultConfigFile,
+) => {
+  storeFilename = filename
+}
+
+/**
+ * @returns {string}: always an absolute, normalized path.
+ */
+export const getStoreFilename = (): string => {
+  let filename = storeFilename || '.'
+  filename = upath.normalize(filename)
+  if (!upath.isAbsolute(filename)) {
+    filename = upath.join(getConfigDirname(), filename)
+  }
+  if (!filename.endsWith('.json')) {
+    filename = upath.join(filename, defaultStoreFile)
+  }
+  return filename
+}
 
 export interface HaetaeRecord<D = unknown, E = unknown> {
   data: D | null
@@ -175,14 +196,10 @@ export function configure<D = unknown, E = unknown>({
     `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
   )
 
-  // When it's given as a directory.
-  // Keep in mind that store file might not exist, yet.
-  // So you must NOT use `fs.statSync(preConfig.storeFile).isDirectory()`.
-  if (!storeFile.endsWith('.json')) {
-    storeFile = upath.join(storeFile, defaultStoreFile)
+  // If store file is already set before, `storeFile` in config would be ignored.
+  if (!storeFilename) {
+    setStoreFilename(storeFile)
   }
-
-  storeFile = upath.normalize(storeFile)
 
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
@@ -208,7 +225,7 @@ export function configure<D = unknown, E = unknown>({
       age,
       count,
     },
-    storeFile,
+    storeFile: getStoreFilename(),
   }
 }
 
@@ -456,7 +473,7 @@ export interface SaveStoreOptions {
 }
 
 export async function saveStore({
-  filename = getConfig().then((c) => c.storeFile),
+  filename = getStoreFilename(),
   store = mapStore(),
 }: SaveStoreOptions = {}) {
   // TODO: await?
@@ -471,7 +488,7 @@ export async function saveStore({
 }
 
 export async function deleteStore({
-  filename = getConfig().then((c) => c.storeFile),
+  filename = getStoreFilename(),
 }: {
   filename?: string | Promise<string>
 } = {}) {

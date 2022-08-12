@@ -32,6 +32,11 @@
     "rules": {
       "unicorn/no-await-expression-member": "off",
       "unicorn/prefer-module": "off"
+    },
+    "settings": {
+      "react": {
+        "version": "17"
+      }
     }
   },
   "eslintIgnore": [
