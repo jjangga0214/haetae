@@ -64,7 +64,7 @@ export const getConfigFilename = memoizee((): string => {
 // todo: set/get current config dirname
 export const getConfigDirname = () => upath.dirname(getConfigFilename())
 
-export const defaultStoreFile = 'haetae.store.json'
+export const defaultStoreFile = '.haetae/store.json'
 
 export interface HaetaeRecord<D = unknown, E = unknown> {
   data: D | null
