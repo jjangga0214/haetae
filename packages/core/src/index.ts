@@ -98,13 +98,13 @@ export interface HaetaeStore<D = unknown, E = unknown> {
   }
 }
 
-export type HaetaePreCommandEnv<E = unknown> =
-  | HaetaeCommandEnv<E>
-  | PromiseOr<E | null | undefined>
-
 export type HaetaeCommandEnv<E = unknown> = () => void | PromiseOr<
   E | null | undefined
 >
+
+export type HaetaePreCommandEnv<E = unknown> =
+  | HaetaeCommandEnv<E>
+  | PromiseOr<E | null | undefined>
 
 export interface HaetaePreCommand<D = unknown, E = unknown> {
   run: () => void | PromiseOr<D | null | undefined>
@@ -123,6 +123,7 @@ export type RootEnv<E = unknown> = (
 export type RootRecordData<D = unknown> = (
   recordDataFromCommand: D | null,
 ) => PromiseOr<D | null>
+
 export interface HaetaePreConfig<D = unknown, E = unknown> {
   commands: {
     [command: string]: HaetaePreCommand<D, E>
@@ -228,7 +229,7 @@ export function configure<D = unknown, E = unknown>({
 }
 
 export interface GetConfigOptions {
-  filename?: string | Promise<string> // It should be an absolute path
+  filename?: PromiseOr<string> // It should be an absolute path
 }
 
 /**
@@ -241,6 +242,7 @@ export const getConfig = memoizee(
   }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     let _filename = await filename
+    _filename = upath.normalize(_filename)
     try {
       /**
        * `getConfigFilename` always returns an non-directory path.
@@ -256,13 +258,7 @@ export const getConfig = memoizee(
       )
     }
 
-    const config = configure<D, E>(await import(_filename))
-
-    if (!upath.isAbsolute(config.storeFile)) {
-      config.storeFile = upath.join(upath.dirname(_filename), config.storeFile)
-    }
-
-    return config
+    return configure<D, E>(await import(_filename))
   },
   {
     normalizer: serialize,
@@ -274,7 +270,7 @@ export function initNewStore<D = unknown, E = unknown>(): HaetaeStore<D, E> {
 }
 
 export interface GetStoreOptions<D = unknown, E = unknown> {
-  filename?: string | Promise<string>
+  filename?: PromiseOr<string>
   // When there's no store file yet.
   fallback?: ({
     filename,
@@ -282,7 +278,7 @@ export interface GetStoreOptions<D = unknown, E = unknown> {
   }: {
     filename: string
     error: Error
-  }) => HaetaeStore<D, E> | Promise<HaetaeStore<D, E>> | never
+  }) => PromiseOr<HaetaeStore<D, E>> | never
 }
 
 /**
@@ -313,8 +309,8 @@ export const getStore = memoizee(
 )
 
 export interface GetRecordsOptions<D = unknown, E = unknown> {
-  command?: string | Promise<string> // record store file path
-  store?: HaetaeStore<D, E> | Promise<HaetaeStore<D, E>>
+  command?: PromiseOr<string> // record store file path
+  store?: PromiseOr<HaetaeStore<D, E>>
 }
 
 export async function getRecords<D = unknown, E = unknown>({
@@ -325,8 +321,8 @@ export async function getRecords<D = unknown, E = unknown>({
 }
 
 export interface CommandFromConfig<D = unknown, E = unknown> {
-  command?: string | Promise<string>
-  config?: HaetaeConfig<D, E> | Promise<HaetaeConfig<D, E>>
+  command?: PromiseOr<string>
+  config?: PromiseOr<HaetaeConfig<D, E>>
 }
 
 /**
@@ -400,8 +396,8 @@ export async function getRecord<D = unknown, E = unknown>({
 }
 
 export interface FormRecordOptions<D = unknown, E = unknown> {
-  data?: D | null | Promise<D | null>
-  env?: E | null | Promise<E | null>
+  data?: PromiseOr<D | null>
+  env?: PromiseOr<E | null>
   time?: number
 }
 
@@ -466,15 +462,14 @@ export async function mapStore<D = unknown, E = unknown>({
 }
 
 export interface SaveStoreOptions {
-  filename?: string | Promise<string>
-  store?: HaetaeStore | Promise<HaetaeStore>
+  filename?: PromiseOr<string>
+  store?: PromiseOr<HaetaeStore>
 }
 
 export async function saveStore({
   filename = getStoreFilename(),
   store = mapStore(),
 }: SaveStoreOptions = {}) {
-  // TODO: await?
   fs.writeFileSync(
     await filename,
     `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
