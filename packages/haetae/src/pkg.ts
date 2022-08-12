@@ -14,6 +14,10 @@ export default {
     major: major(pkg.version),
     minor: minor(pkg.version),
     patch: patch(pkg.version),
+    untilMinor: `${major(pkg.version)}.${minor(pkg.version)}`,
+    untilPatch: `${major(pkg.version)}.${minor(pkg.version)}.${patch(
+      pkg.version,
+    )}`,
     prerelease: prerelease(pkg.version),
   },
 }
