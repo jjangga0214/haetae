@@ -89,43 +89,7 @@ Because, in general, the CLI features are to be used as CLI, not as API.
 
 ### `pkg`
 
-This contains the package's meta information, `name` and `version`.<br/>
-For example, let's assume the package version is ***`1.2.3-beta.4`***.<br/>
-Then the value would be like this.
-
-```ts
-const { pkg } = require('haetae')
-
-pkg.name // "haetae"
-pkg.version.value // "1.2.3-beta.4"
-pkg.version.major // "1"
-pkg.version.minor // "2"
-pkg.version.patch // "3"
-pkg.version.prerelease // ["beta", "4"]
-pkg.version.untilMinor //  "1.2"
-pkg.version.untilPatch // "1.2.3"
-```
-
-If you want, `version` could be used in `env` in a handy way.
-
-```js
-const { core, pkg } = require('haetae')
-
-module.exports = core.configure({
-  // Other options are ommitted for brevity.
-  commands: {
-    myAwesomeCommand:{
-      env: {
-        // Different OS are to be treated as different environments.
-        os: process.platform
-        // Different major + minor versions of `haetae` as well.
-        haetae: pkg.version.untilMinor
-      },
-      run: () => { /* ... */ }
-    }
-  },
-})
-```
+Refer to `pkg` in [**apis/common**](./common).
 
 ### `core`
 

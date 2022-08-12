@@ -4,5 +4,6 @@
   "haetae-utils": "@haetae/utils",
   "haetae-javascript": "@haetae/javascript",
   "haetae-git": "@haetae/git",
-  "haetae-cli": "@haetae/cli"
+  "haetae-cli": "@haetae/cli",
+  "common": "common"
 }
