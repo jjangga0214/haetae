@@ -10,8 +10,7 @@ enum PkgManager {
 }
 const storageKey = 'PkgManager'
 
-// eslint-disable-next-line func-names
-export default function ({
+export default function PkgManagerTabs({
   children,
 }: {
   children: JSX.Element[]

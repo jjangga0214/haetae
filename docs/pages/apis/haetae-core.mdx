@@ -1,5 +1,6 @@
 import Callout from 'nextra-theme-docs/callout'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import Type from '../../components/TypeOnHeadSide'
 
 # `@haetae/core`
 
@@ -56,3 +57,301 @@ Just purely installing `@haetae/core` itself is enough.
     ```
   </>
 </PkgManagerTabs>
+
+## API
+
+### Utility type
+
+Some APIs depends on an utility type named `PromiseOr`.
+
+```ts
+type PromiseOr<T> = Promise<T> | T
+```
+
+`@haetae/core` does not export this, but you'd better know this.
+
+### Memoization
+
+[Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
+Some functions are memoized, and it's explicitly specified on their description.<br/>
+To clear cache, you can call `<function>.clear()`.
+For example, `getConfig` is a memoized function, and `getConfig.clear()` would clear its cache.
+
+```ts
+const { getConfig } = require('@haetae/core')
+
+// From now on, `getConfig` is memoized
+const config  = await getConfig()
+
+// `getConfig` is not executed. Just returned from the memoization cache.
+const config2  = await getConfig()
+
+// Clear the memoization cache
+getConfig.clear()
+
+// `getConfig` is executed without cache.
+const config3 = await getConfig()
+```
+
+### Type notations
+
+Annotating typescript types by default.<br/>
+Note that trailing `?` means an optional field.
+
+### `pkg`
+
+Refer to `pkg` in [**apis/common**](./common).
+
+### `setCurrentCommand` : <Type>`(command: string) => void`</Type>
+
+A setter for current command name, which is a module-level state.<br/>
+Set it before calling other APIs that requires it.
+
+### `getCurrentCommand` : <Type>`() => string`</Type>
+
+A getter for current command name, which is a module-level state.
+
+### `defaultConfigFile` : <Type>`"haetae.config.js"`</Type>
+
+A string constant for default config file name.<br/>
+This is used when config file path is not given or given as directory.
+
+### `setConfigFilename` : <Type>`(command: string) => void`</Type>
+
+A setter for config file name, which is a module-level state.<br/>
+Set it before calling other APIs that requires a config file.
+
+### `getConfigFilename` : <Type>`() => string`</Type>
+
+A getter for config file name, which is a module-level state.
+
+### `getConfigDirname` : <Type>`() => string`</Type>
+
+A getter for config file's directory name, which is a derived module-level state.
+
+### `defaultStoreFilename` : <Type>`".haetae/store.js"`</Type>
+
+A string constant for default store file name.<br/>
+This is used when `storeFile` is not given, or given as a directory.
+
+### `setStoreFilename` : <Type>`(command: string) => void`</Type>
+
+A setter for store file name, which is a module-level state.<br/>
+Set it before calling other APIs that requires it.
+
+### `getStoreFilename` : <Type>`() => string`</Type>
+
+A getter for store file name, which is a module-level state.<br/>
+
+### `HaetaeRecord`
+
+```ts
+interface HaetaeRecord<D = unknown, E = unknown> {
+  data: D | null
+  env: E | null
+  time: number
+}
+```
+
+### `HaetaeStore`
+
+```ts
+interface HaetaeStore<D = unknown, E = unknown> {
+  version: string
+  commands: {
+    [command: string]: HaetaeRecord<D, E>[]
+  }
+}
+```
+
+### `HaetaeCommandEnv`
+
+```ts
+type HaetaeCommandEnv<E = unknown> = () => void | PromiseOr<
+  E | null | undefined
+>
+```
+
+### `HaetaePreCommandEnv`
+
+```ts
+type HaetaePreCommandEnv<E = unknown> =
+  | HaetaeCommandEnv<E>
+  | PromiseOr<E | null | undefined>
+```
+
+### `HaetaePreCommand`
+
+```ts
+interface HaetaePreCommand<D = unknown, E = unknown> {
+  run: () => void | PromiseOr<D | null | undefined>
+  env?: HaetaePreCommandEnv<E>
+}
+```
+
+### `HaetaeCommand`
+
+```ts
+interface HaetaeCommand<D = unknown, E = unknown> {
+  run: () => void | PromiseOr<D | null | undefined>
+  env: HaetaeCommandEnv<E>
+}
+```
+
+### `RootEnv`
+
+```ts
+type RootEnv<E = unknown> = (
+  envFromCommand: E | null,
+) => PromiseOr<E | null>
+```
+
+### `RootRecordData`
+
+```ts
+type RootRecordData<D = unknown> = (
+  recordDataFromCommand: D | null,
+) => PromiseOr<D | null>
+
+```
+
+### `HaetaePreConfig`
+
+An interface of user-given config schema.<br/>
+Also an argument interface of a function `configure`.
+
+```ts
+interface HaetaePreConfig<D = unknown, E = unknown> {
+  commands: {
+    [command: string]: HaetaePreCommand<D, E>
+  }
+  env?: RootEnv<E>
+  recordData?: RootRecordData<D>
+  recordRemoval?: {
+    age?: string | number
+    count?: number
+  }
+  storeFile?: string
+}
+```
+
+### `HaetaeConfig`
+
+An interface of normalized config schema.<br/>
+Also a return interface of a function `configure`.
+
+```ts
+interface HaetaeConfig<D = unknown, E = unknown> {
+  commands: {
+    [command: string]: HaetaeCommand<D, E>
+  }
+  env: RootEnv<E>
+  recordData: RootRecordData<D>
+  recordRemoval: {
+    age: number
+    count: number
+  }
+  storeFile: string
+}
+```
+
+### `configure` : <Type>`<D = unknown, E = unknown>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>`</Type>
+
+Users write config file `haetae.config.json` by themselves.
+`configure` validates and transform the user-provided config into normalized config.
+
+**Options**
+
+- `commands` : Your commands as an object.
+- `env?` : An env-to-env mapper/transformer. <small>(default: `(arg) => arg`)</small>
+- `recordData?` : An recordData-to-recordData mapper/transformer. <small>(default: `(arg) => arg`)</small>
+- `recordRemoval.age?` : Age threshold by milliseconds to remove old records. Should be zero, positive integer, or [vercel/ms](https://github.com/vercel/ms)-compatible string. <small>(default: `Number.POSITIVE_INFINITY`)</small>
+- `recordRemoval.count?` : Count threshold to remove old records. Should be zero or positive integer. <small>(default: `Number.POSITIVE_INFINITY`)</small>
+- `storeFile?` : <small>(default: `.`)</small>
+
+#### Type-check for your config
+
+**haetae.config.js**:
+
+This is 100% valid.
+But you'd not get type-check from the IDE.
+
+```js
+module.exports = { /* ... */ }
+```
+
+With `configure`, type-check is enabled in your IDE! Happy 😊
+
+```js
+const { core } = require('haetae')
+
+module.exports = core.configure({ /* ... */ })
+```
+
+#### Normalization
+
+Schema of return value(`HaetaeConfig`) is ***roughly*** similar to that of the passed `options` argument(`HaetaePreConfig`).
+The return value is a normalized result of user-given config.
+
+- Omitted options on user-given config are to be set as their default values.
+- `storeFile` is transformed as an absolute path, when given as a releative path.
+- `storeFile` is normalized as a path whose delimiter is `/`. <small>(Note: this is perfectly fine and even recommended on Windows nodejs runtime.)</small>
+- `storeFile` is transformed as a file path, when given as a directory (non-json extension) path. `defaultConfigFile` is used for that purpose. For example, `/path/to/config` becomes `/path/to/config/haetae.config.json`.
+
+<Callout>
+**`configure` is an idempotent function**. <br/>
+For example, `configure(obj) == configure(configure(obj))`.
+</Callout>
+
+### `GetConfigOptions`
+
+An argument interface of a function `getConfig`.
+
+```ts
+interface GetConfigOptions {
+  filename?: PromiseOr<string> // It should be an absolute path
+}
+```
+
+### `getConfig` : <Type>`<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>`</Type>
+
+- **`memoized`**. Refer to **API > Memoization** section above from this page.
+
+A function to get config object by config file path.
+
+**Options**
+
+- `filename?` : An **absolute** path to config file. <small>(default: `getConfigFilename()`)</small>
+
+### `initNewStore` : <Type>`<D = unknown, E = unknown>() => HaetaeStore<D, E>`</Type>
+
+Initializes an empty store. It just returns an object. It does not save it as a file.
+
+### `GetStoreOptions`
+
+An argument interface of a function `getStore`.
+
+```ts
+interface GetStoreOptions<D = unknown, E = unknown> {
+  filename?: PromiseOr<string>
+  // When there's no store file yet.
+  fallback?: ({
+    filename,
+    error,
+  }: {
+    filename: string
+    error: Error
+  }) => PromiseOr<HaetaeStore<D, E>> | never
+}
+```
+
+### `getStore` : <Type>`<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type>
+
+- **`memoized`**. Refer to **API > Memoization** section above from this page.
+
+A function to get store object.
+
+**Options**
+
+- `filename?` : A path to store file (e.g. `/path/to/.haetae/store.json`). <small>(default: `getStoreFilename()`)</small>
+- `fallback?` : A function to generate an alternative return value, when `filename` is a non-existent file. `fallback` can be useful if you want to throw an error (e.g. `({error}) => { throw error }`) rather than get a new store object from `initNewStore` by default. <small>(default: `initNewStore`)</small>
