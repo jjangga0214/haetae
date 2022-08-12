@@ -6,8 +6,8 @@ describe('configure()', () => {
   describe('when storeFile is given', () => {
     // eslint-disable-next-line jest/no-hooks
     afterEach(() => {
-      // eslint-disable-next-line unicorn/no-null
-      setStoreFilename(null)
+      // eslint-disable-next-line unicorn/no-useless-undefined
+      setStoreFilename(undefined)
     })
     if (process.platform === 'win32') {
       test('as Windows legacy back-slash path, it is modified to slash path.', () => {
@@ -43,8 +43,8 @@ describe('configure()', () => {
   describe('when storeFile is already set', () => {
     // eslint-disable-next-line jest/no-hooks
     afterEach(() => {
-      // eslint-disable-next-line unicorn/no-null
-      setStoreFilename(null)
+      // eslint-disable-next-line unicorn/no-useless-undefined
+      setStoreFilename(undefined)
     })
     test('given storeFile is ignored', () => {
       const storeFile = '<rootDir>'

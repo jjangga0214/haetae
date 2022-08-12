@@ -64,11 +64,9 @@ export const getConfigDirname = () => upath.dirname(getConfigFilename())
 
 export const defaultStoreFile = '.haetae/store.json'
 
-let storeFilename: string | undefined | null
+let storeFilename: string | undefined
 
-export const setStoreFilename = (
-  filename: string | null = defaultConfigFile,
-) => {
+export const setStoreFilename = (filename: string | undefined) => {
   storeFilename = filename
 }
 
@@ -294,7 +292,7 @@ export interface GetStoreOptions<D = unknown, E = unknown> {
  */
 export const getStore = memoizee(
   async <D = unknown, E = unknown>({
-    filename = getConfig().then((c) => c.storeFile),
+    filename = getStoreFilename(),
     fallback = () => initNewStore(),
   }: GetStoreOptions<D, E> = {}): Promise<HaetaeStore<D, E>> => {
     let rawStore

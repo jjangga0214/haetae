@@ -17,7 +17,7 @@ import {
   getStore,
   getRecord,
   getRecords,
-  mapStore,
+  setStoreFilename,
 } from '@haetae/core'
 import { getInfo } from './info'
 import * as ui from './ui'
@@ -127,11 +127,9 @@ export async function run() {
         (await findUp(defaultConfigFile)),
     ) // Throws error if config file does not exist.
 
-    // 2. Get store
-    // If `argv.s` is undefined, `filename` will be resolved as default value
-    // Why function, not value? Because `invokeEnv` for `-e` alone does not need store.
-    // Therefore, lazy loading is needed.
-    const store = () => getStore({ filename: argv.s })
+    // 2. Set store file path
+
+    setStoreFilename(argv.s)
 
     // 3. Run
     if (argv._.length === 0) {
@@ -139,7 +137,6 @@ export async function run() {
 
       if (argv.r) {
         const haetaeStore = await getStore({
-          filename: argv.s,
           fallback: ({ error }) => {
             throw error
           },
@@ -186,7 +183,7 @@ export async function run() {
       setCurrentCommand(command)
 
       if (argv.r && argv.e) {
-        const record = await getRecord({ store: await store() })
+        const record = await getRecord()
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -199,7 +196,7 @@ export async function run() {
           render: ui.processRecord,
         })
       } else if (argv.d && argv.e) {
-        const recordData = (await getRecord({ store: await store() }))?.data
+        const recordData = (await getRecord())?.data
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -225,7 +222,7 @@ export async function run() {
           render: (result) => ui.asBlock(result),
         })
       } else if (argv.r) {
-        const records = await getRecords({ store: await store() })
+        const records = await getRecords()
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.bold.underline(records?.length)} ${chalk.dim(
@@ -239,7 +236,7 @@ export async function run() {
             records.map((record) => ui.processRecord(record)).join('\n\n'),
         })
       } else if (argv.d) {
-        const records = await getRecords({ store: await store() })
+        const records = await getRecords()
         const recordDataList = records?.map((r) => r.data)
         ui.conditional({
           toJson: !!argv.j,
@@ -254,15 +251,9 @@ export async function run() {
             result.map((recordData) => ui.asBlock(recordData)).join('\n\n'),
         })
       } else {
-        await saveStore({
-          // if `argv.s` is undefined, `filename` will be resolved as default value
-          filename: argv.s,
-          store: mapStore({
-            store: await store(),
-          }),
-        })
+        await saveStore()
 
-        const record = await getRecord({ store: await store() })
+        const record = await getRecord()
         assert(
           !!record,
           'Oops! Something went wrong. Record is not found the store even though the command was just executed.',
