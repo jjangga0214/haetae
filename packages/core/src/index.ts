@@ -228,7 +228,7 @@ export function configure<D = unknown, E = unknown>({
   }
 }
 
-export interface GetConfigOptions {
+export interface FilenameOption {
   filename?: PromiseOr<string> // It should be an absolute path
 }
 
@@ -239,7 +239,7 @@ export interface GetConfigOptions {
 export const getConfig = memoizee(
   async <D = unknown, E = unknown>({
     filename = getConfigFilename(),
-  }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
+  }: FilenameOption = {}): Promise<HaetaeConfig<D, E>> => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     let _filename = await filename
     _filename = upath.normalize(_filename)
@@ -269,8 +269,8 @@ export function initNewStore<D = unknown, E = unknown>(): HaetaeStore<D, E> {
   return { version: pkg.version.value, commands: {} }
 }
 
-export interface GetStoreOptions<D = unknown, E = unknown> {
-  filename?: PromiseOr<string>
+export interface GetStoreOptions<D = unknown, E = unknown>
+  extends FilenameOption {
   // When there's no store file yet.
   fallback?: ({
     filename,
@@ -309,7 +309,7 @@ export const getStore = memoizee(
 )
 
 export interface GetRecordsOptions<D = unknown, E = unknown> {
-  command?: PromiseOr<string> // record store file path
+  command?: PromiseOr<string>
   store?: PromiseOr<HaetaeStore<D, E>>
 }
 
@@ -358,7 +358,7 @@ export const invokeRun = async <D = unknown>({
 
 export interface GetRecordOptions<D = unknown, E = unknown>
   extends GetRecordsOptions<D, E> {
-  env?: E | null | Promise<E | null>
+  env?: PromiseOr<E | null>
 }
 
 /**
@@ -405,7 +405,7 @@ export async function formRecord<D = unknown, E = unknown>({
   data = invokeRun(),
   env = invokeEnv(),
   time = Date.now(),
-}: FormRecordOptions<D, E>): Promise<HaetaeRecord<D, E>> {
+}: FormRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E>> {
   return {
     data: await data,
     env: await env,
@@ -413,7 +413,7 @@ export async function formRecord<D = unknown, E = unknown>({
   }
 }
 
-export interface MapStoreOptions<D = unknown, E = unknown> {
+export interface AddRecordOptions<D = unknown, E = unknown> {
   config?: PromiseOr<HaetaeConfig>
   command?: PromiseOr<string>
   store?: PromiseOr<HaetaeStore<D, E>>
@@ -424,7 +424,7 @@ export interface MapStoreOptions<D = unknown, E = unknown> {
  * This creates a new store from previous store
  * The term map is coined from map function
  */
-export async function mapStore<D = unknown, E = unknown>({
+export async function addRecord<D = unknown, E = unknown>({
   config = getConfig(),
   command = getCurrentCommand(),
   store = getStore(),
@@ -432,7 +432,7 @@ export async function mapStore<D = unknown, E = unknown>({
     data: invokeRun({ command }),
     env: invokeEnv({ command }),
   }),
-}: MapStoreOptions<D, E> = {}) {
+}: AddRecordOptions<D, E> = {}): Promise<HaetaeStore<D, E>> {
   return produce(await store, async (draft) => {
     /* eslint-disable @typescript-eslint/naming-convention, no-param-reassign */
     const _config = await config
@@ -461,15 +461,14 @@ export async function mapStore<D = unknown, E = unknown>({
   })
 }
 
-export interface SaveStoreOptions {
-  filename?: PromiseOr<string>
+export interface SaveStoreOptions extends FilenameOption {
   store?: PromiseOr<HaetaeStore>
 }
 
 export async function saveStore({
   filename = getStoreFilename(),
-  store = mapStore(),
-}: SaveStoreOptions = {}) {
+  store = addRecord(),
+}: SaveStoreOptions = {}): Promise<void> {
   fs.writeFileSync(
     await filename,
     `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
@@ -482,9 +481,7 @@ export async function saveStore({
 
 export async function deleteStore({
   filename = getStoreFilename(),
-}: {
-  filename?: string | Promise<string>
-} = {}) {
+}: FilenameOption = {}): Promise<void> {
   fs.unlinkSync(await filename)
   getStore.clear() // memoization cache clear
 }
