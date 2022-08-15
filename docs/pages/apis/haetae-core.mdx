@@ -1,4 +1,5 @@
 import Callout from 'nextra-theme-docs/callout'
+import { Chip } from '@mui/material';
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 import Type from '../../components/TypeOnHeadSide'
 
@@ -19,7 +20,6 @@ If you want to use Haetae by programatic api, you probably need this package.
 - [`haetae`](./haetae)
 
 ## Installation
-
 
 Unlike other `@haetae/*` packages, `@haetae/core` doesn't have `peerDependencies`.
 Just purely installing `@haetae/core` itself is enough.
@@ -73,7 +73,11 @@ type PromiseOr<T> = Promise<T> | T
 ### Memoization
 
 [Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
-Some functions (e.g. `getConfig`, `getStore`) are memoized, and it's explicitly specified on their description.<br/>
+Some functions (e.g. `getConfig`, `getStore`) are memoized.
+
+<Callout>
+Memoized functions have tag chip beside their name: <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
+</Callout>
 
 #### Cache hit and clear
 
@@ -342,9 +346,7 @@ interface GetConfigOptions {
 }
 ```
 
-### `getConfig` : <Type>`<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>`</Type>
-
-- **`memoized`**. Refer to **API > Memoization** section above from this page.
+### `getConfig` : <Type>`<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>`</Type> <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
 
 A function to get config object by config file path.
 
@@ -373,9 +375,7 @@ interface GetStoreOptions<D = unknown, E = unknown>
 }
 ```
 
-### `getStore` : <Type>`<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type>
-
-- **`memoized`**. Refer to **API > Memoization** section above from this page.
+### `getStore` : <Type>`<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type> <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
 
 A function to get store object.
 
@@ -421,7 +421,7 @@ interface CommandFromConfig<D = unknown, E = unknown> {
 }
 ```
 
-### `invokeEnv` : <Type>`<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>`</Type>
+### `invokeEnv` : <Type>`<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>`</Type> <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
 
 A function to invoke(execute) user-defined `env` of the given `command`.
 
