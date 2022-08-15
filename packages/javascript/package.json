@@ -25,13 +25,13 @@
     "yaml": "^2.1.1"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:^",
-    "@haetae/utils": "workspace:^",
+    "@haetae/core": "workspace:~",
+    "@haetae/utils": "workspace:~",
     "@types/semver": "^7.3.10"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:^",
-    "@haetae/utils": "workspace:^"
+    "@haetae/core": "workspace:~",
+    "@haetae/utils": "workspace:~"
   },
   "keywords": [
     "haetae",

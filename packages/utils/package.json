@@ -23,11 +23,11 @@
     "upath": "^2.0.1"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:^",
+    "@haetae/core": "workspace:~",
     "@types/semver": "^7.3.10"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:^"
+    "@haetae/core": "workspace:~"
   },
   "keywords": [
     "haetae",

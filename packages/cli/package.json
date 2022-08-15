@@ -19,7 +19,7 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:^"
+    "@haetae/core": "workspace:~"
   },
   "dependencies": {
     "chalk": "^4.1.2",
