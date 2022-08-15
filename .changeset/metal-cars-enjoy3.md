@@ -7,4 +7,4 @@
 '@haetae/utils': minor
 ---
 
-Minor bump up as beta level v1.
+Minor bump up as beta v0.1.0.
