@@ -189,8 +189,8 @@ importers:
 
   packages/git:
     specifiers:
-      '@haetae/core': workspace:^
-      '@haetae/utils': workspace:^
+      '@haetae/core': workspace:~
+      '@haetae/utils': workspace:~
       '@types/semver': ^7.3.10
       memoizee: ^0.4.15
       read-pkg: ^5.2.0
@@ -210,11 +210,11 @@ importers:
 
   packages/haetae:
     specifiers:
-      '@haetae/cli': workspace:^
-      '@haetae/core': workspace:^
-      '@haetae/git': workspace:^
-      '@haetae/javascript': workspace:^
-      '@haetae/utils': workspace:^
+      '@haetae/cli': workspace:~
+      '@haetae/core': workspace:~
+      '@haetae/git': workspace:~
+      '@haetae/javascript': workspace:~
+      '@haetae/utils': workspace:~
       '@types/semver': ^7.3.10
       read-pkg: ^5.2.0
       semver: ^7.3.7
@@ -233,8 +233,8 @@ importers:
 
   packages/javascript:
     specifiers:
-      '@haetae/core': workspace:^
-      '@haetae/utils': workspace:^
+      '@haetae/core': workspace:~
+      '@haetae/utils': workspace:~
       '@types/semver': ^7.3.10
       dependency-tree: ^8.1.1
       find-up: ^5
@@ -258,7 +258,7 @@ importers:
 
   packages/utils:
     specifiers:
-      '@haetae/core': workspace:^
+      '@haetae/core': workspace:~
       '@types/semver': ^7.3.10
       globby: ^11
       hasha: ^5.2.2

@@ -16,7 +16,8 @@
     "test": "jest",
     "husky-skip": "cross-env HUSKY=0",
     "commit": "git cz",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "changeset:publish": "pnpm -r publish && rm docs/package.json && pnpm changeset tag && git push --follow-tags"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,md}": [
