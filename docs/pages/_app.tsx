@@ -42,6 +42,13 @@ export default function Nextra({
 
   if (mounted) {
     return (
+      /**
+       * Nextra internally uses ThemeProvider.
+       * REF: https://github.com/shuding/nextra/blob/a8c588385f7a968125f5b9831f209292336b7674/packages/nextra-theme-docs/src/contexts/config.tsx#L47-L52
+       * Nextra theme config (e.g. theme.config.tsx) is applied to ThemeProvider.
+       * This "outer" ThemeProvider may be out of sync with the "internal" ThemeProvider.
+       * In that case, the config should be synced by hard-coding here in duplicated manner.
+       */
       <ThemeProvider attribute="class" disableTransitionOnChange>
         <Main Component={Component} pageProps={pageProps} />
       </ThemeProvider>
