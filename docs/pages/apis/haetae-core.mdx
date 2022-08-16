@@ -1,7 +1,9 @@
-import Callout from 'nextra-theme-docs/callout'
+import { Callout } from 'nextra-theme-docs'
 import { Chip } from '@mui/material';
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 import Type from '../../components/TypeOnHeadSide'
+
+export const Memoized = () => (<Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />)
 
 # `@haetae/core`
 
@@ -9,9 +11,7 @@ import Type from '../../components/TypeOnHeadSide'
 For instance, it handles config file, store file, and your command's `env` and `run`.<br/>
 If you want to use Haetae by programatic api, you probably need this package.
 
-## Used by
-
-**Note**: This is not exhaustive and lists only Haetae's packages.
+## Dependents
 
 - [`haetae/utils`](./haetae-utils)
 - [`haetae/javascript`](./haetae-javascript)
@@ -73,16 +73,16 @@ type PromiseOr<T> = Promise<T> | T
 ### Memoization
 
 [Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
-Some functions (e.g. `getConfig`, `getStore`) are memoized.
+Some functions (e.g. [`getConfig`](#getconfig), [`getStore`](#getstore)) are memoized.
 
 <Callout>
-Memoized functions have tag chip beside their name: <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
+Memoized functions have tag chip beside their name: <Memoized/>
 </Callout>
 
 #### Cache hit and clear
 
 To clear memoization cache, you can call `<function>.clear()`.
-For example, `getConfig` is a memoized function, and `getConfig.clear()` would clear its cache.
+For example, [`getConfig`](#getconfig) is a memoized function, and `getConfig.clear()` would clear its cache.
 
 ```ts
 const { getConfig } = require('@haetae/core')
@@ -108,7 +108,7 @@ getConfig.clear()
 const config5 = await getConfig({ filename: '/foo/haetae.config.js' })
 ```
 
-#### Cache is by shallow copy
+#### Cache by shallow copy
 
 Memoization cache is based on shallow copy.
 
@@ -122,8 +122,8 @@ config1.foo = 'bar'
 console.log(config2.foo) // 'bar'
 ```
 
-If you want to avoid the side effect, you can clear cache before calling `getConfig`.<br/>
-Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be a good solution.
+If you want to avoid the side effect, you can clear cache before calling [`getConfig`](#getconfig).<br/>
+Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be good solution.
 
 ### Type notations
 
@@ -132,48 +132,84 @@ Note that trailing `?` means an optional field.
 
 ### `pkg`
 
-Refer to `pkg` in [**apis/common**](./common).
+Refer to [common#pkg](./common#pkg).
 
-### `setCurrentCommand` : <Type>`(command: string) => void`</Type>
+### `setCurrentCommand`
 
 A setter for current command name, which is a module-level state.<br/>
 Set it before calling other APIs that requires it.
 
-### `getCurrentCommand` : <Type>`() => string`</Type>
+**Type**
+<br/>
+<Type>`(command: string) => void`</Type>
+
+### `getCurrentCommand`
 
 A getter for current command name, which is a module-level state.
 
-### `defaultConfigFile` : <Type>`"haetae.config.js"`</Type>
+**Type**
+<br/>
+<Type>`() => string`</Type>
+
+### `defaultConfigFile`
 
 A string constant for default config file name.<br/>
 This is used when config file path is not given or given as a directory.
 
-### `setConfigFilename` : <Type>`(command: string) => void`</Type>
+**Type**
+<br/>
+<Type>`"haetae.config.js"`</Type>
+
+### `setConfigFilename`
 
 A setter for config file name, which is a module-level state.<br/>
 Set it before calling other APIs that requires a config file.
 
-### `getConfigFilename` : <Type>`() => string`</Type>
+**Type**
+<br/>
+<Type>`(command: string) => void`</Type>
+
+### `getConfigFilename`
 
 A getter for config file name, which is a module-level state.
 
-### `getConfigDirname` : <Type>`() => string`</Type>
+**Type**
+<br/>
+<Type>`() => string`</Type>
+
+### `getConfigDirname`
 
 A getter for config file's directory name, which is a derived module-level state.
 
-### `defaultStoreFilename` : <Type>`".haetae/store.js"`</Type>
+**Type**
+<br/>
+<Type>`() => string`</Type>
+
+### `defaultStoreFilename`
 
 A string constant for default store file name.<br/>
-This is used when `storeFile` is not given, or given as a directory.
+This is used when store file is not given, or given as a directory.
 
-### `setStoreFilename` : <Type>`(command: string) => void`</Type>
+**Type**
+<br/>
+<Type>`".haetae/store.js"`</Type>
+
+### `setStoreFilename`
 
 A setter for store file name, which is a module-level state.<br/>
 Set it before calling other APIs that requires it.
 
-### `getStoreFilename` : <Type>`() => string`</Type>
+**Type**
+<br/>
+<Type>`(command: string) => void`</Type>
+
+### `getStoreFilename`
 
 A getter for store file name, which is a module-level state.<br/>
+
+**Type**
+<br/>
+<Type>`() => string`</Type>
 
 ### `HaetaeRecord`
 
@@ -250,7 +286,7 @@ type RootRecordData<D = unknown> = (
 ### `HaetaePreConfig`
 
 An interface of user-given config schema.<br/>
-Also an argument interface of function `configure`.
+Also an argument interface of function [`configure`](#configure).
 
 ```ts
 interface HaetaePreConfig<D = unknown, E = unknown> {
@@ -270,7 +306,7 @@ interface HaetaePreConfig<D = unknown, E = unknown> {
 ### `HaetaeConfig`
 
 An interface of normalized config schema.<br/>
-Also a return type of function `configure`.
+Also a return type of function [`configure`](#configure).
 
 ```ts
 interface HaetaeConfig<D = unknown, E = unknown> {
@@ -287,18 +323,21 @@ interface HaetaeConfig<D = unknown, E = unknown> {
 }
 ```
 
-### `configure` : <Type>`<D = unknown, E = unknown>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>`</Type>
+### `configure`
 
-Users write config file `haetae.config.json` by themselves.
-`configure` validates and transform the user-provided config into normalized config.
+`configure` validates and transform the user-provided config(e.g. `haetae.config.js`) into normalized config.
+
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>`</Type>
 
 **Options**
 
 - `commands` : Your commands as an object.
 - `env?` : An env-to-env mapper/transformer. <small>(default: `(arg) => arg`)</small>
 - `recordData?` : An recordData-to-recordData mapper/transformer. <small>(default: `(arg) => arg`)</small>
-- `recordRemoval.age?`: Age threshold by milliseconds. Records whose age are older than this value are to be removed when calling `addRecord`.
-- `recordRemoval.count?`: The number of total records to keep. When the number of records becomes larger than this value, old records are removed to satisfy the threshold when calling `addRecord`. This task is executed after that of `recordRemoval.age`.
+- `recordRemoval.age?`: Age threshold by milliseconds. Records whose age are older than this value are to be removed when calling [`addRecord`](#addrecord).
+- `recordRemoval.count?`: The number of total records to keep. When the number of records becomes larger than this value, old records are removed to satisfy the threshold when calling [`addRecord`](#addrecord). This task is executed after that of `recordRemoval.age`.
 - `storeFile?` : A store file path. <small>(default: `"."`)</small>
 
 
@@ -333,12 +372,12 @@ The return value is a normalized result of user-given config.
 
 <Callout>
 **`configure` is an idempotent function**. <br/>
-For example, `configure(obj) == configure(configure(obj))`.
+`configure(obj)` is eqaul to `configure(configure(obj))`.
 </Callout>
 
 ### `GetConfigOptions`
 
-An argument interface of function `getConfig`.
+An argument interface of function [`getConfig`](#getconfig).
 
 ```ts
 interface GetConfigOptions {
@@ -346,21 +385,31 @@ interface GetConfigOptions {
 }
 ```
 
-### `getConfig` : <Type>`<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>`</Type> <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
+### `getConfig`
+<br/>
+<Memoized/>
 
 A function to get config object by config file path.
+
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>`</Type>
 
 **Options?**
 
 - `filename?` : An **absolute** path to config file. <small>(default: `getConfigFilename()`)</small>
 
-### `initNewStore` : <Type>`<D = unknown, E = unknown>() => HaetaeStore<D, E>`</Type>
+### `initNewStore`
 
 Initializes an empty store. It just returns an object. It does not save it as a file.
 
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>() => HaetaeStore<D, E>`</Type>
+
 ### `GetStoreOptions`
 
-An argument interface of function `getStore`.
+An argument interface of function [`getStore`](#getstore).
 
 ```ts
 interface GetStoreOptions<D = unknown, E = unknown>
@@ -375,15 +424,20 @@ interface GetStoreOptions<D = unknown, E = unknown>
 }
 ```
 
-### `getStore` : <Type>`<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type> <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
+### `getStore`
+<br/>
+<Memoized/>
+
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type>
 
 A function to get store object.
 
 **Options?**
 
-- `filename?` : A path to store file (e.g. `/path/to/.haetae/store.json`). <small>(default: `getStoreFilename()`)</small>
-- `fallback?` : A function to generate an alternative return value, when `filename` is a non-existent file. `fallback` can be useful if you want to throw an error (e.g. `({error}) => { throw error }`) rather than get a new store object from `initNewStore` by default. <small>(default: `initNewStore`)</small>
-
+- `filename?` : A path to store file (e.g. `/path/to/.haetae/store.json`). <small>(default: [`getStoreFilename()`](#getstorefilename))</small>
+- `fallback?` : A function to generate an alternative return value, when `filename` is a non-existent file. `fallback` can be useful if you want to throw an error (e.g. `({error}) => { throw error }`) rather than get a new store object from [`initNewStore`](#initnewstore) by default. <small>(default: [`initNewStore`](`#initnewstore))</small>
 
 ### `GetRecordsOptions`
 
@@ -396,23 +450,26 @@ interface GetRecordsOptions<D = unknown, E = unknown> {
 }
 ```
 
-### `getRecords` : <Type>`<D = unknown, E = unknown>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined> `</Type>
+### `getRecords`
 
 A function to get records of a given command from given store.
 
 <Callout>
-There're `getRecords` (plural) and `getRecord` (singular). Don't confuse!
+There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (singular). Don't confuse!
 </Callout>
+
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined> `</Type>
 
 **Options?**
 
-- `command?` : A command name to get records of. <small>(default: `getCurrentCommand()`)</small>
-- `store?` : A store object. <small>(default: `getStore()`)</small>
-
+- `command?` : A command name to get records of. <small>(default: [`getCurrentCommand()`](#getcurrentcommand))</small>
+- `store?` : A store object. <small>(default: [`getStore()`](`getstore()`))</small>
 
 ### `CommandFromConfig`
 
-An argument interface of function `invokeEnv` and `invokeRun`.
+An argument interface of function [`invokeEnv`](#invokeenv) and [`invokeRun`](#invokerun).
 
 ```ts
 interface CommandFromConfig<D = unknown, E = unknown> {
@@ -421,24 +478,33 @@ interface CommandFromConfig<D = unknown, E = unknown> {
 }
 ```
 
-### `invokeEnv` : <Type>`<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>`</Type> <Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />
+### `invokeEnv`
+<br/>
+<Memoized/>
 
 A function to invoke(execute) user-defined `env` of the given `command`.
 
-**Options?**
-
-- `command?` : A command name to invoke `env` of. <small>(default: `getCurrentCommand()`)</small>
-- `config?` : A config object. <small>(default: `getConfig()`)</small>
-
-
-### `invokeRun` : <Type>`<D = unknown>(options?: CommandFromConfig<D, unknown>) => Promise<D | null>`</Type>
-
-A function to invoke(execute) user-defined `run` of the given `command`.
+**Type**
+<br/>
+<Type>`<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>`</Type>
 
 **Options?**
 
-- `command?` : A command name to invoke `env` of. <small>(default: `getCurrentCommand()`)</small>
-- `config?` : A config object. <small>(default: `getConfig()`)</small>
+- `command?` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand()`](#getcurrentcommand))</small>
+- `config?` : A config object. <small>(default: [`getConfig()`](#getconfig))</small>
+
+### `invokeRun`
+
+A function to invoke (execute) user-defined `run` of the given `command`.
+
+**Type**
+<br/>
+<Type>`<D = unknown>(options?: CommandFromConfig<D, unknown>) => Promise<D | null>`</Type>
+
+**Options?**
+
+- `command?` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand()`](#getcurrentcommand))</small>
+- `config?` : A config object. <small>(default: [`getConfig()`](#getconfig))</small>
 
 ### `GetRecordOptions`
 
@@ -451,34 +517,42 @@ interface GetRecordOptions<D = unknown, E = unknown>
 }
 ```
 
-### `compareEnvs` : <Type>`(one: unknown, theOther: unknown): boolean`</Type>
+### `compareEnvs`
 
 A function to compare two resolved env object.<br/>
 Returns `true` if they're equal, `false` otherwise.
+
+**Type**
+<br/>
+<Type>`(one: unknown, theOther: unknown): boolean`</Type>
 
 **Arguments**
 
 - `one` : A resolved env object to compare with `theOther`.
 - `theOther` : A resolved env object to compare with `one`.
 
-### `getRecord` : <Type>`<D = unknown, E = unknown>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>`</Type>
+### `getRecord`
 
 A function to get a record of a given command from given store, corresponding to the given env.
 
 <Callout>
-There're `getRecords` (plural) and `getRecord` (singular). Don't confuse!
+There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (singular). Don't confuse!
 </Callout>
+
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>`</Type>
 
 **Options?**
 
-- `command?` : A command name to get records of. <small>(default: `getCurrentCommand()`)</small>
-- `store?` : A store object. <small>(default: `getStore()`)</small>
-- `env?` : A resolved env object. <small>(default: `invokeEnv({ command })`)</small>
+- `command?` : A command name to get records of. <small>(default: [`getCurrentCommand()`](#getcurrentcommand))</small>
+- `store?` : A store object. <small>(default: [`getStore()`](#getstore))</small>
+- `env?` : A resolved env object. <small>(default: [`invokeEnv({ command })`](#invokeenv))</small>
 
 
 ### `FormRecordOptions`
 
-An argument interface of function `formRecord`.
+An argument interface of function [`formRecord`](#formrecord).
 
 ```ts
 interface FormRecordOptions<D = unknown, E = unknown> {
@@ -488,16 +562,20 @@ interface FormRecordOptions<D = unknown, E = unknown> {
 }
 ```
 
-### `formRecord` : <Type>`<D = unknown, E = unknown>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>`</Type>
+### `formRecord`
 
 A function to create a new record object.<br/>
 This only returns an object, not save it.
 
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>`</Type>
+
 **Options?**
 
-- `data?` : A record data. <small>(default: `invokeRun()`)</small>
-- `env?` : A resolved env object. <small>(default: `invokeEnv()`)</small>
-- `time?` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds. <small>(default: `Date.now()`)</small>
+- `data?` : A record data. <small>(default: [`invokeRun()`](#invokerun))</small>
+- `env?` : A resolved env object. <small>(default: [`invokeEnv()`](#invokeenv)</small>
+- `time?` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds. <small>(default: [`Date.now()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now))</small>
 
 
 ### `AddRecordOptions`
@@ -513,18 +591,22 @@ interface AddRecordOptions<D = unknown, E = unknown> {
 }
 ```
 
-### `addRecord` : <Type>`<D = unknown, E = unknown>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type>
+### `addRecord`
 
 A function to add a new record under the given command to store.
 
+**Type**
+<br/>
+<Type>`<D = unknown, E = unknown>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>`</Type>
+
 **Options?**
 
-- `config?` : A config object. <small>(default: `getConfig()`)</small>
+- `config?` : A config object. <small>(default: [`getConfig()`](#getconfig))</small>
   - `config.recordRemoval.age`: Age threshold by milliseconds. Records whose age are older than this value are removed.
   - `config.recordRemoval.count`: The number of total records to keep. When the number of records becomes larger than this value, old records are removed to satisfy the threshold. This task is executed after that of `config.recordRemoval.age`.
-- `command?` : A command name to add record under. <small>(default: `getCurrentCommand()`)</small>
-- `store?` : A store object. <small>(default: `getStore()`)</small>
-- `record?` : A new record object to add. <small>(default: `formRecord({ data: invokeRun({ command }), env: invokeEnv({ command }) })`)</small>
+- `command?` : A command name to add record under. <small>(default: [`getCurrentCommand()`](#getcurrentcommand))</small>
+- `store?` : A store object. <small>(default: [`getStore()`](#getstore))</small>
+- `record?` : A new record object to add. <small>(default: [`formRecord({ data: invokeRun({ command }), env: invokeEnv({ command }) })`](#formrecord))</small>
 
 ### `SaveStoreOptions`
 
@@ -536,23 +618,31 @@ interface SaveStoreOptions extends FilenameOption {
 }
 ```
 
-### `saveStore` : <Type>`(options?: SaveStoreOptions) => Promise<void>`</Type>
+### `saveStore`
 
 A function to save store object to file.<br/>
-Memoization cache of `getStore` would be clear automatically.<br/>
+Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
 File IO and Memoization cache clear is done sequentially in synchronous manner, as a transaction.
+
+**Type**
+<br/>
+<Type>`(options?: SaveStoreOptions) => Promise<void>`</Type>
 
 **Options?**
 
-- `filename?` : A file path to write store on. <small>(default: `getStoreFilename()`)</small>
-- `store?` : A store object to save. <small>(default: `mapStore()`)</small>
+- `filename?` : A file path to write store on. <small>(default: [`getStoreFilename()`](#getstorefilename))</small>
+- `store?` : A store object to save. <small>(default: [`addRecord()`](#addrecord))</small>
 
-### `deleteStore` : <Type>`(options?: FilenameOption) => Promise<void>`</Type>
+### `deleteStore`
 
 A function to delete the entire store by removing the store file.<br/>
-Memoization cache of `getStore` would be clear automatically.<br/>
+Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
 File IO and Memoization cache clear is done sequentially in synchronous manner, as a transaction.
+
+**Type**
+<br/>
+<Type>`(options?: FilenameOption) => Promise<void>`</Type>
 
 **Options?**
 
-- `filename?` : A store file path to delete. <small>(default: `getStoreFilename()`)</small>
+- `filename?` : A store file path to delete. <small>(default: [`getStoreFilename()`](#getstorefilename))</small>

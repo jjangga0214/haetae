@@ -1,4 +1,4 @@
-import Callout from 'nextra-theme-docs/callout'
+import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 
 # `@haetae/javascript`
@@ -13,16 +13,14 @@ If your project do not use javascript-related languages, you don't need this pac
   Less, CSS (PostCSS), nodejs-only modules, browser-only modules are all supported.
 </Callout>
 
-## Depends on (`peerDependencies`)
+## `peerDependencies`
 
-**Note**: This is not exhaustive and lists only Haetae's packages.
+**Note**: This might not be exhaustive and lists only Haetae's packages.
 
 - [`@haetae/core`](./haetae-core)
 - [`@haetae/utils`](./haetae-utils)
 
-## Used by
-
-**Note**: This is not exhaustive and lists only Haetae's packages.
+## Dependents
 
 - [`haetae`](./haetae)
 
@@ -113,4 +111,4 @@ npm info @haetae/javascript peerDependencies
 
 ### `pkg`
 
-Refer to `pkg` in [**apis/common**](./common).
+Refer to [common#pkg](./common#pkg).

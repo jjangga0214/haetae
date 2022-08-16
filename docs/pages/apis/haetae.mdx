@@ -1,4 +1,4 @@
-import Callout from 'nextra-theme-docs/callout'
+import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 
 # `haetae`
@@ -14,11 +14,11 @@ It's intended to be used alone. Every `@haetae/*` packages are already preinstal
   independently, if you depends on just a partial features of some of them.
 </Callout>
 
-## Depends on (`dependencies`)
+## `dependencies`
 
 Unlike other `@haetae/*` packages, `haetae` does not have `peerDependencies`.
 
-**Note**: This is not exhaustive and lists only Haetae's packages.
+**Note**: This might not be exhaustive and lists only Haetae's packages.
 
 - [`@haetae/core`](./haetae-core)
 - [`@haetae/utils`](./haetae-utils)
@@ -83,13 +83,28 @@ module.exports = core.configure({
 However, you probably don't need it.
 Because, in general, the CLI features are to be used as CLI, not as API.
 `haetae` is a CLI by itself, providing exactly same features of `@haetae/cli`.
+
+**haetae** is the CLI bin name.
+
+```bash
+haetae --help
+haetae --version
+```
+
+**ht** is its shorthand alias.
+
+```bash
+ht --help # identical to `haetae --help`
+ht --version # identical to `haetae --version`
+```
+
 **For detailed usage as CLI, refer to [`@haetae/cli`](./haetae-cli).**
 
 ## API
 
 ### `pkg`
 
-Refer to `pkg` in [**apis/common**](./common).
+Refer to [common#pkg](./common#pkg).
 
 ### `core`
 
