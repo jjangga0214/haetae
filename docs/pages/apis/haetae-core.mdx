@@ -32,30 +32,24 @@ Just purely installing `@haetae/core{:ts}` itself is enough.
 <br/>
 
 <PkgManagerTabs>
-  <>
-    ```bash
-    # As dependencies
-    npm install @haetae/core
-    # As devDependencies
-    npm install --save-dev @haetae/core
-    ```
-  </>
-  <>
-    ```bash
-    # As dependencies
-    yarn add @haetae/core
-    # As devDependencies
-    yarn add --dev @haetae/core
-    ```
-  </>
-  <>
-    ```bash
-    # As dependencies
-    pnpm add @haetae/core
-    # As devDependencies
-    pnpm add --save-dev @haetae/core
-    ```
-  </>
+```bash
+# As dependencies
+npm install @haetae/core
+# As devDependencies
+npm install --save-dev @haetae/core
+```
+```bash
+# As dependencies
+yarn add @haetae/core
+# As devDependencies
+yarn add --dev @haetae/core
+```
+```bash
+# As dependencies
+pnpm add @haetae/core
+# As devDependencies
+pnpm add --save-dev @haetae/core
+```
 </PkgManagerTabs>
 
 ## API
@@ -408,7 +402,7 @@ A function to get config object by config file path.
 **Type**
 <br/>
 <TokenLinkCode tokens={['GetConfigOptions', 'HaetaeConfig']}>
-`<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>{:ts}`
+`<D = unknown, E = unknown>(options?: FilenameOption) => Promise<HaetaeConfig<D, E>>{:ts}`
 </TokenLinkCode>
 
 **Options?**
