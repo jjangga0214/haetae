@@ -90,6 +90,7 @@ importers:
       '@mui/material': ^5.9.3
       '@types/react': ^18.0.15
       next: ^12.1.0
+      next-themes: ^0.2.0
       nextra: 2.0.0-beta.17
       nextra-theme-docs: 2.0.0-beta.17
       react: ^18
@@ -101,6 +102,7 @@ importers:
       '@mui/lab': 5.0.0-alpha.93_ibbb7xuzls7w6vktnjevh42yfu
       '@mui/material': 5.10.0_x23mn2l7fw5e56g6ttw67k5uxm
       next: 12.2.3_biqbaboplfbrettd7655fr4n2y
+      next-themes: 0.2.0_53oqlnqnxhbetdy4ljlkkvmoby
       nextra: 2.0.0-beta.17_53oqlnqnxhbetdy4ljlkkvmoby
       nextra-theme-docs: 2.0.0-beta.17_53oqlnqnxhbetdy4ljlkkvmoby
       react: 18.2.0
