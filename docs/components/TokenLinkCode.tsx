@@ -14,7 +14,7 @@ const A = styled.a`
   color: inherit;
 `
 
-export default function TokenLinkType({
+export default function TokenLinkCode({
   children,
   tokens,
 }: Options): JSX.Element {
