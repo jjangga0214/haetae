@@ -4,7 +4,7 @@ import PkgManagerTabs from '../../components/PkgManagerTabs'
 # `haetae`
 
 `haetae` is a battery-included package for Haetae.<br/>
-It's intended to be used alone. Every `@haetae/*` packages are already preinstalled in it.<br/>
+It's intended to be used alone. Every `@haetae/*{:ts}` packages are already preinstalled in it.<br/>
 **This package is recommended for the majority of users.**
 
 <Callout>
@@ -16,15 +16,15 @@ It's intended to be used alone. Every `@haetae/*` packages are already preinstal
 
 ## `dependencies`
 
-Unlike other `@haetae/*` packages, `haetae` does not have `peerDependencies`.
+Unlike other `@haetae/*{:ts}` packages, `haetae{:ts}` does not have `peerDependencies`.
 
 **Note**: This might not be exhaustive and lists only Haetae's packages.
 
-- [`@haetae/core`](./haetae-core)
-- [`@haetae/utils`](./haetae-utils)
-- [`@haetae/javascript`](./haetae-javascript)
-- [`@haetae/git`](./haetae-git)
-- [`@haetae/cli`](./haetae-cli)
+- [`@haetae/core{:ts}`](./haetae-core)
+- [`@haetae/utils{:ts}`](./haetae-utils)
+- [`@haetae/javascript{:ts}`](./haetae-javascript)
+- [`@haetae/git{:ts}`](./haetae-git)
+- [`@haetae/cli{:ts}`](./haetae-cli)
 
 ## Installation
 
@@ -50,7 +50,7 @@ Unlike other `@haetae/*` packages, `haetae` does not have `peerDependencies`.
 
 ## Usage
 
-The package `haetae` exports other `@haetae/*` packages all at once. <br/>
+The package `haetae{:ts}` exports other `@haetae/*{:ts}` packages all at once. <br/>
 It's source code is _roughly_ like the snippet below.
 
 ```ts
@@ -79,10 +79,10 @@ module.exports = core.configure({
 
 ## CLI
 
-`haetae` also exports `cli` as API.
+`haetae{:ts}` also exports `cli` as API.
 However, you probably don't need it.
 Because, in general, the CLI features are to be used as CLI, not as API.
-`haetae` is a CLI by itself, providing exactly same features of `@haetae/cli`.
+`haetae{:ts}` is a CLI by itself, providing exactly same features of `@haetae/cli{:ts}`.
 
 **haetae** is the CLI bin name.
 
@@ -98,7 +98,7 @@ ht --help # identical to `haetae --help`
 ht --version # identical to `haetae --version`
 ```
 
-**For detailed usage as CLI, refer to [`@haetae/cli`](./haetae-cli).**
+**For detailed usage as CLI, refer to [`@haetae/cli{:ts}`](./haetae-cli).**
 
 ## API
 
@@ -108,20 +108,20 @@ Refer to [common#pkg](./common#pkg).
 
 ### `core`
 
-Refer to [`@haetae/core`](./haetae-core).
+Refer to [`@haetae/core{:ts}`](./haetae-core).
 
 ### `utils`
 
-Refer to [`@haetae/utils`](./haetae-utils).
+Refer to [`@haetae/utils{:ts}`](./haetae-utils).
 
 ### `js`
 
-Refer to [`@haetae/javascript`](./haetae-javascript).
+Refer to [`@haetae/javascript{:ts}`](./haetae-javascript).
 
 ### `git`
 
-Refer to [`@haetae/git`](./haetae-git).
+Refer to [`@haetae/git{:ts}`](./haetae-git).
 
 ### `cli`
 
-Refer to [`@haetae/cli`](./haetae-cli).
+Refer to [`@haetae/cli{:ts}`](./haetae-cli).
