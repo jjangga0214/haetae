@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     branches:
-      - main
+      - main # This makes the workflow only runs by push to branch, not pushed git tag
+
 # for `concurrency`, release should be an independent workflow. (e.g. from test, lint, etc)
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 

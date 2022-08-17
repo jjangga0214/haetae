@@ -2,6 +2,8 @@ name: Test
 
 on:
   push:
+    branches:
+      - '**' # This makes the workflow only runs by push to branch, not pushed git tag
   pull_request:
 
 jobs:
