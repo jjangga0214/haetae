@@ -24,10 +24,16 @@ export async function isInstalled({ rootDir = getConfigDirname() } = {}) {
   }
 }
 
+export interface RootDirOption {
+  rootDir?: string
+}
+
 /**
  * Check if this is a git repository.
  */
-export async function isInitialized({ rootDir = getConfigDirname() } = {}) {
+export async function isInitialized({
+  rootDir = getConfigDirname(),
+}: RootDirOption = {}) {
   try {
     const res = await exec('git rev-parse --is-inside-work-tree', {
       cwd: rootDir,
@@ -38,17 +44,21 @@ export async function isInitialized({ rootDir = getConfigDirname() } = {}) {
   }
 }
 
-export interface BranchOptions {
-  rootDir?: string
-}
-
 /**
  * @returns branch name. return falsy if it's detached HEAD.
  */
 export async function branch({
   rootDir = getConfigDirname(),
-}: BranchOptions = {}): Promise<string> {
+}: RootDirOption = {}): Promise<string> {
   return exec('git branch --show-current', {
+    cwd: rootDir,
+  })
+}
+
+export async function commit({
+  rootDir = getConfigDirname(),
+}: RootDirOption = {}): Promise<string> {
+  return exec('git rev-parse --verify HEAD', {
     cwd: rootDir,
   })
 }
@@ -56,6 +66,8 @@ export async function branch({
 // This is to avoid naming collision for `recordData`.
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const _branch = branch
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const _commit = commit
 
 export interface RecordOptions {
   commit?: string | Promise<string | undefined | void>
@@ -64,9 +76,7 @@ export interface RecordOptions {
 }
 
 export async function recordData({
-  commit = exec('git rev-parse --verify HEAD', {
-    cwd: getConfigDirname(),
-  }).catch(() => {}),
+  commit = _commit(),
   branch = _branch(),
   pkgVersion = pkg.version.value,
 }: RecordOptions = {}): Promise<GitHaetaeRecordData> {
@@ -82,10 +92,9 @@ export async function recordData({
   }
 }
 
-export interface ChangedFilesOptions {
+export interface ChangedFilesOptions extends RootDirOption {
   from?: string | Promise<string | undefined | null | void>
   to?: string | Promise<string | undefined | null | void>
-  rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
   // When commit ID is not given,
