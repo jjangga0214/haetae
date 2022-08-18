@@ -67,8 +67,8 @@ export async function exec(
   })
 }
 
-export interface HashFilesOptions {
-  algorithm?: hasha.AlgorithmName
+export interface HashOptions {
+  algorithm?: hasha.AlgorithmName // "md5" | "sha1" | "sha256" | "sha512"
   rootDir?: string
 }
 
@@ -77,12 +77,13 @@ export interface HashFilesOptions {
  * The order of files affects to the final hash.
  * For example, `hashFile(['foo.ts', 'bar.ts'])` !== `hashFile(['bar.ts', 'foo.ts'])`
  */
-export async function hashFiles(
-  files: string[],
-  { algorithm = 'sha256', rootDir = getConfigDirname() }: HashFilesOptions = {},
+export async function hash(
+  files: readonly string[],
+  { algorithm = 'sha256', rootDir = getConfigDirname() }: HashOptions = {},
 ): Promise<string> {
   const hashes = await Promise.all(
-    files
+    [...files] // Why copy by destructing the array? => To avoid modifying the original array when `sort()`.
+      .sort()
       .map((file) =>
         upath.isAbsolute(file) ? file : upath.join(rootDir, file),
       )
