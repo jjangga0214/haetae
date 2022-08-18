@@ -4,28 +4,42 @@ interface Children {
   children: JSX.Element[]
 }
 
-interface Options extends Children {
-  tokens: string[]
+interface TokenLinkCodeProps extends Children {
+  tokens: (string | Record<string, string>)[] | Record<string, string>
 }
 
 export default function TokenLinkCode({
   children,
   tokens,
-}: Options): JSX.Element {
+}: TokenLinkCodeProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
 
+  if (!Array.isArray(tokens)) {
+    // eslint-disable-next-line no-param-reassign
+    tokens = [tokens]
+  }
   // Let's Change something inside the post
   useEffect(() => {
+    let tokenLinkMap: Record<string, string> = {}
+    for (const tokenOrObj of tokens as (string | Record<string, string>)[]) {
+      if (typeof tokenOrObj === 'string') {
+        tokenLinkMap[tokenOrObj] = `#${tokenOrObj.toLowerCase()}`
+      } else {
+        tokenLinkMap = { ...tokenLinkMap, ...tokenOrObj }
+      }
+    }
+
     const container = containerRef?.current
+    const allTokenElements = container?.querySelectorAll('code > .line > span')
 
-    const allTokens = container?.querySelectorAll('code > .line > span')
-
-    for (const token of allTokens || []) {
-      const textContent = token?.textContent?.trim()
-      if (tokens.includes(textContent as string)) {
-        token.innerHTML = `<a href="#${textContent?.toLowerCase()}" style=" color: inherit; cursor: pointer;">${
-          token.textContent
-        }</a>`
+    for (const element of allTokenElements || []) {
+      const textContent = element?.textContent?.trim()
+      const link = tokenLinkMap[textContent as string]
+      if (link) {
+        const prefix = element?.textContent?.startsWith('.') ? '.' : ''
+        element.innerHTML = `${prefix}<a href="${link}" style=" color: inherit; cursor: pointer;">${element.textContent?.slice(
+          prefix.length,
+        )}</a>`
       }
     }
   }, [children, tokens, containerRef])

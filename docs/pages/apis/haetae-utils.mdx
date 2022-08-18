@@ -1,5 +1,9 @@
 import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import TokenLinkCode from '../../components/TokenLinkCode'
+import Chip from '../../components/Chip'
+
+export const Path = () => (<Chip label="path" href="./introduction/#path" />)
 
 # `@haetae/utils{:ts}`
 
@@ -92,4 +96,49 @@ npm info @haetae/utils peerDependencies
 
 ### `pkg`
 
-Refer to [common#pkg](./common#pkg).
+Refer to [introduction#pkg](./introduction#pkg).
+
+### `GlobOptions`
+
+A function to add a new record under the given command to store.
+
+[**globby**](https://github.com/sindresorhus/globby/tree/v11.1.0).
+
+<TokenLinkCode tokens={{ 'GlobbyOptions': 'https://github.com/sindresorhus/globby/tree/ca080d8a447e43ad489433ebfb421b176a46dfe1#options'}}>
+```ts
+interface GlobOptions {
+  rootDir?: string // A facade option for `globbyOptions.cwd`
+  globbyOptions?: globby.GlobbyOptions
+}
+```
+</TokenLinkCode>
+
+### `glob`
+<br/>
+<Path/>
+
+A function to find files by glob pattern.<br/>
+Internally, the task is delegated to [**`globby` v11**](https://github.com/sindresorhus/globby/tree/v11.1.0).<br/>
+`glob` is a [facade function](https://en.wikipedia.org/wiki/Facade_pattern) for `globby`,
+providing more handy experience by default options and postprocessing.
+
+<Callout>
+  **Why globby v11?** <br />
+  From `globby` v12, it becomes [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c),
+  which may not be compatible to many users.
+  `globby` v11 is stable and compatible to any environment no matter what you use/configure.
+  Haetae also has a plan to introduce Pure ESM, but it's too early for the ecosystem right now.
+</Callout>
+
+**Type**
+<br/>
+<TokenLinkCode tokens={['GlobOptions']}>
+`(patterns: string[], options?: GlobOptions): Promise<string[]> {:ts}`
+</TokenLinkCode>
+
+**Arguments**
+
+- `patterns{:ts}`: Array of glob patterns. <small>(e.g. `['**/*.test.ts', '**/*.test.tsx']{:ts}`)</small>
+- `options?{:ts}` :
+  - `options.rootDir?{:ts}` : A directory to start search. If `options.globbyOptions.cwd{:ts}` is not provided (`undefined{:ts}`), this value is used. Ignored otherwise. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  - `options.globbyOptions?{:ts}` : Refer to [globby v11 docs](https://github.com/sindresorhus/globby/tree/ca080d8a447e43ad489433ebfb421b176a46dfe1#options).

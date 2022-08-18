@@ -1,0 +1,120 @@
+import TokenLinkCode from '../../components/TokenLinkCode'
+
+# Introduction
+
+"Haetae" represents its packages, `haetae{:ts}` and `@haetae/*{:ts}`.
+
+## API
+
+### Type notations
+
+Annotating typescript types by default.<br/>
+Note that trailing `?{:ts}` means an optional field.
+
+### `PromiseOr`
+
+Some APIs depends on an utility type named `PromiseOr`.
+
+```ts
+type PromiseOr<T> = Promise<T> | T
+```
+
+`haetae{:ts}` or `@haetae/*{:ts}` does not export this, but you'd better know this.
+
+### Path
+
+`haetae{:ts}` and `@haetae/*{:ts}` has a few design principles for file and directory paths.<br/>
+**Any functions releted to file or directory path satisfy the principles below.**
+
+**1. Absolute Return Value**
+
+Returned file or directory path is always **absolute** path (NOT relative).<br/>
+This is true even when the path is not directly returned entity, like even when it's an element of array, or object field.
+For instance, [`glob`](./haetae-utils#glob) of [`@haetae/utils{:ts}`](./haetae-utils) and [`changedFiles`](./haetae-git#changedfiles) of [`@haetae/git{:ts}`](./haetae-git)
+are such functions.
+
+<TokenLinkCode tokens={{ '.glob': './haetae-utils#glob' }}>
+```ts
+import { utils } from 'haetae'
+
+const files = await utils.glob(['**/*.test.ts', '**/*.test.tsx'])
+// ['/path/to/foo.test.ts', '/path/to/bar.test.tsx', '/path/to/baz.test.tsx']
+```
+</TokenLinkCode>
+
+Arguments or options, which are not return value, don't have to be/contain absolute path.<br/>
+In fact, for arguments or options, relative paths would probably be more suitable for majority of cases.
+
+**2. `/{:ts}` As Delimiter**
+
+Haetae only officially uses/supports `/{:ts}` as delimiter for path.
+
+`/{:ts}` is traditionally used in POSIX <small>(e.g. Linux, macOS)</small>.
+However, `/{:ts}` works well on Windows in nodejs (and other languages or runtimes as well).
+Thus, Haetae does NOT officially use/support Windows legacy <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> delimiter.
+
+This is better decision for cross-platform design as well as convenience of usage and developerment.
+
+- **Return Value**: Delimiter of returned file or directory path is always `/{:ts}`.<br/>
+This is true even when the path is not directly returned entity, like even when it's an element of array, or object field.
+
+    For example,
+    <TokenLinkCode tokens={{ '.configure': './haetae-core#configure' }}>
+    ```ts
+    import { core } from 'haetae'
+
+    const config = await core.configure({ storeFile: '..\..\.haetae\store.json', /* ... */ })
+    // Relative path is transformed to absolute path.
+    // `\` is transformed to `/`.
+    console.log(config.storeFile) // '/path/to/.haetae/store.json'
+    ```
+    </TokenLinkCode>
+
+- **Argument**: It MAY PROBABLY work even when an argument or an option value's path delimiter is given as <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> on Windows, while not guaranteed.
+Using `/{:ts}` is always officially recommended.
+
+### `pkg`
+
+`haetae{:ts}` and `@haetae/*{:ts}` has this export.
+
+`pkg` contains the package's meta information, `name` and `version`.<br/>
+For example, let's assume the package version is ***`1.2.3-beta.4`***.<br/>
+Then the value would be like this.
+
+```ts
+const { pkg } = require('haetae' /* or '@haetae/<package>' */)
+
+pkg.name // "haetae" or "@haetae/<package>"
+pkg.version.value // "1.2.3-beta.4"
+pkg.version.major // "1"
+pkg.version.minor // "2"
+pkg.version.patch // "3"
+pkg.version.prerelease // ["beta", "4"]
+pkg.version.untilMinor //  "1.2"
+pkg.version.untilPatch // "1.2.3"
+```
+
+`version` could be a good choice for `env`.
+
+**haetae.config.js**:
+
+<TokenLinkCode tokens={{ '.configure': './haetae-core#configure' }}>
+```js
+const { core, pkg } = require('haetae')
+
+module.exports = core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myAwesomeCommand:{
+      env: {
+        // Different OS are to be treated as different environments.
+        os: process.platform
+        // Different major versions of `haetae` as well.
+        haetae: pkg.version.major
+      },
+      run: () => { /* ... */ }
+    }
+  },
+})
+```
+</TokenLinkCode>

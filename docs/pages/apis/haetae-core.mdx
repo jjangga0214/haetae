@@ -1,9 +1,10 @@
 import { Callout } from 'nextra-theme-docs'
-import { Chip } from '@mui/material';
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import Chip from '../../components/Chip'
 import TokenLinkCode from '../../components/TokenLinkCode'
 
-export const Memoized = () => (<Chip label="memoized" color="primary" size="small" variant="outlined" component="a" href="#memoization" clickable />)
+export const Memoized = () => (<Chip label="memoized" href="#memoization" />)
+export const Path = () => (<Chip label="path" href="./introduction/#path" />)
 
 # `@haetae/core`
 
@@ -54,16 +55,6 @@ pnpm add --save-dev @haetae/core
 
 ## API
 
-### `PromiseOr`
-
-Some APIs depends on an utility type named `PromiseOr`.
-
-```ts
-type PromiseOr<T> = Promise<T> | T
-```
-
-`@haetae/core{:ts}` does not export this, but you'd better know this.
-
 ### Memoization
 
 [Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
@@ -79,7 +70,7 @@ To clear memoization cache, you can call `<function>.clear(){:ts}`.
 For example, [`getConfig`](#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
 
 ```ts
-const { getConfig } = require('@haetae/core')
+import { getConfig } from '@haetae/core'
 
 // `getConfig` is executed.
 const config1 = await getConfig({ filename: '/foo/haetae.config.js' })
@@ -119,14 +110,9 @@ console.log(config2.foo) // 'bar'
 If you want to avoid the side effect, you can clear cache before calling [`getConfig`](#getconfig).<br/>
 Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be good solution.
 
-### Type notations
-
-Annotating typescript types by default.<br/>
-Note that trailing `?{:ts}` means an optional field.
-
 ### `pkg`
 
-Refer to [common#pkg](./common#pkg).
+Refer to [introduction#pkg](./introduction#pkg).
 
 ### `setCurrentCommand`
 
@@ -330,6 +316,8 @@ interface HaetaeConfig<D = unknown, E = unknown> {
 </TokenLinkCode>
 
 ### `configure`
+<br/>
+<Path/>
 
 `configure` validates and transform the user-provided config(e.g. `haetae.config.js`) into normalized config.
 
@@ -356,16 +344,16 @@ This is 100% valid.
 But you'd not get type-check from the IDE.
 
 ```js
-module.exports = { /* ... */ }
+export default { /* ... */ }
 ```
 
 With `configure`, type-check is enabled in your IDE! Happy 😊
 
 ```js
-const { core } = require('haetae')
-// Or `const core = require('@haetae/core')`
+import { core } from 'haetae'
+// Or `import * as core from '@haetae/core'`
 
-module.exports = core.configure({ /* ... */ })
+export default core.configure({ /* ... */ })
 ```
 
 #### Normalization
@@ -374,8 +362,6 @@ Schema of return value([`HaetaeConfig`](#haetaeconfig) is ***roughly*** similar 
 The return value is a normalized result of user-given config.
 
 - Omitted options on user-given config are to be set as their default values.
-- `storeFile` is transformed as an absolute path, when given as a releative path.
-- `storeFile` is normalized as a path whose delimiter is `"/"{:ts}`. <small>(Note: this is perfectly fine and even recommended on Windows nodejs runtime.)</small>
 - `storeFile` is transformed as a file path, when given as a directory (non-json extension) path. `defaultConfigFile` is used for that purpose. For example, `/path/to/config` becomes `/path/to/config/haetae.config.json`.
 
 <Callout>
