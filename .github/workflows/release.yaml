@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main # This makes the workflow only runs by push to branch, not pushed git tag
+    paths-ignore:
+      - 'docs/urls.json' # By `stefanzweifel/git-auto-commit-action`, the file would be pushed alone.
 
 # for `concurrency`, release should be an independent workflow. (e.g. from test, lint, etc)
 concurrency: ${{ github.workflow }}-${{ github.ref }}
@@ -50,6 +52,7 @@ jobs:
 
       - name: Create Release PR or Publish
         uses: changesets/action@v1
+        id: changesets
         with:
           commit: 'chore: release'
           title: 'chore: release'
@@ -62,3 +65,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           HUSKY: 0 # For changesets/action to commit, let's ignore husky
+
+      - name: Add deployed docs url
+        # Vercel GitHub bot automatically deploy docs pushed to production branch (`main`), regardless of GitHub Actions.
+        # This step finds out the deployed docs "Preview URL".
+        # Note that Vercel's "Preview URL" is static and permanent unless deleted manually.
+        if: steps.changesets.outputs.published == 'true'
+        run: pnpm --filter '@haetae/docs' run add-url
+        env:
+          VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
+          VERCEL_DEPLOYMENT_NAME: 'haetae'
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        if: steps.changesets.outputs.published == 'true'
+        with:
+          commit_message: 'docs: add url'
+        env:
+          HUSKY: 0 # For stefanzweifel/git-auto-commit-action to commit, let's ignore husky

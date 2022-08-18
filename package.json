@@ -17,7 +17,7 @@
     "husky-skip": "cross-env HUSKY=0",
     "commit": "git cz",
     "prepare": "husky install",
-    "changeset:publish": "pnpm -r publish && del-cli docs/package.json && changeset tag && git push --follow-tags"
+    "changeset:publish": "pnpm -r publish && del-cli docs/package.json && changeset tag && git checkout docs/package.json && git push --follow-tags"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,md}": [
