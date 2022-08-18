@@ -1,5 +1,4 @@
 import { useRef, useEffect } from 'react'
-import styled from '@emotion/styled'
 
 interface Children {
   children: JSX.Element[]
@@ -8,11 +7,6 @@ interface Children {
 interface Options extends Children {
   tokens: string[]
 }
-
-const A = styled.a`
-  text-decoration: inherit;
-  color: inherit;
-`
 
 export default function TokenLinkCode({
   children,
@@ -34,8 +28,6 @@ export default function TokenLinkCode({
         }</a>`
       }
     }
-    // console.log(container?.children) // This will be a list of child nodes
-    // console.log(_tokens)
   }, [children, tokens, containerRef])
 
   return <div ref={containerRef}>{children}</div>
