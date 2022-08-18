@@ -66,35 +66,35 @@ This is true even when the path is not directly returned entity, like even when 
     const config = await core.configure({ storeFile: '..\..\.haetae\store.json', /* ... */ })
     // Relative path is transformed to absolute path.
     // `\` is transformed to `/`.
-    console.log(config.storeFile) // '/path/to/.haetae/store.json'
+    console.log(config.storeFile) // => '/path/to/.haetae/store.json'
     ```
     </TokenLinkCode>
 
-- **Argument**: It MAY PROBABLY work even when an argument or an option value's path delimiter is given as <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> on Windows, while not guaranteed.
-Using `/{:ts}` is always officially recommended.
+- **Argument**: It MAY PROBABLY work, while not guaranteed, even when an (part of) argument or an option's path delimiter is <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> on Windows.
+But using `/{:ts}` is always officially recommended.
 
 ### `pkg`
 
-`haetae{:ts}` and `@haetae/*{:ts}` has this export.
+`haetae{:ts}` and `@haetae/*{:ts}` have this export.
 
-`pkg` contains the package's meta information, `name` and `version`.<br/>
+`pkg{:ts}` contains the package's meta information, `name` and `version`.<br/>
 For example, let's assume the package version is ***`1.2.3-beta.4`***.<br/>
 Then the value would be like this.
 
 ```ts
 const { pkg } = require('haetae' /* or '@haetae/<package>' */)
 
-pkg.name // "haetae" or "@haetae/<package>"
-pkg.version.value // "1.2.3-beta.4"
-pkg.version.major // "1"
-pkg.version.minor // "2"
-pkg.version.patch // "3"
-pkg.version.prerelease // ["beta", "4"]
-pkg.version.untilMinor //  "1.2"
-pkg.version.untilPatch // "1.2.3"
+pkg.name // 'haetae' or '@haetae/<package>'
+pkg.version.value // '1.2.3-beta.4'
+pkg.version.major // '1'
+pkg.version.minor // '2'
+pkg.version.patch // '3'
+pkg.version.prerelease // ['beta', '4']
+pkg.version.untilMinor //  '1.2'
+pkg.version.untilPatch // '1.2.3'
 ```
 
-`version` could be a good choice for `env`.
+`pkg.version.*{:ts}` could be a good choice for `env`.
 
 **haetae.config.js**:
 

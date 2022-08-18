@@ -102,7 +102,7 @@ Refer to [introduction#pkg](./introduction#pkg).
 
 A function to add a new record under the given command to store.
 
-[**globby**](https://github.com/sindresorhus/globby/tree/v11.1.0).
+[`GlobbyOptions`](https://github.com/sindresorhus/globby/tree/ca080d8a447e43ad489433ebfb421b176a46dfe1#options), which is part of `GlobOptions`, is from [**globby**](https://github.com/sindresorhus/globby/tree/v11.1.0).
 
 <TokenLinkCode tokens={{ 'GlobbyOptions': 'https://github.com/sindresorhus/globby/tree/ca080d8a447e43ad489433ebfb421b176a46dfe1#options'}}>
 ```ts
@@ -123,17 +123,17 @@ Internally, the task is delegated to [**`globby` v11**](https://github.com/sindr
 providing more handy experience by default options and postprocessing.
 
 <Callout>
-  **Why globby v11?** <br />
-  From `globby` v12, it becomes [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c),
-  which may not be compatible to many users.
-  `globby` v11 is stable and compatible to any environment no matter what you use/configure.
-  Haetae also has a plan to introduce Pure ESM, but it's too early for the ecosystem right now.
+**Why globby v11?** <br />
+From `globby` v12, it becomes [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c),
+which may not be compatible to many users.
+`globby` v11 is stable and compatible to any environment no matter what you use/configure.
+Haetae also has a plan to introduce Pure ESM, but it's too early for the ecosystem right now.
 </Callout>
 
 **Type**
 <br/>
 <TokenLinkCode tokens={['GlobOptions']}>
-`(patterns: string[], options?: GlobOptions): Promise<string[]> {:ts}`
+`(patterns: string[], options?: GlobOptions): Promise<string[]>{:ts}`
 </TokenLinkCode>
 
 **Arguments**
@@ -142,3 +142,84 @@ providing more handy experience by default options and postprocessing.
 - `options?{:ts}` :
   - `options.rootDir?{:ts}` : A directory to start search. If `options.globbyOptions.cwd{:ts}` is not provided (`undefined{:ts}`), this value is used. Ignored otherwise. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
   - `options.globbyOptions?{:ts}` : Refer to [globby v11 docs](https://github.com/sindresorhus/globby/tree/ca080d8a447e43ad489433ebfb421b176a46dfe1#options).
+
+### `ExecOptions`
+
+An argument interface for [`exec`](#exec).
+
+```ts
+interface ExecOptions {
+  uid?: number | undefined
+  gid?: number | undefined
+  cwd?: string | URL | undefined
+  env?: NodeJS.ProcessEnv | undefined
+  windowsHide?: boolean | undefined
+  timeout?: number | undefined
+  shell?: string | undefined
+  maxBuffer?: number | undefined
+  killSignal?: NodeJS.Signals | number | undefined
+  trim?: boolean // An option added from Haetae side. (Not for `childProcess.exec`)
+}
+```
+
+### `exec`
+
+A function to execute a script.<br/>
+Internally, nodejs's [`childProcess.exec{:ts}`](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback) is used.
+
+**Type**
+<br/>
+<TokenLinkCode tokens={['ExecOptions']}>
+`(command: string, options?: ExecOptions) => Promise<string>{:ts}`
+</TokenLinkCode>
+
+**Options**
+
+- `command` : An arbitrary command to execute on shell.
+This command does NOT mean haetae's **command** concept.
+- `options?{:ts}` : Options for `childProcess.exec{:ts}`.
+Refer to [the nodejs official docs](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback).
+  - `options.trim?{:ts}` : Some commands' result (**stdout**, **stderr**) ends with whitespace(s) or line terminator character (e.g. `\n{:ts}`).
+  If `true{:ts}`, the result would automatically [trimmed](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
+  If `false{:ts}`, the result would be returned as-is.
+  `options.trim{:ts}` is the only option not a part of `childProcess.exec{:ts}`'s original options.
+
+### `HashOptions`
+
+An argument interface for [`hash`](#hash).
+
+```ts
+interface HashOptions {
+  algorithm?: 'md5' | 'sha1' | 'sha256' | 'sha512'
+  rootDir?: string
+}
+```
+
+### `hash`
+
+A function to hash files.<br/>
+It reads content of a single or multiple file(s), and returns a cryptographic hash string.<br/>
+
+<Callout>
+**Merkle Tree** <br />
+When multiple files are given, they are treated as a single depth [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree).
+However, the files are sorted by their path before hashed,
+resulting in same result even when different order is given.
+For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.txt'])`.
+
+</Callout>
+
+**Type**
+<br/>
+<TokenLinkCode tokens={['HashOptions']}>
+`(files: string[], options?: HashOptions) => Promise<string>{:ts}`
+</TokenLinkCode>
+
+**Arguments**
+
+- `files{:ts}` : Files to hash. <small>(e.g. `['package.json', 'package-lock.json']{:ts}`)</small>
+- `options?{:ts}`
+  - `options.algorithm?{:ts}` : An hash algorithm to use. <small>(default: `'sha256'{:ts}`)</small>
+  - `options.rootDir?{:ts}` : A directory to start file search.
+  When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
+  <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
