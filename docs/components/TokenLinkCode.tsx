@@ -30,5 +30,5 @@ export default function TokenLinkCode({
     }
   }, [children, tokens, containerRef])
 
-  return <div ref={containerRef}>{children}</div>
+  return <span ref={containerRef}>{children}</span>
 }
