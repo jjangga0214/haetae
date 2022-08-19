@@ -13,17 +13,17 @@ Note that trailing `?{:ts}` means an optional field.
 
 ### `PromiseOr`
 
-Some APIs depends on an utility type named `PromiseOr`.
+Some APIs depends on an utility type named `PromiseOr{:ts}`.
 
 ```ts
 type PromiseOr<T> = Promise<T> | T
 ```
 
-`haetae{:ts}` or `@haetae/*{:ts}` does not export this, but you'd better know this.
+`haetae{:ts}` and `@haetae/*{:ts}` does NOT export `PromiseOr{:ts}`, but you'd better know this.
 
 ### Path
 
-`haetae{:ts}` and `@haetae/*{:ts}` has a few design principles for file and directory paths.<br/>
+Haetae has a few design principles for file and directory paths.<br/>
 **Any functions releted to file or directory path satisfy the principles below.**
 
 **1. Absolute Return Value**
@@ -53,10 +53,10 @@ Haetae only officially uses/supports `/{:ts}` as delimiter for path.
 However, `/{:ts}` works well on Windows in nodejs (and other languages or runtimes as well).
 Thus, Haetae does NOT officially use/support Windows legacy <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> delimiter.
 
-This is better decision for cross-platform design as well as convenience of usage and developerment.
+This is better decision for cross-platform design as well as convenience of usage and development.
 
-- **Return Value**: Delimiter of returned file or directory path is always `/{:ts}`.<br/>
-This is true even when the path is not directly returned entity, like even when it's an element of array, or object field.
+- **Return Value**: Delimiter is always `/{:ts}`.
+This is true even when the path is not a returned entity itself but a part of it, like an element of array or a field of object.
 
     For example,
     <TokenLinkCode tokens={{ '.configure': './haetae-core#configure' }}>
@@ -70,7 +70,7 @@ This is true even when the path is not directly returned entity, like even when 
     ```
     </TokenLinkCode>
 
-- **Argument**: It MAY PROBABLY work, while not guaranteed, even when an (part of) argument or an option's path delimiter is <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> on Windows.
+- **Function Argument or Option**: It MAY PROBABLY work, while not guaranteed officially, even when an (part of) argument or an option's path delimiter is <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> on Windows.
 But using `/{:ts}` is always officially recommended.
 
 ### `pkg`
