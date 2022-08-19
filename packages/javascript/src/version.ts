@@ -7,7 +7,7 @@ import yaml from 'yaml'
 import { getConfigDirname } from '@haetae/core'
 import { major, minor, patch, prerelease } from 'semver'
 
-export interface VersionOptions {
+export interface RootDirOption {
   rootDir?: string
 }
 
@@ -19,7 +19,7 @@ export async function versionFromYarnBerry(
   {
     rootDir = getConfigDirname(),
     lockFilename = 'yarn.lock',
-  }: VersionOptions & {
+  }: RootDirOption & {
     lockFilename?: string
   } = {},
 ): Promise<string> | never {
@@ -73,7 +73,7 @@ export async function versionFromYarnBerry(
 // TODO: test
 export async function version(
   packageName: string,
-  { rootDir = getConfigDirname() }: VersionOptions = {},
+  { rootDir = getConfigDirname() }: RootDirOptions = {},
 ) {
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const toVersionInfo = (version: string) => ({
@@ -82,6 +82,8 @@ export async function version(
     minor: minor(version),
     patch: patch(version),
     prerelease: prerelease(version),
+    untilMinor: `${major(version)}.${minor(version)}`,
+    untilPatch: `${major(version)}.${minor(version)}.${patch(version)}`,
   })
   try {
     const {

@@ -291,8 +291,9 @@ A function to get a list of changed files.<br/>
 
 **Options**
 
-- `from?{:ts}` : A starting point of commit ID for `git diff <from> <to>{:sh}`.
-  <small>(default: Previous record's `commit`. If there's no Previous record's `commit`, `Promise.resolve(undefined){:ts}` is the default.)</small>
+- `from?{:ts}` : A commit ID for `git diff <from> <to>{:sh}`.
+  <small>(default: Previous record's `commit`.
+  If there's no previous record's `commit`, `Promise.resolve(undefined){:ts}` is the default.)</small>
 - `to?{:ts}` : A commit ID for `git diff <from> <to>{:sh}` or `git ls-tree --full-tree --name-only -r <to>{:sh}`.
   <small>(default: `'HEAD'{:ts}`)</small>
 - `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>

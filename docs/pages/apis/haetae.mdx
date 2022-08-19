@@ -61,9 +61,9 @@ So you probably use `haetae` on the config file like this.
 **haetae.config.js**:
 
 ```js
-const { core, utils, js, git, cli, pkg  } = require('haetae')
+import { core, utils, js, git, cli, pkg  } from 'haetae'
 
-module.exports = core.configure({
+export default core.configure({
   // Other options are ommitted for brevity.
   commands: {
     // ...

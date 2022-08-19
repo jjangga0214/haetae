@@ -3,13 +3,13 @@ import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { getConfigDirname } from '@haetae/core'
 import { DepsGraph, graph } from '@haetae/utils'
+import { RootDirOption } from './version'
 
-export { version } from './version'
 export { default as pkg } from './pkg'
+export { version, RootDirOption } from './version'
 
-export interface DependsOnOptions {
+export interface DependsOnOptions extends RootDirOption {
   tsConfig?: string
-  rootDir?: string
   additionalGraph?: DepsGraph // you can manually specify additional dependency graph
 }
 

@@ -1,5 +1,6 @@
 import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import TokenLinkCode from '../../components/TokenLinkCode'
 
 # `@haetae/javascript{:ts}`
 
@@ -100,3 +101,83 @@ npm info @haetae/javascript peerDependencies
 ### `pkg`
 
 Refer to [introduction#pkg](./introduction#pkg).
+
+### `RootDirOption`
+
+An argument interface for [`version`](#version).
+
+**Type**
+
+```ts
+interface RootDirOption {
+  rootDir?: string
+}
+```
+
+### `version`
+
+A function to get version of any installed package.<br/>
+Literally any package, like `typescript`, `jest`, `react`, `@changesets/cli` etc.<br/>
+It supports npm, yarn classic, yarn berry and pnpm.
+
+<Callout>
+**No Global Package** <br/>
+`version` only works for local packages installed for your project, not globally installed packages on your system.
+</Callout>
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(packageName: string, options?: RootDirOption) => Promise<string>
+```
+</TokenLinkCode>
+
+**Arguments**
+
+- `packageName{:ts}` : A package name to get the version of.
+- `options?{:ts}`
+  - `options.rootDir?{:ts}` : A directory to start search.
+  This should be your project root or its inner directory. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+
+#### Usage
+
+You can get parsed object of any package's version by `version{:ts}`.<br/>
+For example, let's assume eslint's version is ***`1.2.3-beta.4`***.
+
+```ts
+import * as js from '@haetae/javascript'
+
+const eslintVersion = js.version('eslint')
+
+eslintVersion.value // '1.2.3-beta.4'
+eslintVersion.major // '1'
+eslintVersion.minor // '2'
+eslintVersion.patch // '3'
+eslintVersion.prerelease // ['beta', '4']
+eslintVersion.untilMinor //  '1.2'
+eslintVersion.untilPatch // '1.2.3'
+```
+
+`env` in the config file can be a good place to use `version`.
+
+**haetae.config.js**
+
+<TokenLinkCode tokens={{'.configure': './haetae-core#configure'}}>
+```js
+import { core, js } from 'haetae'
+
+export default core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myLint: {
+      env: async () => ({
+        eslint: (await js.version('eslint')).major
+      }),
+      run: async () => { /* ... */}
+    }
+  },
+})
+```
+</TokenLinkCode>
