@@ -131,9 +131,11 @@ Haetae also has a plan to introduce Pure ESM, but it's too early for the ecosyst
 </Callout>
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['GlobOptions']}>
-`(patterns: string[], options?: GlobOptions): Promise<string[]>{:ts}`
+```ts
+(patterns: string[], options?: GlobOptions): Promise<string[]>
+```
 </TokenLinkCode>
 
 **Arguments**
@@ -168,9 +170,11 @@ A function to execute a script.<br/>
 Internally, nodejs's [`childProcess.exec{:ts}`](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback) is used.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['ExecOptions']}>
-`(command: string, options?: ExecOptions) => Promise<string>{:ts}`
+```ts
+(command: string, options?: ExecOptions) => Promise<string>
+```
 </TokenLinkCode>
 
 **Arguments**
@@ -209,9 +213,11 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
 </Callout>
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['HashOptions']}>
-`(files: string[], options?: HashOptions) => Promise<string>{:ts}`
+```ts
+(files: string[], options?: HashOptions) => Promise<string>
+```
 </TokenLinkCode>
 
 **Arguments**
@@ -250,7 +256,6 @@ interface GraphOptions {
 
 ### `DepsGraph`
 
-
 An return type of [`graph`](#graph).<br/>
 <small>**TIP**. The prefix **Deps** stands for 'Dependencies'.</small>
 
@@ -269,9 +274,11 @@ A function to create a normalized graph.<br/>
 This function is for generic use, not just for a specific language.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['GraphOptions']}>
-`(options?: GraphOptions): DepsGraph{:ts}`
+```ts
+(options?: GraphOptions): depsGraph
+```
 </TokenLinkCode>
 
 **Options**

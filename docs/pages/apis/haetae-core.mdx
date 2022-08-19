@@ -121,7 +121,9 @@ Set it before calling other APIs that requires it.
 
 **Type**
 
-`(command: string) => void{:ts}`
+```ts
+(command: string) => void
+```
 
 ### `getCurrentCommand`
 
@@ -129,7 +131,9 @@ A getter for current command name, which is a module-level state.
 
 **Type**
 
-`() => string{:ts}`
+```ts
+() => string
+```
 
 ### `defaultConfigFile`
 
@@ -138,7 +142,9 @@ This is used when config file path is not given or given as a directory.
 
 **Type**
 
-`'haetae.config.js'{:ts}`
+```ts
+'haetae.config.js'
+```
 
 ### `setConfigFilename`
 
@@ -147,7 +153,9 @@ Set it before calling other APIs that requires a config file.
 
 **Type**
 
-`(command: string) => void{:ts}`
+```ts
+(command: string) => void
+```
 
 ### `getConfigFilename`
 
@@ -155,7 +163,9 @@ A getter for config file name, which is a module-level state.
 
 **Type**
 
-`() => string{:ts}`
+```ts
+() => string
+```
 
 ### `getConfigDirname`
 
@@ -163,7 +173,9 @@ A getter for config file's directory name, which is a derived module-level state
 
 **Type**
 
-`() => string{:ts}`
+```ts
+() => string
+```
 
 ### `defaultStoreFilename`
 
@@ -172,7 +184,9 @@ This is used when store file is not given, or given as a directory.
 
 **Type**
 
-`'.haetae/store.json'{:ts}`
+```ts
+'.haetae/store.json'
+```
 
 ### `setStoreFilename`
 
@@ -181,7 +195,9 @@ Set it before calling other APIs that requires it.
 
 **Type**
 
-`(command: string) => void{:ts}`
+```ts
+(command: string) => void
+```
 
 ### `getStoreFilename`
 
@@ -189,7 +205,9 @@ A getter for store file name, which is a module-level state.<br/>
 
 **Type**
 
-`() => string{:ts}`
+```ts
+() => string
+```
 
 ### `HaetaeRecord`
 
@@ -322,9 +340,11 @@ interface HaetaeConfig<D = unknown, E = unknown> {
 `configure` validates and transform the user-provided config(e.g. `haetae.config.js`) into normalized config.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['HaetaePreConfig', 'HaetaeConfig']}>
-  `<D = unknown, E = unknown>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>{:ts}`
+```ts
+<D = unknown, E = unknown>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>
+```
 </TokenLinkCode>
 
 **Options**
@@ -386,9 +406,11 @@ interface FilenameOption {
 A function to get config object by config file path.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['GetConfigOptions', 'HaetaeConfig']}>
-`<D = unknown, E = unknown>(options?: FilenameOption) => Promise<HaetaeConfig<D, E>>{:ts}`
+```ts
+<D = unknown, E = unknown>(options?: FilenameOption) => Promise<HaetaeConfig<D, E>>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -400,9 +422,11 @@ A function to get config object by config file path.
 Initializes an empty store. It just returns an object. It does not save it as a file.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['HaetaeStore']}>
-`<D = unknown, E = unknown>() => HaetaeStore<D, E>{:ts}`
+```ts
+<D = unknown, E = unknown>() => HaetaeStore<D, E>
+```
 </TokenLinkCode>
 
 ### `GetStoreOptions`
@@ -429,9 +453,11 @@ interface GetStoreOptions<D = unknown, E = unknown>
 <Memoized/>
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['GetStoreOptions', 'HaetaeStore']}>
-`<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>{:ts}`
+```ts
+<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>
+```
 </TokenLinkCode>
 
 A function to get store object.
@@ -467,9 +493,11 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 </Callout>
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
-`<D = unknown, E = unknown>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined> {:ts}`
+```ts
+<D = unknown, E = unknown>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -497,9 +525,11 @@ interface CommandFromConfig<D = unknown, E = unknown> {
 A function to invoke(execute) user-defined `env` of the given `command`.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['CommandFromConfig']}>
-`<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>{:ts}`
+```ts
+<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -512,9 +542,11 @@ A function to invoke(execute) user-defined `env` of the given `command`.
 A function to invoke (execute) user-defined `run` of the given `command`.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['CommandFromConfig']}>
-`<D = unknown>(options?: CommandFromConfig<D, unknown>) => Promise<D | null>{:ts}`
+```ts
+<D = unknown>(options?: CommandFromConfig<D, unknown>) => Promise<D | null>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -562,9 +594,11 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 </Callout>
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['GetRecordOptions', 'HaetaeRecord']}>
-`<D = unknown, E = unknown>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>{:ts}`
+```ts
+<D = unknown, E = unknown>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -591,9 +625,11 @@ A function to create a new record object.<br/>
 This only returns an object, not save it.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['FormRecordOptions', 'HaetaeRecord']}>
-`<D = unknown, E = unknown>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>{:ts}`
+```ts
+<D = unknown, E = unknown>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -601,7 +637,6 @@ This only returns an object, not save it.
 - `data?{:ts}` : A record data. <small>(default: [`invokeRun(){:ts}`](#invokerun))</small>
 - `env?{:ts}` : A resolved env object. <small>(default: [`invokeEnv(){:ts}`](#invokeenv)</small>
 - `time?{:ts}` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds. <small>(default: [`Date.now(){:ts}`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now))</small>
-
 
 ### `AddRecordOptions`
 
@@ -623,9 +658,11 @@ interface AddRecordOptions<D = unknown, E = unknown> {
 A function to add a new record under the given command to store.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['AddRecordOptions', 'HaetaeStore']}>
-`<D = unknown, E = unknown>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>{:ts}`
+```ts
+<D = unknown, E = unknown>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -656,9 +693,11 @@ Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
 File IO and Memoization cache clear is done sequentially in synchronous manner, as a transaction.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['SaveStoreOptions']}>
-`(options?: SaveStoreOptions) => Promise<void>{:ts}`
+```ts
+(options?: SaveStoreOptions) => Promise<void>
+```
 </TokenLinkCode>
 
 **Options?**
@@ -673,9 +712,11 @@ Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
 File IO and Memoization cache clear is done sequentially in synchronous manner, as a transaction.
 
 **Type**
-<br/>
+
 <TokenLinkCode tokens={['FilenameOption']}>
-`(options?: FilenameOption) => Promise<void>{:ts}`
+```ts
+(options?: FilenameOption) => Promise<void>
+```
 </TokenLinkCode>
 
 **Options?**

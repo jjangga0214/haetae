@@ -1,5 +1,9 @@
 import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import TokenLinkCode from '../../components/TokenLinkCode'
+import Chip from '../../components/Chip'
+
+export const PathPrinciples = () => (<Chip label='Path Principles' href='./introduction/#path-principles' />)
 
 # `@haetae/git{:ts}`
 
@@ -93,3 +97,224 @@ npm info @haetae/git peerDependencies
 ### `pkg`
 
 Refer to [introduction#pkg](./introduction#pkg).
+
+### `GitHaetaeRecordData`
+
+```ts
+interface GitHaetaeRecordData {
+  '@haetae/git': {
+    commit: string
+    branch: string
+    pkgVersion: string
+  }
+}
+```
+
+<Callout>
+  **Record Data Namespace**<br/>
+  Record data can have arbitrary data in it. `'@haetae/git'{:ts}` is a namespace to avoid collision.
+</Callout>
+
+### `RootDirOption`
+
+An argument interface for [`installed{:ts}`](#installed), [`initialized{:ts}`](#initialized), [`branch{:ts}`](#branch) and [`commit{:ts}`](#commit).
+
+```ts
+interface RootDirOption {
+  rootDir?: string
+}
+```
+
+### `installed`
+
+A function to check whether git is installed on the system.
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(options?: RootDirOption) => Promise<boolean>()
+```
+</TokenLinkCode>
+
+**Options**
+
+- `rootDir{:ts}` : A directory to execute shell command. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `initialized`
+
+A function to check whether git repository is initialized (by `git init{:sh}`).
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(options?: RootDirOption) => Promise<boolean>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `rootDir{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `branch`
+
+A function to get the current branch name.
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(options?: RootDirOption) => Promise<string>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `rootDir{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `commit`
+
+A function to get the commit ID of `HEAD`.<br/>
+Return value would be the full 40-character commit hash. <small>(e.g. `'63a5812b39c4d01031024f98c8890bc90830cf1b'{:ts}`)</small>
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(options?: RootDirOption) => Promise<string>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `rootDir{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `RecordDataOptions`
+
+An argument interface for `recordData`
+
+```ts
+interface RecordDataOptions {
+  commit?: PromiseOr<string>
+  branch?: PromiseOr<string>
+  pkgVersion?: string
+}
+```
+
+### `recordData`
+
+A function to form record data for git.
+
+**Type**
+
+<TokenLinkCode tokens={['RecordDataOptions', 'GitHaetaeRecordData']}>
+```ts
+(options?: RecordDataOptions) => Promise<GitHaetaeRecordData>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `commit?{:ts}` : Commit ID of `HEAD`. <small>(default: [`commit(){:ts}`](#commit))</small>
+- `branch?{:ts}` : Current branch. <small>(default: [`branch(){:ts}`](#branch))</small>
+- `pkgVersion?{:ts}` : Version of `@haetae/git{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
+
+### `untrackedFiles`
+<br/>
+<PathPrinciples/>
+
+A function to get a list of untracked files.<br/>
+`git ls-files --others --exclude-standard{:sh}` is executed.
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(options?: RootDirOption) => Promise<string[]>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `rootDir{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `ignoredFiles`
+<br/>
+<PathPrinciples/>
+
+A function to get a list of ignored (by .gitignore) files.<br/>
+`git ls-files --others --exclude-standard --ignored{:sh}` is executed.
+
+**Type**
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+(options?: RootDirOption) => Promise<string[]>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `rootDir{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `ChangedFilesOptions`
+
+An argument interface for [`changedFiles{:ts}`](#changedfiles).
+
+<TokenLinkCode tokens={['RootDirOption']}>
+```ts
+interface ChangedFilesOptions extends RootDirOption {
+  from?: string | Promise<string | undefined | null | void>
+  to?: string | Promise<string | undefined | null | void>
+  includeUntracked?: boolean
+  includeIgnored?: boolean
+  // When commit ID is not given,
+  // or commit ID cannot be found from record,
+  // or `git diff` fails (e.g. by forced push)
+  fallback?: (error?: Error) => PromiseOr<string[]> | never
+}
+```
+</TokenLinkCode>
+
+### `changedFiles`
+
+A function to get a list of changed files.<br/>
+
+**Type**
+
+<TokenLinkCode tokens={['ChangedFilesOptions']}>
+```ts
+(options?: ChangedFilesOptions) => Promise<string[]>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `from?{:ts}` : A starting point of commit ID for `git diff <from> <to>{:sh}`.
+  <small>(default: Previous record's `commit`. If there's no Previous record's `commit`, `Promise.resolve(undefined){:ts}` is the default.)</small>
+- `to?{:ts}` : A commit ID for `git diff <from> <to>{:sh}` or `git ls-tree --full-tree --name-only -r <to>{:sh}`.
+  <small>(default: `'HEAD'{:ts}`)</small>
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `includeUntracked?{:ts}` : Whether to include [untracked files](https://stackoverflow.com/questions/9663507/what-are-tracked-files-and-untracked-files-in-the-context-of-git) in the result.
+If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
+<small>(default: `true{:ts}`)</small>
+- `includeIgnored?{:ts}` : Whether to include ignored files (by .gitignore) in the result.
+If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
+<small>(default: `false{:ts}`)</small>
+- `fallback?{:ts}` : A function executed when an error occurs, or  when `to` is falsy <small>(e.g. `null{:ts}`, `Promise{:ts}` resolved to be `undefined{:ts}`)</small>.
+If `fallback` is called and has return value, the value is returned from `changedFiles`.
+<small>(default: <TokenLinkCode tokens={{'.glob': './haetae-utils#glob'}}>`() => utils.glob(['**'], { rootDir }){:ts}`)</TokenLinkCode></small>
+
+**When `from` and `to` are all valid**
+
+`git diff --name-only <from> <to>{:sh}` is included in the result.
+
+**When `from` is invalid <small>(e.g. `Promise{:ts}` resolved to be `undefined{:ts}`)</small> and `to` is valid**
+
+`git ls-tree --full-tree --name-only -r <to>{:sh}` is included in the result.<br/>
+All of the tracked files that have been committed until the commit ID `to` are included.
+
+**When `to` is invalid <small>(regardless of `from`)</small>**
+
+`await fallback(){:ts}` is returned.

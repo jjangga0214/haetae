@@ -96,6 +96,32 @@ export async function recordData({
   }
 }
 
+export async function untrackedFiles({
+  rootDir = getConfigDirname(),
+}: RootDirOption = {}): Promise<string[]> {
+  return (
+    await exec('git ls-files --others --exclude-standard', {
+      cwd: rootDir,
+    })
+  )
+    .split('\n')
+    .filter((f) => f) // this removes empty string
+    .map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
+}
+
+export async function ignoredFiles({
+  rootDir = getConfigDirname(),
+}: RootDirOption = {}): Promise<string[]> {
+  return (
+    await exec('git ls-files --others --exclude-standard --ignored', {
+      cwd: rootDir,
+    })
+  )
+    .split('\n')
+    .filter((f) => f) // this removes empty strings
+    .map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
+}
+
 export interface ChangedFilesOptions extends RootDirOption {
   from?: string | Promise<string | undefined | null | void>
   to?: string | Promise<string | undefined | null | void>
@@ -153,14 +179,15 @@ export const changedFiles = async ({
     }
 
     if (includeUntracked) {
-      result.push(
-        ...(await execute(
-          `git ls-files --others${includeIgnored ? '' : ' --exclude-standard'}`,
-        )),
-      )
+      result.push(...(await untrackedFiles({ rootDir })))
+    }
+    if (includeIgnored) {
+      result.push(...(await ignoredFiles({ rootDir })))
     }
 
-    return result.map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
+    return result
+      .filter((f) => f) // this removes empty string
+      .map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
   } catch (error) {
     return fallback(error as Error)
   }
