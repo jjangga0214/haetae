@@ -73,7 +73,7 @@ const _branch = branch
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const _commit = commit
 
-export interface RecordOptions {
+export interface RecordDataOptions {
   commit?: PromiseOr<string>
   branch?: PromiseOr<string>
   pkgVersion?: string
@@ -83,7 +83,7 @@ export async function recordData({
   commit = _commit(),
   branch = _branch(),
   pkgVersion = pkg.version.value,
-}: RecordOptions = {}): Promise<GitHaetaeRecordData> {
+}: RecordDataOptions = {}): Promise<GitHaetaeRecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
   }
@@ -104,7 +104,7 @@ export interface ChangedFilesOptions extends RootDirOption {
   // When commit ID is not given,
   // or commit ID cannot be found from record,
   // or `git diff` fails (e.g. by forced push)
-  fallback?: (error?: Error) => string[] | Promise<string[]> | never
+  fallback?: (error?: Error) => PromiseOr<string[]> | never
 }
 
 /**
@@ -127,43 +127,40 @@ export const changedFiles = async ({
   includeIgnored = false,
   fallback = () => glob(['**'], { rootDir }),
 }: ChangedFilesOptions = {}): Promise<string[]> => {
-  if (!(await isInstalled())) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const _from = await from
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const _to = await to
+  if (!(await installed())) {
     throw new Error('git is not installed on the system, or $PATH is not set.')
   }
-  if (!(await isInitialized())) {
+  if (!(await initialized())) {
     throw new Error('git is not initialized. This is not a git repository.')
   }
+  const execute = (command: string): Promise<string[]> =>
+    exec(command, { cwd: rootDir }).then((res) => res.split('\n'))
 
-  // When there is no record,
-  // or the record does not have commit
-  if (!(await from) || !(await to)) {
-    return fallback()
-  }
-
+  const result = []
   try {
-    const res = (
-      await exec(`git diff --name-only ${from} ${to}`, {
-        cwd: rootDir,
-      })
-    ).split('\n')
+    if (_from && _to) {
+      result.push(...(await execute(`git diff --name-only ${_from} ${_to}`)))
+    } else if (!_from && _to) {
+      result.push(
+        ...(await exec(`git ls-tree --full-tree --name-only -r ${_to}`)),
+      )
+    } else {
+      return await fallback()
+    }
 
     if (includeUntracked) {
-      // untracked changes
-      res.push(
-        ...(
-          await exec(
-            `git ls-files --others${
-              includeIgnored ? '' : ' --exclude-standard'
-            }`,
-            {
-              cwd: rootDir,
-            },
-          )
-        ).split('\n'),
+      result.push(
+        ...(await execute(
+          `git ls-files --others${includeIgnored ? '' : ' --exclude-standard'}`,
+        )),
       )
     }
 
-    return res.map((filename) => upath.join(rootDir, filename))
+    return result.map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
   } catch (error) {
     return fallback(error as Error)
   }
