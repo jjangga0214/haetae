@@ -99,8 +99,8 @@ export interface DepsEdge {
 }
 
 export interface GraphOptions {
-  rootDir?: string
   edges: readonly DepsEdge[]
+  rootDir?: string
 }
 
 export interface DepsGraph {
@@ -115,7 +115,7 @@ export function graph({
   const toAbsolute = (file: string) =>
     upath.isAbsolute(file) ? file : upath.join(rootDir, file)
 
-  for (let { dependencies, dependents } of edges) {
+  for (let { dependents, dependencies } of edges) {
     dependents = dependents
       .map((dependent) => toAbsolute(dependent))
       .map((dependent) => upath.normalize(dependent))

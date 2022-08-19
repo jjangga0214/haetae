@@ -3,7 +3,7 @@ import PkgManagerTabs from '../../components/PkgManagerTabs'
 import TokenLinkCode from '../../components/TokenLinkCode'
 import Chip from '../../components/Chip'
 
-export const Path = () => (<Chip label='path' href='./introduction/#path' />)
+export const PathPrinciples = () => (<Chip label='Path Principles' href='./introduction/#path-principles' />)
 
 # `@haetae/utils{:ts}`
 
@@ -115,7 +115,7 @@ interface GlobOptions {
 
 ### `glob`
 <br/>
-<Path/>
+<PathPrinciples/>
 
 A function to find files by glob pattern.<br/>
 Internally, the task is delegated to [**`globby` v11**](https://github.com/sindresorhus/globby/tree/v11.1.0).<br/>
@@ -206,7 +206,6 @@ When multiple files are given, they are treated as a single depth [Merkle Tree](
 However, the files are sorted by their path before hashed,
 resulting in same result even when different order is given.
 For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.txt'])`.
-
 </Callout>
 
 **Type**
@@ -223,3 +222,118 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
   - `options.rootDir?{:ts}` : A directory to start file search.
   When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
   <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `DepsEdge`
+
+An interface resolving dependencies edge. <br/>
+<small>**TIP**. The prefix **Deps** stands for 'Dependencies'.</small>
+
+```ts
+interface DepsEdge {
+  dependents: readonly string[]
+  dependencies: readonly string[]
+}
+```
+
+### `GraphOptions`
+
+An argument interface for [`graph`](#graph).
+
+<TokenLinkCode tokens={['DepsEdge']}>
+```ts
+interface GraphOptions {
+  edges: readonly DepsEdge[]
+  rootDir?: string
+}
+```
+</TokenLinkCode>
+
+### `DepsGraph`
+
+
+An return type of [`graph`](#graph).<br/>
+<small>**TIP**. The prefix **Deps** stands for 'Dependencies'.</small>
+
+```ts
+interface DepsGraph {
+  // key is dependent. Value is Set of dependencies.
+  [dependent: string]: Set<string>
+}
+```
+
+### `graph`
+<br/>
+<PathPrinciples/>
+
+A function to create a normalized graph.<br/>
+This function is for generic use, not just for a specific language.
+
+**Type**
+<br/>
+<TokenLinkCode tokens={['GraphOptions']}>
+`(options?: GraphOptions): DepsGraph{:ts}`
+</TokenLinkCode>
+
+**Options**
+
+- `edges{:ts}` : A single or multiple edge(s). The `dependents` and `dependencies` have to be file path, not directory.
+- `rootDir{:ts}?` : When an element of `dependents` and `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+#### Basic Usage
+
+Basically, you can specify any dependency relationship.<br/>
+This is just a pure function. Whether the files really depend on each other does not matter.
+
+```ts
+const normalizedGraph = graph({
+  rootDir: '/path/to',
+  edges: [
+    {
+      dependents: ['src/foo.tsx', 'src/bar.ts'],
+      dependencies: ['assets/one.png', 'config/another.json'],
+    },
+    {
+      // 'src/bar.ts' appears again, and it's OK!
+      dependents: ['src/bar.ts', 'test/qux.ts'],
+      // Absolute path is also OK!
+      dependencies: ['/somewhere/the-other.txt'],
+    },
+  ],
+})
+
+const expected = {
+  '/path/to/src/foo.tsx': new Set([
+    '/path/to/assets/one.png',
+    '/path/to/config/another.json',
+  ]),
+  '/path/to/src/bar.ts': new Set([
+    '/path/to/assets/one.png',
+    '/path/to/config/another.json',
+    '/somewhere/the-other.txt',
+  ]),
+  '/path/to/test/qux.ts': new Set([
+    '/somewhere/the-other.txt',
+  ]),
+}
+
+assert(deepEqual(normalizedGraph, expected)) // They are same
+```
+
+#### Usage With `glob`
+
+[`glob`](#glob) is a good friend when you want to specify chunk-level dependency relationships.<br/>
+
+Let's say you have multiple python projects (packages) in a single monorepo.<br/>
+For example, package 'foo' and 'bar' depend on package 'qux'.<br/>
+Then you can create a normalized dependency graph like the snippet below.
+
+```ts
+const normalizedGraph = graph({
+  edges: [
+    {
+      dependents: await glob(['packages/foo/**/*.py', 'packages/bar/**/*.py']),
+      dependencies: await glob(['packages/qux/**/*.py']),
+    },
+  ],
+})
+```

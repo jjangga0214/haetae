@@ -1,8 +1,8 @@
 import upath from 'upath'
 import { glob, graph } from '@haetae/utils'
 
-describe('index', () => {
-  test('glob', async () => {
+describe('glob', () => {
+  test('basic usage', async () => {
     expect.hasAssertions()
     const rootDir = upath.join(__dirname, '../../../test-project')
     const res = await glob(['**/*.test.ts'], {
