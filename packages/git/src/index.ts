@@ -3,6 +3,8 @@ import { getConfigDirname, getRecord } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
 import pkg from './pkg'
 
+type PromiseOr<T> = Promise<T> | T
+
 export { default as pkg } from './pkg'
 // todo: git submodule test
 
@@ -13,7 +15,9 @@ export interface GitHaetaeRecordData {
 /**
  * Check if git is installed on the system.
  */
-export async function isInstalled({ rootDir = getConfigDirname() } = {}) {
+export async function installed({
+  rootDir = getConfigDirname(),
+} = {}): Promise<boolean> {
   try {
     await exec('git --version', {
       cwd: rootDir,
@@ -31,7 +35,7 @@ export interface RootDirOption {
 /**
  * Check if this is a git repository.
  */
-export async function isInitialized({
+export async function initialized({
   rootDir = getConfigDirname(),
 }: RootDirOption = {}) {
   try {
@@ -70,8 +74,8 @@ const _branch = branch
 const _commit = commit
 
 export interface RecordOptions {
-  commit?: string | Promise<string | undefined | void>
-  branch?: string | Promise<string>
+  commit?: PromiseOr<string>
+  branch?: PromiseOr<string>
   pkgVersion?: string
 }
 
