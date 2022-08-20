@@ -9,7 +9,7 @@ For instance, you can find out which module depends on which module.<br/>
 If your project do not use javascript-related languages, you don't need this package.
 
 <Callout>
-  **Ecosystem Supported**<br />
+  **Ecosystem Supported**<br/>
   CJS (CommonJS), ESM (ES6 module), AMD, Typescript, JSX, TSX, Sass, Stylus,
   Less, CSS (PostCSS), nodejs-only modules, browser-only modules are all supported.
 </Callout>
@@ -28,7 +28,7 @@ If your project do not use javascript-related languages, you don't need this pac
 ## Installation
 
 <Callout>
-  **Are you developing a library(e.g. plugin) for Haetae?** <br />
+  **Are you developing a library(e.g. plugin) for Haetae?** <br/>
   It might be more suitable to specify `@haetae/javascript` as `peerDependencies` than `dependencies`.
 </Callout>
 
@@ -140,7 +140,6 @@ It supports npm, yarn classic, yarn berry and pnpm.
   - `options.rootDir?{:ts}` : A directory to start search.
   This should be your project root or its inner directory. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
-
 #### Usage
 
 You can get parsed object of any package's version by `version{:ts}`.<br/>
@@ -176,6 +175,87 @@ export default core.configure({
         eslint: (await js.version('eslint')).major
       }),
       run: async () => { /* ... */}
+    }
+  },
+})
+```
+</TokenLinkCode>
+
+### `DependsOnOptions`
+
+An argument interface for [`dependsOn`](#dependson)
+
+<TokenLinkCode tokens={['RootDirOption', { DepsGraph : './haetae-utils#depsgraph'}]}>
+```ts
+interface DependsOnOptions extends RootDirOption {
+  tsConfig?: string
+  additionalGraph?: DepsGraph
+}
+```
+</TokenLinkCode>
+
+### `dependsOn`
+
+A function to check if a module (transitively or directly) depends on one of different modules.<br/>
+It's a [higher order function](https://en.wikipedia.org/wiki/Higher-order_function) that returns a predicate function.<br/>
+
+<TokenLinkCode tokens={['DependsOnOptions']}>
+```ts
+(dependencyCandidates: readonly string[], options?: DependsOnOptions) => (dependentCandidate: string) => boolean
+```
+</TokenLinkCode>
+
+**Options**
+
+- `tsConfig{:ts}` : A path to typescript config (e.g. **tsconfig.json**).
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `additionalGraph{:ts}`
+
+#### Basic Usage
+
+Let's say,
+
+- ***qux.ts*** depends on ***bar.ts***.
+- ***anq.ts*** depends on ***qux.ts***, which depends on ***bar.ts***
+- ***saz.ts*** does not (even transitively) depend on neither ***foo.ts*** nor ***bar.ts***.
+
+then the result would be like this.
+
+```ts
+const predicate = dependsOn(['foo.ts', 'bar.ts'])
+
+predicate('qux.ts') // true
+predicate('anq.ts') // true
+predicate('saz.ts') // false
+predicate('foo.ts') // true: 'foo.ts' depends on 'foo.ts' itself.
+````
+
+#### Usage With `git.changedFiles`
+
+It is a good practice to use with [`changedFiles`](./haetae-git#changedfiles) of `@haetae/git{:ts}`.
+
+**haetae.config.js**
+
+<TokenLinkCode tokens={{ '.configure': './haetae-core#configure', '.glob': './haetae-utils#glob', '.exec': './haetae-utils#exec', '.changedFiles': './haetae-git#changefiles', '.recordData': './haetae-git#recorddata'}}>
+```js
+import { core, utils, git, js } from 'haetae'
+
+export default core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myAwesomeCommand: {
+      run: async () => {
+        // An array of test files which (transitively) depend on changed files
+        const filesToTest = await (
+          utils.glob(['**/*.test.ts'])
+          ).filter(js.dependsOn(git.changedFiles()))
+
+        if (filesToTest.length > 0) {
+          // Equals to "npx jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
+          await utils.exec(`npx jest ${filesToTest.join(' ')}`)
+        }
+        return git.recordData()
+      },
     }
   },
 })

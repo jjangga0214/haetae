@@ -21,40 +21,38 @@ export interface DependsOnOptions extends RootDirOption {
  * ]
  */
 export function dependsOn(
-  filenames: readonly string[],
+  dependencyCandidates: readonly string[],
   {
     tsConfig,
     rootDir = getConfigDirname(),
     additionalGraph = graph({ edges: [], rootDir }),
   }: DependsOnOptions = {},
-) {
+): (target: string) => boolean {
   // default option.tsConfig if exists
   if (fs.existsSync(upath.join(rootDir, 'tsconfig.json'))) {
     // eslint-disable-next-line no-param-reassign
     tsConfig = tsConfig || upath.join(rootDir, 'tsconfig.json')
   }
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const _filenames = filenames
-    .map((filename) =>
-      upath.isAbsolute(filename) ? filename : upath.join(rootDir, filename),
-    )
-    .map((filename) => upath.normalize(filename))
+  const _dependencyCandidates = dependencyCandidates
+    .map((dc) => (upath.isAbsolute(dc) ? dc : upath.join(rootDir, dc)))
+    .map((dc) => upath.normalize(dc))
 
-  return (target: string): boolean => {
+  return (dependentCandidate: string): boolean => {
     // This includes target file itself as well.
     const deepDepsList = dependencyTree.toList({
       directory: rootDir,
-      filename: target,
+      filename: dependentCandidate,
       tsConfig,
     })
-    for (const filename of _filenames) {
-      if (deepDepsList.includes(filename)) {
-        return true
-      }
-      if (additionalGraph[target]?.has(filename)) {
-        return true
-      }
-      if (target === filename) {
+    console.log(deepDepsList)
+    for (const dependencyCandidate of _dependencyCandidates) {
+      if (
+        deepDepsList.includes(dependencyCandidate) ||
+        // TODO: deep graph search
+        additionalGraph[dependentCandidate]?.has(dependencyCandidate) ||
+        dependentCandidate === dependencyCandidate
+      ) {
         return true
       }
     }

@@ -138,7 +138,6 @@ export interface ChangedFilesOptions extends RootDirOption {
  *   - an array of changed filename.
  *   - an empth array if no change was made
  *   - every filenames if `commit` is not given
- * @memoized
  */
 export const changedFiles = async ({
   from = getRecord<GitHaetaeRecordData>()
