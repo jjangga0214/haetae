@@ -73,7 +73,7 @@ export async function versionFromYarnBerry(
 // TODO: test
 export async function version(
   packageName: string,
-  { rootDir = getConfigDirname() }: RootDirOptions = {},
+  { rootDir = getConfigDirname() }: RootDirOption = {},
 ) {
   // eslint-disable-next-line unicorn/consistent-function-scoping
   const toVersionInfo = (version: string) => ({
