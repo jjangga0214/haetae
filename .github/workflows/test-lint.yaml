@@ -4,7 +4,23 @@ on:
   push:
     branches:
       - '**' # This makes the workflow only runs by push to branch, not pushed git tag
+    paths-ignore:
+      - '.devbots/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - .editorconfig
+      - commitlint.config.js
+      - license
+      - docs/urls.json
   pull_request:
+    paths-ignore:
+      - '.devbots/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - .editorconfig
+      - commitlint.config.js
+      - license
+      - docs/urls.json
 
 jobs:
   # [original source of job "check-if-to-skip"](https://github.com/srz-zumix/ci-skip/blob/master/.github/workflows/main.yml#L15)

@@ -27,6 +27,9 @@
     "semver": "^7.3.7",
     "upath": "^2.0.1"
   },
+   "devDependencies": {
+    "@types/semver": "^7.3.10"
+  },
   "keywords": [
     "haetae",
     "test",
@@ -49,8 +52,5 @@
     "name": "Gil B. Chan",
     "email": "bnbcmindnpass@gmail.com",
     "url": "https://github.com/jjangga0214"
-  },
-  "devDependencies": {
-    "@types/semver": "^7.3.10"
   }
 }

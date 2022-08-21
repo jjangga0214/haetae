@@ -15,6 +15,10 @@
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
+  "peerDependencies": {
+    "@haetae/core": "workspace:~",
+    "@haetae/utils": "workspace:~"
+  },
   "dependencies": {
     "dependency-tree": "^8.1.1",
     "find-up": "^5",
@@ -28,10 +32,6 @@
     "@haetae/core": "workspace:~",
     "@haetae/utils": "workspace:~",
     "@types/semver": "^7.3.10"
-  },
-  "peerDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~"
   },
   "keywords": [
     "haetae",
