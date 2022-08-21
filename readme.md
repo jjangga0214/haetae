@@ -9,6 +9,7 @@ Incremental tasks - test, lint, build, and more - for any environment.
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-ffab00.svg?style=flat-square&labelColor=black)](https://conventionalcommits.org)
 [![Commitizen friendly](https://img.shields.io/badge/Commitizen-cz_conventional_changelog-dd2c00.svg?style=flat-square&labelColor=black)](http://commitizen.github.io/cz-cli/)
 ![pr welcome](https://img.shields.io/badge/PRs-welcome-09FF33.svg?style=flat-square&labelColor=black)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjjangga0214%2Fhaetae.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjjangga0214%2Fhaetae?ref=badge_shield)
 
 🚧 WIP (The readme is out of date. It is to be rewritten soon.)
 
@@ -138,3 +139,6 @@ You can read each packages' detailed docs of how each functions work.
 ## License
 
 MIT License. Copyright © 2021, GIL B. Chan <github.com/jjangga0214> <bnbcmindnpass@gmail.com>
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjjangga0214%2Fhaetae.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjjangga0214%2Fhaetae?ref=badge_large)
