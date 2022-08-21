@@ -137,4 +137,6 @@ You can read each packages' detailed docs of how each functions work.
 
 ## License
 
-MIT License. Copyright © 2021, GIL B. Chan <github.com/jjangga0214> <bnbcmindnpass@gmail.com>
+[MIT License](license). Copyright © 2021, GIL B. Chan <github.com/jjangga0214> <bnbcmindnpass@gmail.com>
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjjangga0214%2Fhaetae.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjjangga0214%2Fhaetae?ref=badge_large)
