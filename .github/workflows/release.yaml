@@ -11,7 +11,7 @@ on:
       - .editorconfig
       - commitlint.config.js
       - license
-      - docs/urls.json # By `stefanzweifel/git-auto-commit-action`, the file would be pushed alone.
+      - docs/urls.json
   pull_request:
     paths-ignore:
       - '.devbots/**'
@@ -20,7 +20,7 @@ on:
       - .editorconfig
       - commitlint.config.js
       - license
-      - docs/urls.json # By `stefanzweifel/git-auto-commit-action`, the file would be pushed alone.
+      - docs/urls.json
 
 # for `concurrency`, release should be an independent workflow. (e.g. from test, lint, etc)
 concurrency: ${{ github.workflow }}-${{ github.ref }}
@@ -96,4 +96,4 @@ jobs:
         with:
           commit_message: 'docs: add url'
         env:
-          HUSKY: 0 # For stefanzweifel/git-auto-commit-action to commit, let's ignore husky
+          HUSKY: 0 # To commit, let's ignore husky

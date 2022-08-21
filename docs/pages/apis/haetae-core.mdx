@@ -389,13 +389,13 @@ The return value is a normalized result of user-given config.
 `configure(obj){:ts}` is eqaul to `configure(configure(obj)){:ts}`.
 </Callout>
 
-### `FilenameOption`
+### `GetConfigOptions`
 
 An argument interface of function [`getConfig`](#getconfig) and [`deleteStore`](#deletestore).
 
 ```ts
-interface FilenameOption {
-  filename?: PromiseOr<string> // It should be an absolute path
+interface GetConfigOptions {
+  filename?: string
 }
 ```
 
@@ -409,7 +409,7 @@ A function to get config object by config file path.
 
 <TokenLinkCode tokens={['GetConfigOptions', 'HaetaeConfig']}>
 ```ts
-<D = unknown, E = unknown>(options?: FilenameOption) => Promise<HaetaeConfig<D, E>>
+<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>
 ```
 </TokenLinkCode>
 
@@ -433,10 +433,10 @@ Initializes an empty store. It just returns an object. It does not save it as a 
 
 An argument interface of function [`getStore`](#getstore).
 
-<TokenLinkCode tokens={['FilenameOption', 'HaetaeStore']}>
+<TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
-interface GetStoreOptions<D = unknown, E = unknown>
-  extends FilenameOption {
+interface GetStoreOptions<D = unknown, E = unknown> {
+  filename?: string
   fallback?: ({
     filename,
     error,
@@ -678,9 +678,10 @@ A function to add a new record under the given command to store.
 
 An argument interface of function [`saveStore`](#savestore).
 
-<TokenLinkCode tokens={['FilenameOption', 'HaetaeStore']}>
+<TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
-interface SaveStoreOptions extends FilenameOption {
+interface SaveStoreOptions {
+  filename?: string
   store?: PromiseOr<HaetaeStore>
 }
 ```
@@ -705,6 +706,16 @@ File IO and Memoization cache clear is done sequentially in synchronous manner, 
 - `filename?{:ts}` : A file path to write store on. <small>(default: [`getStoreFilename(){:ts}`](#getstorefilename))</small>
 - `store?{:ts}` : A store object to save. <small>(default: [`addRecord(){:ts}`](#addrecord))</small>
 
+### `DeleteStoreOptions`
+
+An argument interface of function [`deleteStore`](#deleteStore).
+
+```ts
+interface DeleteStoreOptions {
+  filename?: string
+}
+```
+
 ### `deleteStore`
 
 A function to delete the entire store by removing the store file.<br/>
@@ -713,9 +724,9 @@ File IO and Memoization cache clear is done sequentially in synchronous manner, 
 
 **Type**
 
-<TokenLinkCode tokens={['FilenameOption']}>
+<TokenLinkCode tokens={['DeleteStoreOptions']}>
 ```ts
-(options?: FilenameOption) => Promise<void>
+(options?: DeleteStoreOptions) => Promise<void>
 ```
 </TokenLinkCode>
 

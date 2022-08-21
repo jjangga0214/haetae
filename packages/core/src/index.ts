@@ -228,18 +228,14 @@ export function configure<D = unknown, E = unknown>({
   }
 }
 
-export interface FilenameOption {
-  filename?: PromiseOr<string> // It should be an absolute path
+export interface GetConfigOptions {
+  filename?: string
 }
 
-/**
- * The function will fill in default values if not already configured..
- * @memoized
- */
 export const getConfig = memoizee(
   async <D = unknown, E = unknown>({
     filename = getConfigFilename(),
-  }: FilenameOption = {}): Promise<HaetaeConfig<D, E>> => {
+  }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     let _filename = await filename
     _filename = upath.normalize(_filename)
@@ -269,8 +265,8 @@ export function initNewStore<D = unknown, E = unknown>(): HaetaeStore<D, E> {
   return { version: pkg.version.value, commands: {} }
 }
 
-export interface GetStoreOptions<D = unknown, E = unknown>
-  extends FilenameOption {
+export interface GetStoreOptions<D = unknown, E = unknown> {
+  filename?: string
   // When there's no store file yet.
   fallback?: ({
     filename,
@@ -281,11 +277,6 @@ export interface GetStoreOptions<D = unknown, E = unknown>
   }) => PromiseOr<HaetaeStore<D, E>> | never
 }
 
-/**
- * @throw if the file does not exist
- * `config.storeFile` should be absolute path
- * @memoized
- */
 export const getStore = memoizee(
   async <D = unknown, E = unknown>({
     filename = getStoreFilename(),
@@ -325,9 +316,6 @@ export interface CommandFromConfig<D = unknown, E = unknown> {
   config?: PromiseOr<HaetaeConfig<D, E>>
 }
 
-/**
- * @memoized
- */
 export const invokeEnv = memoizee(
   async <E = unknown>({
     command = getCurrentCommand(),
@@ -361,9 +349,6 @@ export interface GetRecordOptions<D = unknown, E = unknown>
   env?: PromiseOr<E | null>
 }
 
-/**
- * @returns true if those envs are identical, false otherwise.
- */
 export function compareEnvs(one: unknown, theOther: unknown): boolean {
   let sOne
   let sTheOther
@@ -420,10 +405,6 @@ export interface AddRecordOptions<D = unknown, E = unknown> {
   record?: PromiseOr<HaetaeRecord<D, E>>
 }
 
-/**
- * This creates a new store from previous store
- * The term map is coined from map function
- */
 export async function addRecord<D = unknown, E = unknown>({
   config = getConfig(),
   command = getCurrentCommand(),
@@ -461,7 +442,8 @@ export async function addRecord<D = unknown, E = unknown>({
   })
 }
 
-export interface SaveStoreOptions extends FilenameOption {
+export interface SaveStoreOptions {
+  filename?: string
   store?: PromiseOr<HaetaeStore>
 }
 
@@ -479,9 +461,13 @@ export async function saveStore({
   getStore.clear() // memoization cache clear
 }
 
+export interface DeleteStoreOptions {
+  filename?: string
+}
+
 export async function deleteStore({
   filename = getStoreFilename(),
-}: FilenameOption = {}): Promise<void> {
+}: DeleteStoreOptions = {}): Promise<void> {
   fs.unlinkSync(await filename)
   getStore.clear() // memoization cache clear
 }
