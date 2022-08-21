@@ -67,10 +67,6 @@ export interface HashOptions {
 }
 
 // TODO: glob patterns and directories
-/**
- * The order of files affects to the final hash.
- * For example, `hashFile(['foo.ts', 'bar.ts'])` !== `hashFile(['bar.ts', 'foo.ts'])`
- */
 export async function hash(
   files: readonly string[],
   { algorithm = 'sha256', rootDir = getConfigDirname() }: HashOptions = {},

@@ -39,10 +39,6 @@ export const setConfigFilename = (
   configFilename = filename
 }
 
-/**
- * @memoized
- * @returns {string}: always an absolute, normalized path.
- */
 export const getConfigFilename = memoizee((): string => {
   let filename = configFilename || '.'
   filename = upath.normalize(filename)
@@ -70,9 +66,6 @@ export const setStoreFilename = (filename: string | undefined) => {
   storeFilename = filename
 }
 
-/**
- * @returns {string}: always an absolute, normalized path.
- */
 export const getStoreFilename = (): string => {
   let filename = storeFilename || '.'
   filename = upath.normalize(filename)
@@ -151,10 +144,6 @@ export interface HaetaeConfig<D = unknown, E = unknown> {
   storeFile: string
 }
 
-/**
- * @param preConfig: config object provided from user.
- * @returns
- */
 export function configure<D = unknown, E = unknown>({
   commands,
   env = (envFromCommand) => envFromCommand,
