@@ -56,10 +56,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --silent --frozen-lockfile
 
-      # - name: Test And Measure Coverage
-      #   run: pnpm jest --coverage --ci --reporters=jest-junit
-      #   env:
-      #     JEST_JUNIT_OUTPUT_DIR: ./coverage
+      - name: Test And Measure Coverage
+        run: pnpm jest --coverage --ci
+
+      - uses: codecov/codecov-action@v3
 
       - name: Lint
         run: pnpm lint .
