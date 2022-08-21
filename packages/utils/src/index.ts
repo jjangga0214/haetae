@@ -7,7 +7,7 @@ import hasha from 'hasha'
 export { default as pkg } from './pkg'
 
 export interface GlobOptions {
-  rootDir?: string // should be absolute path // This is a facade option for globbyOptions.cwd
+  rootDir?: string
   globbyOptions?: globby.GlobbyOptions
 }
 
@@ -33,13 +33,7 @@ export interface ExecOptions {
   gid?: number | undefined
   cwd?: string | URL | undefined
   env?: NodeJS.ProcessEnv | undefined
-  /**
-   * @default true
-   */
   windowsHide?: boolean | undefined
-  /**
-   * @default 0
-   */
   timeout?: number | undefined
   shell?: string | undefined
   maxBuffer?: number | undefined

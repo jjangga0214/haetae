@@ -3,23 +3,16 @@ import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { getConfigDirname } from '@haetae/core'
 import { DepsGraph, graph } from '@haetae/utils'
-import { RootDirOption } from './version'
 
 export { default as pkg } from './pkg'
-export { version, RootDirOption } from './version'
+export { VersionOptions, version } from './version'
 
-export interface DependsOnOptions extends RootDirOption {
+export interface DependsOnOptions {
+  rootDir?: string
   tsConfig?: string
   additionalGraph?: DepsGraph // you can manually specify additional dependency graph
 }
 
-/**
- * @param rootDir has to be absolute path
- * @param edges // You can specify any dependency graph regardless of extension
- * [ // When foo depends on bar and baz.
- *   { 'dependents': ['path/to/foo.ts'], dependencies: ['path/to/bar.ts', 'path/to/baz.ts'],
- * ]
- */
 export function dependsOn(
   dependencyCandidates: readonly string[],
   {

@@ -269,9 +269,6 @@ interface ChangedFilesOptions extends RootDirOption {
   to?: string | Promise<string | undefined | null | void>
   includeUntracked?: boolean
   includeIgnored?: boolean
-  // When commit ID is not given,
-  // or commit ID cannot be found from record,
-  // or `git diff` fails (e.g. by forced push)
   fallback?: (error?: Error) => PromiseOr<string[]> | never
 }
 ```
