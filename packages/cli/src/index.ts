@@ -24,7 +24,7 @@ import * as ui from './ui'
 
 export { default as pkg } from './pkg'
 
-export async function run() {
+export async function run(): Promise<void> {
   let y
   try {
     y = await yargs(hideBin(process.argv))
@@ -73,7 +73,7 @@ export async function run() {
       .conflicts('i', 'c')
       .conflicts('i', 's')
       .conflicts('i', 'r')
-      .conflicts('i', 'c')
+      .conflicts('i', 'd')
       .conflicts('i', 'e')
       .example([
         [`$0 -c ./${defaultConfigFile} <...>`, 'Specify config file path.'],
