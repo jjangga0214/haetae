@@ -2,4 +2,4 @@
 '@haetae/git': patch
 ---
 
-Introduced new functions `untrackedFiles{:ts}` and `ignoredFiles{:ts}`.
+Introduced new functions `untrackedFiles` and `ignoredFiles`.

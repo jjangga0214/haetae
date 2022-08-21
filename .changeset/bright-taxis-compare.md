@@ -2,4 +2,4 @@
 '@haetae/utils': patch
 ---
 
-**BREAKING CHANGE**: `hashFiles` and `hashFilesOptions` are renamed to `hash` and `hashOptions`.
+**BREAKING CHANGE**: `hashFiles` and `HashFilesOptions` are renamed to `hash` and `HashOptions`.
