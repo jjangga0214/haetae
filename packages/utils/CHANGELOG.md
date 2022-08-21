@@ -1,5 +1,14 @@
 # @haetae/utils
 
+## 0.0.12
+
+### Patch Changes
+
+- [`559fa5a`](https://github.com/jjangga0214/haetae/commit/559fa5ac233a0bbea2b1e6ef58b91687a1b1a460) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `hashFiles` and `HashFilesOptions` are renamed to `hash` and `HashOptions`.
+
+- Updated dependencies [[`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492), [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e)]:
+  - @haetae/core@0.0.12
+
 ## 0.0.11
 
 ### Patch Changes

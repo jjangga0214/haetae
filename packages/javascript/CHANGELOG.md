@@ -1,5 +1,15 @@
 # @haetae/javascript
 
+## 0.0.11
+
+### Patch Changes
+
+- [`815e80a`](https://github.com/jjangga0214/haetae/commit/815e80a563b2856895d0e1f44ce4ceacbb38b5dd) Thanks [@jjangga0214](https://github.com/jjangga0214)! - `VersionOptions` is renamed to `RootDirOption`. But this is not a breaking change, as it was not exported. From now on, `RootDirOption` is exported.
+
+- Updated dependencies [[`559fa5a`](https://github.com/jjangga0214/haetae/commit/559fa5ac233a0bbea2b1e6ef58b91687a1b1a460), [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492), [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e)]:
+  - @haetae/utils@0.0.12
+  - @haetae/core@0.0.12
+
 ## 0.0.10
 
 ### Patch Changes
