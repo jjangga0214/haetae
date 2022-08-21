@@ -115,12 +115,12 @@ interface GitHaetaeRecordData {
   Record data can have arbitrary data in it. `'@haetae/git'{:ts}` is a namespace to avoid collision.
 </Callout>
 
-### `RootDirOption`
+### `InstalledOptions`
 
-An argument interface for [`installed{:ts}`](#installed), [`initialized{:ts}`](#initialized), [`branch{:ts}`](#branch) and [`commit{:ts}`](#commit).
+An argument interface for [`installed{:ts}`](#installed).
 
 ```ts
-interface RootDirOption {
+interface InstalledOptions {
   rootDir?: string
 }
 ```
@@ -131,9 +131,9 @@ A function to check whether git is installed on the system.
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['InstalledOptions']}>
 ```ts
-(options?: RootDirOption) => Promise<boolean>()
+(options?: InstalledOptions) => Promise<boolean>()
 ```
 </TokenLinkCode>
 
@@ -141,21 +141,41 @@ A function to check whether git is installed on the system.
 
 - `rootDir?{:ts}` : A directory to execute shell command. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
+### `InitializedOptions`
+
+An argument interface for [`initialized{:ts}`](#initialized).
+
+```ts
+interface InitializedOptions {
+  rootDir?: string
+}
+```
+
 ### `initialized`
 
 A function to check whether git repository is initialized (by `git init{:sh}`).
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['InitializedOptions']}>
 ```ts
-(options?: RootDirOption) => Promise<boolean>
+(options?: InitializedOptions) => Promise<boolean>
 ```
 </TokenLinkCode>
 
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `BranchOptions`
+
+An argument interface for [`branch{:ts}`](#branch).
+
+```ts
+interface BranchOptions {
+  rootDir?: string
+}
+```
 
 ### `branch`
 
@@ -163,15 +183,25 @@ A function to get the current branch name.
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['BranchOptions']}>
 ```ts
-(options?: RootDirOption) => Promise<string>
+(options?: BranchOptions) => Promise<string>
 ```
 </TokenLinkCode>
 
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `CommitOptions`
+
+An argument interface for [`commit{:ts}`](#commit).
+
+```ts
+interface CommitOptions {
+  rootDir?: string
+}
+```
 
 ### `commit`
 
@@ -180,9 +210,9 @@ Return value would be the full 40-character commit hash. <small>(e.g. `'63a5812b
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['CommitOptions']}>
 ```ts
-(options?: RootDirOption) => Promise<string>
+(options?: CommitOptions) => Promise<string>
 ```
 </TokenLinkCode>
 
@@ -220,6 +250,16 @@ A function to form record data for git.
 - `branch?{:ts}` : Current branch. <small>(default: [`branch(){:ts}`](#branch))</small>
 - `pkgVersion?{:ts}` : Version of `@haetae/git{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
 
+### `UntrackedFilesOptions`
+
+An argument interface for [`untrackedFiles{:ts}`](#untrackedfiles).
+
+```ts
+interface InstalledOptions {
+  rootDir?: string
+}
+```
+
 ### `untrackedFiles`
 <br/>
 <PathPrinciples/>
@@ -229,15 +269,25 @@ A function to get a list of [untracked files](https://stackoverflow.com/question
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['UntrackedFilesOptions']}>
 ```ts
-(options?: RootDirOption) => Promise<string[]>
+(options?: UntrackedFilesOptions) => Promise<string[]>
 ```
 </TokenLinkCode>
 
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+### `IgnoredFilesOptions`
+
+An argument interface for [`ignoredFiles{:ts}`](#ignoredfiles).
+
+```ts
+interface IgnoredFilesOptions {
+  rootDir?: string
+}
+```
 
 ### `ignoredFiles`
 <br/>
@@ -248,9 +298,9 @@ A function to get a list of ignored (by .gitignore) files.<br/>
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['IgnoredFilesOptions']}>
 ```ts
-(options?: RootDirOption) => Promise<string[]>
+(options?: IgnoredFilesOptions) => Promise<string[]>
 ```
 </TokenLinkCode>
 

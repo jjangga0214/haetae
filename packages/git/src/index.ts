@@ -12,12 +12,13 @@ export interface GitHaetaeRecordData {
   [pkg.name]: { commit: string; branch: string; pkgVersion: string }
 }
 
-/**
- * Check if git is installed on the system.
- */
+export interface InstalledOptions {
+  rootDir?: string
+}
+
 export async function installed({
   rootDir = getConfigDirname(),
-} = {}): Promise<boolean> {
+}: InstalledOptions = {}): Promise<boolean> {
   try {
     await exec('git --version', {
       cwd: rootDir,
@@ -28,16 +29,13 @@ export async function installed({
   }
 }
 
-export interface RootDirOption {
+export interface InitializedOptions {
   rootDir?: string
 }
 
-/**
- * Check if this is a git repository.
- */
 export async function initialized({
   rootDir = getConfigDirname(),
-}: RootDirOption = {}) {
+}: InitializedOptions = {}) {
   try {
     const res = await exec('git rev-parse --is-inside-work-tree', {
       cwd: rootDir,
@@ -48,20 +46,25 @@ export async function initialized({
   }
 }
 
-/**
- * @returns branch name. return falsy if it's detached HEAD.
- */
+export interface BranchOptions {
+  rootDir?: string
+}
+
 export async function branch({
   rootDir = getConfigDirname(),
-}: RootDirOption = {}): Promise<string> {
+}: BranchOptions = {}): Promise<string> {
   return exec('git branch --show-current', {
     cwd: rootDir,
   })
 }
 
+export interface CommitOptions {
+  rootDir?: string
+}
+
 export async function commit({
   rootDir = getConfigDirname(),
-}: RootDirOption = {}): Promise<string> {
+}: CommitOptions = {}): Promise<string> {
   return exec('git rev-parse --verify HEAD', {
     cwd: rootDir,
   })
@@ -96,9 +99,13 @@ export async function recordData({
   }
 }
 
+export interface UntrackedFilesOptions {
+  rootDir?: string
+}
+
 export async function untrackedFiles({
   rootDir = getConfigDirname(),
-}: RootDirOption = {}): Promise<string[]> {
+}: UntrackedFilesOptions = {}): Promise<string[]> {
   return (
     await exec('git ls-files --others --exclude-standard', {
       cwd: rootDir,
@@ -109,9 +116,13 @@ export async function untrackedFiles({
     .map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
 }
 
+export interface IgnoredFilesOptions {
+  rootDir?: string
+}
+
 export async function ignoredFiles({
   rootDir = getConfigDirname(),
-}: RootDirOption = {}): Promise<string[]> {
+}: IgnoredFilesOptions = {}): Promise<string[]> {
   return (
     await exec('git ls-files --others --exclude-standard --ignored', {
       cwd: rootDir,
@@ -122,23 +133,15 @@ export async function ignoredFiles({
     .map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
 }
 
-export interface ChangedFilesOptions extends RootDirOption {
+export interface ChangedFilesOptions {
+  rootDir?: string
   from?: string | Promise<string | undefined | null | void>
   to?: string | Promise<string | undefined | null | void>
   includeUntracked?: boolean
   includeIgnored?: boolean
-  // When commit ID is not given,
-  // or commit ID cannot be found from record,
-  // or `git diff` fails (e.g. by forced push)
   fallback?: (error?: Error) => PromiseOr<string[]> | never
 }
 
-/**
- * @returns
- *   - an array of changed filename.
- *   - an empth array if no change was made
- *   - every filenames if `commit` is not given
- */
 export const changedFiles = async ({
   from = getRecord<GitHaetaeRecordData>()
     .then(
