@@ -70,7 +70,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install --silent --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Test And Measure Coverage
         run: pnpm jest --coverage --ci

@@ -26,8 +26,6 @@
     "upath": "^2.0.1"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~",
     "@types/semver": "^7.3.10"
   },
   "keywords": [
