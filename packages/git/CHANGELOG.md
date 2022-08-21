@@ -1,5 +1,27 @@
 # @haetae/git
 
+## 0.0.11
+
+### Patch Changes
+
+- [`ba750e8`](https://github.com/jjangga0214/haetae/commit/ba750e8925da34627567a8ce16fce08ee8bf66e1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Export a new function `commit`.
+
+* [`ba750e8`](https://github.com/jjangga0214/haetae/commit/ba750e8925da34627567a8ce16fce08ee8bf66e1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE** : rename `BranchOptions` to `RootDirOption`
+
+- [`8f5a8fe`](https://github.com/jjangga0214/haetae/commit/8f5a8fe85258feca9ccc9a07b5dc1ac54935dc7b) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed `RecordOptions` to `RecordDataOptions`. This rename has to be done before, but missed.
+
+* [`8f5a8fe`](https://github.com/jjangga0214/haetae/commit/8f5a8fe85258feca9ccc9a07b5dc1ac54935dc7b) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: From now on, for `changedFiles`, when `option.from` is awaited (`Promise`) to be `undefined`, and `options.to` is string or awaited to be string, the result would include all of the tracked files that have been committed until `options.to`. Previosly, `options.fallback` was called, but it's not invoked anymore for that case. From now on, `options.fallback` is called when `options.to` is resolved to be `undefined`.
+
+- [`6b34192`](https://github.com/jjangga0214/haetae/commit/6b34192cb24a5070052ea687d4503561c19438f2) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `isInstalled` and `isInitialized` are renamed to `installed` and `initialized`.
+
+* [`db0df01`](https://github.com/jjangga0214/haetae/commit/db0df015ba943771da7bb0cb0c8281d5b5e319ca) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Introduced new functions `untrackedFiles` and `ignoredFiles`.
+
+- [`db0df01`](https://github.com/jjangga0214/haetae/commit/db0df015ba943771da7bb0cb0c8281d5b5e319ca) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed an issue that, for `changedFiles`, `options.includeIgnored` is ignored when `options.includeUntracked` is `false`. From now on, `options.includeIgnored` and `options.includeUntracked` are independent.
+
+- Updated dependencies [[`559fa5a`](https://github.com/jjangga0214/haetae/commit/559fa5ac233a0bbea2b1e6ef58b91687a1b1a460), [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492), [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e), [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e)]:
+  - @haetae/utils@0.0.12
+  - @haetae/core@0.0.12
+
 ## 0.0.10
 
 ### Patch Changes

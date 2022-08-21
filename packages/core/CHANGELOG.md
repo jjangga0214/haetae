@@ -1,5 +1,19 @@
 # @haetae/core
 
+## 0.0.12
+
+### Patch Changes
+
+- [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `GetConfigOptions` is renamed to `FilenameOption`
+
+* [`930e0d5`](https://github.com/jjangga0214/haetae/commit/930e0d5f9516b4fdfa0ff76ee8a521ec0aabf492) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `mapStore` and `MapStoreOptions` is renamed to `addRecord` and `AddRecordOptions`.
+
+- [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `configure` returns `storeFile` as an absolute path.
+
+* [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e) Thanks [@jjangga0214](https://github.com/jjangga0214)! - `storeFilename` becomes module state and can be set/get by `setStoreFilename` and `getStoreFilename`.
+
+- [`a862b02`](https://github.com/jjangga0214/haetae/commit/a862b02234f9743120439773c54a8cdfb42e3b2e) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Default path of store file is `.haetae/store.json` instead of `haetae.store.json`.
+
 ## 0.0.11
 
 ### Patch Changes
