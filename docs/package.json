@@ -10,7 +10,7 @@
     "start": "next start",
     "build": "next build",
     "lint": "next lint",
-    "add-url": "node workflows/deploy.js"
+    "add-url": "node workflows/add-url.js"
   },
   "dependencies": {
     "@emotion/react": "^11.10.0",

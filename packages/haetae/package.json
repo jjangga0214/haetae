@@ -27,7 +27,7 @@
     "semver": "^7.3.7",
     "upath": "^2.0.1"
   },
-   "devDependencies": {
+  "devDependencies": {
     "@types/semver": "^7.3.10"
   },
   "keywords": [
@@ -37,7 +37,7 @@
     "build",
     "incremental",
     "ci",
-    "devOps",
+    "DevOps",
     "monorepo"
   ],
   "repository": {
