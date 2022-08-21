@@ -1,0 +1,4 @@
+# REF: https://github.com/apps/devbots-needs-triage/
+enabled: true
+label: 'needs-triage'
+delay: 3
