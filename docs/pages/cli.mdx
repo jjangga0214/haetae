@@ -1,0 +1,326 @@
+import { Callout } from 'nextra-theme-docs'
+import TokenLinkCode from '../components/TokenLinkCode'
+
+# CLI
+
+```sh
+$ haetae [<options>] [<command>]
+$ ht [<options>] [<command>]
+```
+
+**`ht`** is shorthand alias of **`haetae`**.
+
+For example:
+
+```sh
+$ ht --help # Equal to `haetae --help`
+$ ht --version # Equal to `haetae --version`
+```
+
+## Commands
+
+You define your commands in the config file.<br/>
+
+For example,
+
+**haetae.config.js**
+
+<TokenLinkCode tokens={{'.configure': 'apis/haetae-core#configure', '.exec': 'apis/haetae-utils#exec'}}>
+```js
+import { core, utils } from 'haetae'
+
+export default core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myAwesomeCommand: {
+      run: async () => {
+        const stdout = await utils.exec('echo hello, world!')
+        console.log(stdout)
+      },
+      env: { /* ommitted for brevity. */ }
+    },
+    myAnotherCommand: {
+      run: async () => {
+        const stdout = await utils.exec('echo hi, there!')
+        console.log(stdout)
+      },
+      env: { /* ommitted for brevity. */ }
+    },
+    // ... more commands
+  },
+})
+```
+</TokenLinkCode>
+
+Then the commands becomes available from the CLI.<br/>
+
+```sh
+$ haetae myAwesomeCommand
+
+hello world!
+```
+
+or
+
+```sh
+$ haetae myAnotherCommand
+
+hi, there!
+```
+
+## Options
+
+### `-h, --help`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+If specified, usage help is shown.
+
+#### Usage
+
+```sh
+$ haetae --help
+```
+#### Conflicts
+
+This options should not be used with other options.
+
+### `-v, --version`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+If specified, the version of cli is shown.
+
+<Callout>
+It is version of `@haetae/cli{:ts}`, not version of other `@haetae/*{:ts}` or the package `haetae{:ts}`.
+If you want to know comprehensive versions, use [`-i, --info{:sh}`](#-i---info).
+</Callout>
+
+#### Usage
+
+```sh
+$ haetae --version
+```
+
+#### Conflicts
+
+This options should not be used with other options.
+
+### `-c, --config`
+<br/>
+<small>(**Type** : `string`)</small>
+
+A config file path.
+
+#### Usage
+
+```sh
+$ haetae --config path/to/haetae.config.js [<other-options>] <command>
+```
+
+<Callout>
+**Config File Priority**<br/>
+1. The option `-c, --config`
+2. Environment variable `$HAETAE_CONFIG_FILE`
+3. Finding `haetae.config.js` by walking up parent directories recursively from [`process.cwd{:ts}`](https://nodejs.org/api/process.html#processcwd)
+</Callout>
+
+#### Conflicts
+
+This options should not be used with these options.
+
+- [`-i, --info{:sh}`](#-i---info)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
+
+### `-s, --store`
+<br/>
+<small>(**Type** : `string`)</small>
+
+A store file path.
+
+#### Usage
+
+```sh
+$ haetae --store path/to/.haetae/store.json [<other-options>] <command>
+```
+
+<Callout>
+**Store File Priority**<br/>
+1. The option `-s, --store`
+2. [`storeFile`](./haetae-core#haetaepreconfig) of config file.
+3. <TokenLinkCode tokens={{'directory-of-config-file': './apis/haetae-core#getconfigdirname'}}>`<directory-of-config-file>/.haetae/store.json{:sh}`</TokenLinkCode>
+</Callout>
+
+#### Conflicts
+
+This options should not be used with these options.
+
+- [`-i, --info{:sh}`](#-i---info)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
+
+### `-e, --env`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+#### When used with `<command>{:sh}`
+
+`env` of the `<command>{:sh}` in the config file is resolved.<br/>
+The resolved value, which is current `env`, is shown on the shell.
+```sh
+$ haetae --env <command>
+```
+
+#### When used with `-r, --record{:sh}` and `<command>{:sh}`
+
+The `<command>{:sh}`'s record for current `env` is shown.<br/>
+This means, `env` in the config file is resolved, and the command's record matching with the resolved `env` is searched from the store file.
+
+```sh
+$ haetae --record --env <command>
+```
+
+#### When used with `-d, --record-data{:sh}` and `<command>{:sh}`
+
+The `<command>{:sh}`'s record data for current `env` is shown.<br/>
+This means, `env` in the config file is resolved, and the command's record data matching with the resolved `env` is searched from the store file.
+
+```sh
+$ haetae --record-data --env <command>
+```
+
+#### Conflicts
+
+This options should not be used with these options.
+
+- [`-i, --info{:sh}`](#-i---info)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
+
+### `-r, --record`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+#### When used alone
+
+Content of store file is shown.
+
+```sh
+$ haetae --record
+```
+
+#### When used with command
+
+A list of every records of the command is shown.
+
+```sh
+$ haetae --record <command>
+```
+
+#### When used with `-e, --env` and `<command>{:sh}`
+
+The `<command>{:sh}`'s record for current `env` is shown.<br/>
+This means, `env` in the config file is resolved, and the command's record matching with the resolved `env` is searched from the store file.
+
+```sh
+$ haetae --record --env <command>
+```
+
+#### Conflicts
+
+This options should not be used with these options.
+
+- [`-d, --record-data{:sh}`](#-d---record-data)
+- [`-i, --info{:sh}`](#-i---info)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
+
+### `-d, --record-data`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+#### When used with command
+
+A list of every record data of the command is shown.
+
+```sh
+$ haetae --record-data <command>
+```
+
+#### When used with `-e, --env` and `<command>{:sh}`
+
+The `<command>{:sh}`'s record data for current `env` is shown.<br/>
+This means, `env` in the config file is resolved, and the command's record data matching with the resolved `env` is searched from the store file.
+
+```sh
+$ haetae --record-data --env <command>
+```
+
+#### Conflicts
+
+This options should not be used with these options.
+
+- [`-r, --record{:sh}`](#-r---record)
+- [`-i, --info{:sh}`](#-i---info)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
+
+### `-i, --info`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+If specified, comprehensive information about the running environment is shown.<br/>
+The information is also automatically copied to the clipboard, without ANSI color code.<br/>
+**You can attach the result when [reporting a bug](https://github.com/jjangga0214/haetae/issues)**.
+
+<Callout>
+**Why auto-copied without ANSI color code?**<br/>
+ANSI color code is good for readability on terminal.
+However, many sites (e.g. GitHub), chat apps (e.g. Slack), and note-taking apps (e.g. Notion) do not support ANSI color code.
+This hinders ease of sharing and reporting. That's why plain text is copied to the clipboard.
+</Callout>
+
+#### Usage
+
+```sh
+$ haetae --info
+```
+
+#### Conflicts
+
+This options should not be used with other options, except [``-j, --json``](#-j---json).
+
+### `-j, --json`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false`)</small>
+
+This option exists for programatic use (e.g. unix pipeline).<br/>
+If specified, the result (**stdout**, **stderr**) would be expressed in JSON format without ANSI color code.<br/>
+
+#### Usage
+
+You can freely use this option to transform any result into JSON.
+
+```sh
+$ haetae --json [<other-options>] [<command>]
+```
+
+For examples,
+
+```sh
+$ haetae --record --json
+$ haetae --record --json <command>
+$ haetae --record --env --json <command>
+$ haetae --record--data --json <command>
+$ haetae --record--data --env --json <command>
+$ haetae --env --json <command>
+$ haetae --info --json
+```
+
+#### Conflicts
+
+This options should not be used with these options.
+
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)

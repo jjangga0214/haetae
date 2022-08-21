@@ -73,26 +73,10 @@ export default core.configure({
 
 ## CLI
 
-`haetae{:ts}` also exports `cli` as API.
-However, you probably don't need it.
-Because, in general, the CLI features are to be used as CLI, not as API.
-`haetae{:ts}` is a CLI by itself, providing exactly same features of `@haetae/cli{:ts}`.
+`haetae{:ts}` is CLI as well as API.<br/>
+`haetae{:ts}` provides exactly same CLI features as [`@haetae/cli{:ts}`](./haetae-cli).
 
-**haetae** is the CLI bin name.
-
-```bash
-haetae --help
-haetae --version
-```
-
-**ht** is its shorthand alias.
-
-```bash
-ht --help # identical to `haetae --help`
-ht --version # identical to `haetae --version`
-```
-
-**For detailed usage as CLI, refer to [`@haetae/cli{:ts}`](./haetae-cli).**
+**For detailed usage and description as CLI, refer to [CLI](../cli).**
 
 ## API
 
@@ -118,4 +102,7 @@ Refer to [`@haetae/git{:ts}`](./haetae-git).
 
 ### `cli`
 
-Refer to [`@haetae/cli{:ts}`](./haetae-cli).
+The exported `cli{:ts}` is API of [`@haetae/cli{:ts}`](./haetae-cli).<br/>
+You probably don't need it.<br/>
+Because, in general, the CLI features are used as CLI, not as API.<br/>
+If you really need the API, refer to [`@haetae/cli{:ts}`](./haetae-cli).<br/>

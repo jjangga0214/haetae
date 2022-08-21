@@ -1,5 +1,5 @@
-import PkgManagerTabs from '../../components/PkgManagerTabs'
 import { Callout } from 'nextra-theme-docs'
+import PkgManagerTabs from '../../components/PkgManagerTabs'
 
 # `@haetae/cli{:ts}`
 
@@ -86,9 +86,60 @@ Then, check out `peerDependencies` and manually handle them.<br/>
 # This does not install, but just show peerDependencies.
 npm info @haetae/cli peerDependencies
 ```
+## CLI
+
+For detailed usage and description as CLI, refer to [CLI](../cli).
 
 ## API
 
 ### `pkg`
 
 Refer to [introduction#pkg](./introduction#pkg).
+
+### `run`
+
+A function to run the CLI.
+
+**Type**
+
+```ts
+() => Promise<void>
+```
+
+#### Usage
+
+`@haetae/cli{:ts}` itself is already CLI.
+However, if you want to embed the CLI in another package, you can do so by `run`.
+**In fact, this is what `haetae{:ts}` does with `@haetae/cli{:ts}`.**
+
+Let's say you want to create a CLI `your-command{:sh}` and `yc{:sh}` (short for `your-command`).
+
+**src/cli.js** of `@your/package{:ts}`
+
+Note that you should add [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) for nodejs.
+
+```js
+#!/usr/bin/env node
+import { run } from '@haetae/cli'
+// Or `import { cli: { run } } from 'haetae'`
+
+run()
+```
+
+**package.json** of `@your/package`
+
+```jsonc
+{
+  "name": "@your/package",
+  "files": [
+    "src"
+  ],
+  "bin": {
+    "your-command": "src/cli.js",
+    "yc": "src/cli.js"
+  }
+}
+```
+
+After installing `@your/package{:ts}`, `npx your-command{:sh}` or `npx yc{:sh}` would execute **src/cli.js**.<br/>
+Refer to the official [npm docs](https://docs.npmjs.com/cli/v8/configuring-npm/package-json#bin) for more detail.
