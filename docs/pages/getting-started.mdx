@@ -1,21 +1,32 @@
 import { Callout } from 'nextra-theme-docs'
+import PkgManagerTabs from '../components/PkgManagerTabs'
 
 # Getting Started
 
-Haetae is simple and flexible.<br/>
-You can incrementally adopt it for existing projects.<br/>
-It also works well with monorepos.
+It's simple and flexible.<br/>
+You can easily use it both for a new project or an existing project.<br/>
+It works well with monorepo as well.
 
 ## Installation
 
-```sh
-npm install haetae
+<br/>
+
+<PkgManagerTabs>
+```bash
+npm install --save-dev haetae
 ```
+```bash
+yarn add --dev haetae
+```
+```bash
+pnpm add --save-dev haetae
+```
+</PkgManagerTabs>
 
 <Callout>
-  **Are you developing a library(e.g. plugin) for Haetae?** <br />
-  You can install [`@haetae/core`](apis/haetae-core), [`@haetae/utils`](apis/haetae-utils),
-  [`@haetae/git`](apis/haetae-git), [`@haetae/javascript`](apis/haetae-javascript),
-  [`@haetae/cli`](apis/haetae-cli) independently. Note that the package [`haetae`](apis/haetae)
+  **Are you developing a library (e.g. plugin) for Haetae?** <br/>
+  You can install [`@haetae/core{:ts}`](apis/haetae-core), [`@haetae/utils{:ts}`](apis/haetae-utils),
+  [`@haetae/git{:ts}`](apis/haetae-git), [`@haetae/javascript{:ts}`](apis/haetae-javascript),
+  [`@haetae/cli{:ts}`](apis/haetae-cli) independently. Note that the package [`haetae{:ts}`](apis/haetae)
   include all of them.
 </Callout>
