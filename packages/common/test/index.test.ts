@@ -5,7 +5,7 @@ describe('toAbsolutePath', () => {
   test('when `rootDir` is absolute', async () => {
     expect(
       toAbsolutePath({
-        file: 'path/to/foo.ts',
+        path: 'path/to/foo.ts',
         rootDir: '/root/dir',
       }),
     ).toBe('/root/dir/path/to/foo.ts')
@@ -13,18 +13,26 @@ describe('toAbsolutePath', () => {
   test('when `rootDir` is relative', async () => {
     expect(
       toAbsolutePath({
-        file: 'path/to/foo.ts',
+        path: 'path/to/foo.ts',
         rootDir: '../../dir',
       }),
     ).toBe(upath.join(process.cwd(), '../../dir', 'path/to/foo.ts'))
   })
-  test('when `file` is absolute', async () => {
+  test('when `path` is absolute', async () => {
     expect(
       toAbsolutePath({
-        file: '/path/to/foo.ts',
+        path: '/path/to/foo.ts',
         rootDir: '/root/dir',
       }),
     ).toBe('/path/to/foo.ts')
+  })
+  test('when `path` is directory', async () => {
+    expect(
+      toAbsolutePath({
+        path: 'path/to/',
+        rootDir: '/root/dir',
+      }),
+    ).toBe('/root/dir/path/to/')
   })
 })
 

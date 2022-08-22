@@ -4,22 +4,22 @@ import { major, minor, patch, prerelease } from 'semver'
 import readPkgUp from 'read-pkg-up'
 
 export interface ToAbsolutePathOptions {
-  file: string
+  path: string
   rootDir: string
 }
 
 export function toAbsolutePath({
-  file,
+  path,
   rootDir,
 }: ToAbsolutePathOptions): string {
   // eslint-disable-next-line no-param-reassign
-  file = upath.normalize(file)
+  path = upath.normalize(path)
   // eslint-disable-next-line no-param-reassign
   rootDir = upath.resolve(rootDir) // It becomes an absolute path
-  if (upath.isAbsolute(file)) {
-    return file
+  if (upath.isAbsolute(path)) {
+    return path
   }
-  return upath.join(rootDir, file)
+  return upath.join(rootDir, path)
 }
 
 export function parseVersion(version: string) {
