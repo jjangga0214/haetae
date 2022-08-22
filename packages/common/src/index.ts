@@ -34,7 +34,7 @@ export function parseVersion(version: string) {
   }
 }
 
-export interface PkgOptions<T extends string> {
+export interface ParsePkgOptions<T extends string> {
   name: T
   rootDir: string
 }
@@ -44,10 +44,10 @@ export interface Pkg<T extends string> {
   version: ReturnType<typeof parseVersion>
 }
 
-export function pkg<T extends string>({
+export function parsePkg<T extends string>({
   name,
   rootDir,
-}: PkgOptions<T>): Pkg<T> {
+}: ParsePkgOptions<T>): Pkg<T> {
   const res = readPkgUp.sync({ cwd: rootDir })
   assert(res, 'package.json is not a found.')
   const { packageJson } = res

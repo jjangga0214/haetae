@@ -1,5 +1,5 @@
 import upath from 'upath'
-import { toAbsolutePath, parseVersion, pkg } from '../src/index'
+import { toAbsolutePath, parseVersion, parsePkg } from '../src/index'
 
 describe('toAbsolutePath', () => {
   test('when `rootDir` is absolute', async () => {
@@ -89,7 +89,7 @@ describe('parseVersion', () => {
 describe('pkg', () => {
   test('basic usage', async () => {
     expect(
-      pkg({
+      parsePkg({
         name: '@haetae/common',
         rootDir: __dirname,
       }).name,
