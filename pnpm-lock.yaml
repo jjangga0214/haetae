@@ -141,6 +141,7 @@ importers:
       yaml: ^2.1.1
       yargs: ^17.5.1
     dependencies:
+      '@haetae/common': link:../common
       chalk: 4.1.2
       clipboardy: 2.3.0
       commander: 8.3.0
@@ -159,7 +160,6 @@ importers:
       yaml: 2.1.1
       yargs: 17.5.1
     devDependencies:
-      '@haetae/common': link:../common
       '@haetae/core': link:../core
       '@types/envinfo': 7.8.1
       '@types/lodash.isempty': 4.4.7

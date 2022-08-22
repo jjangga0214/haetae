@@ -34,6 +34,32 @@ describe('toAbsolutePath', () => {
       }),
     ).toBe('/root/dir/path/to/')
   })
+  test('when `path` and `rootDir` are same', async () => {
+    expect(
+      toAbsolutePath({
+        path: '../',
+        rootDir: '../',
+      }),
+    ).toBe(upath.join(process.cwd(), '..'))
+    expect(
+      toAbsolutePath({
+        path: '..',
+        rootDir: '../',
+      }),
+    ).toBe(upath.join(process.cwd(), '..'))
+    expect(
+      toAbsolutePath({
+        path: '../',
+        rootDir: '..',
+      }),
+    ).toBe(upath.join(process.cwd(), '..'))
+    expect(
+      toAbsolutePath({
+        path: '..',
+        rootDir: '..',
+      }),
+    ).toBe(upath.join(process.cwd(), '..'))
+  })
 })
 
 describe('parseVersion', () => {

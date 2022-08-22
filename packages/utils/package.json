@@ -19,6 +19,7 @@
     "@haetae/core": "workspace:~"
   },
   "dependencies": {
+    "@haetae/common": "workspace:~",
     "globby": "^11",
     "hasha": "^5.2.2",
     "read-pkg": "^5.2.0",

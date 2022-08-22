@@ -14,10 +14,17 @@ export function toAbsolutePath({
 }: ToAbsolutePathOptions): string {
   // eslint-disable-next-line no-param-reassign
   path = upath.normalize(path)
-  // eslint-disable-next-line no-param-reassign
-  rootDir = upath.resolve(rootDir) // It becomes an absolute path
   if (upath.isAbsolute(path)) {
     return path
+  }
+  // eslint-disable-next-line no-param-reassign
+  rootDir = upath.resolve(rootDir) // It becomes an absolute path
+  // eslint-disable-next-line no-param-reassign
+  rootDir = rootDir.endsWith('/') ? rootDir : `${rootDir}/`
+  const resolvedPath = upath.resolve(path)
+
+  if (resolvedPath.startsWith(rootDir) || `${resolvedPath}/` === rootDir) {
+    return upath.resolve(path)
   }
   return upath.join(rootDir, path)
 }

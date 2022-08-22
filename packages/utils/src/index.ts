@@ -3,8 +3,9 @@ import globby from 'globby'
 import childProcess from 'child_process'
 import { getConfigDirname } from '@haetae/core'
 import hasha from 'hasha'
+import { parsePkg, toAbsolutePath } from '@haetae/common'
 
-export { default as pkg } from './pkg'
+export const pkg = parsePkg({ name: '@haetae/utils', rootDir: __dirname })
 
 export interface GlobOptions {
   rootDir?: string
@@ -16,6 +17,8 @@ export async function glob(
   { rootDir = getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
 ): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  // eslint-disable-next-line no-param-reassign
   globbyOptions.cwd = globbyOptions.cwd || rootDir
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -23,9 +26,7 @@ export async function glob(
   globbyOptions.gitignore =
     globbyOptions.gitignore === undefined ? true : globbyOptions.gitignore
   const res = await globby(patterns, globbyOptions)
-  return res
-    .map((file) => (upath.isAbsolute(file) ? file : upath.join(rootDir, file)))
-    .map((file) => upath.normalize(file))
+  return res.map((f) => toAbsolutePath({ path: f, rootDir }))
 }
 
 export interface ExecOptions {
@@ -71,6 +72,8 @@ export async function hash(
   files: readonly string[],
   { algorithm = 'sha256', rootDir = getConfigDirname() }: HashOptions = {},
 ): Promise<string> {
+  // eslint-disable-next-line no-param-reassign
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
   const hashes = await Promise.all(
     [...files] // Why copy by destructing the array? => To avoid modifying the original array when `sort()`.
       .sort()
@@ -101,17 +104,18 @@ export function graph({
   rootDir = getConfigDirname(),
   edges,
 }: GraphOptions): DepsGraph {
+  // eslint-disable-next-line no-param-reassign
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
   const depsGraph: DepsGraph = {}
-  const toAbsolute = (file: string) =>
-    upath.isAbsolute(file) ? file : upath.join(rootDir, file)
 
   for (let { dependents, dependencies } of edges) {
-    dependents = dependents
-      .map((dependent) => toAbsolute(dependent))
-      .map((dependent) => upath.normalize(dependent))
-    dependencies = dependencies
-      .map((dependency) => toAbsolute(dependency))
-      .map((dependency) => upath.normalize(dependency))
+    dependents = dependents.map((dependent) =>
+      toAbsolutePath({ path: dependent, rootDir }),
+    )
+    dependencies = dependencies.map((dependency) =>
+      toAbsolutePath({ path: dependency, rootDir }),
+    )
+
     for (const dependent of dependents) {
       depsGraph[dependent] = depsGraph[dependent] || new Set<string>()
       for (const dependency of dependencies) {
@@ -120,4 +124,44 @@ export function graph({
     }
   }
   return depsGraph
+}
+
+export interface DependsOnOptions {
+  dependent: string
+  dependencies: string[]
+  graph: DepsGraph
+  rootDir?: string
+}
+
+export function dependsOn({
+  dependent,
+  dependencies,
+  graph,
+  rootDir = getConfigDirname(),
+}: DependsOnOptions): boolean {
+  // eslint-disable-next-line no-param-reassign
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  // eslint-disable-next-line no-param-reassign
+  dependent = toAbsolutePath({ path: dependent, rootDir })
+  // eslint-disable-next-line no-param-reassign
+  dependencies = dependencies.map((d) =>
+    toAbsolutePath({
+      path: d,
+      rootDir,
+    }),
+  )
+
+  if (!graph[dependent]) {
+    return false
+  }
+  const queue = [...graph[dependent]]
+  for (const dependency of queue) {
+    if (dependencies.includes(dependency)) {
+      return true
+    }
+    if (graph[dependency]) {
+      queue.push(...graph[dependency])
+    }
+  }
+  return false
 }
