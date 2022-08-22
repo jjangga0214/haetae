@@ -115,6 +115,7 @@ importers:
 
   packages/cli:
     specifiers:
+      '@haetae/common': workspace:~
       '@haetae/core': workspace:~
       '@types/envinfo': ^7.8.1
       '@types/lodash.isempty': ^4.4.7
@@ -158,6 +159,7 @@ importers:
       yaml: 2.1.1
       yargs: 17.5.1
     devDependencies:
+      '@haetae/common': link:../common
       '@haetae/core': link:../core
       '@types/envinfo': 7.8.1
       '@types/lodash.isempty': 4.4.7
@@ -166,8 +168,22 @@ importers:
       '@types/signale': 1.4.4
       '@types/yargs': 17.0.10
 
+  packages/common:
+    specifiers:
+      '@types/semver': ^7.3.10
+      read-pkg-up: ^7.0.1
+      semver: ^7.3.7
+      upath: ^2.0.1
+    dependencies:
+      read-pkg-up: 7.0.1
+      semver: 7.3.7
+      upath: 2.0.1
+    devDependencies:
+      '@types/semver': 7.3.10
+
   packages/core:
     specifiers:
+      '@haetae/common': workspace:~
       '@types/deep-equal': ^1.0.1
       '@types/memoizee': ^0.4.6
       '@types/semver': ^7.3.10
@@ -181,6 +197,7 @@ importers:
       serialize-javascript: ^6.0.0
       upath: ^2.0.1
     dependencies:
+      '@haetae/common': link:../common
       deep-equal: 2.0.5
       immer: 9.0.15
       memoizee: 0.4.15
@@ -197,6 +214,7 @@ importers:
 
   packages/git:
     specifiers:
+      '@haetae/common': workspace:~
       '@haetae/core': workspace:~
       '@haetae/utils': workspace:~
       '@types/semver': ^7.3.10
@@ -206,6 +224,7 @@ importers:
       serialize-javascript: ^6.0.0
       upath: ^2.0.1
     dependencies:
+      '@haetae/common': link:../common
       memoizee: 0.4.15
       read-pkg: 5.2.0
       semver: 7.3.7
@@ -219,6 +238,7 @@ importers:
   packages/haetae:
     specifiers:
       '@haetae/cli': workspace:~
+      '@haetae/common': workspace:~
       '@haetae/core': workspace:~
       '@haetae/git': workspace:~
       '@haetae/javascript': workspace:~
@@ -229,6 +249,7 @@ importers:
       upath: ^2.0.1
     dependencies:
       '@haetae/cli': link:../cli
+      '@haetae/common': link:../common
       '@haetae/core': link:../core
       '@haetae/git': link:../git
       '@haetae/javascript': link:../javascript
@@ -241,6 +262,7 @@ importers:
 
   packages/javascript:
     specifiers:
+      '@haetae/common': workspace:~
       '@haetae/core': workspace:~
       '@haetae/utils': workspace:~
       '@types/semver': ^7.3.10
@@ -252,6 +274,7 @@ importers:
       upath: ^2.0.1
       yaml: ^2.1.1
     dependencies:
+      '@haetae/common': link:../common
       dependency-tree: 8.1.2
       find-up: 5.0.0
       read-pkg: 5.2.0
@@ -266,6 +289,7 @@ importers:
 
   packages/utils:
     specifiers:
+      '@haetae/common': workspace:~
       '@haetae/core': workspace:~
       '@haetae/utils': workspace:~
       '@types/semver': ^7.3.10
@@ -275,6 +299,7 @@ importers:
       semver: ^7.3.7
       upath: ^2.0.1
     dependencies:
+      '@haetae/common': link:../common
       globby: 11.1.0
       hasha: 5.2.2
       read-pkg: 5.2.0
