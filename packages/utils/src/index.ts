@@ -128,7 +128,7 @@ export function graph({
 
 export interface DependsOnOptions {
   dependent: string
-  dependencies: string[]
+  dependencies: readonly string[] | Set<string>
   graph: DepsGraph
   rootDir?: string
 }
@@ -144,7 +144,7 @@ export function dependsOn({
   // eslint-disable-next-line no-param-reassign
   dependent = toAbsolutePath({ path: dependent, rootDir })
   // eslint-disable-next-line no-param-reassign
-  dependencies = dependencies.map((d) =>
+  dependencies = [...dependencies].map((d) =>
     toAbsolutePath({
       path: d,
       rootDir,
