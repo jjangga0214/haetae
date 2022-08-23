@@ -16,6 +16,7 @@ async function getPackagesInfo() {
     | '@haetae/git'
     | '@haetae/javascript'
     | '@haetae/utils'
+    | '@haetae/common'
 
   const packagesInfo: Record<HaetaePackage, VersionAndPath | undefined> = {
     haetae: undefined,
@@ -24,6 +25,7 @@ async function getPackagesInfo() {
     '@haetae/git': undefined,
     '@haetae/javascript': undefined,
     '@haetae/utils': undefined,
+    '@haetae/common': undefined,
   }
 
   for (const key in packagesInfo) {
