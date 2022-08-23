@@ -2,53 +2,68 @@ import fs from 'fs'
 import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { getConfigDirname } from '@haetae/core'
-import { DepsGraph, graph } from '@haetae/utils'
+import { DepsGraph, graph, dependsOn as graphDependsOn } from '@haetae/utils'
+import { parsePkg, toAbsolutePath } from '@haetae/common'
 
-export { default as pkg } from './pkg'
+export const pkg = parsePkg({ name: '@haetae/javascript', rootDir: __dirname })
+
 export { VersionOptions, version } from './version'
 
 export interface DependsOnOptions {
-  rootDir?: string
+  dependent: string
+  dependencies: readonly string[] | Set<string>
   tsConfig?: string
-  additionalGraph?: DepsGraph // you can manually specify additional dependency graph
+  rootDir?: string
+  additionalGraph?: DepsGraph
 }
 
-export function dependsOn(
-  dependencyCandidates: readonly string[],
-  {
-    tsConfig,
-    rootDir = getConfigDirname(),
-    additionalGraph = graph({ edges: [], rootDir }),
-  }: DependsOnOptions = {},
-): (target: string) => boolean {
-  // default option.tsConfig if exists
-  if (fs.existsSync(upath.join(rootDir, 'tsconfig.json'))) {
+export function dependsOn({
+  dependent,
+  dependencies,
+  tsConfig,
+  rootDir = getConfigDirname(),
+  additionalGraph = graph({ edges: [], rootDir }),
+}: DependsOnOptions): boolean {
+  // eslint-disable-next-line no-param-reassign
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  if (tsConfig) {
     // eslint-disable-next-line no-param-reassign
-    tsConfig = tsConfig || upath.join(rootDir, 'tsconfig.json')
+    tsConfig = toAbsolutePath({ path: tsConfig, rootDir })
+  } else if (fs.existsSync(upath.join(rootDir, 'tsconfig.json'))) {
+    // eslint-disable-next-line no-param-reassign
+    tsConfig = upath.join(rootDir, 'tsconfig.json')
   }
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const _dependencyCandidates = dependencyCandidates
-    .map((dc) => (upath.isAbsolute(dc) ? dc : upath.join(rootDir, dc)))
-    .map((dc) => upath.normalize(dc))
 
-  return (dependentCandidate: string): boolean => {
-    // This includes target file itself as well.
-    const deepDepsList = dependencyTree.toList({
-      directory: rootDir,
-      filename: dependentCandidate,
-      tsConfig,
+  // eslint-disable-next-line no-param-reassign
+  dependencies = [...dependencies].map((d) =>
+    toAbsolutePath({ path: d, rootDir }),
+  )
+
+  // eslint-disable-next-line no-param-reassign
+  dependent = toAbsolutePath({ path: dependent, rootDir })
+
+  if (
+    graphDependsOn({
+      dependent,
+      dependencies,
+      graph: additionalGraph,
+      rootDir,
     })
-    console.log(deepDepsList)
-    for (const dependencyCandidate of _dependencyCandidates) {
-      if (
-        deepDepsList.includes(dependencyCandidate) ||
-        // TODO: deep graph search
-        additionalGraph[dependentCandidate]?.has(dependencyCandidate) ||
-        dependentCandidate === dependencyCandidate
-      ) {
-        return true
-      }
-    }
-    return false
+  ) {
+    return true
   }
+
+  // This includes target file (dependent) itself as well.
+  const deepDepsList = dependencyTree.toList({
+    directory: rootDir,
+    filename: dependent,
+    tsConfig,
+  })
+
+  for (const dependency of dependencies) {
+    if (dependent === dependency || deepDepsList.includes(dependency)) {
+      return true
+    }
+  }
+  return false
 }

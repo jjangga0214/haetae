@@ -20,10 +20,13 @@
     "@haetae/utils": "workspace:~"
   },
   "dependencies": {
+    "@haetae/common": "workspace:~",
     "dependency-tree": "^8.1.1",
     "find-up": "^5",
+    "memoizee": "^0.4.15",
     "read-pkg": "^5.2.0",
     "read-pkg-up": "^7.0.1",
+    "serialize-javascript": "^6.0.0",
     "semver": "^7.3.7",
     "upath": "^2.0.1",
     "yaml": "^2.1.1"
