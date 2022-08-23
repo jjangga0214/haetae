@@ -19,10 +19,11 @@ import {
   getRecords,
   setStoreFilename,
 } from '@haetae/core'
+import { parsePkg } from '@haetae/common'
 import { getInfo } from './info'
 import * as ui from './ui'
 
-export { default as pkg } from './pkg'
+export const pkg = parsePkg({ name: '@haetae/cli', rootDir: __dirname })
 
 export async function run(): Promise<void> {
   let y

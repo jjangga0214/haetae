@@ -53,7 +53,7 @@ async function getPackagesInfo() {
             cwd: upath.dirname(entrypoint),
           })
 
-          assert(res?.packageJson.name, key)
+          assert(res?.packageJson.name === key)
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           version = res!.packageJson.version
         }
