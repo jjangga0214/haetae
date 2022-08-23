@@ -217,7 +217,9 @@ importers:
       '@haetae/common': workspace:~
       '@haetae/core': workspace:~
       '@haetae/utils': workspace:~
+      '@types/memoizee': ^0.4.6
       '@types/semver': ^7.3.10
+      '@types/serialize-javascript': ^5.0.1
       memoizee: ^0.4.15
       read-pkg: ^5.2.0
       semver: ^7.3.7
@@ -233,7 +235,9 @@ importers:
     devDependencies:
       '@haetae/core': link:../core
       '@haetae/utils': link:../utils
+      '@types/memoizee': 0.4.8
       '@types/semver': 7.3.10
+      '@types/serialize-javascript': 5.0.2
 
   packages/haetae:
     specifiers:
@@ -268,18 +272,22 @@ importers:
       '@types/semver': ^7.3.10
       dependency-tree: ^8.1.1
       find-up: ^5
+      memoizee: ^0.4.15
       read-pkg: ^5.2.0
       read-pkg-up: ^7.0.1
       semver: ^7.3.7
+      serialize-javascript: ^6.0.0
       upath: ^2.0.1
       yaml: ^2.1.1
     dependencies:
       '@haetae/common': link:../common
       dependency-tree: 8.1.2
       find-up: 5.0.0
+      memoizee: 0.4.15
       read-pkg: 5.2.0
       read-pkg-up: 7.0.1
       semver: 7.3.7
+      serialize-javascript: 6.0.0
       upath: 2.0.1
       yaml: 2.1.1
     devDependencies:
