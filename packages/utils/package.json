@@ -22,14 +22,11 @@
     "@haetae/common": "workspace:~",
     "globby": "^11",
     "hasha": "^5.2.2",
-    "read-pkg": "^5.2.0",
-    "semver": "^7.3.7",
     "upath": "^2.0.1"
   },
   "devDependencies": {
     "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~",
-    "@types/semver": "^7.3.10"
+    "@haetae/utils": "workspace:~"
   },
   "keywords": [
     "haetae",

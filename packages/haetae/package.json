@@ -24,12 +24,7 @@
     "@haetae/git": "workspace:~",
     "@haetae/javascript": "workspace:~",
     "@haetae/utils": "workspace:~",
-    "read-pkg": "^5.2.0",
-    "semver": "^7.3.7",
     "upath": "^2.0.1"
-  },
-  "devDependencies": {
-    "@types/semver": "^7.3.10"
   },
   "keywords": [
     "haetae",
