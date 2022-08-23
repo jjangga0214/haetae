@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@haetae/cli": "workspace:~",
+    "@haetae/common": "workspace:~",
     "@haetae/core": "workspace:~",
     "@haetae/git": "workspace:~",
     "@haetae/javascript": "workspace:~",
