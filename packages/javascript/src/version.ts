@@ -5,7 +5,7 @@ import readPkgUp from 'read-pkg-up'
 import findUp from 'find-up'
 import yaml from 'yaml'
 import { getConfigDirname } from '@haetae/core'
-import { major, minor, patch, prerelease } from 'semver'
+import { parseVersion } from '@haetae/common'
 
 interface VersionFromYarnBerryOptions {
   rootDir?: string
@@ -78,16 +78,6 @@ export async function version(
   packageName: string,
   { rootDir = getConfigDirname() }: VersionOptions = {},
 ) {
-  // eslint-disable-next-line unicorn/consistent-function-scoping
-  const toVersionInfo = (version: string) => ({
-    value: version,
-    major: major(version),
-    minor: minor(version),
-    patch: patch(version),
-    prerelease: prerelease(version),
-    untilMinor: `${major(version)}.${minor(version)}`,
-    untilPatch: `${major(version)}.${minor(version)}.${patch(version)}`,
-  })
   try {
     const {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -97,8 +87,8 @@ export async function version(
       cwd: upath.dirname(require.resolve(packageName)),
     })
     assert(name, packageName)
-    return toVersionInfo(version)
+    return parseVersion(version)
   } catch {
-    return toVersionInfo(await versionFromYarnBerry(packageName, { rootDir }))
+    return parseVersion(await versionFromYarnBerry(packageName, { rootDir }))
   }
 }
