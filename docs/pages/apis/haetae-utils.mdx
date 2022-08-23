@@ -134,7 +134,7 @@ Haetae also has a plan to introduce Pure ESM, but it's too early for the ecosyst
 
 <TokenLinkCode tokens={['GlobOptions']}>
 ```ts
-(patterns: readonly string[], options?: GlobOptions): Promise<string[]>
+(patterns: readonly string[], options?: GlobOptions) => Promise<string[]>
 ```
 </TokenLinkCode>
 
@@ -277,7 +277,7 @@ This function is for generic use, not just for a specific language.
 
 <TokenLinkCode tokens={['GraphOptions']}>
 ```ts
-(options?: GraphOptions): depsGraph
+(options?: GraphOptions) => depsGraph
 ```
 </TokenLinkCode>
 
@@ -344,3 +344,35 @@ const normalizedGraph = graph({
   ],
 })
 ```
+
+### `DependsOnOptions`
+
+An argument interface for [`dependsOn`](#dependsOn).
+
+<TokenLinkCode tokens={['DepsGraph']}>
+```ts
+interface DependsOnOptions {
+  dependent: string
+  dependencies: readonly string[] | Set<string>
+  graph: DepsGraph
+  rootDir?: string
+}
+```
+</TokenLinkCode>
+
+### `dependsOn`
+
+A function to check if a module depends on one of different modules, transitively or directly.<br/>
+
+<TokenLinkCode tokens={['DependsOnOptions']}>
+```ts
+(options: DependsOnOptions) => boolean
+```
+</TokenLinkCode>
+
+**Options**
+
+- `dependent{:ts}` : A target to check if it is a dependent of at lease one of `dependencies{:ts}`, directly or transitively.
+- `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
+- `graph{:ts}` : A graph. Return value of [`graph`](#graph) is proper.
+- `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>

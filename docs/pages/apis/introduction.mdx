@@ -1,4 +1,8 @@
+import { Callout } from 'nextra-theme-docs'
 import TokenLinkCode from '../../components/TokenLinkCode'
+import Chip from '../../components/Chip'
+
+export const Memoized = () => (<Chip label='Memoized' href='#memoization' />)
 
 # Introduction
 
@@ -20,6 +24,61 @@ type PromiseOr<T> = Promise<T> | T
 ```
 
 `haetae{:ts}` and `@haetae/*{:ts}` does NOT export `PromiseOr{:ts}`, but you'd better know this.
+
+### Memoization
+
+[Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
+Some functions (e.g. [`getConfig`](./haetae-core#getconfig), [`getStore`](./haetae-core#getstore)) are memoized.
+
+<Callout>
+Memoized function have a chip under their name: <Memoized/>
+</Callout>
+
+#### Cache hit and clear
+
+To clear memoization cache, you can call `<function>.clear(){:ts}`.
+For example, [`getConfig`](#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
+
+```ts
+import { getConfig } from '@haetae/core'
+
+// `getConfig` is executed.
+const config1 = await getConfig({ filename: '/foo/haetae.config.js' })
+
+// `getConfig` is executed. No memoization cache hit, due to different argument.
+const config2 = await getConfig({ filename: '/bar/haetae.config.js' })
+
+// Cache hit from the 1st call result, thanks to the same argument.
+// `getConfig` is not executed. Just returned from the memoization cache.
+const config3 = await getConfig({ filename: '/foo/haetae.config.js' })
+
+// Cache hit from the 2nd call result, thanks to the same argument.
+const config4 = await getConfig({ filename: '/bar/haetae.config.js' })
+
+// Clear the memoization cache entirely
+getConfig.clear()
+
+// `getConfig` is freshly executed without cache.
+// A new cache is created from now on again.
+const config5 = await getConfig({ filename: '/foo/haetae.config.js' })
+```
+
+#### Cache by shallow copy
+
+Memoization cache is based on shallow copy.
+
+```ts
+// `config1` and `config2` would have same memory address.
+const config1 = await getConfig()
+const config2 = await getConfig()
+
+config1.foo = 'bar'
+// `config2` is also modified when `config1` is modified
+console.log(config2.foo) // 'bar'
+```
+
+If you want to avoid the side effect, you can clear cache before calling [`getConfig`](#getconfig).<br/>
+Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be good solution.
 
 ### Path Principles
 
@@ -86,9 +145,9 @@ const { pkg } = require('haetae' /* or '@haetae/<package>' */)
 
 pkg.name // 'haetae' or '@haetae/<package>'
 pkg.version.value // '1.2.3-beta.4'
-pkg.version.major // '1'
-pkg.version.minor // '2'
-pkg.version.patch // '3'
+pkg.version.major // 1 // Integer
+pkg.version.minor // 2 // Integer
+pkg.version.patch // 3 // Integer
 pkg.version.prerelease // ['beta', 4] // 'beta' is string, 4 is integer
 pkg.version.untilMinor //  '1.2'
 pkg.version.untilPatch // '1.2.3'

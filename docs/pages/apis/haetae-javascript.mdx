@@ -102,14 +102,14 @@ npm info @haetae/javascript peerDependencies
 
 Refer to [introduction#pkg](./introduction#pkg).
 
-### `RootDirOption`
+### `VersionOptions`
 
 An argument interface for [`version`](#version).
 
 **Type**
 
 ```ts
-interface RootDirOption {
+interface VersionOptions {
   rootDir?: string
 }
 ```
@@ -127,9 +127,9 @@ It supports npm, yarn classic, yarn berry and pnpm.
 
 **Type**
 
-<TokenLinkCode tokens={['RootDirOption']}>
+<TokenLinkCode tokens={['VersionOptions']}>
 ```ts
-(packageName: string, options?: RootDirOption) => Promise<string>
+(packageName: string, options?: VersionOptions) => Promise<string>
 ```
 </TokenLinkCode>
 
@@ -151,10 +151,10 @@ import * as js from '@haetae/javascript'
 const eslintVersion = js.version('eslint')
 
 eslintVersion.value // '1.2.3-beta.4'
-eslintVersion.major // '1'
-eslintVersion.minor // '2'
-eslintVersion.patch // '3'
-eslintVersion.prerelease // ['beta', '4']
+eslintVersion.major // 1 // Integer
+eslintVersion.minor // 2 // Integer
+eslintVersion.patch // 3 // Integer
+eslintVersion.prerelease // ['beta', 4] // 'beta' is string, 4 is integer
 eslintVersion.untilMinor //  '1.2'
 eslintVersion.untilPatch // '1.2.3'
 ```
@@ -185,10 +185,13 @@ export default core.configure({
 
 An argument interface for [`dependsOn`](#dependson)
 
-<TokenLinkCode tokens={['RootDirOption', { DepsGraph : './haetae-utils#depsgraph'}]}>
+<TokenLinkCode tokens={{ 'DepsGraph': './haetae-utils#depsgraph' }}>
 ```ts
-interface DependsOnOptions extends RootDirOption {
+interface DependsOnOptions {
+  dependent: string
+  dependencies: readonly string[] | Set<string>
   tsConfig?: string
+  rootDir?: string
   additionalGraph?: DepsGraph
 }
 ```
@@ -196,39 +199,44 @@ interface DependsOnOptions extends RootDirOption {
 
 ### `dependsOn`
 
-A function to check if a module (transitively or directly) depends on one of different modules.<br/>
-It's a [higher order function](https://en.wikipedia.org/wiki/Higher-order_function) that returns a predicate function.<br/>
+A function to check if a module depends on one of different modules, transitively or directly.<br/>
 
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
-(dependencyCandidates: readonly string[], options?: DependsOnOptions) => (dependentCandidate: string) => boolean
+(options: DependsOnOptions) => boolean
 ```
 </TokenLinkCode>
 
 **Options?**
 
-- `tsConfig{:ts}` : A path to typescript config (e.g. **tsconfig.json**).
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
-- `additionalGraph{:ts}`
+- `dependent{:ts}` : A target to check if it is a dependent of at lease one of `dependencies{:ts}`, directly or transitively.
+- `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
+- `tsConfig?{:ts}` : A path to typescript config <small>(e.g. **tsconfig.json**)</small>.
+- `rootDir?{:ts}` : A directory to execute `git`.
+When `dependent` or an element of `dependencies`, or `tsConfig` is given as a relative path,
+`rootDir{:ts}` is joined to transform it to an absolute path.
+<small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships. <small>(default: <TokenLinkCode tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 
 #### Basic Usage
 
 Let's say,
 
-- ***qux.ts*** depends on ***bar.ts***.
-- ***anq.ts*** depends on ***qux.ts***, which depends on ***bar.ts***
-- ***saz.ts*** does not (even transitively) depend on neither ***foo.ts*** nor ***bar.ts***.
+- ***a.ts*** depends on ***b.ts***.
+- ***c.ts*** depends on ***a.ts***, which depends on ***b.ts***
+- ***e.ts*** does not (even transitively) depend on neither ***f.ts*** nor ***b.ts***.
+- ***f.ts*** does not (even transitively) depend on ***b.ts***.
 
 then the result would be like this.
 
 ```ts
-const predicate = dependsOn(['foo.ts', 'bar.ts'])
+const dependencies = ['f.ts', 'b.ts']
 
-predicate('qux.ts') // true
-predicate('anq.ts') // true
-predicate('saz.ts') // false
-predicate('foo.ts') // true: 'foo.ts' depends on 'foo.ts' itself.
-````
+dependsOn({ dependent: 'a.ts', dependencies }) // true
+dependsOn({ dependent: 'c.ts', dependencies }) // true
+dependsOn({ dependent: 'e.ts', dependencies }) // false
+dependsOn({ dependent: 'f.ts', dependencies }) // true // 'f.ts' depends on 'f.ts' itself.
+```
 
 #### Usage With `git.changedFiles`
 
@@ -236,7 +244,13 @@ It is a good practice to use with [`changedFiles`](./haetae-git#changedfiles) of
 
 **haetae.config.js**
 
-<TokenLinkCode tokens={{ '.configure': './haetae-core#configure', '.glob': './haetae-utils#glob', '.exec': './haetae-utils#exec', '.changedFiles': './haetae-git#changefiles', '.recordData': './haetae-git#recorddata'}}>
+<TokenLinkCode tokens={{
+  '.configure': './haetae-core#configure',
+  '.glob': './haetae-utils#glob',
+  '.exec': './haetae-utils#exec',
+  '.changedFiles': './haetae-git#changedfiles',
+  '.recordData': './haetae-git#recorddata'
+}}>
 ```js
 import { core, utils, git, js } from 'haetae'
 
@@ -245,10 +259,16 @@ export default core.configure({
   commands: {
     myAwesomeCommand: {
       run: async () => {
+        const changedFiles = await git.changedFiles()
         // An array of test files which (transitively) depend on changed files
-        const filesToTest = await (
-          utils.glob(['**/*.test.ts'])
-          ).filter(js.dependsOn(git.changedFiles()))
+        const filesToTest = (
+           await utils.glob(['**/*.test.ts'])
+          ).filter((file) =>
+            dependsOn({
+              dependent: file,
+              dependencies: changedFiles,
+            })
+          )
 
         if (filesToTest.length > 0) {
           // Equals to "npx jest /path/to/foo.test.ts /path/to/bar.test.ts ..."

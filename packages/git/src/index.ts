@@ -147,9 +147,9 @@ export async function ignoredFiles({
 }
 
 export interface ChangedFilesOptions {
-  rootDir?: string
   from?: string | Promise<string | undefined | null | void>
   to?: string | Promise<string | undefined | null | void>
+  rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
   fallback?: (error?: Error) => PromiseOr<string[]> | never
