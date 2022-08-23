@@ -5,5 +5,6 @@
     "outDir": "./dist",
     "tsBuildInfoFile": "../../.build-cache/core.tsbuildinfo"
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "../common/tsconfig.build.json" }]
 }

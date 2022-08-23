@@ -3,6 +3,8 @@ import upath from 'upath'
 import { major, minor, patch, prerelease } from 'semver'
 import readPkgUp from 'read-pkg-up'
 
+export type PromiseOr<T> = Promise<T> | T
+
 export interface ToAbsolutePathOptions {
   path: string
   rootDir: string

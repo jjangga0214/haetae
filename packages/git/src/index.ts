@@ -1,13 +1,11 @@
 import upath from 'upath'
 import { getConfigDirname, getRecord } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
-import { parsePkg, toAbsolutePath } from '@haetae/common'
+import { PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 
 export const pkg = parsePkg({ name: '@haetae/git', rootDir: __dirname })
-
-type PromiseOr<T> = Promise<T> | T
 
 // todo: git submodule test
 

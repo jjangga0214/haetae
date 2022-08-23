@@ -8,11 +8,9 @@ import deepEqual from 'deep-equal'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
-import pkg from './pkg'
+import { parsePkg, PromiseOr } from '@haetae/common'
 
-export { default as pkg } from './pkg'
-
-type PromiseOr<T> = Promise<T> | T
+export const pkg = parsePkg({ name: '@haetae/core', rootDir: __dirname })
 
 let currentCommand: string | undefined
 
@@ -43,7 +41,7 @@ export const getConfigFilename = memoizee((): string => {
   let filename = configFilename || '.'
   filename = upath.normalize(filename)
   if (!upath.isAbsolute(filename)) {
-    filename = upath.join(process.cwd(), filename)
+    filename = upath.resolve(filename) // transform to absolute path
   }
   try {
     if (fs.statSync(filename).isDirectory()) {
