@@ -264,7 +264,7 @@ export default core.configure({
         const filesToTest = (
            await utils.glob(['**/*.test.ts'])
           ).filter((file) =>
-            dependsOn({
+            js.dependsOn({
               dependent: file,
               dependencies: changedFiles,
             })

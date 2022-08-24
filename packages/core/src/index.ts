@@ -191,8 +191,8 @@ export function configure<D = unknown, E = unknown>({
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
       // Convert it to a function if not
       if (typeof commands[command].env !== 'function') {
-        commands[command].env = () =>
-          commands[command].env as ReturnType<HaetaeCommandEnv<E>>
+        const value = commands[command].env as ReturnType<HaetaeCommandEnv<E>>
+        commands[command].env = () => value
       }
 
       assert(
@@ -241,7 +241,8 @@ export const getConfig = memoizee(
       )
     }
 
-    return configure<D, E>(await import(_filename))
+    const preConfigModule = await import(_filename)
+    return configure<D, E>(preConfigModule.default || preConfigModule)
   },
   {
     normalizer: serialize,
