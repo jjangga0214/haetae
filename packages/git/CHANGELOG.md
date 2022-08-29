@@ -1,5 +1,20 @@
 # @haetae/git
 
+## 0.0.12
+
+### Patch Changes
+
+- [`fd28e06`](https://github.com/jjangga0214/haetae/commit/fd28e06cad4cfe92cd8986495431ddac6cab2d20) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `RootDirOption` is removed in favor of `InstalledOptions`, `InitializedOptions`, `BranchOptions`, `CommitOptions`, `UntrackedFilesOptions` and `IgnoredFilesOptions`.
+
+* [`a7d451b`](https://github.com/jjangga0214/haetae/commit/a7d451b4cebf9320ae436f5ed86048253594cce4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `changedFiles` is memoized from now on.
+
+- [`a7d451b`](https://github.com/jjangga0214/haetae/commit/a7d451b4cebf9320ae436f5ed86048253594cce4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: For every functions, when the argument or an option `rootDir` is given as relative path, `getConfigDirname()` of `@haetae/core` is joined with the `rootDir`.
+
+- Updated dependencies [[`b84cebe`](https://github.com/jjangga0214/haetae/commit/b84cebe811e93bdc7c8f626f3f54168dd402cbf7), [`b84cebe`](https://github.com/jjangga0214/haetae/commit/b84cebe811e93bdc7c8f626f3f54168dd402cbf7), [`32687c8`](https://github.com/jjangga0214/haetae/commit/32687c8712554934846422f6422b7409670e024c), [`b026892`](https://github.com/jjangga0214/haetae/commit/b026892d1400203f62698868a505237ef3b36a0d), [`a9a3308`](https://github.com/jjangga0214/haetae/commit/a9a3308a5ac6f75c8c1d2ccda6546cc6fcd8166a), [`cd79307`](https://github.com/jjangga0214/haetae/commit/cd7930752fa9dea342cb4d55e3651feb5eb6b9e2), [`cd79307`](https://github.com/jjangga0214/haetae/commit/cd7930752fa9dea342cb4d55e3651feb5eb6b9e2)]:
+  - @haetae/common@0.0.2
+  - @haetae/core@0.0.13
+  - @haetae/utils@0.0.13
+
 ## 0.0.11
 
 ### Patch Changes
