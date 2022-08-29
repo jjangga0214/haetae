@@ -84,7 +84,11 @@ export async function version(
       // @ts-ignore // `readPkgUp`'s typing and implementation are mismatched. // ISSUE: https://github.com/sindresorhus/read-pkg-up/issues/21
       packageJson: { name, version },
     } = await readPkgUp({
-      cwd: upath.dirname(require.resolve(packageName)),
+      cwd: upath.dirname(
+        require.resolve(packageName, {
+          paths: [rootDir],
+        }),
+      ),
     })
     assert(name, packageName)
     return parseVersion(version)

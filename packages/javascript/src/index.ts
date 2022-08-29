@@ -42,6 +42,12 @@ export function dependsOn({
   // eslint-disable-next-line no-param-reassign
   dependent = toAbsolutePath({ path: dependent, rootDir })
 
+  for (const dependency of dependencies) {
+    if (dependent === dependency) {
+      return true
+    }
+  }
+
   if (
     graphDependsOn({
       dependent,
@@ -61,7 +67,7 @@ export function dependsOn({
   })
 
   for (const dependency of dependencies) {
-    if (dependent === dependency || deepDepsList.includes(dependency)) {
+    if (deepDepsList.includes(dependency)) {
       return true
     }
   }
