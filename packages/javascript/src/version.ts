@@ -62,10 +62,9 @@ export async function versionFromYarnBerry(
       }
     }
 
-    throw new Error('11111')
+    throw new Error(`Version for package ${packageName} cannot be resolved.`)
   } catch (error) {
     throw error
-    // throw new Error(`Version for package ${packageName} cannot be resolved.`)
   }
 }
 
@@ -90,7 +89,7 @@ export async function version(
         }),
       ),
     })
-    assert(name, packageName)
+    assert(name === packageName)
     return parseVersion(version)
   } catch {
     return parseVersion(await versionFromYarnBerry(packageName, { rootDir }))
