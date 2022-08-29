@@ -27,22 +27,14 @@ export const getCurrentCommand = (): string => {
   return currentCommand
 }
 
-export const defaultConfigFile = 'haetae.config.js'
+export const defaultConfigFile = 'haetae.config.js' // TODO: as array
 
 let configFilename: string | undefined
-
-export const setConfigFilename = (
-  filename: string | undefined = defaultConfigFile,
-) => {
-  configFilename = filename
-}
 
 export const getConfigFilename = memoizee((): string => {
   let filename = configFilename || '.'
   filename = upath.normalize(filename)
-  if (!upath.isAbsolute(filename)) {
-    filename = upath.resolve(filename) // transform to absolute path
-  }
+  filename = upath.resolve(filename) // transform to absolute path
   try {
     if (fs.statSync(filename).isDirectory()) {
       filename = upath.join(filename, defaultConfigFile)
@@ -52,6 +44,14 @@ export const getConfigFilename = memoizee((): string => {
     throw new Error(`Path to config file(${filename}) is non-existent path.`)
   }
 })
+
+export const setConfigFilename = (
+  filename: string | undefined = defaultConfigFile,
+) => {
+  // TODO: find-up defaultConfigFiles
+  configFilename = filename
+  getConfigFilename.clear() // TODO: add this behavior to docs
+}
 
 // todo: set/get current config dirname
 export const getConfigDirname = () => upath.dirname(getConfigFilename())
