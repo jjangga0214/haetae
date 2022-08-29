@@ -305,18 +305,16 @@ interface HaetaeConfig<D = unknown, E = unknown> {
 
 #### Type-check for your config
 
-**haetae.config.js**:
-
 This is 100% valid.
 But you'd not get type-check from the IDE.
 
-```js
+```js filename="haetae.config.js"
 export default { /* ... */ }
 ```
 
 With `configure`, type-check is enabled in your IDE! Happy 😊
 
-```js
+```js filename="haetae.config.js"
 import { core } from 'haetae'
 // Or `import * as core from '@haetae/core'`
 

@@ -229,6 +229,41 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
   When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
   <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
+#### Usage
+
+`env` in the config file can be a good place to use `version`.
+
+<TokenLinkCode tokens={{
+  '.configure': './haetae-core#configure',
+  '.version': './haetae-javascript#version',
+  }}>
+```js filename="haetae.config.js"
+import { core, utils } from 'haetae'
+
+export default core.configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myTest: {
+      env: async () => ({
+        hash: await utils.hash([
+          'jest.config.js',
+          'package-lock.json',
+        ])
+      }),
+      run: async () => { /* ... */ }
+    },
+    myLint: {
+      env: async () => ({
+        eslintrc: await utils.hash(['.eslintrc.js']),
+        eslint: (await js.version('eslint')).major
+      }),
+      run: async () => { /* ... */ }
+    }
+  },
+})
+```
+</TokenLinkCode>
+
 ### `DepsEdge`
 
 An interface resolving dependencies edge. <br/>
@@ -319,11 +354,11 @@ const expected = {
     '/somewhere/the-other.txt',
   ]),
   '/path/to/test/qux.ts': new Set([
-    '/somewhere/the-other.txt',
+    '/somewhere/the-other.txt', // Absolute path is preserved.
   ]),
 }
 
-assert(deepEqual(normalizedGraph, expected)) // They are same
+assert(deepEqual(normalizedGraph, expected)) // They are same.
 ```
 
 #### Usage With `glob`
@@ -362,7 +397,7 @@ interface DependsOnOptions {
 
 ### `dependsOn`
 
-A function to check if a module depends on one of different modules, transitively or directly.<br/>
+A function to check if a file depends on one of different files, transitively or directly.<br/>
 
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
@@ -376,3 +411,42 @@ A function to check if a module depends on one of different modules, transitivel
 - `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
 - `graph{:ts}` : A graph. Return value of [`graph`](#graph) is proper.
 - `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
+#### Basic Usage
+
+Let's say,
+
+- ***a*** depends on ***b***.
+- ***c*** depends on ***a***, which depends on ***b***
+- ***e*** does not (even transitively) depend on neither ***f*** nor ***b***.
+- ***f*** does not (even transitively) depend on ***b***.
+
+then the result would be like this.
+
+<TokenLinkCode tokens={{'.graph': '#graph'}}>
+```js
+const graph = utils.graph({
+  edges: [
+    {
+      dependents: ['a']
+      dependencies: ['b']
+    },
+    {
+      dependents: ['c']
+      dependencies: ['a']
+    },
+    {
+      dependents: ['f']
+      dependencies: ['another', 'another2']
+    },
+  ],
+})
+
+const dependencies = ['f', 'b']
+
+utils.dependsOn({ dependent: 'a', dependencies, graph }) // true
+utils.dependsOn({ dependent: 'c', dependencies, graph }) // true -> transitively
+utils.dependsOn({ dependent: 'e', dependencies, graph }) // false
+utils.dependsOn({ dependent: 'f', dependencies, graph }) // true -> 'f' depends on 'f' itself.
+```
+</TokenLinkCode>

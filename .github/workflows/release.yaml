@@ -89,7 +89,7 @@ jobs:
         run: pnpm --filter '@haetae/docs' run add-url
         env:
           VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
-          VERCEL_DEPLOYMENT_NAME: 'haetae'
+          VERCEL_DEPLOYMENT_NAME: haetae
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         if: steps.changesets.outputs.published == 'true'
