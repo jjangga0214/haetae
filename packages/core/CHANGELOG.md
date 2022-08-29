@@ -1,5 +1,16 @@
 # @haetae/core
 
+## 0.0.13
+
+### Patch Changes
+
+- [`b026892`](https://github.com/jjangga0214/haetae/commit/b026892d1400203f62698868a505237ef3b36a0d) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `FilenameOption` is removed in favor of `GetConfigOptions` and `DeleteStoreOptions`.
+
+* [`a9a3308`](https://github.com/jjangga0214/haetae/commit/a9a3308a5ac6f75c8c1d2ccda6546cc6fcd8166a) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed `configure`'s transforming `<command>.env` in a wrong way when it's given as non-function object/value.
+
+* Updated dependencies [[`b84cebe`](https://github.com/jjangga0214/haetae/commit/b84cebe811e93bdc7c8f626f3f54168dd402cbf7), [`b84cebe`](https://github.com/jjangga0214/haetae/commit/b84cebe811e93bdc7c8f626f3f54168dd402cbf7), [`32687c8`](https://github.com/jjangga0214/haetae/commit/32687c8712554934846422f6422b7409670e024c)]:
+  - @haetae/common@0.0.2
+
 ## 0.0.12
 
 ### Patch Changes
