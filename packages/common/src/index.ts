@@ -58,7 +58,7 @@ export function parsePkg<T extends string>({
   rootDir,
 }: ParsePkgOptions<T>): Pkg<T> {
   const res = readPkgUp.sync({ cwd: rootDir })
-  assert(res, 'package.json is not a found.')
+  assert(!!res, 'package.json is not a found.')
   const { packageJson } = res
   assert(packageJson.name === name, '`pkg.name` is not matched.')
   return {

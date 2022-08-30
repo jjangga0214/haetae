@@ -48,7 +48,7 @@ export const getConfigFilename = memoizee((): string => {
 export const setConfigFilename = (
   filename: string | undefined = defaultConfigFile,
 ) => {
-  // TODO: find-up defaultConfigFiles
+  // TODO: find-up defaultConfigFile"s"
   configFilename = filename
   getConfigFilename.clear() // TODO: add this behavior to docs
 }
@@ -156,7 +156,8 @@ export function configure<D = unknown, E = unknown>({
   if (typeof age === 'string') {
     age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
     assert(
-      !!age,
+      // `undefined` if invalid string
+      age === 0 || !!age,
       `'recordRemoval.age' is given as an invalid string. Refer to https://github.com/vercel/ms for supported value.`,
     )
   }

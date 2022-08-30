@@ -253,7 +253,6 @@ export async function run(): Promise<void> {
         })
       } else {
         await saveStore()
-
         const record = await getRecord()
         assert(
           !!record,
