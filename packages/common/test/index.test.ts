@@ -1,5 +1,5 @@
 import upath from 'upath'
-import { toAbsolutePath, parseVersion, parsePkg } from '../src/index'
+import { toAbsolutePath, parseVersion, parsePkg } from '../src/index.js'
 
 describe('toAbsolutePath', () => {
   test('when `rootDir` is absolute', async () => {

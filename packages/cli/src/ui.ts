@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import isObject from 'lodash.isobject'
 import isEmpty from 'lodash.isempty'
 import produce from 'immer'
-import { getInfo } from './info'
+import { getInfo } from './info.js'
 
 function wrapBlock(lines: string[]): string[] {
   if (lines.length === 1) {

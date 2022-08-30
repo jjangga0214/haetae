@@ -20,8 +20,8 @@ import {
   setStoreFilename,
 } from '@haetae/core'
 import { parsePkg } from '@haetae/common'
-import { getInfo } from './info'
-import * as ui from './ui'
+import { getInfo } from './info.js'
+import * as ui from './ui.js'
 
 export const pkg = parsePkg({ name: '@haetae/cli', rootDir: __dirname })
 

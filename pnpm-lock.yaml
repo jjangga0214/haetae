@@ -9,7 +9,7 @@ importers:
       '@commitlint/cli': ^16.0.1
       '@jjangga0214/commitlint-config': ^1.0.7
       '@jjangga0214/eslint-config': ^3.3.1
-      '@jjangga0214/jest-config': ^4.0.2
+      '@jjangga0214/jest-config': ^4.1.0
       '@jjangga0214/markdownlint-config': ^1.0.3
       '@jjangga0214/prettier-config': ^2.0.2
       '@jjangga0214/tsconfig': ^3.2.1
@@ -48,7 +48,7 @@ importers:
       '@commitlint/cli': 16.3.0_@swc+core@1.2.241
       '@jjangga0214/commitlint-config': 1.0.8_6soo6l7apw4dlq4plr25yahewy
       '@jjangga0214/eslint-config': 3.3.1_7z4hdugkdh3ie455efzvq7gscm
-      '@jjangga0214/jest-config': 4.0.2_ftlg2tuw3hje3x6jv7faynvbaa
+      '@jjangga0214/jest-config': 4.1.0_ftlg2tuw3hje3x6jv7faynvbaa
       '@jjangga0214/markdownlint-config': 1.0.3_markdownlint-cli@0.30.0
       '@jjangga0214/prettier-config': 2.0.3_prettier@2.7.1
       '@jjangga0214/tsconfig': 3.2.1_45pbf4fg2g6qmus3wbbqwqbkjm
@@ -113,7 +113,7 @@ importers:
     devDependencies:
       '@types/react': 18.0.15
 
-  examples/basic:
+  examples/basic-typescript:
     specifiers:
       haetae: workspace:*
     devDependencies:
@@ -1616,8 +1616,8 @@ packages:
       - supports-color
     dev: true
 
-  /@jjangga0214/jest-config/4.0.2_ftlg2tuw3hje3x6jv7faynvbaa:
-    resolution: {integrity: sha512-mnbrTU4F4XK5mEBKtcc2MJcu5HxSYHtPPHdVl5pW7slX2ywWRDVwe8ozDqO+J1NGZhPQ/KkuaJk0QNaXT2si9g==}
+  /@jjangga0214/jest-config/4.1.0_ftlg2tuw3hje3x6jv7faynvbaa:
+    resolution: {integrity: sha512-UUANzDP3xW5mW7ZrD8OGUhtKHIoTAdvw4mUVe6/UIxgqHlvsGFSv89pWxeQugKedX8sBX0oYlgrl9qee4M0zfQ==}
     peerDependencies:
       '@swc/core': '>=1.0.0'
       '@swc/jest': ^0.2.11

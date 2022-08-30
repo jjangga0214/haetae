@@ -7,7 +7,7 @@ import { parsePkg, toAbsolutePath } from '@haetae/common'
 
 export const pkg = parsePkg({ name: '@haetae/javascript', rootDir: __dirname })
 
-export { VersionOptions, version } from './version'
+export { VersionOptions, version } from './version.js'
 
 export interface DependsOnOptions {
   dependent: string
