@@ -151,7 +151,7 @@ export function configure<D = unknown, E = unknown>({
     count = Number.POSITIVE_INFINITY,
   } = {},
   storeFile = '.',
-}: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
+}: HaetaePreConfig<D | unknown, E | unknown>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
   if (typeof age === 'string') {
     age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
@@ -206,8 +206,8 @@ export function configure<D = unknown, E = unknown>({
   /* eslint-enable no-param-reassign */
   return {
     commands: commands as HaetaeConfig<D, E>['commands'],
-    env,
-    recordData,
+    env: env as RootEnv<E>,
+    recordData: recordData as RootRecordData<D>,
     recordRemoval: {
       age,
       count,
