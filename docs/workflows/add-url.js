@@ -1,8 +1,9 @@
-const fs = require('fs/promises')
-const path = require('path')
-const childProcess = require('child_process')
-const axios = require('axios')
-const { setTimeout } = require('timers/promises')
+import { dirname } from 'dirname-filename-esm'
+import fs from 'fs/promises'
+import path from 'path'
+import childProcess from 'child_process'
+import axios from 'axios'
+import { setTimeout } from 'timers/promises'
 
 const { VERCEL_ACCESS_TOKEN, VERCEL_DEPLOYMENT_NAME } = process.env
 
@@ -68,7 +69,7 @@ async function getUrl({ commit }) {
 }
 
 async function writeUrl({ url, gitTags, gitBranch }) {
-  const filename = path.join(__dirname, 'urls.json')
+  const filename = path.join(dirname(import.meta), 'urls.json')
   const data = await fs.readFile(filename, {
     encoding: 'utf8',
   })

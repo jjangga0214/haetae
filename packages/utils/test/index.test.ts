@@ -1,10 +1,11 @@
 import upath from 'upath'
+import { dirname } from 'dirname-filename-esm'
 import { glob, graph, dependsOn } from '../src/index'
 
 describe('glob', () => {
   test('basic usage', async () => {
     expect.hasAssertions()
-    const rootDir = upath.join(__dirname, '../../../test-project')
+    const rootDir = upath.join(dirname(import.meta), '../../../test-project')
     const res = await glob(['**/*.test.ts'], {
       rootDir,
     })

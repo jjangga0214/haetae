@@ -1,10 +1,11 @@
 import upath from 'upath'
 import { dependsOn } from '@haetae/javascript'
 import * as utils from '@haetae/utils'
+import { dirname } from 'dirname-filename-esm'
 
 describe('dependsOn', () => {
   // TODO: add tests for other various environments
-  const rootDir = upath.join(__dirname, '../../../test-project')
+  const rootDir = upath.join(dirname(import.meta), '../../../test-project')
 
   // TODO: uncomment this test once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
   // eslint-disable-next-line jest/no-commented-out-tests

@@ -1,4 +1,5 @@
 import upath from 'upath'
+import { dirname } from 'dirname-filename-esm'
 import { toAbsolutePath, parseVersion, parsePkg } from '../src/index.js'
 
 describe('toAbsolutePath', () => {
@@ -117,7 +118,7 @@ describe('pkg', () => {
     expect(
       parsePkg({
         name: '@haetae/common',
-        rootDir: __dirname,
+        rootDir: dirname(import.meta),
       }).name,
     ).toBe('@haetae/common')
   })

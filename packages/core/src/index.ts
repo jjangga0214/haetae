@@ -5,12 +5,17 @@ import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import produce from 'immer'
 import deepEqual from 'deep-equal'
+import { findUpSync } from 'find-up'
+import { dirname } from 'dirname-filename-esm'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
 import { parsePkg, PromiseOr } from '@haetae/common'
 
-export const pkg = parsePkg({ name: '@haetae/core', rootDir: __dirname })
+export const pkg = parsePkg({
+  name: '@haetae/core',
+  rootDir: dirname(import.meta),
+})
 
 let currentCommand: string | undefined
 

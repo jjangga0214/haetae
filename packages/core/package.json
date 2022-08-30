@@ -14,13 +14,15 @@
     "dist"
   ],
   "scripts": {
-    "ts": "ts-node -r tsconfig-paths/register",
+    "ts": "ts-node-esm -r tsconfig-paths/register",
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
     "@haetae/common": "workspace:~",
     "deep-equal": "^2.0.5",
+    "dirname-filename-esm": "^1.1.1",
+    "find-up": "^6.3.0",
     "immer": "^9.0.5",
     "memoizee": "^0.4.15",
     "ms": "^2.1.3",

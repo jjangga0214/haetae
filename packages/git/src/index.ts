@@ -4,8 +4,12 @@ import { glob, exec } from '@haetae/utils'
 import { PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
+import { dirname } from 'dirname-filename-esm'
 
-export const pkg = parsePkg({ name: '@haetae/git', rootDir: __dirname })
+export const pkg = parsePkg({
+  name: '@haetae/git',
+  rootDir: dirname(import.meta),
+})
 
 // todo: git submodule test
 

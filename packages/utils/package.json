@@ -14,7 +14,7 @@
     "dist"
   ],
   "scripts": {
-    "ts": "ts-node -r tsconfig-paths/register",
+    "ts": "ts-node-esm -r tsconfig-paths/register",
     "build": "tsc --build tsconfig.build.json",
     "test": "jest",
     "prepublishOnly": "tsc --build tsconfig.build.json"
@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@haetae/common": "workspace:~",
+    "dirname-filename-esm": "^1.1.1",
     "globby": "^11",
     "hasha": "^5.2.2",
     "upath": "^2.0.1"

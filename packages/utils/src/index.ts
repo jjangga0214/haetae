@@ -4,8 +4,12 @@ import childProcess from 'child_process'
 import { getConfigDirname } from '@haetae/core'
 import hasha from 'hasha'
 import { parsePkg, toAbsolutePath } from '@haetae/common'
+import { dirname } from 'dirname-filename-esm'
 
-export const pkg = parsePkg({ name: '@haetae/utils', rootDir: __dirname })
+export const pkg = parsePkg({
+  name: '@haetae/utils',
+  rootDir: dirname(import.meta),
+})
 
 export interface GlobOptions {
   rootDir?: string

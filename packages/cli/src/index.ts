@@ -2,11 +2,13 @@
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
 import assert from 'assert/strict'
-import findUp from 'find-up'
+import { findUp } from 'find-up'
 import signale from 'signale'
 import chalk from 'chalk'
 import clipboard from 'clipboardy'
 import stripAnsi from 'strip-ansi'
+import { dirname } from 'dirname-filename-esm'
+
 import {
   setCurrentCommand,
   invokeEnv,
@@ -23,7 +25,10 @@ import { parsePkg } from '@haetae/common'
 import { getInfo } from './info.js'
 import * as ui from './ui.js'
 
-export const pkg = parsePkg({ name: '@haetae/cli', rootDir: __dirname })
+export const pkg = parsePkg({
+  name: '@haetae/cli',
+  rootDir: dirname(import.meta),
+})
 
 export async function run(): Promise<void> {
   let y

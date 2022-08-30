@@ -4,8 +4,9 @@
   "description": "Docs For Haetae",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "scripts": {
-    "ts": "ts-node -r tsconfig-paths/register",
+    "ts": "ts-node-esm -r tsconfig-paths/register",
     "dev": "next",
     "start": "next start",
     "build": "next build",
@@ -18,6 +19,7 @@
     "@mui/lab": "5.0.0-alpha.93",
     "@mui/material": "^5.9.3",
     "axios": "^0.27.2",
+    "dirname-filename-esm": "^1.1.1",
     "next": "^12.1.0",
     "next-themes": "^0.2.0",
     "nextra": "2.0.0-beta.17",
