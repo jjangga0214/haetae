@@ -6,8 +6,5 @@
     "tsBuildInfoFile": "../../.build-cache/cli.tsbuildinfo"
   },
   "include": ["src"],
-  "references": [
-    { "path": "../common/tsconfig.build.json" },
-    { "path": "../core/tsconfig.build.json" }
-  ]
+  "references": [{ "path": "../core/tsconfig.build.json" }]
 }

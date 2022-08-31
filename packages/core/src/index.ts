@@ -19,7 +19,11 @@ export const pkg = parsePkg({
 
 let currentCommand: string | undefined
 
-export const setCurrentCommand = (command: string) => {
+export interface SetCurrentCommandOptions {
+  command: string
+}
+
+export const setCurrentCommand = ({ command }: SetCurrentCommandOptions) => {
   currentCommand = command
 }
 
@@ -32,30 +36,70 @@ export const getCurrentCommand = (): string => {
   return currentCommand
 }
 
-export const defaultConfigFile = 'haetae.config.js' // TODO: as array
+export const defaultConfigFiles = [
+  'haetae.config.js',
+  'haetae.config.mjs',
+  'haetae.config.ts',
+]
 
 let configFilename: string | undefined
 
-export const getConfigFilename = memoizee((): string => {
-  let filename = configFilename || '.'
-  filename = upath.normalize(filename)
-  filename = upath.resolve(filename) // transform to absolute path
-  try {
-    if (fs.statSync(filename).isDirectory()) {
-      filename = upath.join(filename, defaultConfigFile)
-    }
-    return filename
-  } catch {
-    throw new Error(`Path to config file(${filename}) is non-existent path.`)
-  }
-})
+export const getConfigFilename = (): string => {
+  assert(!!configFilename, 'configFilename is not set yet.')
+  return configFilename
+}
 
-export const setConfigFilename = (
-  filename: string | undefined = defaultConfigFile,
-) => {
-  // TODO: find-up defaultConfigFile"s"
-  configFilename = filename
-  getConfigFilename.clear() // TODO: add this behavior to docs
+export interface SetConfigFilenameOptions {
+  filename?: string
+  cwd?: string
+}
+
+export const setConfigFilename = ({
+  filename,
+  cwd = process.cwd(),
+}: SetConfigFilenameOptions = {}) => {
+  if (filename) {
+    // eslint-disable-next-line no-param-reassign
+    filename = upath.resolve(cwd, filename)
+    assert(
+      fs.existsSync(filename),
+      `Path to config file(${filename}) is non-existent path.`,
+    )
+    configFilename = filename
+  } else {
+    const candidates = defaultConfigFiles
+      .map((f) =>
+        findUpSync(f, {
+          cwd,
+        }),
+      )
+      .map((f) => upath.resolve(f))
+      .filter((v) => v)
+    candidates.sort((a, b) => {
+      const aDepth = upath.dirname(a).length
+      const bDepth = upath.dirname(b).length
+      if (aDepth > bDepth) {
+        // The deeper becomes the former
+        return -1
+      }
+      if (aDepth < bDepth) {
+        // The shallower becomes the latter
+        return 1
+      }
+      // If depth is equal, extension decides the order.
+      const extenstions = defaultConfigFiles.map((f) => upath.extname(f))
+      const aExtIndex = extenstions.indexOf(upath.extname(a))
+      const bExtIndex = extenstions.indexOf(upath.extname(b))
+
+      return aExtIndex - bExtIndex
+    })
+    if (candidates.length > 0) {
+      // eslint-disable-next-line prefer-destructuring
+      configFilename = candidates[0]
+    } else {
+      throw new Error('Cannot find the configuration file.')
+    }
+  }
 }
 
 // todo: set/get current config dirname
@@ -65,20 +109,41 @@ export const defaultStoreFile = '.haetae/store.json'
 
 let storeFilename: string | undefined
 
-export const setStoreFilename = (filename: string | undefined) => {
+export interface SetStoreFilenameOptions {
+  filename: string
+  rootDir?: string
+}
+
+export const setStoreFilename = ({
+  filename,
+  rootDir = getConfigDirname(),
+}: SetStoreFilenameOptions) => {
+  // eslint-disable-next-line no-param-reassign
+  filename = upath.normalize(filename)
+
+  if (!upath.isAbsolute(filename)) {
+    // eslint-disable-next-line no-param-reassign
+    filename = upath.join(rootDir, filename)
+  }
+
+  const extension = upath.extname(filename)
+  assert(
+    !extension || extension === '.json',
+    `Extension of the store file "${filename}" is not .json.`,
+  )
+  if (extension !== '.json') {
+    // eslint-disable-next-line no-param-reassign
+    filename = upath.join(storeFilename, defaultStoreFile)
+  }
+
   storeFilename = filename
 }
 
 export const getStoreFilename = (): string => {
-  let filename = storeFilename || '.'
-  filename = upath.normalize(filename)
-  if (!upath.isAbsolute(filename)) {
-    filename = upath.join(getConfigDirname(), filename)
+  if (storeFilename) {
+    return storeFilename
   }
-  if (!filename.endsWith('.json')) {
-    filename = upath.join(filename, defaultStoreFile)
-  }
-  return filename
+  return upath.join(getConfigDirname(), defaultStoreFile)
 }
 
 export interface HaetaeRecord<D = unknown, E = unknown> {
@@ -155,7 +220,7 @@ export function configure<D = unknown, E = unknown>({
     age = Number.POSITIVE_INFINITY,
     count = Number.POSITIVE_INFINITY,
   } = {},
-  storeFile = '.',
+  storeFile = defaultStoreFile,
 }: HaetaePreConfig<D | unknown, E | unknown>): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
   if (typeof age === 'string') {
@@ -190,7 +255,9 @@ export function configure<D = unknown, E = unknown>({
 
   // If store file is already set before, `storeFile` in config would be ignored.
   if (!storeFilename) {
-    setStoreFilename(storeFile)
+    setStoreFilename({
+      filename: storeFile,
+    })
   }
 
   for (const command in commands) {
@@ -221,6 +288,39 @@ export function configure<D = unknown, E = unknown>({
   }
 }
 
+// memoize to prevent duplicated registration
+const registerTsNode = memoizee(async () => {
+  try {
+    // import optional peerDependency 'ts-node'
+    // Register TypeScript compiler instance
+    const tsNode = await import('ts-node')
+    return tsNode.register()
+  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (error?.code === 'ERR_MODULE_NOT_FOUND') {
+      throw new Error(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        `To read a config file written in typescript, 'ts-node' is required. Please install it.\nError: ${error?.message}`,
+      )
+    }
+    throw error
+  }
+})
+
+// Load the TypeScript configuration
+const importTs = async (filename: string) => {
+  // Get registered TypeScript compiler instance
+  const registeredCompiler = await registerTsNode()
+  // [Service.enabled] REF: https://github.com/TypeStrong/ts-node/blob/45a3c750475cf60c30301ab36bb9a8bcd52ae875/src/index.ts#L1449-L1450
+  const isTsNodeCompilerEnabled = registeredCompiler.enabled()
+  registeredCompiler.enabled(true)
+  const module = await import(filename)
+  registeredCompiler.enabled(isTsNodeCompilerEnabled) // Restore it to the original state
+  return module
+}
+
 export interface GetConfigOptions {
   filename?: string
 }
@@ -229,25 +329,12 @@ export const getConfig = memoizee(
   async <D = unknown, E = unknown>({
     filename = getConfigFilename(),
   }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    let _filename = await filename
-    _filename = upath.normalize(_filename)
-    try {
-      /**
-       * `getConfigFilename` always returns an non-directory path.
-       * However, hereby check is done again.
-       * This is because a consumer can directly call `getConfig` through sdk, not CLI.
-       */
-      if (fs.statSync(_filename).isDirectory()) {
-        _filename = upath.join(_filename, defaultConfigFile)
-      }
-    } catch {
-      throw new Error(
-        `Config filename is given as "${configFilename}", but it does not exist.`,
-      )
-    }
+    // eslint-disable-next-line no-param-reassign
+    filename = upath.resolve(filename)
+    const preConfigModule = await (filename.endsWith('.ts')
+      ? importTs(filename)
+      : import(filename))
 
-    const preConfigModule = await import(_filename)
     return configure<D, E>(preConfigModule.default || preConfigModule)
   },
   {

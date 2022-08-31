@@ -2,18 +2,16 @@
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
 import assert from 'assert/strict'
-import { findUp } from 'find-up'
 import signale from 'signale'
 import chalk from 'chalk'
 import clipboard from 'clipboardy'
 import stripAnsi from 'strip-ansi'
 import { dirname } from 'dirname-filename-esm'
-
 import {
   setCurrentCommand,
   invokeEnv,
   setConfigFilename,
-  defaultConfigFile,
+  defaultConfigFiles,
   defaultStoreFile,
   saveStore,
   getStore,
@@ -42,7 +40,9 @@ export async function run(): Promise<void> {
         c: {
           alias: 'config',
           type: 'string',
-          description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or finding "${defaultConfigFile}" by walking up parent directories.`,
+          description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or finding one of ${defaultConfigFiles.join(
+            ', ',
+          )} by walking up parent directories.`,
         },
         s: {
           alias: 'store',
@@ -82,7 +82,7 @@ export async function run(): Promise<void> {
       .conflicts('i', 'd')
       .conflicts('i', 'e')
       .example([
-        [`$0 -c ./${defaultConfigFile} <...>`, 'Specify config file path.'],
+        [`$0 -c ./${defaultConfigFiles[0]} <...>`, 'Specify config file path.'],
         [
           `$0 -s ./${defaultStoreFile} <...>`,
           'Specify store file path, ignoring "storeFile" field in config file.',
@@ -127,15 +127,17 @@ export async function run(): Promise<void> {
 
     // 1. Set config file path
 
-    setConfigFilename(
-      argv.c ||
-        process.env.HAETAE_CONFIG_FILE ||
-        (await findUp(defaultConfigFile)),
-    ) // Throws error if config file does not exist.
+    // Throws error if config file does not exist.
+    setConfigFilename({
+      filename: argv.c || process.env.HAETAE_CONFIG_FILE,
+    })
 
     // 2. Set store file path
-
-    setStoreFilename(argv.s)
+    if (argv.s) {
+      setStoreFilename({
+        filename: argv.s,
+      })
+    }
 
     // 3. Run
     if (argv._.length === 0) {

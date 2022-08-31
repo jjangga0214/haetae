@@ -21,6 +21,14 @@
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
+  "peerDependencies": {
+    "ts-node": ">=10.9.1"
+  },
+  "peerDependenciesMeta": {
+    "ts-node": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@haetae/cli": "workspace:~",
     "@haetae/common": "workspace:~",
@@ -39,6 +47,7 @@
     "incremental",
     "ci",
     "DevOps",
+    "devops",
     "monorepo"
   ],
   "repository": {

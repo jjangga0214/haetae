@@ -3,6 +3,7 @@ import TokenLinkCode from '../../components/TokenLinkCode'
 import Chip from '../../components/Chip'
 
 export const Memoized = () => (<Chip label='Memoized' href='#memoization' />)
+export const PathPrinciples = () => (<Chip label='Path Principles' href='#path-principles' />)
 
 # Introduction
 
@@ -31,8 +32,10 @@ type PromiseOr<T> = Promise<T> | T
 Some functions (e.g. [`getConfig`](./haetae-core#getconfig), [`getStore`](./haetae-core#getstore)) are memoized.
 
 <Callout>
-Memoized function have a chip under their name: <Memoized/>
+**Linked By Tag**<br/>
+Any functions linked to from here by <Memoized/> tag satisfy the principles below.
 </Callout>
+
 
 #### Cache hit and clear
 
@@ -83,7 +86,11 @@ Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be go
 ### Path Principles
 
 Haetae has a few design principles for file and directory paths.<br/>
-**Any functions releted to file or directory path satisfy the principles below.**
+
+<Callout>
+**Linked By Tag**<br/>
+Any functions linked to from here by <PathPrinciples/> tag satisfy the principles below.
+</Callout>
 
 **1. Absolute Return Value**
 

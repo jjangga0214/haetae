@@ -140,7 +140,6 @@ importers:
       dayjs: ^1.11.4
       dirname-filename-esm: ^1.1.1
       envinfo: ^7.8.1
-      find-up: ^6.3.0
       immer: ^9.0.5
       lodash.isempty: ^4.4.0
       lodash.isobject: ^3.0.2
@@ -159,7 +158,6 @@ importers:
       dayjs: 1.11.4
       dirname-filename-esm: 1.1.1
       envinfo: 7.8.1
-      find-up: 6.3.0
       immer: 9.0.15
       lodash.isempty: 4.4.0
       lodash.isobject: 3.0.2
