@@ -57,7 +57,7 @@
     "@jjangga0214/jest-config": "^4.1.0",
     "@jjangga0214/markdownlint-config": "^1.0.3",
     "@jjangga0214/prettier-config": "^2.0.2",
-    "@jjangga0214/tsconfig": "^3.2.1",
+    "@jjangga0214/tsconfig": "^3.3.0",
     "@swc/core": "^1.2.125",
     "@swc/helpers": "^0.2.12",
     "@swc/jest": "^0.2.21",

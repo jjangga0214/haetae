@@ -188,7 +188,9 @@ export async function run(): Promise<void> {
       const command = argv._[0]
       assert(typeof command === 'string')
       // Set current command
-      setCurrentCommand(command)
+      setCurrentCommand({
+        command,
+      })
 
       if (argv.r && argv.e) {
         const record = await getRecord()

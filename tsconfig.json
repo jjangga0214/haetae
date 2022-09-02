@@ -2,6 +2,7 @@
   "extends": "@jjangga0214/tsconfig/tsconfig.json",
   "compilerOptions": {
     "target": "es2015",
+    "allowSyntheticDefaultImports": true,
     "rootDir": ".",
     "baseUrl": "packages",
     "paths": {

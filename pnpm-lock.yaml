@@ -12,7 +12,7 @@ importers:
       '@jjangga0214/jest-config': ^4.1.0
       '@jjangga0214/markdownlint-config': ^1.0.3
       '@jjangga0214/prettier-config': ^2.0.2
-      '@jjangga0214/tsconfig': ^3.2.1
+      '@jjangga0214/tsconfig': ^3.3.0
       '@swc/core': ^1.2.125
       '@swc/helpers': ^0.2.12
       '@swc/jest': ^0.2.21
@@ -51,7 +51,7 @@ importers:
       '@jjangga0214/jest-config': 4.1.0_ftlg2tuw3hje3x6jv7faynvbaa
       '@jjangga0214/markdownlint-config': 1.0.3_markdownlint-cli@0.30.0
       '@jjangga0214/prettier-config': 2.0.3_prettier@2.7.1
-      '@jjangga0214/tsconfig': 3.2.1_45pbf4fg2g6qmus3wbbqwqbkjm
+      '@jjangga0214/tsconfig': 3.3.0_45pbf4fg2g6qmus3wbbqwqbkjm
       '@swc/core': 1.2.241
       '@swc/helpers': 0.2.14
       '@swc/jest': 0.2.22_@swc+core@1.2.241
@@ -1685,8 +1685,8 @@ packages:
       prettier: 2.7.1
     dev: true
 
-  /@jjangga0214/tsconfig/3.2.1_45pbf4fg2g6qmus3wbbqwqbkjm:
-    resolution: {integrity: sha512-bBPvauzJfGKKOfATUVocaF6nJZKovIPbLSMl2KbZy4uCwibilaO80ebcgwCy2j4aEcoec/yS3hrtXzINAUcEJQ==}
+  /@jjangga0214/tsconfig/3.3.0_45pbf4fg2g6qmus3wbbqwqbkjm:
+    resolution: {integrity: sha512-f2CCI2C2Q1cbrcgoOD11OAHlbu0yH2DHCNhNwCoSefTBY/co4+ut5qGwCeAqc8PV1xi2rqSVdJHq4OHgJjvbaA==}
     peerDependencies:
       '@swc/core': '>=1.0.0'
       '@types/node': '>=16.0.0'

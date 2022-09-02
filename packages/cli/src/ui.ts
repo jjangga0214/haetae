@@ -6,7 +6,7 @@ import signale from 'signale'
 import dayjs from 'dayjs'
 import isObject from 'lodash.isobject'
 import isEmpty from 'lodash.isempty'
-import produce from 'immer'
+import { produce } from 'immer'
 import { getInfo } from './info.js'
 
 function wrapBlock(lines: string[]): string[] {

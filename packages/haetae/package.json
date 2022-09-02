@@ -18,6 +18,7 @@
     "ht": "./dist/cli.js"
   },
   "scripts": {
+    "ts": "ts-node-esm -r tsconfig-paths/register",
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
