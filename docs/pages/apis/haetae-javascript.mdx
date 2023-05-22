@@ -5,7 +5,7 @@ import TokenLinkCode from '../../components/TokenLinkCode'
 # `@haetae/javascript{:ts}`
 
 `@haetae/javascript{:ts}` provides features for javascript ecosystem.<br/>
-For instance, you can find out which module depends on which module.<br/>
+For instance, you can find out which module depends on which modules.<br/>
 If your project do not use javascript-related languages, you don't need this package.
 
 <Callout>
@@ -116,12 +116,13 @@ interface VersionOptions {
 
 ### `version`
 
-A function to get version of any installed package.<br/>
+A function to get version (not SemVer range, but the exact real version) of ny installed package.<br/>
 Literally any package, like `typescript`, `jest`, `react`, `@changesets/cli` etc.<br/>
 It supports npm, yarn classic, yarn berry and pnpm.
 
+
 <Callout>
-**No Global Package** <br/>
+**Not For Global Package** <br/>
 `version` only works for local packages installed for your project, not globally installed packages on your system.
 </Callout>
 
@@ -211,14 +212,15 @@ A function to check if a module depends on one of different modules, transitivel
 
 **Options?**
 
-- `dependent{:ts}` : A target to check if it is a dependent of at lease one of `dependencies{:ts}`, directly or transitively.
-- `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
+- `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
+- `dependencies{:ts}` : Candidates that may be a dependency of dependent, directly or transitively.
 - `tsConfig?{:ts}` : A path to typescript config file. <small>(e.g. **tsconfig.json**)</small>.
 - `rootDir?{:ts}` : A directory to execute `git`.
 When `dependent` or an element of `dependencies`, or `tsConfig` is given as a relative path,
 `rootDir{:ts}` is joined to transform it to an absolute path.
 <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
-- `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships. <small>(default: <TokenLinkCode tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+- `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
+This is purely additional, not an overrider or replacement of the original source code dependency graph. <small>(default: <TokenLinkCode tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 
 #### Basic Usage
 
@@ -258,6 +260,7 @@ export default core.configure({
   // Other options are ommitted for brevity.
   commands: {
     myTest: {
+      env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
         // An array of test files which (transitively) depend on changed files
@@ -276,7 +279,7 @@ export default core.configure({
         }
         return git.recordData()
       },
-    }
+    },
   },
 })
 ```
@@ -299,22 +302,21 @@ import { utils, js } from 'haetae'
 const additionalGraph = utils.graph({
   edges: [
     {
-      dependents: ['.env.test', '.env.development'],
-      dependencies: await utils.glob(['**/*.test.{ts,js}']),
+      dependents: await utils.glob(['**/*.test.{ts,js}']),
+      dependencies:['.env.test', '.env.development'],
     },
     {
-      dependents: ['data-for-test.sql'],
-      dependencies: await utils.glob([
+      dependents: await utils.glob([
         'tests/integration/**/*.test.ts',
         'tests/e2e/**/*.test.tsx',
-      ])
+      ]),
+      dependencies: ['data-for-test.sql'],
     },
   ],
 })
 
 // Other contexts are ommitted for brevity.
 // Refer to the previous example snippet.
-
 js.dependsOn({
   dependent: file,
   dependencies: changedFiles,

@@ -197,7 +197,7 @@ A function to hash files.<br/>
 It reads content of a single or multiple file(s), and returns a cryptographic hash string.<br/>
 
 <Callout>
-**Merkle Tree** <br />
+**Sorted Merkle Tree** <br />
 When multiple files are given, they are treated as a single depth [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree).
 However, the files are sorted by their path before hashed,
 resulting in same result even when different order is given.
@@ -223,7 +223,7 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
 
 #### Usage
 
-`env` in the config file can be a good place to use `version`.
+`env` in the config file can be a good place to use `hash`.
 
 <TokenLinkCode tokens={{
   '.configure': './haetae-core#configure',
@@ -304,14 +304,14 @@ This function is for generic use, not just for a specific language.
 
 <TokenLinkCode tokens={['GraphOptions']}>
 ```ts
-(options?: GraphOptions) => depsGraph
+(options?: GraphOptions) => DepsGraph
 ```
 </TokenLinkCode>
 
 **Options?**
 
 - `edges{:ts}` : A single or multiple edge(s). The `dependents` and `dependencies` have to be file path, not directory.
-- `rootDir{:ts}?` : When an element of `dependents` and `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : When an element of `dependents` and `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 #### Basic Usage
 
@@ -358,7 +358,7 @@ assert(deepEqual(normalizedGraph, expected)) // They are same.
 [`glob`](#glob) is a good friend when you want to specify chunk-level dependency relationships.<br/>
 
 Let's say you have multiple python projects (packages) in a single monorepo.<br/>
-For example, package 'foo' and 'bar' depend on package 'qux'.<br/>
+For example, packages '*foo*' and '*bar*' depend on a package '*qux*'.<br/>
 Then you can create a normalized dependency graph like the snippet below.
 
 ```ts
@@ -399,7 +399,7 @@ A function to check if a file depends on one of different files, transitively or
 
 **Options**
 
-- `dependent{:ts}` : A target to check if it is a dependent of at lease one of `dependencies{:ts}`, directly or transitively.
+- `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
 - `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
 - `graph{:ts}` : A graph. Return value of [`graph`](#graph) is proper.
 - `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>

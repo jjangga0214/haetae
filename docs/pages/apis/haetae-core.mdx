@@ -148,7 +148,7 @@ If `filename` does not exist on the filesystem, it throws an error.
 It will try finding the config file (one of [`defaultConfigFiles`](#defaultconfigfiles))
 by walking up parent directories recursively, starting from `cwd`.<br/>
 - If not found, it throws an error.<br/>
-- If multiple files (of [`defaultConfigFiles`](#defaultconfigfiles)) exists,
+- If multiple files (of [`defaultConfigFiles`](#defaultconfigfiles)) exist,
   - A file closer to [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd) is chosen.
   - If distances from [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd) are same, priority order is same as [`defaultConfigFiles`](#defaultconfigfiles).
 

@@ -58,8 +58,6 @@ $ haetae myAwesomeCommand
 hello world!
 ```
 
-Or,
-
 ```sh
 $ haetae myAnotherCommand
 
@@ -70,7 +68,7 @@ hi, there!
 
 ### `-h, --help`
 <br/>
-<small>(**Type** : `boolean`, **Default**: `false`)</small>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
 If specified, usage help is shown.
 
@@ -86,12 +84,12 @@ This option should not be used with other options.
 
 ### `-v, --version`
 <br/>
-<small>(**Type** : `boolean`, **Default**: `false`)</small>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
 If specified, the version of cli is shown.
 
 <Callout>
-It is version of [`@haetae/cli{:ts}`](./apis/haetae-cli), not version of other `@haetae/*{:ts}` or the package [`haetae{:ts}`](./apis/haetae).
+It is version of [`@haetae/cli{:ts}`](./apis/haetae-cli), not version of other `@haetae/*{:ts}` (e.g. `@haetae/core{:ts}`) or the package [`haetae{:ts}`](./apis/haetae).
 If you want to know comprehensive versions, use [`-i, --info{:sh}`](#-i---info).
 </Callout>
 
@@ -161,12 +159,12 @@ This option should not be used with these options.
 
 ### `-e, --env`
 <br/>
-<small>(**Type** : `boolean`, **Default**: `false`)</small>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
 #### When used with `<command>{:sh}`
 
-`env` of the `<command>{:sh}` in the config file is resolved.<br/>
-The resolved value, which is current `env`, is shown on the shell.
+`env` of the `<command>{:sh}` in the config file is evaluated.<br/>
+The evaluated value, which is the current `env`, is shown on the shell.
 ```sh
 $ haetae --env <command>
 ```
@@ -174,7 +172,7 @@ $ haetae --env <command>
 #### When used with `-r, --record{:sh}` and `<command>{:sh}`
 
 The `<command>{:sh}`'s record for current `env` is shown.<br/>
-This means, `env` in the config file is resolved, and the command's record matching with the resolved `env` is searched from the store file.
+This means, `env` in the config file is evaluated, and the command's record matching with the evaluated `env` is searched from the store file.
 
 ```sh
 $ haetae --record --env <command>
@@ -183,7 +181,7 @@ $ haetae --record --env <command>
 #### When used with `-d, --record-data{:sh}` and `<command>{:sh}`
 
 The `<command>{:sh}`'s record data for current `env` is shown.<br/>
-This means, `env` in the config file is resolved, and the command's record data matching with the resolved `env` is searched from the store file.
+This means, `env` in the config file is evaluated, and the command's record data matching with the evaluated `env` is searched from the store file.
 
 ```sh
 $ haetae --record-data --env <command>
@@ -267,11 +265,11 @@ This option should not be used with these options.
 
 ### `-i, --info`
 <br/>
-<small>(**Type** : `boolean`, **Default**: `false`)</small>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
 If specified, comprehensive information about the running environment is shown.<br/>
 The information is also automatically copied to the clipboard, without ANSI color code.<br/>
-**You can attach the result when [reporting a bug](https://github.com/jjangga0214/haetae/issues)**.
+**You can attach the result when [reporting an issue](https://github.com/jjangga0214/haetae/issues)**.
 
 <Callout>
 **Why auto-copied without ANSI color code?**<br/>
@@ -292,7 +290,7 @@ This option should not be used with other options, except [``-j, --json``](#-j--
 
 ### `-j, --json`
 <br/>
-<small>(**Type** : `boolean`, **Default**: `false`)</small>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
 This option exists for programatic use (e.g. unix pipeline).<br/>
 If specified, the result (**stdout**, **stderr**) would be expressed in JSON format without ANSI color code.<br/>
@@ -311,8 +309,8 @@ For examples,
 $ haetae --record --json
 $ haetae --record --json <command>
 $ haetae --record --env --json <command>
-$ haetae --record--data --json <command>
-$ haetae --record--data --env --json <command>
+$ haetae --record-data --json <command>
+$ haetae --record-data --env --json <command>
 $ haetae --env --json <command>
 $ haetae --info --json
 ```

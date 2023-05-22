@@ -1,5 +1,6 @@
 import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import TokenLinkCode from '../../components/TokenLinkCode'
 
 # `haetae`
 
@@ -47,6 +48,13 @@ pnpm add --save-dev haetae
 The package `haetae{:ts}` exports other `@haetae/*{:ts}` packages all at once. <br/>
 It's source code is _roughly_ like the snippet below.
 
+<TokenLinkCode tokens={{
+  "'@haetae/core'": './haetae-core#configure',
+  "'@haetae/utils'": './haetae-utils#configure',
+  "'@haetae/javascript'": './haetae-javascript#configure',
+  "'@haetae/git'": './haetae-git#configure',
+  "'@haetae/cli'": './haetae-cli#configure',
+  }}>
 ```ts
 export * as core from '@haetae/core'
 export * as utils from '@haetae/utils'
@@ -55,9 +63,11 @@ export * as git from '@haetae/git'
 export * as cli from '@haetae/cli'
 export const pkg = { /* ... */ }
 ```
+</TokenLinkCode>
 
 So you probably use `haetae` on the config file like this.
 
+<TokenLinkCode tokens={{'.configure': './haetae-core#configure'}}>
 ```js filename="haetae.config.js"
 import { core, utils, js, git, cli, pkg  } from 'haetae'
 
@@ -68,6 +78,7 @@ export default core.configure({
   },
 })
 ```
+</TokenLinkCode>
 
 ## CLI
 
