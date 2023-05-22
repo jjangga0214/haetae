@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run via 'node <source>'",
+      "name": "node <source>",
       "type": "node",
       "request": "launch",
       "cwd": "${fileDirname}",
@@ -12,7 +12,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run via 'pnpm ts'",
+      "name": "pnpm ts <file>",
       "request": "launch",
       "type": "node",
       "cwd": "${fileDirname}",
@@ -22,7 +22,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run via 'pnpm test'",
+      "name": "pnpm test",
       "request": "launch",
       "type": "node",
       "cwd": "${fileDirname}",
@@ -32,14 +32,13 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Run via 'pnpm test --testNamePattern'",
+      "name": "pnpm test --testNamePattern <pattern>",
       "request": "launch",
       "type": "node",
       "cwd": "${fileDirname}",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [
         "test",
-        "${input:filepath}",
         "--testNamePattern",
         "${input:--testNamePattern}"
       ],
