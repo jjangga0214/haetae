@@ -9,12 +9,12 @@
     "node": ">=14.18.0"
   },
   "exports": "./dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "ts": "ts-node-esm -r tsconfig-paths/register",
+    "ts": "node --loader ts-node/esm --loader ../../loader.js",
     "test": "jest",
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"

@@ -3,15 +3,15 @@ import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { dirname } from 'dirname-filename-esm'
 import { getConfigDirname } from '@haetae/core'
-import { DepsGraph, graph, dependsOn as graphDependsOn } from '@haetae/utils'
 import { parsePkg, toAbsolutePath } from '@haetae/common'
+import { DepsGraph, graph, dependsOn as graphDependsOn } from '@haetae/utils'
+
+export * from './version.js'
 
 export const pkg = parsePkg({
   name: '@haetae/javascript',
   rootDir: dirname(import.meta),
 })
-
-export { VersionOptions, version } from './version.js'
 
 export interface DependsOnOptions {
   dependent: string

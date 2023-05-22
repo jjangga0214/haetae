@@ -15,7 +15,7 @@ interface VersionFromYarnBerryOptions {
 /**
  * Read package version from yarn.lock
  */
-export async function versionFromYarnBerry(
+async function versionFromYarnBerry(
   packageName: string,
   {
     rootDir = getConfigDirname(),
