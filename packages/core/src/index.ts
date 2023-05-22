@@ -11,6 +11,7 @@ import { dirname } from 'dirname-filename-esm'
 // @ts-ignore
 import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
 import { parsePkg, PromiseOr } from '@haetae/common'
+import path from 'path'
 
 export const pkg = parsePkg({
   name: '@haetae/core',
@@ -527,6 +528,10 @@ export async function saveStore({
   filename = getStoreFilename(),
   store = addRecord(),
 }: SaveStoreOptions = {}): Promise<void> {
+  const dirname = path.dirname(await filename)
+  if (!fs.existsSync(dirname)) {
+    fs.mkdirSync(dirname, { recursive: true })
+  }
   fs.writeFileSync(
     await filename,
     `${JSON.stringify(await store, undefined, 2)}\n`, // trailing empty line
