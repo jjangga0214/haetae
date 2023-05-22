@@ -236,7 +236,9 @@ export async function run(): Promise<void> {
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.bold.underline(records?.length)} ${chalk.dim(
-            'record data are found for the command',
+            `record${records?.length ? '' : 's'} ${
+              records?.length ? 'is' : 'are'
+            } found for the command`,
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `There is no record for the command ${chalk.bold(
             command,
@@ -251,7 +253,9 @@ export async function run(): Promise<void> {
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.bold.underline(recordDataList?.length)} ${chalk.dim(
-            'records are found for the command',
+            `record data ${
+              recordDataList?.length ? 'is' : 'are'
+            } found for the command`,
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `There is no record for the command ${chalk.bold.underline(
             command,

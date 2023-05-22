@@ -13,7 +13,6 @@ export default core.configure({
       },
     },
     myAnotherCommand: {
-      // TODO: fix this type error
       run: async () => {
         const stdout = await utils.exec('echo hello, world!')
         console.log(stdout)
