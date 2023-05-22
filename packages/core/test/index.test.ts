@@ -1,6 +1,6 @@
 import { AssertionError } from 'assert/strict'
 import upath from 'upath'
-import { configure, setStoreFilename } from '../src/index'
+import { configure, setStoreFilename } from '../src/index.js'
 
 describe('configure()', () => {
   describe('when storeFile is given', () => {
