@@ -129,7 +129,7 @@ export const setStoreFilename = ({
   )
   if (extension !== '.json') {
     // eslint-disable-next-line no-param-reassign
-    filename = upath.join(storeFilename, defaultStoreFile)
+    filename = upath.join(filename, upath.basename(defaultStoreFile))
   }
 
   storeFilename = filename

@@ -140,12 +140,16 @@ A store file path.
 
 ```sh
 $ haetae --store path/to/.haetae/store.json [<other-options>] <command>
+$ haetae --store path/to/dir [<other-options>] <command>
 ```
+
+If the value does not end with '.json', 'store.json` would be appended.<br/>
+For instance, `--store path/to/dir` is identical to `--store path/to/dir/store.json`.
 
 <Callout>
 **Store File Priority**<br/>
 1. The option `-s, --store`
-2. [`storeFile`](./haetae-core#haetaepreconfig) of config file.
+2. [`storeFile`](./apis/haetae-core#haetaepreconfig) of config file.
 3. <TokenLinkCode tokens={{'directory-of-config-file': './apis/haetae-core#getconfigdirname'}}>`<directory-of-config-file>/.haetae/store.json{:sh}`</TokenLinkCode>
 </Callout>
 
