@@ -1,6 +1,4 @@
 import { config, pathsToModuleNameMapper } from '@jjangga0214/jest-config'
-// const path = require('path')
-// import tsConfig from './tsconfig.json'
 import { createRequire } from 'module'
 
 const require = createRequire(import.meta.url)

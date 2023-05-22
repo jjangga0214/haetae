@@ -68,13 +68,9 @@ export const setConfigFilename = ({
     configFilename = filename
   } else {
     const candidates = defaultConfigFiles
-      .map((f) =>
-        findUpSync(f, {
-          cwd,
-        }),
-      )
-      .map((f) => upath.resolve(f))
+      .map((f) => findUpSync(f, { cwd }))
       .filter((v) => v)
+      .map((f) => upath.resolve(f))
     candidates.sort((a, b) => {
       const aDepth = upath.dirname(a).length
       const bDepth = upath.dirname(b).length
@@ -90,7 +86,6 @@ export const setConfigFilename = ({
       const extenstions = defaultConfigFiles.map((f) => upath.extname(f))
       const aExtIndex = extenstions.indexOf(upath.extname(a))
       const bExtIndex = extenstions.indexOf(upath.extname(b))
-
       return aExtIndex - bExtIndex
     })
     if (candidates.length > 0) {

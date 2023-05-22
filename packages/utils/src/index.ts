@@ -1,10 +1,10 @@
 import upath from 'upath'
 import globby from 'globby'
 import childProcess from 'child_process'
-import { getConfigDirname } from '@haetae/core'
 import hasha from 'hasha'
-import { parsePkg, toAbsolutePath } from '@haetae/common'
 import { dirname } from 'dirname-filename-esm'
+import { getConfigDirname } from '@haetae/core'
+import { parsePkg, toAbsolutePath } from '@haetae/common'
 
 export const pkg = parsePkg({
   name: '@haetae/utils',

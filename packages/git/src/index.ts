@@ -199,7 +199,7 @@ export const changedFiles = memoizee(
           ...(await exec(`git ls-tree --full-tree --name-only -r ${_to}`)),
         )
       } else {
-        return await fallback()
+        return fallback()
       }
 
       if (includeUntracked) {

@@ -1,6 +1,6 @@
 import assert from 'assert/strict'
 import upath from 'upath'
-import { major, minor, patch, prerelease } from 'semver'
+import semver from 'semver'
 import readPkgUp from 'read-pkg-up'
 
 export type PromiseOr<T> = Promise<T> | T
@@ -34,12 +34,14 @@ export function toAbsolutePath({
 export function parseVersion(version: string) {
   return {
     value: version,
-    major: major(version),
-    minor: minor(version),
-    patch: patch(version),
-    untilMinor: `${major(version)}.${minor(version)}`,
-    untilPatch: `${major(version)}.${minor(version)}.${patch(version)}`,
-    prerelease: prerelease(version),
+    major: semver.major(version),
+    minor: semver.minor(version),
+    patch: semver.patch(version),
+    untilMinor: `${semver.major(version)}.${semver.minor(version)}`,
+    untilPatch: `${semver.major(version)}.${semver.minor(
+      version,
+    )}.${semver.patch(version)}`,
+    prerelease: semver.prerelease(version),
   }
 }
 
