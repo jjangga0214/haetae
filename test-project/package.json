@@ -4,8 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "engines": {
-    "node": ">=10.24.1"
+    "node": ">=16"
   },
   "workspaces": [
     "packages/**"

@@ -1,12 +1,12 @@
 {
   "name": "@haetae/javascript",
   "version": "0.0.12",
-  "description": "Dependency graph resolver of Javascript ecosystem (e.g. including Typescript, JSX) for Haetae",
+  "description": "Utilities like automatic dependency graph resolver of Javascript ecosystem (e.g. including Typescript, JSX) for Haetae",
   "license": "MIT",
   "private": false,
   "type": "module",
   "engines": {
-    "node": ">=14.18.0"
+    "node": ">=16"
   },
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
