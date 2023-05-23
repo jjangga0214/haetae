@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { core, utils } from 'haetae'
+import { utils, configure } from 'haetae'
 
-export default core.configure({
+export default configure({
   commands: {
     myAwesomeCommand: {
       run: async () => {

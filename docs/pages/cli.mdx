@@ -23,11 +23,11 @@ You define your commands in the config file.<br/>
 
 For example,
 
-<TokenLinkCode tokens={{'.configure': 'apis/haetae-core#configure', '.exec': 'apis/haetae-utils#exec'}}>
+<TokenLinkCode tokens={{'configure': 'apis/haetae#configure', '.exec': 'apis/haetae-utils#exec'}}>
 ```js filename="haetae.config.js"
-import { core, utils } from 'haetae'
+import { configure, utils } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are ommitted for brevity.
   commands: {
     myAwesomeCommand: {

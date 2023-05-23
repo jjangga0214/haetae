@@ -1,6 +1,9 @@
 import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
+import Chip from '../../components/Chip'
 import TokenLinkCode from '../../components/TokenLinkCode'
+
+export const PathPrinciples = () => (<Chip label='Path Principles' href='./introduction/#path-principles' />)
 
 # `haetae`
 
@@ -61,17 +64,19 @@ export * as utils from '@haetae/utils'
 export * as js from '@haetae/javascript'
 export * as git from '@haetae/git'
 export * as cli from '@haetae/cli'
-export const pkg = { /* ... */ }
+export const pkg = { ... }
+export function configure (...) { ... }
+export function defaultRootRecordData (...) { ... }
 ```
 </TokenLinkCode>
 
 So you probably use `haetae` on the config file like this.
 
-<TokenLinkCode tokens={{'.configure': './haetae-core#configure'}}>
+<TokenLinkCode tokens={{'configure': '#configure'}}>
 ```js filename="haetae.config.js"
-import { core, utils, js, git, cli, pkg  } from 'haetae'
+import { core, utils, js, git, cli, pkg, configure, defaultRootRecordData } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are ommitted for brevity.
   commands: {
     // ...
@@ -92,6 +97,105 @@ export default core.configure({
 ### `pkg`
 
 Refer to [introduction#pkg](./introduction#pkg).
+
+### `defaultRootRecordData`
+
+A default `recordData` option for [configure](#configure).<br/>
+(Note that the `recordData` option, whose type is [`RootRecordData`]('./haetae-core#rootrecorddata'),
+is similar to a mapper/transformer/[decorator](https://en.wikipedia.org/wiki/Decorator_pattern) for the original record data,
+which your command's `run` function returns.)
+
+**Type**
+
+<TokenLinkCode tokens={{'RootRecordData': './haetae-core#rootrecorddata'}}>
+```ts
+RootRecordData
+```
+</TokenLinkCode>
+
+The actual implementation is really simple. The source code is like the snippet below.<br/>
+If git is initialized for your project, it inserts `@haetae/git`'s record data automatically.<br/>
+So you don't have to explictly return `git.initialized(){:ts}` from every commands' `run` functions,
+when you intend to record git.
+
+<TokenLinkCode tokens={{'.RootRecordData': './haetae-core#rootrecorddata', '.initialized': './haetae-git#initialized', '.recordData': './haetae-git#recorddata'}}>
+```ts
+import { git, core } from 'haetae'
+
+export const defaultRootRecordData: core.RootRecordData = async <D = unknown>(
+  recordDataFromCommand: D | null,
+) => {
+  if (await git.initialized()) {
+    return {
+      ...(await git.recordData()),
+      ...recordDataFromCommand,
+    }
+  }
+  return recordDataFromCommand
+}
+```
+</TokenLinkCode>
+
+### `configure`
+<br/>
+<PathPrinciples/>
+
+`configure` validates and transform the user-provided config(e.g. `haetae.config.js`) into normalized config.
+
+<Callout>
+**`configure` vs `core.configure`**<br/>
+The package `haetae` exports `configure`, which is different from [`core.configure`](./core#configure) exported from the package `@haetae/core`.<br/>
+
+* For `configure`, a default value of `recordData` option is [`defaultRootRecordData`](#defaultrootrecorddata).<br/>
+* For `core.configure`, a default value of `recordData` option is `(arg) => arg`. <small>(No modification of the original record data.)</small><br/>
+
+This is the only difference and the rest are exactly same.<br/>
+**Use `configure` for majority of cases, unless you have a special reason or purpose to avoid recommended default.**
+</Callout>
+
+**Type**
+
+<TokenLinkCode tokens={{'.HaetaePreConfig': './haetae-core#haetaepreconfig', '.HaetaeConfig': './haetae-core#haetaeconfig'}}>
+```ts
+<D = unknown, E = unknown>(options: core.HaetaePreConfig<D, E>) => core.HaetaeConfig<D, E>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `commands{:ts}` : Your commands as an object.
+- `env?{:ts}` : An env-to-env mapper/transformer/decorator. <small>(default: `(arg) => arg{:ts}`)</small>
+- `recordData?{:ts}` : An recordData-to-recordData mapper/transformer/decorator. <small>(default: [`defaultRootRecordData`](#defaultrootrecorddata))</small>
+- `recordRemoval.age?{:ts}` : Age threshold by milliseconds.
+Records whose age are older than this value are to be removed when calling [`core.addRecord`](./core#addrecord).
+<small>(default: `Number.POSITIVE_INFINITY{:ts}`)</small>
+- `recordRemoval.count?{:ts}` : The number of total records to keep.
+When the number of records becomes larger than this value, old records are removed to satisfy the threshold
+when calling [`core.addRecord`](./core#addrecord). This task is executed after that of `recordRemoval.age`.
+<small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
+- `storeFile?{:ts}` : A store file path. Internally, it is used to [`core.setStoreFilename({ filename: storeFile }){:ts}`](./core#setstorefilename)
+only if `core.setStoreFilename` is never called before. If `core.setStoreFilename` is called before calling `configure`,
+the option `storeFile` does not have any effect, even to the result `core.HaetaeConfig` object.
+<small>(default: [`core.defaultStoreFile{:ts}`](./core#defaultstorefile))</small>
+
+
+#### Type-check for your config
+
+The below example is 100% valid. <br/>
+The exported raw json will be processed by `configure` internally.<br/>
+But you'd not get type-check from the IDE.
+
+```js filename="haetae.config.js"
+export default { /* ... */ }
+```
+
+With `configure`, type-check is enabled. Your IDE is Happy! 😊
+
+```js filename="haetae.config.js"
+import { configure } from 'haetae'
+
+export default configure({ /* ... */ })
+```
 
 ### `core`
 
