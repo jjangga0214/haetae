@@ -1,67 +1,89 @@
 import { AssertionError } from 'assert/strict'
-import upath from 'upath'
-import { configure, setStoreFilename } from '../src/index.js'
+import { dirname } from 'dirname-filename-esm'
+import {
+  configure,
+  setConfigFilename,
+  setStoreFilename,
+  getStoreFilename,
+  invokeEnv,
+  invokeRun,
+} from '../src/index.js'
+
+describe('setStoreFilename()', () => {
+  test('when filename does not end with .json', () => {
+    setStoreFilename({
+      filename: 'path/to',
+      rootDir: '/<rootDir>',
+    })
+    expect(getStoreFilename()).toBe('/<rootDir>/path/to/store.json')
+  })
+  test('when filename ends with .json', () => {
+    setStoreFilename({
+      filename: 'path/to/state.json', // different name
+      rootDir: '/<rootDir>',
+    })
+    expect(getStoreFilename()).toBe('/<rootDir>/path/to/state.json')
+  })
+})
 
 describe('configure()', () => {
-  describe('when storeFile is given', () => {
-    // eslint-disable-next-line jest/no-hooks
-    afterEach(() => {
-      // eslint-disable-next-line unicorn/no-useless-undefined
-      setStoreFilename(undefined)
+  describe("when commands' env and run are given with different types", () => {
+    // eslint-disable-next-line jest/require-hook
+    setConfigFilename({
+      filename: 'haetae.config-to-test.js',
+      cwd: dirname(import.meta),
     })
-    if (process.platform === 'win32') {
-      test('as Windows legacy back-slash path, it is modified to slash path.', () => {
-        const winConfig = configure({
-          commands: {},
-          storeFile: 'C:\\path\\to\\haetae.store.json',
-        })
-        expect(winConfig.storeFile).toBe('C:/path/to/haetae.store.json')
-
-        const config = configure({
-          commands: {},
-          storeFile: '..\\path\\to\\\\haetae.store.json',
-        })
-        expect(config.storeFile).toBe('../path/to/haetae.store.json')
+    const config = configure({
+      commands: {
+        foo: {
+          env: {
+            FOO: 'foo',
+          },
+          run: async () => ({ hello: 'world' }),
+        },
+        bar: {
+          env: () => ({
+            BAR: 'bar',
+          }),
+          run: () => ({ hello2: 'world2' }),
+        },
+      },
+    })
+    test('when env is given as an object', async () => {
+      await expect(
+        invokeEnv({
+          command: 'foo',
+          config,
+        }),
+      ).resolves.toStrictEqual({
+        FOO: 'foo',
       })
-    }
-
-    test('as a relative file path, it becomes a absolute path.', () => {
-      const storeFile = '../path/to/haetae.store.json'
-      const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(upath.resolve(storeFile))
     })
-
-    test('as non-json path, it is modified to json file path.', () => {
-      const storeFile = '<rootDir>'
-      const config = configure({ commands: {}, storeFile })
-      expect(config.storeFile).toBe(
-        upath.resolve(`${storeFile}/.haetae/store.json`),
-      )
+    test('when env is given as a function', async () => {
+      await expect(
+        invokeEnv({
+          command: 'bar',
+          config,
+        }),
+      ).resolves.toStrictEqual({
+        BAR: 'bar',
+      })
     })
-  })
-
-  describe('when storeFile is already set', () => {
-    // eslint-disable-next-line jest/no-hooks
-    afterEach(() => {
-      // eslint-disable-next-line unicorn/no-useless-undefined
-      setStoreFilename(undefined)
+    test('when run is given as an async function', async () => {
+      await expect(
+        invokeRun({
+          command: 'foo',
+          config,
+        }),
+      ).resolves.toStrictEqual({ hello: 'world' })
     })
-    test('given storeFile is ignored', () => {
-      const storeFile = '<rootDir>'
-      setStoreFilename(storeFile)
-      const config = configure({ commands: {}, storeFile: '<anotherDir>' })
-      expect(config.storeFile).toBe(
-        upath.resolve(`${storeFile}/.haetae/store.json`),
-      )
-    })
-
-    test('storeFile is resolved without given value', () => {
-      const storeFile = '<rootDir>'
-      setStoreFilename(storeFile)
-      const config = configure({ commands: {} })
-      expect(config.storeFile).toBe(
-        upath.resolve(`${storeFile}/.haetae/store.json`),
-      )
+    test('when run is given as a synchrounous function', async () => {
+      await expect(
+        invokeRun({
+          command: 'bar',
+          config,
+        }),
+      ).resolves.toStrictEqual({ hello2: 'world2' })
     })
   })
 
