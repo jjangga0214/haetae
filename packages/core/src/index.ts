@@ -41,6 +41,7 @@ export const defaultConfigFiles = [
   'haetae.config.js',
   'haetae.config.mjs',
   'haetae.config.ts',
+  'haetae.config.mts',
 ]
 
 let configFilename: string | undefined
