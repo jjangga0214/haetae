@@ -54,10 +54,15 @@ export interface ExecOptions {
 export async function exec(
   command: string,
   // eslint-disable-next-line unicorn/no-object-as-default-parameter
-  options: ExecOptions = { trim: true },
+  options?: ExecOptions,
 ): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  options.cwd = options.cwd || getConfigDirname()
+  options = {
+    trim: true,
+    cwd: options?.cwd || getConfigDirname(), // Why using `||` ? That's to avoid calling `getConfigDirname()` if possible.
+    ...options,
+  }
+
   return new Promise((resolve, reject) => {
     childProcess.exec(command, options, (error, stdout, stderr) => {
       if (stdout) {

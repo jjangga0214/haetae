@@ -1,20 +1,22 @@
 import upath from 'upath'
-import { getConfigDirname, getRecord } from '@haetae/core'
+import { getConfigDirname, getRecord, HaetaeRecord } from '@haetae/core'
 import { glob, exec } from '@haetae/utils'
 import { PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'
 
+const pkgName = '@haetae/git'
+
 export const pkg = parsePkg({
-  name: '@haetae/git',
+  name: pkgName,
   rootDir: dirname(import.meta),
 })
 
 // todo: git submodule test
 
 export interface GitHaetaeRecordData {
-  [pkg.name]: { commit: string; branch: string; pkgVersion: string }
+  [pkgName]: { commit: string; branch: string; pkgVersion: string }
 }
 
 export interface InstalledOptions {
@@ -104,7 +106,7 @@ export async function recordData({
     throw new Error('Cannot get commit ID of HEAD.')
   }
   return {
-    [pkg.name]: {
+    [pkgName]: {
       commit: (await commit) as string,
       branch: (await branch) || ('detached HEAD' as string),
       pkgVersion,
@@ -127,8 +129,8 @@ export async function untrackedFiles({
     })
   )
     .split('\n')
-    .filter((f) => f) // this removes empty string
-    .map((f) => toAbsolutePath({ path: f, rootDir }))
+    .filter((f: string) => f) // this removes empty string
+    .map((f: string) => toAbsolutePath({ path: f, rootDir }))
 }
 
 export interface IgnoredFilesOptions {
@@ -146,8 +148,8 @@ export async function ignoredFiles({
     })
   )
     .split('\n')
-    .filter((f) => f) // this removes empty strings
-    .map((f) => toAbsolutePath({ path: f, rootDir }))
+    .filter((f: string) => f) // this removes empty strings
+    .map((f: string) => toAbsolutePath({ path: f, rootDir }))
 }
 
 export interface ChangedFilesOptions {
@@ -163,8 +165,8 @@ export const changedFiles = memoizee(
   async ({
     from = getRecord<GitHaetaeRecordData>()
       .then(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        (res) => res?.data![pkg.name]?.commit,
+        (res: HaetaeRecord<GitHaetaeRecordData>) =>
+          res?.data?.[pkg.name]?.commit,
       )
       .catch(() => {}),
     to = 'HEAD',
@@ -188,7 +190,7 @@ export const changedFiles = memoizee(
       throw new Error('git is not initialized. This is not a git repository.')
     }
     const execute = (command: string): Promise<string[]> =>
-      exec(command, { cwd: rootDir }).then((res) => res.split('\n'))
+      exec(command, { cwd: rootDir }).then((res: string) => res.split('\n'))
 
     const result = []
     try {

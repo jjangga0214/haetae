@@ -44,6 +44,19 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "pnpm haetae <command>",
+      "request": "launch",
+      "type": "node",
+      "cwd": "${fileDirname}",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "haetae",
+        "${input:command}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ],
   "inputs": [
@@ -56,6 +69,11 @@
       "id": "--testNamePattern",
       "type": "promptString",
       "description": "What is the argument for `--testNamePattern` option?"
+    },
+    {
+      "id": "command",
+      "type": "promptString",
+      "description": "What is the command you want to experiment?"
     }
   ]
 }
