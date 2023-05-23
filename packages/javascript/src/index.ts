@@ -29,7 +29,7 @@ export function dependsOn({
   additionalGraph = graph({ edges: [], rootDir }),
 }: DependsOnOptions): boolean {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   if (tsConfig) {
     // eslint-disable-next-line no-param-reassign
     tsConfig = toAbsolutePath({ path: tsConfig, rootDir })

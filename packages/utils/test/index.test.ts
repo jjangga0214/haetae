@@ -1,6 +1,6 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
-import { glob, graph, dependsOn } from '../src/index'
+import { glob, graph, dependsOn } from '../src/index.js'
 
 describe('glob', () => {
   test('basic usage', async () => {

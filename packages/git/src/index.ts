@@ -25,7 +25,7 @@ export async function installed({
   rootDir = getConfigDirname(),
 }: InstalledOptions = {}): Promise<boolean> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   try {
     await exec('git --version', {
       cwd: rootDir,
@@ -44,7 +44,7 @@ export async function initialized({
   rootDir = getConfigDirname(),
 }: InitializedOptions = {}) {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   try {
     const res = await exec('git rev-parse --is-inside-work-tree', {
       cwd: rootDir,
@@ -63,7 +63,7 @@ export async function branch({
   rootDir = getConfigDirname(),
 }: BranchOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   return exec('git branch --show-current', {
     cwd: rootDir,
   })
@@ -77,7 +77,7 @@ export async function commit({
   rootDir = getConfigDirname(),
 }: CommitOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   return exec('git rev-parse --verify HEAD', {
     cwd: rootDir,
   })
@@ -120,7 +120,7 @@ export async function untrackedFiles({
   rootDir = getConfigDirname(),
 }: UntrackedFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   return (
     await exec('git ls-files --others --exclude-standard', {
       cwd: rootDir,
@@ -139,7 +139,7 @@ export async function ignoredFiles({
   rootDir = getConfigDirname(),
 }: IgnoredFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   return (
     await exec('git ls-files --others --exclude-standard --ignored', {
       cwd: rootDir,
@@ -174,7 +174,7 @@ export const changedFiles = memoizee(
     fallback = () => glob(['**'], { rootDir }),
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     // eslint-disable-next-line no-param-reassign
-    rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+    rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const _from = await from
     // eslint-disable-next-line @typescript-eslint/naming-convention

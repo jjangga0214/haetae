@@ -16,7 +16,7 @@
   "scripts": {
     "ts": "node --loader ts-node/esm --loader ../../loader.js",
     "build": "tsc --build tsconfig.build.json",
-    "test": "jest",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest -c ../../jest.config.js ./packages/common/",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {

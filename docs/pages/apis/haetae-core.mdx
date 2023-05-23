@@ -206,7 +206,7 @@ Set it before calling other APIs that requires it.
 
 <Callout>
 This can override config file's `storeFile` option.<br/>
-But it does not write to config file or modify [memoized](./introduction#memoization) config (by [getConfig](#getconfig)).
+But it does not write to config file or modify [memoized](./introduction#memoization) (by [getConfig](#getconfig)) config.
 </Callout>
 
 **Type**
@@ -221,7 +221,7 @@ But it does not write to config file or modify [memoized](./introduction#memoiza
 
 - `filename{:ts}` : A store file path.
 - `rootDir?{:ts}` : A directory to join with `filename{:ts}` when `filename{:ts}` is a relative path.
- <small>(default: [`getConfigDirname{:ts}`](#getconfigdirname))</small>
+ <small>(default: [`getConfigDirname(){:ts}`](#getconfigdirname))</small>
 
 ### `getStoreFilename`
 

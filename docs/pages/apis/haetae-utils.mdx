@@ -434,11 +434,11 @@ const graph = utils.graph({
   ],
 })
 
-const dependencies = ['f', 'b']
-
-utils.dependsOn({ dependent: 'a', dependencies, graph }) // true
-utils.dependsOn({ dependent: 'c', dependencies, graph }) // true -> transitively
-utils.dependsOn({ dependent: 'e', dependencies, graph }) // false
-utils.dependsOn({ dependent: 'f', dependencies, graph }) // true -> 'f' depends on 'f' itself.
+utils.dependsOn({ dependent: 'a', dependencies: ['f', 'b'], graph }) // true
+utils.dependsOn({ dependent: 'c', dependencies: ['f', 'b'], graph }) // true -> transitively
+utils.dependsOn({ dependent: 'f', dependencies: ['f', 'b'], graph }) // true -> 'f' depends on 'f' itself.
+utils.dependsOn({ dependent: 'non-existent', dependencies: ['f', 'b'], graph }) // false -> `graph[dependent] === undefined`, so false
+utils.dependsOn({ dependent: 'a', dependencies: ['non-existent']), graph }) // false
+utils.dependsOn({ dependent: 'c', dependencies: ['non-existent', 'b']), graph }) // true -> at least one (transitive) dependency is found
 ```
 </TokenLinkCode>

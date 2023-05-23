@@ -1,5 +1,5 @@
 import upath from 'upath'
-import globby from 'globby'
+import { globby, Options as GlobbyOptions } from 'globby'
 import childProcess from 'child_process'
 import hasha from 'hasha'
 import { dirname } from 'dirname-filename-esm'
@@ -13,7 +13,7 @@ export const pkg = parsePkg({
 
 export interface GlobOptions {
   rootDir?: string
-  globbyOptions?: globby.GlobbyOptions
+  globbyOptions?: GlobbyOptions
 }
 
 export async function glob(
@@ -21,7 +21,9 @@ export async function glob(
   { rootDir = getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
 ): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   // eslint-disable-next-line no-param-reassign
   globbyOptions.cwd = globbyOptions.cwd || rootDir
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -77,7 +79,7 @@ export async function hash(
   { algorithm = 'sha256', rootDir = getConfigDirname() }: HashOptions = {},
 ): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   const hashes = await Promise.all(
     [...files] // Why copy by destructing the array? => To avoid modifying the original array when `sort()`.
       .sort()
@@ -105,11 +107,11 @@ export interface DepsGraph {
 }
 
 export function graph({
-  rootDir = getConfigDirname(),
   edges,
+  rootDir = getConfigDirname(),
 }: GraphOptions): DepsGraph {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   const depsGraph: DepsGraph = {}
 
   for (let { dependents, dependencies } of edges) {
@@ -144,7 +146,7 @@ export function dependsOn({
   rootDir = getConfigDirname(),
 }: DependsOnOptions): boolean {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname() })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   // eslint-disable-next-line no-param-reassign
   dependent = toAbsolutePath({ path: dependent, rootDir })
   // eslint-disable-next-line no-param-reassign
@@ -158,13 +160,15 @@ export function dependsOn({
   if (!graph[dependent]) {
     return false
   }
-  const queue = [...graph[dependent]]
-  for (const dependency of queue) {
+  // `transitiveDepsQueue` stores dependencies of dependencies.. and so on.
+  // Until either the function finds the matching dependency or the loop ends.
+  const transitiveDepsQueue = [...graph[dependent]]
+  for (const dependency of transitiveDepsQueue) {
     if (dependencies.includes(dependency)) {
       return true
     }
     if (graph[dependency]) {
-      queue.push(...graph[dependency])
+      transitiveDepsQueue.push(...graph[dependency])
     }
   }
   return false
