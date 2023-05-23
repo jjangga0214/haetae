@@ -7,7 +7,7 @@ export type PromiseOr<T> = Promise<T> | T
 
 export interface ToAbsolutePathOptions {
   path: string
-  rootDir: string
+  rootDir: string | (() => string)
 }
 
 export function toAbsolutePath({
@@ -18,6 +18,10 @@ export function toAbsolutePath({
   path = upath.normalize(path)
   if (upath.isAbsolute(path)) {
     return path
+  }
+  if (typeof rootDir === 'function') {
+    // eslint-disable-next-line no-param-reassign
+    rootDir = rootDir()
   }
   // eslint-disable-next-line no-param-reassign
   rootDir = upath.resolve(rootDir) // It becomes an absolute path
