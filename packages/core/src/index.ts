@@ -415,6 +415,8 @@ export const invokeEnv = memoizee(
       env === undefined || Object.getPrototypeOf(env) === Object.prototype,
       'The return type of `env` must be a plain object(`{ ... }`) or `undefined`.',
     )
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return config.env(env || {})
   },
   {
@@ -438,6 +440,8 @@ export const invokeRun = async <D extends Rec>({
       Object.getPrototypeOf(recordData) === Object.prototype,
     'The return type of `run` must be a plain object(`{ ... }`) or `undefined`.',
   )
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return config.recordData(recordData || {})
 }
 
@@ -514,26 +518,28 @@ export async function addRecord<D extends Rec, E extends Rec>({
   }),
 }: AddRecordOptions<D, E> = {}): Promise<HaetaeStore<D, E>> {
   return produce<HaetaeStore<D, E>>(await store, async (draft) => {
-    /* eslint-disable no-param-reassign */
-    config = await config
-    record = await record
-    command = await command
+    /* eslint-disable no-param-reassign, @typescript-eslint/naming-convention */
+    const _config = await config
+    const _record = await record
+    const _command = await command
     draft.version = pkg.version.value
     draft.commands = draft.commands || {}
     // Do NOT change the original array! (e.g. use `slice` instead of `splice`)
     // That's because the store object is memoized by shallow copy.
-    draft.commands[command] = [
-      record,
-      ...(draft.commands[command] || []).filter(
-        (oldRecord) => !compareEnvs(record.env, oldRecord.env), // remove old record with same env. So there's only one record left for each env.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    draft.commands[_command] = [
+      _record,
+      ...(draft.commands[_command] || []).filter(
+        (oldRecord) => !compareEnvs(_record.env, oldRecord.env), // remove old record with same env. So there's only one record left for each env.
       ),
-    ].filter((r) => Date.now() - r.time < config.recordRemoval.age)
+    ].filter((r) => Date.now() - r.time < _config.recordRemoval.age)
 
-    draft.commands[command] = draft.commands[command].slice(
+    draft.commands[_command] = draft.commands[_command].slice(
       0,
-      config.recordRemoval.count,
+      _config.recordRemoval.count,
     )
-    /* eslint-enable no-param-reassign */
+    /* eslint-enable no-param-reassign, @typescript-eslint/naming-convention */
     return draft
   })
 }

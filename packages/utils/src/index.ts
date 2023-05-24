@@ -12,7 +12,7 @@ export const pkg = parsePkg({
 })
 
 export interface GlobOptions {
-  rootDir?: string
+  rootDir?: string // A facade option for `globbyOptions.cwd`
   globbyOptions?: GlobbyOptions
 }
 
