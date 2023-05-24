@@ -53,7 +53,7 @@ export interface ExecOptions {
 
 export async function exec(
   command: string,
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
+
   options?: ExecOptions,
 ): Promise<string> {
   // eslint-disable-next-line no-param-reassign

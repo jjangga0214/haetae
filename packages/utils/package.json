@@ -30,8 +30,7 @@
     "upath": "^2.0.1"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~"
+    "@haetae/core": "workspace:~"
   },
   "keywords": [
     "haetae",
