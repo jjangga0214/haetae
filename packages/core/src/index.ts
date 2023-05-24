@@ -446,7 +446,7 @@ export interface GetRecordOptions<D extends Rec, E extends Rec>
   env?: PromiseOr<E>
 }
 
-export function compareEnvs(one: unknown, theOther: unknown): boolean {
+export function compareEnvs(one: Rec, theOther: Rec): boolean {
   let sOne
   let sTheOther
   try {

@@ -26,6 +26,16 @@ type PromiseOr<T> = Promise<T> | T
 
 `haetae{:ts}` and `@haetae/*{:ts}` does NOT export `PromiseOr{:ts}`, but you'd better know this.
 
+### `Rec`
+
+Some APIs depends on an utility type named `Rec{:ts}`.
+
+```ts
+type Rec = Record<string, unknown>
+```
+
+`haetae{:ts}` and `@haetae/*{:ts}` does NOT export `Rec{:ts}`, but you'd better know this.
+
 ### Memoization
 
 [Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.

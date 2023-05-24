@@ -238,9 +238,9 @@ A getter for store file name, which is a module-level state.<br/>
 ### `HaetaeRecord`
 
 ```ts
-interface HaetaeRecord<D = unknown, E = unknown> {
-  data: D | null
-  env: E | null
+interface HaetaeRecord<D extends Rec, E extends Rec> {
+  data: D
+  env: E
   time: number
 }
 ```
@@ -249,7 +249,7 @@ interface HaetaeRecord<D = unknown, E = unknown> {
 
 <TokenLinkCode tokens={['HaetaeRecord']}>
 ```ts
-interface HaetaeStore<D = unknown, E = unknown> {
+interface HaetaeStore<D extends Rec = Rec, E extends Rec = Rec> {
   version: string
   commands: {
     [command: string]: HaetaeRecord<D, E>[]
@@ -261,27 +261,31 @@ interface HaetaeStore<D = unknown, E = unknown> {
 ### `HaetaeCommandEnv`
 
 ```ts
-type HaetaeCommandEnv<E = unknown> = () => void | PromiseOr<
-  E | null | undefined
->
+<E extends Rec>() => void | PromiseOr<E>
 ```
 
 ### `HaetaePreCommandEnv`
 
 <TokenLinkCode tokens={['HaetaeCommandEnv']}>
 ```ts
-type HaetaePreCommandEnv<E = unknown> =
+type HaetaePreCommandEnv<E extends Rec> =
   | HaetaeCommandEnv<E>
-  | PromiseOr<E | null | undefined>
+  | PromiseOr<E | undefined>
 ```
 </TokenLinkCode>
 
+### `HaetaeCommandRun`
+
+```ts
+<D extends Rec>() => void | PromiseOr<D | undefined>
+```
+
 ### `HaetaePreCommand`
 
-<TokenLinkCode tokens={['HaetaePreCommandEnv']}>
+<TokenLinkCode tokens={['HaetaeCommandRun', 'HaetaePreCommandEnv']}>
 ```ts
-interface HaetaePreCommand<D = unknown, E = unknown> {
-  run: () => void | PromiseOr<D | null | undefined>
+interface HaetaePreCommand<D extends Rec, E extends Rec> {
+  run: HaetaeCommandRun<D>
   env?: HaetaePreCommandEnv<E>
 }
 ```
@@ -289,10 +293,10 @@ interface HaetaePreCommand<D = unknown, E = unknown> {
 
 ### `HaetaeCommand`
 
-<TokenLinkCode tokens={['HaetaeCommandEnv']}>
+<TokenLinkCode tokens={['HaetaeCommandRun', 'HaetaeCommandEnv']}>
 ```ts
-interface HaetaeCommand<D = unknown, E = unknown> {
-  run: () => void | PromiseOr<D | null | undefined>
+interface HaetaeCommand<D extends Rec, E extends Rec> {
+  run: HaetaeCommandRun<D>
   env: HaetaeCommandEnv<E>
 }
 ```
@@ -301,18 +305,13 @@ interface HaetaeCommand<D = unknown, E = unknown> {
 ### `RootEnv`
 
 ```ts
-type RootEnv<E = unknown> = (
-  envFromCommand: E | null,
-) => PromiseOr<E | null>
+<E extends Rec>(envFromCommand: E) => PromiseOr<E>
 ```
 
 ### `RootRecordData`
 
 ```ts
-type RootRecordData<D = unknown> = (
-  recordDataFromCommand: D | null,
-) => PromiseOr<D | null>
-
+<D extends Rec>(recordDataFromCommand: D) => PromiseOr<D>
 ```
 
 ### `HaetaePreConfig`
@@ -322,7 +321,7 @@ Also an argument interface of function [`configure`](#configure).
 
 <TokenLinkCode tokens={['HaetaePreCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
-interface HaetaePreConfig<D = unknown, E = unknown> {
+interface HaetaePreConfig<D extends Rec, E extends Rec> {
   commands: {
     [command: string]: HaetaePreCommand<D, E>
   }
@@ -344,7 +343,7 @@ Also a return type of function [`configure`](#configure).
 
 <TokenLinkCode tokens={['HaetaeCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
-interface HaetaeConfig<D = unknown, E = unknown> {
+interface HaetaeConfig<D extends Rec, E extends Rec> {
   commands: {
     [command: string]: HaetaeCommand<D, E>
   }
@@ -381,7 +380,7 @@ between each call of `configure`, which is unlikey to happen in real world scena
 
 <TokenLinkCode tokens={['HaetaePreConfig', 'HaetaeConfig']}>
 ```ts
-<D = unknown, E = unknown>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>
+<D extends Rec, E extends Rec>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>
 ```
 </TokenLinkCode>
 
@@ -448,7 +447,7 @@ A function to get config object by config file path.
 
 <TokenLinkCode tokens={['GetConfigOptions', 'HaetaeConfig']}>
 ```ts
-<D = unknown, E = unknown>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>
+<D extends Rec, E extends Rec>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>
 ```
 </TokenLinkCode>
 
@@ -467,7 +466,7 @@ Initializes an empty store. It just returns an object. It does not save it as a 
 
 <TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
-<D = unknown, E = unknown>() => HaetaeStore<D, E>
+<D extends Rec, E extends Rec>() => HaetaeStore<D, E>
 ```
 </TokenLinkCode>
 
@@ -477,7 +476,7 @@ An argument interface of function [`getStore`](#getstore).
 
 <TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
-interface GetStoreOptions<D = unknown, E = unknown> {
+interface GetStoreOptions<D extends Rec, E extends Rec> {
   filename?: string
   fallback?: ({
     filename,
@@ -498,7 +497,7 @@ interface GetStoreOptions<D = unknown, E = unknown> {
 
 <TokenLinkCode tokens={['GetStoreOptions', 'HaetaeStore']}>
 ```ts
-<D = unknown, E = unknown>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>
+<D extends Rec, E extends Rec>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>
 ```
 </TokenLinkCode>
 
@@ -519,7 +518,7 @@ There're [`GetRecordsOptions`](#getrecordsoptions) (plural) and [`GetRecordOptio
 
 <TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
-interface GetRecordsOptions<D = unknown, E = unknown> {
+interface GetRecordsOptions<D extends Rec, E extends Rec> {
   command?: PromiseOr<string>
   store?: PromiseOr<HaetaeStore<D, E>>
 }
@@ -538,7 +537,7 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 <TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
 ```ts
-<D = unknown, E = unknown>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined>
+<D extends Rec, E extends Rec>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined>
 ```
 </TokenLinkCode>
 
@@ -553,7 +552,7 @@ An argument interface of function [`invokeEnv`](#invokeenv) and [`invokeRun`](#i
 
 <TokenLinkCode tokens={['HaetaeConfig']}>
 ```ts
-interface CommandFromConfig<D = unknown, E = unknown> {
+interface CommandFromConfig<D extends Rec, E extends Rec> {
   command?: PromiseOr<string>
   config?: PromiseOr<HaetaeConfig<D, E>>
 }
@@ -570,7 +569,7 @@ A function to invoke(execute) user-defined `env` of the given `command`.
 
 <TokenLinkCode tokens={['CommandFromConfig']}>
 ```ts
-<E = unknown>(options?: CommandFromConfig<unknown, E>) => Promise<E | null>
+<E extends Rec>(options?: CommandFromConfig<Rec, E>) => Promise<E>
 ```
 </TokenLinkCode>
 
@@ -587,7 +586,7 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 
 <TokenLinkCode tokens={['CommandFromConfig']}>
 ```ts
-<D = unknown>(options?: CommandFromConfig<D, unknown>) => Promise<D | null>
+<D extends Rec>(options?: CommandFromConfig<D, Rec>) => Promise<D>
 ```
 </TokenLinkCode>
 
@@ -603,7 +602,9 @@ Returns `true{:ts}` if they're equal, `false{:ts}` otherwise.
 
 **Type**
 
-`(one: unknown, theOther: unknown): boolean{:ts}`
+```ts
+(one: Rec, theOther: Rec) => boolean
+```
 
 **Arguments**
 
@@ -620,9 +621,9 @@ There're [`GetRecordsOptions`](#getrecordsoptions) (plural) and [`GetRecordOptio
 
 <TokenLinkCode tokens={['GetRecordsOptions']}>
 ```ts
-interface GetRecordOptions<D = unknown, E = unknown>
+interface GetRecordOptions<D extends Rec, E extends Rec>
   extends GetRecordsOptions<D, E> {
-  env?: PromiseOr<E | null>
+  env?: PromiseOr<E>
 }
 ```
 </TokenLinkCode>
@@ -639,7 +640,7 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 <TokenLinkCode tokens={['GetRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D = unknown, E = unknown>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>
+<D extends Rec, E extends Rec>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>
 ```
 </TokenLinkCode>
 
@@ -654,9 +655,9 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 An argument interface of function [`formRecord`](#formrecord).
 
 ```ts
-interface FormRecordOptions<D = unknown, E = unknown> {
-  data?: PromiseOr<D | null>
-  env?: PromiseOr<E | null>
+interface FormRecordOptions<D extends Rec, E extends Rec> {
+  data?: PromiseOr<D>
+  env?: PromiseOr<E>
   time?: number
 }
 ```
@@ -670,7 +671,7 @@ This only returns an object, not save it.
 
 <TokenLinkCode tokens={['FormRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D = unknown, E = unknown>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>
+<D extends Rec, E extends Rec>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>
 ```
 </TokenLinkCode>
 
@@ -686,8 +687,8 @@ An argument interface of function [`addRecord`](#addrecord).
 
 <TokenLinkCode tokens={['HaetaeConfig', 'HaetaeStore', 'HaetaeRecord']}>
 ```ts
-interface AddRecordOptions<D = unknown, E = unknown> {
-  config?: PromiseOr<HaetaeConfig>
+interface AddRecordOptions<D extends Rec, E extends Rec> {
+  config?: PromiseOr<HaetaeConfig<D, E>>
   command?: PromiseOr<string>
   store?: PromiseOr<HaetaeStore<D, E>>
   record?: PromiseOr<HaetaeRecord<D, E>>
@@ -703,7 +704,7 @@ A function to add a new record under the given command to store.
 
 <TokenLinkCode tokens={['AddRecordOptions', 'HaetaeStore']}>
 ```ts
-<D = unknown, E = unknown>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>
+<D extends Rec, E extends Rec>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>
 ```
 </TokenLinkCode>
 
