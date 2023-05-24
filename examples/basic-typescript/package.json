@@ -8,6 +8,8 @@
   "exports": "./dist/index.js",
   "scripts": {
     "ts": "node --loader ts-node/esm --loader ../../loader.js",
+    "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md .",
+    "lint:md": "markdownlint .",
     "haetae": "pnpm ts ../../packages/haetae/src/cli.ts",
     "ht": "pnpm ts ../../packages/haetae/src/cli.ts"
   },

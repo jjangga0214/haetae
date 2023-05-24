@@ -51,10 +51,17 @@
       "type": "node",
       "cwd": "${fileDirname}",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "haetae",
-        "${input:command}"
-      ],
+      "runtimeArgs": ["haetae", "${input:command}"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "pnpm <command>",
+      "request": "launch",
+      "type": "node",
+      "cwd": "${fileDirname}",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["${input:command}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     }
