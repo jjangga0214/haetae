@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import upath from 'upath'
 import semver from 'semver'
-import readPkgUp from 'read-pkg-up'
+import { readPackageUpSync } from 'read-pkg-up'
 
 export type PromiseOr<T> = Promise<T> | T
 
@@ -63,7 +63,7 @@ export function parsePkg<T extends string>({
   name,
   rootDir,
 }: ParsePkgOptions<T>): Pkg<T> {
-  const res = readPkgUp.sync({ cwd: rootDir })
+  const res = readPackageUpSync({ cwd: rootDir })
   assert(!!res, 'package.json is not a found.')
   const { packageJson } = res
   assert(packageJson.name === name, '`pkg.name` is not matched.')

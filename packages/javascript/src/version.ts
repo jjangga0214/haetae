@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import upath from 'upath'
-import readPkgUp from 'read-pkg-up'
+import { readPackageUp } from 'read-pkg-up'
 import { findUp } from 'find-up'
 import yaml from 'yaml'
 import { getConfigDirname } from '@haetae/core'
@@ -83,9 +83,9 @@ export async function version(
   try {
     const {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore // `readPkgUp`'s typing and implementation are mismatched. // ISSUE: https://github.com/sindresorhus/read-pkg-up/issues/21
+      // @ts-ignore
       packageJson: { name, version },
-    } = await readPkgUp({
+    } = await readPackageUp({
       cwd: upath.dirname(
         require.resolve(packageName, {
           paths: [rootDir],

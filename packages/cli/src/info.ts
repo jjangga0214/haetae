@@ -1,6 +1,6 @@
 import assert from 'assert/strict'
 import envinfo from 'envinfo'
-import readPkgUp from 'read-pkg-up'
+import { readPackageUp } from 'read-pkg-up'
 import upath from 'upath'
 
 interface VersionAndPath {
@@ -49,9 +49,7 @@ async function getPackagesInfo() {
         if (!version) {
           // Fallback to package.json
           // This fallback will not work with yarn berry.
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore // `readPkgUp`'s typing and implementation are mismatched. // ISSUE: https://github.com/sindresorhus/read-pkg-up/issues/21
-          const res = await readPkgUp({
+          const res = await readPackageUp({
             cwd: upath.dirname(entrypoint),
           })
 
