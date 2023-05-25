@@ -1,4 +1,4 @@
-// import { pkg } from 'haetae'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { pkg } from 'haetae'
 
 export default {

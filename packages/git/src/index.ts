@@ -1,7 +1,7 @@
 import upath from 'upath'
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
-import { Rec, PromiseOr, parsePkg, toAbsolutePath} from '@haetae/common'
+import { Rec, PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'

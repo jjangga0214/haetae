@@ -64,6 +64,9 @@
     "devops",
     "monorepo"
   ],
+  "eslintIgnore": [
+    "CHANGELOG.md"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/jjangga0214/haetae.git"

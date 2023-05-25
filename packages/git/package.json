@@ -37,6 +37,9 @@
     "@types/memoizee": "^0.4.6",
     "@types/serialize-javascript": "^5.0.1"
   },
+  "eslintIgnore": [
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "haetae",
     "haetae-git",

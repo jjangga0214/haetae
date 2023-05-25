@@ -30,6 +30,9 @@
   "devDependencies": {
     "@types/semver": "^7.3.10"
   },
+  "eslintIgnore": [
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "haetae",
     "test",

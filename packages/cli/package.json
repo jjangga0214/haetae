@@ -55,6 +55,9 @@
     "@types/signale": "^1.4.4",
     "@types/yargs": "^17.0.24"
   },
+  "eslintIgnore": [
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "haetae",
     "haetae-cli",

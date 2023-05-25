@@ -43,6 +43,9 @@
     "dirname-filename-esm": "^1.1.1",
     "upath": "^2.0.1"
   },
+  "eslintIgnore": [
+    "CHANGELOG.md"
+  ],
   "keywords": [
     "haetae",
     "test",
