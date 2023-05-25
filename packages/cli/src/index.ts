@@ -145,9 +145,7 @@ export async function run(): Promise<void> {
 
       if (argv.r) {
         const haetaeStore = await getStore({
-          fallback: ({ error }) => {
-            throw error
-          },
+          initWhenNotFound: false,
         })
 
         const message = `${chalk.dim('Store is loaded successfully.')}`

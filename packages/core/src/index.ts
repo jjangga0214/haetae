@@ -352,29 +352,24 @@ export function initNewStore<D extends Rec, E extends Rec>(): HaetaeStore<
 
 export interface GetStoreOptions<D extends Rec, E extends Rec> {
   filename?: string
-  // When there's no store file yet.
-  fallback?: ({
-    filename,
-    error,
-  }: {
-    filename: string
-    error: Error
-  }) => PromiseOr<HaetaeStore<D, E>> | never
+  initWhenNotFound?: boolean
 }
 
 export const getStore = memoizee(
   async <D extends Rec, E extends Rec>({
     filename = getStoreFilename(),
-    fallback = () => initNewStore(),
+    initWhenNotFound = true,
   }: GetStoreOptions<D, E> = {}): Promise<HaetaeStore<D, E>> => {
     let rawStore
-
     try {
       rawStore = fs.readFileSync(await filename, {
         encoding: 'utf8',
       })
     } catch (error) {
-      return fallback({ filename: await filename, error: error as Error })
+      if (initWhenNotFound) {
+        return initNewStore() // This does not affect to filesystem, just creates a new store object
+      }
+      throw error
     }
     const store = JSON.parse(rawStore)
     return store

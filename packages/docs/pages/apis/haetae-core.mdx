@@ -449,7 +449,8 @@ A function to get config object by config file path.
 
 <TokenLinkCode tokens={['GetConfigOptions', 'HaetaeConfig']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: GetConfigOptions) => Promise<HaetaeConfig<D, E>>
+<D extends Rec, E extends Rec>(options?: GetConfigOptions)
+  => Promise<HaetaeConfig<D, E>>
 ```
 </TokenLinkCode>
 
@@ -480,13 +481,7 @@ An argument interface of function [`getStore`](#getstore).
 ```ts
 interface GetStoreOptions<D extends Rec, E extends Rec> {
   filename?: string
-  fallback?: ({
-    filename,
-    error,
-  }: {
-    filename: string
-    error: Error
-  }) => PromiseOr<HaetaeStore<D, E>> | never
+  initWhenNotFound?: boolean
 }
 ```
 </TokenLinkCode>
@@ -499,7 +494,8 @@ interface GetStoreOptions<D extends Rec, E extends Rec> {
 
 <TokenLinkCode tokens={['GetStoreOptions', 'HaetaeStore']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: GetStoreOptions<D, E>) => Promise<HaetaeStore<D, E>>
+<D extends Rec, E extends Rec>(options?: GetStoreOptions<D, E>)
+  => Promise<HaetaeStore<D, E>>
 ```
 </TokenLinkCode>
 
@@ -508,7 +504,8 @@ A function to get store object.
 **Options?**
 
 - `filename?{:ts}` : A path to store file (e.g. `'/path/to/.haetae/store.json'{:ts}`). <small>(default: [`getStoreFilename(){:ts}`](#getstorefilename))</small>
-- `fallback?{:ts}` : A function to generate an alternative return value, when `filename` is a non-existent file. `fallback` can be useful if you want to throw an error (e.g. `({error}) => { throw error }{:ts}`) rather than get a new store object from [`initNewStore`](#initnewstore) by default. <small>(default: [`initNewStore(){:ts}`](`#initnewstore))</small>
+- `initWhenNotFound?{:ts}` : Whether to throw an error or just initialize new store object when `filename` does not exist in filesystem.
+If `true`, [`initNewStore(){:ts}`](#initnewstore) is returned, and filesystem is not affected. <small>(default: `true{:ts}`)</small>
 
 ### `GetRecordsOptions`
 
@@ -529,7 +526,8 @@ interface GetRecordsOptions<D extends Rec, E extends Rec> {
 
 ### `getRecords`
 
-A function to get records of a given command from given store.
+A function to get records of a given command from given store. <br/>
+`undefined` is returned when there is no record.
 
 <Callout>
 There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (singular). Don't confuse!
@@ -539,7 +537,8 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 <TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined>
+<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordsOptions<D, E>)
+  => Promise<HaetaeRecord<D, E>[] | undefined>
 ```
 </TokenLinkCode>
 
@@ -632,7 +631,9 @@ interface GetRecordOptions<D extends Rec, E extends Rec>
 
 ### `getRecord`
 
-A function to get a record of a given command from given store, corresponding to the given env.
+A function to get a record of a given command from given store, corresponding to the given env.<br/>
+`undefined` is returned when there is no record.
+
 
 <Callout>
 There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (singular). Don't confuse!
@@ -642,7 +643,8 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 <TokenLinkCode tokens={['GetRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>
+<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordOptions<D, E>)
+  => Promise<HaetaeRecord<D, E> | undefined>
 ```
 </TokenLinkCode>
 
@@ -673,7 +675,8 @@ This only returns an object, not save it.
 
 <TokenLinkCode tokens={['FormRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: FormRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>
+<D extends Rec, E extends Rec>(options?: FormRecordOptions<D, E>)
+  => Promise<HaetaeRecord<D, E>>
 ```
 </TokenLinkCode>
 
@@ -706,7 +709,8 @@ A function to add a new record under the given command to store.
 
 <TokenLinkCode tokens={['AddRecordOptions', 'HaetaeStore']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: AddRecordOptions<D, E>) => Promise<HaetaeStore<D, E>>
+<D extends Rec, E extends Rec>(options?: AddRecordOptions<D, E>)
+  => Promise<HaetaeStore<D, E>>
 ```
 </TokenLinkCode>
 
