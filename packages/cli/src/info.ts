@@ -1,7 +1,10 @@
-import assert from 'assert/strict'
+import { createRequire } from 'node:module'
+import assert from 'node:assert/strict'
 import envinfo from 'envinfo'
 import { readPackageUp } from 'read-pkg-up'
 import upath from 'upath'
+
+const require = createRequire(import.meta.url)
 
 interface VersionAndPath {
   version: string
