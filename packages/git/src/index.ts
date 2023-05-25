@@ -123,12 +123,23 @@ export async function untrackedFiles({
 }: UntrackedFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-  return (
-    await utils.exec('git ls-files --others --exclude-standard', {
-      cwd: rootDir,
-    })
-  )
-    .split('\n')
+  const files = []
+  try {
+    files.push(
+      ...(
+        await utils.exec('git ls-files --others --exclude-standard', {
+          cwd: rootDir,
+        })
+      ).split('\n'),
+    )
+  } catch (error) {
+    // When there is no untracked files,
+    // an error (with exactly empty string '') occurs, but it is not a problem.
+    if (error !== '') {
+      throw error
+    }
+  }
+  return files
     .filter((f: string) => f) // this removes empty string
     .map((f: string) => toAbsolutePath({ path: f, rootDir }))
 }
@@ -198,7 +209,19 @@ export const changedFiles = memoizee(
     const result = []
     try {
       if (_from && _to) {
-        result.push(...(await execute(`git diff --name-only ${_from} ${_to}`)))
+        try {
+          result.push(
+            ...(await execute(
+              `git --no-pager diff --name-only ${_from} ${_to}`,
+            )),
+          )
+        } catch (error) {
+          // When there is nothing to diff (e.g. when `_from` and `_to` are the same),
+          // an error (with exactly empty string '') occurs but it is not a problem.
+          if (error !== '') {
+            throw error
+          }
+        }
       } else if (!_from && _to) {
         result.push(
           ...(await utils.exec(
