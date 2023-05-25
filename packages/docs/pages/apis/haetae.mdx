@@ -122,9 +122,10 @@ when you intend to record git.
 ```ts
 import { git, core } from 'haetae'
 
-export const defaultRootRecordData: core.RootRecordData = async <D = unknown>(
-  recordDataFromCommand: D | null,
-) => {
+export const defaultRootRecordData: core.RootRecordData<
+  Rec,
+  Rec | (Rec & git.RecordData)
+> = async (recordDataFromCommand: Rec) => {
   if (await git.initialized()) {
     return {
       ...(await git.recordData()),
@@ -157,7 +158,7 @@ This is the only difference and the rest are exactly same.<br/>
 
 <TokenLinkCode tokens={{'.HaetaePreConfig': './haetae-core#haetaepreconfig', '.HaetaeConfig': './haetae-core#haetaeconfig'}}>
 ```ts
-<D = unknown, E = unknown>(options: core.HaetaePreConfig<D, E>) => core.HaetaeConfig<D, E>
+<D extends Rec, E extends Rec>(options: core.HaetaePreConfig) => core.HaetaeConfig<D, E>
 ```
 </TokenLinkCode>
 

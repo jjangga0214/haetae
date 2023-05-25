@@ -311,7 +311,7 @@ interface HaetaeCommand<D extends Rec, E extends Rec> {
 ### `RootRecordData`
 
 ```ts
-<D extends Rec>(recordDataFromCommand: D) => PromiseOr<D>
+<A extends Rec, R extends Rec = A>(recordDataFromCommand: A) => PromiseOr<R>
 ```
 
 ### `HaetaePreConfig`
@@ -321,12 +321,12 @@ Also an argument interface of function [`configure`](#configure).
 
 <TokenLinkCode tokens={['HaetaePreCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
-interface HaetaePreConfig<D extends Rec, E extends Rec> {
+export interface HaetaePreConfig {
   commands: {
-    [command: string]: HaetaePreCommand<D, E>
+    [command: string]: HaetaePreCommand<Rec, Rec>
   }
-  env?: RootEnv<E>
-  recordData?: RootRecordData<D>
+  env?: RootEnv<Rec>
+  recordData?: RootRecordData<Rec>
   recordRemoval?: {
     age?: string | number
     count?: number
@@ -380,7 +380,7 @@ between each call of `configure`, which is unlikey to happen in real world scena
 
 <TokenLinkCode tokens={['HaetaePreConfig', 'HaetaeConfig']}>
 ```ts
-<D extends Rec, E extends Rec>(options: HaetaePreConfig<D, E>) => HaetaeConfig<D, E>
+<D extends Rec, E extends Rec>(options: HaetaePreConfig) => HaetaeConfig<D, E>
 ```
 </TokenLinkCode>
 

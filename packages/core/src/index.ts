@@ -180,16 +180,16 @@ export interface HaetaeCommand<D extends Rec, E extends Rec> {
 
 export type RootEnv<E extends Rec> = (envFromCommand: E) => PromiseOr<E>
 
-export type RootRecordData<D extends Rec> = (
-  recordDataFromCommand: D,
-) => PromiseOr<D>
+export type RootRecordData<A extends Rec, R extends Rec = A> = (
+  recordDataFromCommand: A,
+) => PromiseOr<R>
 
-export interface HaetaePreConfig<D extends Rec, E extends Rec> {
+export interface HaetaePreConfig {
   commands: {
-    [command: string]: HaetaePreCommand<D, E>
+    [command: string]: HaetaePreCommand<Rec, Rec>
   }
-  env?: RootEnv<E>
-  recordData?: RootRecordData<D>
+  env?: RootEnv<Rec>
+  recordData?: RootRecordData<Rec>
   recordRemoval?: {
     age?: string | number // by milliseconds if number // e.g. 90 * 24 * 60 * 60 * 1000 => 90days
     count?: number // e.g. 10 => Only leave equal to or less than 10 records
@@ -220,7 +220,7 @@ export function configure<D extends Rec, E extends Rec>({
     count = Number.POSITIVE_INFINITY,
   } = {},
   storeFile = defaultStoreFile,
-}: HaetaePreConfig<D, E>): HaetaeConfig<D, E> {
+}: HaetaePreConfig): HaetaeConfig<D, E> {
   /* eslint-disable no-param-reassign */
   if (typeof age === 'string') {
     age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.

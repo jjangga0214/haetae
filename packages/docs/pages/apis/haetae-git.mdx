@@ -99,10 +99,10 @@ npm info @haetae/git peerDependencies
 
 Refer to [introduction#pkg](./introduction#pkg).
 
-### `GitHaetaeRecordData`
+### `RecordData`
 
 ```ts
-interface GitHaetaeRecordData {
+interface RecordData {
   '@haetae/git': {
     commit: string
     branch: string
@@ -239,9 +239,9 @@ A function to form record data for git.
 
 **Type**
 
-<TokenLinkCode tokens={['RecordDataOptions', 'GitHaetaeRecordData']}>
+<TokenLinkCode tokens={['RecordDataOptions', 'RecordData']}>
 ```ts
-(options?: RecordDataOptions) => Promise<GitHaetaeRecordData>
+(options?: RecordDataOptions) => Promise<RecordData>
 ```
 </TokenLinkCode>
 
