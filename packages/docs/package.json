@@ -9,7 +9,7 @@
     "dev": "next",
     "start": "next start",
     "build": "next build",
-    "lint": "next lint",
+    "_lint": "next lint",
     "add-url": "node workflows/add-url.js"
   },
   "dependencies": {
