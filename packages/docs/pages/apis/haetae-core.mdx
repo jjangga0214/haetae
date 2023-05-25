@@ -272,14 +272,14 @@ interface HaetaeStore<D extends Rec = Rec, E extends Rec = Rec> {
 ```ts
 type HaetaePreCommandEnv<E extends Rec> =
   | HaetaeCommandEnv<E>
-  | PromiseOr<E | undefined>
+  | PromiseOr<E | void>
 ```
 </TokenLinkCode>
 
 ### `HaetaeCommandRun`
 
 ```ts
-<D extends Rec>() => void | PromiseOr<D | undefined>
+<D extends Rec>() => void | PromiseOr<D | void>
 ```
 
 ### `HaetaePreCommand`

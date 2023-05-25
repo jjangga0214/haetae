@@ -164,11 +164,9 @@ export type HaetaeCommandEnv<E extends Rec> = () => void | PromiseOr<E>
 
 export type HaetaePreCommandEnv<E extends Rec> =
   | HaetaeCommandEnv<E>
-  | PromiseOr<E | undefined>
+  | PromiseOr<E | void>
 
-export type HaetaeCommandRun<D extends Rec> = () => void | PromiseOr<
-  D | undefined
->
+export type HaetaeCommandRun<D extends Rec> = () => void | PromiseOr<D | void>
 
 export interface HaetaePreCommand<D extends Rec, E extends Rec> {
   run: HaetaeCommandRun<D>
@@ -410,7 +408,7 @@ export const invokeEnv = memoizee(
     const env = await haetaeCommand.env()
     assert(
       env === undefined || Object.getPrototypeOf(env) === Object.prototype,
-      'The return type of `env` must be a plain object(`{ ... }`) or `undefined`.',
+      'The return type of `env` must be a plain object(`{ ... }`) or `void`.',
     )
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -435,7 +433,7 @@ export const invokeRun = async <D extends Rec>({
   assert(
     recordData === undefined ||
       Object.getPrototypeOf(recordData) === Object.prototype,
-    'The return type of `run` must be a plain object(`{ ... }`) or `undefined`.',
+    'The return type of `run` must be a plain object(`{ ... }`) or `void`.',
   )
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
