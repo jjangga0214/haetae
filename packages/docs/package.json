@@ -1,12 +1,11 @@
 {
   "name": "@haetae/docs",
-  "version": "0.0.1",
   "description": "Docs For Haetae",
   "license": "MIT",
   "private": true,
   "type": "module",
   "scripts": {
-    "ts": "ts-node-esm -r tsconfig-paths/register",
+    "ts": "node --loader ts-node/esm --loader ../../loader.js",
     "dev": "next",
     "start": "next start",
     "build": "next build",

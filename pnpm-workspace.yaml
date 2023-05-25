@@ -1,7 +1,6 @@
 # REF: https://pnpm.io/ko/pnpm-workspace_yaml
 packages:
   - 'packages/**'
-  - 'docs'
   - 'examples/**'
 
 link-workspace-packages: deep

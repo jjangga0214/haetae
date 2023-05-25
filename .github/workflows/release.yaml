@@ -73,7 +73,7 @@ jobs:
           title: 'chore: release'
           version: pnpm changeset version
           # Why `pnpm -r publish` instead of `changeset publish`? => For topological publish - REF: https://github.com/changesets/changesets/issues/238
-          # Why `rm docs/package.json`? => Workaround of REF: https://github.com/changesets/changesets/issues/916
+          # Why `rm packages/docs/package.json`? => Workaround of REF: https://github.com/changesets/changesets/issues/916
           publish: pnpm run changeset:publish
           createGithubReleases: true
         env:

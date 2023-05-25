@@ -14,17 +14,13 @@ const vercelClient = axios.create({
   },
 })
 
-async function exec(
-  command,
-  // eslint-disable-next-line unicorn/no-object-as-default-parameter
-  options = { trim: true },
-) {
+async function exec(command) {
   return new Promise((resolve, reject) => {
-    childProcess.exec(command, options, (error, stdout, stderr) => {
+    childProcess.exec(command, { trim: true }, (error, stdout, stderr) => {
       if (stdout) {
-        resolve(options.trim ? stdout.trim() : stdout)
+        resolve(stdout)
       }
-      reject(error || options.trim ? stderr.trim() : stderr)
+      reject(error || stderr)
     })
   })
 }
@@ -88,14 +84,31 @@ async function writeUrl({ url, gitTags, gitBranch }) {
 }
 
 async function main() {
-  const gitTags = (await exec('git tag --points-at HEAD'))
-    .split('\n') // Tags are like `@haetae/core@1.0.0-beta.1` or `haetae@1.0.0`
-    .filter((t) => t.startsWith('haetae@') || t.startsWith('@haetae/'))
-  const gitBranch = await exec('git branch --show-current')
-  const commit = await exec('git rev-parse --verify HEAD') // Full-length commit ID (SHA)
+  // console.log(await exec('git tag --points-at HEAD'))
+  // const gitTags = (await exec('git tag --points-at HEAD'))
+  //   .split('\n') // Tags are like `@haetae/core@1.0.0-beta.1` or `haetae@1.0.0`
+  //   .filter((t) => t.startsWith('haetae@') || t.startsWith('@haetae/'))
+  // const gitBranch = await exec('git branch --show-current')
+  // const commit = await exec('git rev-parse --verify HEAD') // Full-length commit ID (SHA)
 
+  const gitTags = [
+    '@haetae/cli@0.0.14',
+    '@haetae/common@0.0.2',
+    '@haetae/core@0.0.13',
+    '@haetae/git@0.0.12',
+    '@haetae/javascript@0.0.12',
+    '@haetae/utils@0.0.13',
+    'haetae@0.0.15',
+  ]
+  const commit = '9d17ec746a92a954121d966f3032930bee2c9551'
+  const gitBranch = 'main'
   const url = await getUrl({ commit })
   await writeUrl({ url, gitTags, gitBranch })
 }
 
+
 main()
+main().catch((error) => {
+  console.error(error)
+  console.log(2)
+})
