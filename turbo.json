@@ -1,0 +1,51 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["package.json", ".nvmrc", "pnpm-workspace.yaml"],
+  "pipeline": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
+    "lint:md": {
+      "inputs": [
+        "**/*.md",
+        "**/*.mdx",
+        "../../.markdownlint.json",
+        "../../.markdownlintignore"
+      ]
+    },
+    "lint": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.cts",
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.cjs",
+        "**/*.md",
+        "**/*.mdx",
+        "../../.prettierignore"
+      ]
+    },
+    "test": {
+      "dependsOn": ["^topo"],
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.js",
+        "**/*.jsx",
+        "../../jest.config.js",
+        "tsconfig.json",
+        "tsconfig.build.json",
+        "../../tsconfig.json"
+      ]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist", "../../.build-cache/**/*"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
