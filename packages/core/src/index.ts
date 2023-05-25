@@ -11,9 +11,7 @@ import { dirname } from 'dirname-filename-esm'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
-import { parsePkg, PromiseOr } from '@haetae/common'
-
-type Rec = Record<string, unknown>
+import { parsePkg, PromiseOr, Rec } from '@haetae/common'
 
 export const pkg = parsePkg({
   name: '@haetae/core',
@@ -56,19 +54,23 @@ export const getConfigFilename = (): string => {
 export interface SetConfigFilenameOptions {
   filename?: string
   cwd?: string
+  checkExistence?: boolean
 }
 
 export const setConfigFilename = ({
   filename,
   cwd = process.cwd(),
+  checkExistence = true,
 }: SetConfigFilenameOptions = {}) => {
   if (filename) {
     // eslint-disable-next-line no-param-reassign
     filename = upath.resolve(cwd, filename)
-    assert(
-      fs.existsSync(filename),
-      `Path to config file(${filename}) is non-existent path.`,
-    )
+    if (checkExistence) {
+      assert(
+        fs.existsSync(filename),
+        `Path to config file(${filename}) is non-existent path.`,
+      )
+    }
     configFilename = filename
   } else {
     const candidates = defaultConfigFiles
@@ -145,7 +147,7 @@ export const getStoreFilename = (): string => {
   return upath.join(getConfigDirname(), defaultStoreFile)
 }
 
-export interface HaetaeRecord<D extends Rec, E extends Rec> {
+export interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec> {
   data: D
   env: E
   time: number
@@ -387,7 +389,7 @@ export interface GetRecordsOptions<D extends Rec, E extends Rec> {
   store?: PromiseOr<HaetaeStore<D, E>>
 }
 
-export async function getRecords<D extends Rec, E extends Rec>({
+export async function getRecords<D extends Rec = Rec, E extends Rec = Rec>({
   command = getCurrentCommand(),
   store = getStore(),
 }: GetRecordsOptions<D, E> = {}): Promise<HaetaeRecord<D, E>[] | undefined> {
@@ -465,7 +467,7 @@ export function compareEnvs(one: Rec, theOther: Rec): boolean {
   })
 }
 
-export async function getRecord<D extends Rec, E extends Rec>({
+export async function getRecord<D extends Rec = Rec, E extends Rec = Rec>({
   command = getCurrentCommand(),
   env = invokeEnv({ command }),
   store = getStore(),

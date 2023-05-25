@@ -19,6 +19,7 @@
   },
   "scripts": {
     "ts": "node --loader ts-node/esm --loader ../../loader.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest -c ../../jest.config.js ./packages/haetae/",
     "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md .",
     "lint:md": "markdownlint .",
     "build": "tsc --build tsconfig.build.json",

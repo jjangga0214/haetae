@@ -219,20 +219,20 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
   - `options.algorithm?{:ts}` : An hash algorithm to use. <small>(default: `'sha256'{:ts}`)</small>
   - `options.rootDir?{:ts}` : A directory to start file search.
   When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
-  <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 #### Usage
 
 `env` in the config file can be a good place to use `hash`.
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae-core#configure',
   '.version': './haetae-javascript#version',
   }}>
 ```js filename="haetae.config.js"
-import { core, utils } from 'haetae'
+import { configure, utils } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are ommitted for brevity.
   commands: {
     myTest: {
@@ -402,7 +402,7 @@ A function to check if a file depends on one of different files, transitively or
 - `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
 - `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
 - `graph{:ts}` : A graph. Return value of [`graph`](#graph) is proper.
-- `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 #### Basic Usage
 

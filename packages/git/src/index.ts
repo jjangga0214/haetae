@@ -1,7 +1,7 @@
 import upath from 'upath'
-import { getConfigDirname, getRecord, HaetaeRecord } from '@haetae/core'
-import { glob, exec } from '@haetae/utils'
-import { PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'
+import * as core from '@haetae/core'
+import * as utils from '@haetae/utils'
+import { Rec, PromiseOr, parsePkg, toAbsolutePath} from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'
@@ -15,7 +15,7 @@ export const pkg = parsePkg({
 
 // todo: git submodule test
 
-export interface RecordData {
+export interface RecordData extends Rec {
   [pkgName]: { commit: string; branch: string; pkgVersion: string }
 }
 
@@ -24,12 +24,12 @@ export interface InstalledOptions {
 }
 
 export async function installed({
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: InstalledOptions = {}): Promise<boolean> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   try {
-    await exec('git --version', {
+    await utils.exec('git --version', {
       cwd: rootDir,
     })
     return true
@@ -43,12 +43,12 @@ export interface InitializedOptions {
 }
 
 export async function initialized({
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: InitializedOptions = {}) {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   try {
-    const res = await exec('git rev-parse --is-inside-work-tree', {
+    const res = await utils.exec('git rev-parse --is-inside-work-tree', {
       cwd: rootDir,
     })
     return res === 'true'
@@ -62,11 +62,11 @@ export interface BranchOptions {
 }
 
 export async function branch({
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: BranchOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
-  return exec('git branch --show-current', {
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  return utils.exec('git branch --show-current', {
     cwd: rootDir,
   })
 }
@@ -76,11 +76,11 @@ export interface CommitOptions {
 }
 
 export async function commit({
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: CommitOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
-  return exec('git rev-parse --verify HEAD', {
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  return utils.exec('git rev-parse --verify HEAD', {
     cwd: rootDir,
   })
 }
@@ -119,12 +119,12 @@ export interface UntrackedFilesOptions {
 }
 
 export async function untrackedFiles({
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: UntrackedFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   return (
-    await exec('git ls-files --others --exclude-standard', {
+    await utils.exec('git ls-files --others --exclude-standard', {
       cwd: rootDir,
     })
   )
@@ -138,12 +138,12 @@ export interface IgnoredFilesOptions {
 }
 
 export async function ignoredFiles({
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: IgnoredFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   return (
-    await exec('git ls-files --others --exclude-standard --ignored', {
+    await utils.exec('git ls-files --others --exclude-standard --ignored', {
       cwd: rootDir,
     })
   )
@@ -153,8 +153,8 @@ export async function ignoredFiles({
 }
 
 export interface ChangedFilesOptions {
-  from?: string | Promise<string | undefined | null | void>
-  to?: string | Promise<string | undefined | null | void>
+  from?: PromiseOr<string | undefined>
+  to?: PromiseOr<string | undefined>
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
@@ -163,17 +163,21 @@ export interface ChangedFilesOptions {
 
 export const changedFiles = memoizee(
   async ({
-    from = getRecord<RecordData>()
-      .then((res: HaetaeRecord<RecordData>) => res?.data?.[pkg.name]?.commit)
-      .catch(() => {}),
+    from = core
+      .getRecord<RecordData>()
+      .then(
+        (res?: core.HaetaeRecord<RecordData>) => res?.data?.[pkg.name]?.commit,
+      )
+      // eslint-disable-next-line unicorn/no-useless-undefined
+      .catch(() => undefined),
     to = 'HEAD',
-    rootDir = getConfigDirname(),
+    rootDir = core.getConfigDirname(),
     includeUntracked = true,
     includeIgnored = false,
-    fallback = () => glob(['**'], { rootDir }),
+    fallback = () => utils.glob(['**'], { rootDir }),
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     // eslint-disable-next-line no-param-reassign
-    rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+    rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const _from = await from
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -187,7 +191,9 @@ export const changedFiles = memoizee(
       throw new Error('git is not initialized. This is not a git repository.')
     }
     const execute = (command: string): Promise<string[]> =>
-      exec(command, { cwd: rootDir }).then((res: string) => res.split('\n'))
+      utils
+        .exec(command, { cwd: rootDir })
+        .then((res: string) => res.split('\n'))
 
     const result = []
     try {
@@ -195,7 +201,9 @@ export const changedFiles = memoizee(
         result.push(...(await execute(`git diff --name-only ${_from} ${_to}`)))
       } else if (!_from && _to) {
         result.push(
-          ...(await exec(`git ls-tree --full-tree --name-only -r ${_to}`)),
+          ...(await utils.exec(
+            `git ls-tree --full-tree --name-only -r ${_to}`,
+          )),
         )
       } else {
         return await fallback()

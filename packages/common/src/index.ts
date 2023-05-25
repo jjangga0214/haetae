@@ -4,6 +4,7 @@ import semver from 'semver'
 import { readPackageUpSync } from 'read-pkg-up'
 
 export type PromiseOr<T> = Promise<T> | T
+export type Rec = Record<string, unknown>
 
 export interface ToAbsolutePathOptions {
   path: string

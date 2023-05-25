@@ -1,4 +1,4 @@
-import { parsePkg } from '@haetae/common'
+import { parsePkg, Rec } from '@haetae/common'
 import { dirname } from 'dirname-filename-esm'
 import * as core from '@haetae/core'
 import * as git from '@haetae/git'
@@ -10,8 +10,6 @@ export * as git from '@haetae/git'
 export * as cli from '@haetae/cli'
 
 export const pkg = parsePkg({ name: 'haetae', rootDir: dirname(import.meta) })
-
-type Rec = Record<string, unknown>
 
 export const defaultRootRecordData: core.RootRecordData<
   Rec,

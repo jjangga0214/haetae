@@ -102,7 +102,7 @@ Refer to [introduction#pkg](./introduction#pkg).
 ### `RecordData`
 
 ```ts
-interface RecordData {
+interface RecordData extends Rec {
   '@haetae/git': {
     commit: string
     branch: string
@@ -140,7 +140,7 @@ A function to check whether git is installed on the system.
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute shell command. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute shell command. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `InitializedOptions`
 
@@ -166,7 +166,7 @@ A function to check whether git repository is initialized (by `git init{:sh}`).
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `BranchOptions`
 
@@ -192,7 +192,7 @@ A function to get the current branch name.
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `CommitOptions`
 
@@ -219,7 +219,7 @@ Return value would be the full 40-character commit hash. <small>(e.g. `'63a5812b
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `RecordDataOptions`
 
@@ -307,7 +307,7 @@ A function to get a list of ignored (by .gitignore) files.<br/>
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `ChangedFilesOptions`
 
@@ -345,7 +345,7 @@ A function to get a list of changed files.<br/>
   If there's no previous record's `commit`, `Promise.resolve(undefined){:ts}` is the default.)</small>
 - `to?{:ts}` : A commit ID for `git diff <from> <to>{:sh}` or `git ls-tree --full-tree --name-only -r <to>{:sh}`.
   <small>(default: `'HEAD'{:ts}`)</small>
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `includeUntracked?{:ts}` : Whether to include [untracked files](https://stackoverflow.com/questions/9663507/what-are-tracked-files-and-untracked-files-in-the-context-of-git) in the result.
 If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
 <small>(default: `true{:ts}`)</small>
@@ -354,7 +354,7 @@ If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 <small>(default: `false{:ts}`)</small>
 - `fallback?{:ts}` : A function executed when an error occurs, or  when `to` is falsy <small>(e.g. `null{:ts}`, `Promise{:ts}` resolved to be `undefined{:ts}`)</small>.
 If `fallback` is called and has return value, the value is returned from `changedFiles`.
-<small>(default: <TokenLinkCode tokens={{'.glob': './haetae-utils#glob'}}>`() => utils.glob(['**'], { rootDir }){:ts}`)</TokenLinkCode></small>
+<small>(default: <TokenLinkCode tokens={{'utils.glob': './haetae-utils#glob'}}>`() => utils.glob(['**'], { rootDir }){:ts}`)</TokenLinkCode></small>
 
 **When `from` and `to` are all valid**
 

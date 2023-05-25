@@ -139,7 +139,7 @@ It supports npm, yarn classic, yarn berry and pnpm.
 - `packageName{:ts}` : A package name to get the version of.
 - `options?{:ts}`
   - `options.rootDir?{:ts}` : A directory to start search.
-  This should be your project root or its inner directory. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  This should be your project root or its inner directory. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 #### Usage
 
@@ -163,13 +163,13 @@ eslintVersion.untilPatch // '1.2.3'
 `env` in the config file can be a good place to use `version`.
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae#configure',
   '.hash': './haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js"
-import { core, js } from 'haetae'
+import { configure, js, utils } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are ommitted for brevity.
   commands: {
     myLint: {
@@ -188,14 +188,14 @@ export default core.configure({
 
 An argument interface for [`dependsOn`](#dependson)
 
-<TokenLinkCode tokens={{ 'DepsGraph': './haetae-utils#depsgraph' }}>
+<TokenLinkCode tokens={{ '.DepsGraph': './haetae-utils#depsgraph' }}>
 ```ts
 interface DependsOnOptions {
   dependent: string
   dependencies: readonly string[] | Set<string>
   tsConfig?: string
   rootDir?: string
-  additionalGraph?: DepsGraph
+  additionalGraph?: utils.DepsGraph
 }
 ```
 </TokenLinkCode>
@@ -218,7 +218,7 @@ A function to check if a module depends on one of different modules, transitivel
 - `rootDir?{:ts}` : A directory to execute `git`.
 When `dependent` or an element of `dependencies`, or `tsConfig` is given as a relative path,
 `rootDir{:ts}` is joined to transform it to an absolute path.
-<small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
 This is purely additional, not an overrider or replacement of the original source code dependency graph. <small>(default: <TokenLinkCode tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 
@@ -244,19 +244,19 @@ dependsOn({ dependent: 'f.ts', dependencies }) // true -> 'f.ts' depends on 'f.t
 
 #### Usage With `git.changedFiles`
 
-It is a good practice to use with [`changedFiles`](./haetae-git#changedfiles) of `@haetae/git{:ts}`.
+It is a good practice to use with [`git.changedFiles`](./haetae-git#changedfiles) of `@haetae/git{:ts}`.
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae#configure',
   '.glob': './haetae-utils#glob',
   '.exec': './haetae-utils#exec',
   '.changedFiles': './haetae-git#changedfiles',
   '.recordData': './haetae-git#recorddata'
 }}>
 ```js filename="haetae.config.js"
-import { core, utils, git, js } from 'haetae'
+import { configure, utils, git, js } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are ommitted for brevity.
   commands: {
     myTest: {

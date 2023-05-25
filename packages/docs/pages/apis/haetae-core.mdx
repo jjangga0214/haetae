@@ -117,6 +117,7 @@ An argument interface of function [`setConfigFilename`](#setconfigfilename).
 interface SetConfigFilenameOptions {
   filename?: string
   cwd?: string
+  checkExistence?: boolean
 }
 ```
 
@@ -137,12 +138,13 @@ Set it before calling other APIs that requires a config file.
 
 - `filename?{:ts}` : A config file path.
 - `cwd?{:ts}` : A directory to join or start search from. <small>(default: [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd))</small>
+- `checkExistence?{:ts}`: Whether to check if `filename` exists. No effect when `filename` is not given. <small>(default: `true{:ts}`)</small>
 
 #### When `filename` is given
 
 `filename` can be either an absolute or relative path.
 If relative, `filename` will be joined with `cwd{:ts}`.<br/>
-If `filename` does not exist on the filesystem, it throws an error.
+If `filename` does not exist on the filesystem, it throws an error when `checkExistence` is `true{:ts}`.
 
 #### When `filename` is not given
 
@@ -238,7 +240,7 @@ A getter for store file name, which is a module-level state.<br/>
 ### `HaetaeRecord`
 
 ```ts
-interface HaetaeRecord<D extends Rec, E extends Rec> {
+interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec>  {
   data: D
   env: E
   time: number
@@ -537,7 +539,7 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 <TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined>
+<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordsOptions<D, E>) => Promise<HaetaeRecord<D, E>[] | undefined>
 ```
 </TokenLinkCode>
 
@@ -640,7 +642,7 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 <TokenLinkCode tokens={['GetRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>
+<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordOptions<D, E>) => Promise<HaetaeRecord<D, E> | undefined>
 ```
 </TokenLinkCode>
 
