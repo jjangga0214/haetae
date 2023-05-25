@@ -15,7 +15,7 @@ export const pkg = parsePkg({
 
 // todo: git submodule test
 
-export interface GitHaetaeRecordData {
+export interface RecordData {
   [pkgName]: { commit: string; branch: string; pkgVersion: string }
 }
 
@@ -101,7 +101,7 @@ export async function recordData({
   commit = _commit(),
   branch = _branch(),
   pkgVersion = pkg.version.value,
-}: RecordDataOptions = {}): Promise<GitHaetaeRecordData> {
+}: RecordDataOptions = {}): Promise<RecordData> {
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
   }
@@ -163,11 +163,8 @@ export interface ChangedFilesOptions {
 
 export const changedFiles = memoizee(
   async ({
-    from = getRecord<GitHaetaeRecordData>()
-      .then(
-        (res: HaetaeRecord<GitHaetaeRecordData>) =>
-          res?.data?.[pkg.name]?.commit,
-      )
+    from = getRecord<RecordData>()
+      .then((res: HaetaeRecord<RecordData>) => res?.data?.[pkg.name]?.commit)
       .catch(() => {}),
     to = 'HEAD',
     rootDir = getConfigDirname(),
@@ -201,7 +198,7 @@ export const changedFiles = memoizee(
           ...(await exec(`git ls-tree --full-tree --name-only -r ${_to}`)),
         )
       } else {
-        return fallback()
+        return await fallback()
       }
 
       if (includeUntracked) {
