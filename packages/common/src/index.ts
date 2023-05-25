@@ -1,4 +1,4 @@
-import assert from 'assert/strict'
+import assert from 'node:assert/strict'
 import upath from 'upath'
 import semver from 'semver'
 import readPkgUp from 'read-pkg-up'

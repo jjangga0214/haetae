@@ -1,5 +1,6 @@
-import fs from 'fs'
-import assert from 'assert/strict'
+import fs from 'node:fs'
+import assert from 'node:assert/strict'
+import { createRequire } from 'node:module'
 import upath from 'upath'
 import readPkgUp from 'read-pkg-up'
 import { findUp } from 'find-up'
@@ -7,7 +8,9 @@ import yaml from 'yaml'
 import { getConfigDirname } from '@haetae/core'
 import { parseVersion } from '@haetae/common'
 
-interface VersionFromYarnBerryOptions {
+const require = createRequire(import.meta.url)
+
+export interface VersionFromYarnBerryOptions {
   rootDir?: string
   lockFilename?: string
 }
@@ -15,7 +18,7 @@ interface VersionFromYarnBerryOptions {
 /**
  * Read package version from yarn.lock
  */
-async function versionFromYarnBerry(
+export async function versionFromYarnBerry(
   packageName: string,
   {
     rootDir = getConfigDirname(),

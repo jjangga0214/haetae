@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { dirname } from 'dirname-filename-esm'
@@ -6,7 +6,8 @@ import { getConfigDirname } from '@haetae/core'
 import { parsePkg, toAbsolutePath } from '@haetae/common'
 import { DepsGraph, graph, dependsOn as graphDependsOn } from '@haetae/utils'
 
-export * from './version.js'
+export { version } from './version.js'
+// export { version, VersionOptions } from './version.js' TODO: export error of interface
 
 export const pkg = parsePkg({
   name: '@haetae/javascript',

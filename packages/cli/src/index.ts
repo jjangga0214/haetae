@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+import assert from 'node:assert/strict'
 import yargs from 'yargs/yargs'
 import { hideBin } from 'yargs/helpers'
-import assert from 'assert/strict'
 import signale from 'signale'
 import chalk from 'chalk'
 import clipboard from 'clipboardy'

@@ -1,6 +1,7 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import assert from 'node:assert/strict'
 import upath from 'upath'
-import assert from 'assert/strict'
-import fs from 'fs'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { produce } from 'immer'
@@ -11,7 +12,6 @@ import { dirname } from 'dirname-filename-esm'
 // @ts-ignore
 import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
 import { parsePkg, PromiseOr } from '@haetae/common'
-import path from 'path'
 
 type Rec = Record<string, unknown>
 

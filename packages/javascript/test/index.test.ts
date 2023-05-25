@@ -1,7 +1,7 @@
 import upath from 'upath'
-import { dependsOn } from '@haetae/javascript'
 import * as utils from '@haetae/utils'
 import { dirname } from 'dirname-filename-esm'
+import { dependsOn } from '../src/index.js'
 
 describe('dependsOn', () => {
   // TODO: add tests for other various environments

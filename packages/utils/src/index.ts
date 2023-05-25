@@ -1,6 +1,6 @@
+import childProcess from 'node:child_process'
 import upath from 'upath'
 import { globby, Options as GlobbyOptions } from 'globby'
-import childProcess from 'child_process'
 import hasha from 'hasha'
 import { dirname } from 'dirname-filename-esm'
 import { getConfigDirname } from '@haetae/core'
@@ -20,17 +20,14 @@ export async function glob(
   patterns: readonly string[],
   { rootDir = getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
 ): Promise<string[]> {
-  // eslint-disable-next-line no-param-reassign
+  /* eslint-disable no-param-reassign, @typescript-eslint/ban-ts-comment */
   rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  // eslint-disable-next-line no-param-reassign
   globbyOptions.cwd = globbyOptions.cwd || rootDir
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  // eslint-disable-next-line no-param-reassign
   globbyOptions.gitignore =
     globbyOptions.gitignore === undefined ? true : globbyOptions.gitignore
+  /* eslint-enable no-param-reassign, @typescript-eslint/ban-ts-comment */
   const res = await globby(patterns, globbyOptions)
   return res.map((f) => toAbsolutePath({ path: f, rootDir }))
 }
@@ -53,11 +50,10 @@ export interface ExecOptions {
 
 export async function exec(
   command: string,
-
   options?: ExecOptions,
 ): Promise<string> {
-  // eslint-disable-next-line no-param-reassign
-  options = {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const _options = {
     trim: true,
     cwd: options?.cwd || getConfigDirname(), // Why using `||` ? That's to avoid calling `getConfigDirname()` if possible.
     ...options,
@@ -66,9 +62,13 @@ export async function exec(
   return new Promise((resolve, reject) => {
     childProcess.exec(command, options, (error, stdout, stderr) => {
       if (stdout) {
-        resolve(options.trim ? stdout.trim() : stdout)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        resolve(_options.trim ? stdout.trim() : stdout)
       }
-      reject(error || options.trim ? stderr.trim() : stderr)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      reject(error || _options.trim ? stderr.trim() : stderr)
     })
   })
 }
