@@ -48,13 +48,13 @@ jobs:
 
       - name: Read .nvmrc
         id: nvmrc
-        run: echo "::set-output name=nvmrc::$(cat .nvmrc)"
+        run: echo "version=$(cat .nvmrc)" >> $GITHUB_OUTPUT
 
       # pnpm should be installed before the setup-node action. REF: https://github.com/actions/setup-node/issues/530
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ steps.nvmrc.outputs.nvmrc }}
+          node-version: ${{ steps.nvmrc.outputs.version }}
           cache: pnpm
 
       - name: Install dependencies
