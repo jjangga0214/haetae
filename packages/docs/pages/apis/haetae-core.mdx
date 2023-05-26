@@ -518,8 +518,8 @@ There're [`GetRecordsOptions`](#getrecordsoptions) (plural) and [`GetRecordOptio
 <TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
 interface GetRecordsOptions<D extends Rec, E extends Rec> {
-  command?: PromiseOr<string>
-  store?: PromiseOr<HaetaeStore<D, E>>
+  command?: string
+  store?: HaetaeStore<D, E>
 }
 ```
 </TokenLinkCode>
@@ -554,8 +554,8 @@ An argument interface of function [`invokeEnv`](#invokeenv) and [`invokeRun`](#i
 <TokenLinkCode tokens={['HaetaeConfig']}>
 ```ts
 interface CommandFromConfig<D extends Rec, E extends Rec> {
-  command?: PromiseOr<string>
-  config?: PromiseOr<HaetaeConfig<D, E>>
+  command?: string
+  config?: HaetaeConfig<D, E>
 }
 ```
 </TokenLinkCode>
@@ -660,8 +660,8 @@ An argument interface of function [`formRecord`](#formrecord).
 
 ```ts
 interface FormRecordOptions<D extends Rec, E extends Rec> {
-  data?: PromiseOr<D>
-  env?: PromiseOr<E>
+  data?: D
+  env?: E
   time?: number
 }
 ```
@@ -693,10 +693,10 @@ An argument interface of function [`addRecord`](#addrecord).
 <TokenLinkCode tokens={['HaetaeConfig', 'HaetaeStore', 'HaetaeRecord']}>
 ```ts
 interface AddRecordOptions<D extends Rec, E extends Rec> {
-  config?: PromiseOr<HaetaeConfig<D, E>>
-  command?: PromiseOr<string>
-  store?: PromiseOr<HaetaeStore<D, E>>
-  record?: PromiseOr<HaetaeRecord<D, E>>
+  config?: HaetaeConfig<D, E>
+  command?: string
+  store?: HaetaeStore<D, E>
+  record?: HaetaeRecord<D, E>
 }
 ```
 </TokenLinkCode>
@@ -731,7 +731,7 @@ An argument interface of function [`saveStore`](#savestore).
 ```ts
 interface SaveStoreOptions {
   filename?: string
-  store?: PromiseOr<HaetaeStore>
+  store?: HaetaeStore
 }
 ```
 </TokenLinkCode>

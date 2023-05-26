@@ -378,31 +378,28 @@ export const getStore = memoizee(
 )
 
 export interface GetRecordsOptions<D extends Rec, E extends Rec> {
-  command?: PromiseOr<string>
-  store?: PromiseOr<HaetaeStore<D, E>>
+  command?: string
+  store?: HaetaeStore<D, E>
 }
 
 export async function getRecords<D extends Rec = Rec, E extends Rec = Rec>({
   command = getCurrentCommand(),
-  store = getStore(),
+  store,
 }: GetRecordsOptions<D, E> = {}): Promise<HaetaeRecord<D, E>[] | undefined> {
-  return (await store).commands[await command] // `undefined` if non-existent
+  return (store || (await getStore())).commands[command] // `undefined` if non-existent
 }
 
 export interface CommandFromConfig<D extends Rec, E extends Rec> {
-  command?: PromiseOr<string>
-  config?: PromiseOr<HaetaeConfig<D, E>>
+  command?: string
+  config?: HaetaeConfig<D, E>
 }
 
 export const invokeEnv = memoizee(
-  async <E extends Rec>({
-    command = getCurrentCommand(),
-    config = getConfig(),
-  }: CommandFromConfig<Rec, E> = {}): Promise<E> => {
-    // eslint-disable-next-line no-param-reassign
-    config = await config
-    // eslint-disable-next-line no-param-reassign
-    command = await command
+  async <E extends Rec>(
+    options: CommandFromConfig<Rec, E> = {},
+  ): Promise<E> => {
+    const command = options.command || (await getCurrentCommand())
+    const config = options.config || (await getConfig())
     const haetaeCommand = config.commands[command]
     assert(!!haetaeCommand, `Command "${command}" is not configured.`)
     const env = await haetaeCommand.env()
@@ -419,14 +416,12 @@ export const invokeEnv = memoizee(
   },
 )
 
-export const invokeRun = async <D extends Rec>({
-  command = getCurrentCommand(),
-  config = getConfig(),
-}: CommandFromConfig<D, Rec> = {}): Promise<D> => {
-  // eslint-disable-next-line no-param-reassign
-  config = await config
-  // eslint-disable-next-line no-param-reassign
-  command = await command
+export const invokeRun = async <D extends Rec>(
+  options: CommandFromConfig<D, Rec> = {},
+): Promise<D> => {
+  const command = options.command || (await getCurrentCommand())
+  const config = options.config || (await getConfig())
+
   const haetaeCommand = config.commands[command]
   assert(!!haetaeCommand, `Command "${command}" is not configured.`)
   const recordData = await haetaeCommand.run()
@@ -442,7 +437,7 @@ export const invokeRun = async <D extends Rec>({
 
 export interface GetRecordOptions<D extends Rec, E extends Rec>
   extends GetRecordsOptions<D, E> {
-  env?: PromiseOr<E>
+  env?: E
 }
 
 export function compareEnvs(one: Rec, theOther: Rec): boolean {
@@ -460,13 +455,13 @@ export function compareEnvs(one: Rec, theOther: Rec): boolean {
   })
 }
 
-export async function getRecord<D extends Rec = Rec, E extends Rec = Rec>({
-  command = getCurrentCommand(),
-  env = invokeEnv({ command }),
-  store = getStore(),
-}: GetRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E> | undefined> {
-  // eslint-disable-next-line no-param-reassign
-  env = await env
+export async function getRecord<D extends Rec = Rec, E extends Rec = Rec>(
+  options: GetRecordOptions<D, E> = {},
+): Promise<HaetaeRecord<D, E> | undefined> {
+  const command = options.command || (await getCurrentCommand())
+  const env = options.env || (await invokeEnv({ command }))
+  const store = options.store || (await getStore())
+
   const records = await getRecords<D, E>({ command, store })
   if (records) {
     for (const record of records) {
@@ -479,39 +474,44 @@ export async function getRecord<D extends Rec = Rec, E extends Rec = Rec>({
 }
 
 export interface FormRecordOptions<D extends Rec, E extends Rec> {
-  data?: PromiseOr<D>
-  env?: PromiseOr<E>
+  data?: D
+  env?: E
   time?: number
 }
 
-export async function formRecord<D extends Rec, E extends Rec>({
-  data = invokeRun(),
-  env = invokeEnv(),
-  time = Date.now(),
-}: FormRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E>> {
+export async function formRecord<D extends Rec, E extends Rec>(
+  options: FormRecordOptions<D, E> = {},
+): Promise<HaetaeRecord<D, E>> {
+  const data = options.data || (await invokeRun<D>())
+  const env = options.env || (await invokeEnv<E>())
+  const time = options.time || Date.now()
   return {
-    data: await data,
-    env: await env,
+    data,
+    env,
     time,
   }
 }
 
 export interface AddRecordOptions<D extends Rec, E extends Rec> {
-  config?: PromiseOr<HaetaeConfig<D, E>>
-  command?: PromiseOr<string>
-  store?: PromiseOr<HaetaeStore<D, E>>
-  record?: PromiseOr<HaetaeRecord<D, E>>
+  config?: HaetaeConfig<D, E>
+  command?: string
+  store?: HaetaeStore<D, E>
+  record?: HaetaeRecord<D, E>
 }
 
-export async function addRecord<D extends Rec, E extends Rec>({
-  config = getConfig(),
-  command = getCurrentCommand(),
-  store = getStore(),
-  record = formRecord({
-    data: invokeRun({ command }),
-    env: invokeEnv({ command }),
-  }),
-}: AddRecordOptions<D, E> = {}): Promise<HaetaeStore<D, E>> {
+export async function addRecord<D extends Rec, E extends Rec>(
+  options: AddRecordOptions<D, E> = {},
+): Promise<HaetaeStore<D, E>> {
+  const config = options.config || (await getConfig())
+  const command = options.command || (await getCurrentCommand())
+  const store = options.store || (await getStore())
+  const record =
+    options.record ||
+    (await formRecord({
+      data: await invokeRun({ command }),
+      env: await invokeEnv({ command }),
+    }))
+
   return produce<HaetaeStore<D, E>>(await store, async (draft) => {
     /* eslint-disable no-param-reassign, @typescript-eslint/naming-convention */
     const _config = await config
@@ -541,17 +541,17 @@ export async function addRecord<D extends Rec, E extends Rec>({
 
 export interface SaveStoreOptions {
   filename?: string
-  store?: PromiseOr<HaetaeStore>
+  store?: HaetaeStore
 }
 
 export async function saveStore({
   filename = getStoreFilename(),
-  store = addRecord(),
+  store,
 }: SaveStoreOptions = {}): Promise<void> {
   // eslint-disable-next-line no-param-reassign
   filename = await filename
   // eslint-disable-next-line no-param-reassign
-  store = await store
+  store = store || (await addRecord())
   const dirname = path.dirname(filename)
   if (!fs.existsSync(dirname)) {
     fs.mkdirSync(dirname, { recursive: true })
