@@ -348,7 +348,7 @@ export function initNewStore<D extends Rec, E extends Rec>(): HaetaeStore<
   return { version: pkg.version.value, commands: {} }
 }
 
-export interface GetStoreOptions<D extends Rec, E extends Rec> {
+export interface GetStoreOptions {
   filename?: string
   initWhenNotFound?: boolean
 }
@@ -357,7 +357,7 @@ export const getStore = memoizee(
   async <D extends Rec, E extends Rec>({
     filename = getStoreFilename(),
     initWhenNotFound = true,
-  }: GetStoreOptions<D, E> = {}): Promise<HaetaeStore<D, E>> => {
+  }: GetStoreOptions = {}): Promise<HaetaeStore<D, E>> => {
     let rawStore
     try {
       rawStore = fs.readFileSync(await filename, {
