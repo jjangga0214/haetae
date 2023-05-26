@@ -188,9 +188,7 @@ export const changedFiles = memoizee(
         .then(
           (res?: core.HaetaeRecord<RecordData>) =>
             res?.data?.[pkg.name]?.commit,
-        )
-        // eslint-disable-next-line unicorn/no-useless-undefined
-        .catch(() => undefined))
+        ))
     // eslint-disable-next-line no-param-reassign
     rootDir = toAbsolutePath({
       path: rootDir,
