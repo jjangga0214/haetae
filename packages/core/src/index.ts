@@ -403,8 +403,17 @@ export const invokeEnv = memoizee(
     const haetaeCommand = config.commands[command]
     assert(!!haetaeCommand, `Command "${command}" is not configured.`)
     const env = await haetaeCommand.env()
+    let isObject = false
+    try {
+      isObject =
+        env === undefined || Object.getPrototypeOf(env) === Object.prototype
+    } catch {
+      throw new Error(
+        'The return type of `env` must be a plain object(`{ ... }`) or `void`.',
+      )
+    }
     assert(
-      env === undefined || Object.getPrototypeOf(env) === Object.prototype,
+      isObject,
       'The return type of `env` must be a plain object(`{ ... }`) or `void`.',
     )
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -425,9 +434,18 @@ export const invokeRun = async <D extends Rec>(
   const haetaeCommand = config.commands[command]
   assert(!!haetaeCommand, `Command "${command}" is not configured.`)
   const recordData = await haetaeCommand.run()
+  let isObject = false
+  try {
+    isObject =
+      recordData === undefined ||
+      Object.getPrototypeOf(recordData) === Object.prototype
+  } catch {
+    throw new Error(
+      'The return type of `run` must be a plain object(`{ ... }`) or `void`.',
+    )
+  }
   assert(
-    recordData === undefined ||
-      Object.getPrototypeOf(recordData) === Object.prototype,
+    isObject,
     'The return type of `run` must be a plain object(`{ ... }`) or `void`.',
   )
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
