@@ -15,25 +15,15 @@ export function toAbsolutePath({
   path,
   rootDir,
 }: ToAbsolutePathOptions): string {
-  // eslint-disable-next-line no-param-reassign
-  path = upath.normalize(path)
   if (upath.isAbsolute(path)) {
-    return path
+    return upath.normalize(path)
   }
   if (typeof rootDir === 'function') {
     // eslint-disable-next-line no-param-reassign
     rootDir = rootDir()
   }
-  // eslint-disable-next-line no-param-reassign
-  rootDir = upath.resolve(rootDir) // It becomes an absolute path
-  // eslint-disable-next-line no-param-reassign
-  rootDir = rootDir.endsWith('/') ? rootDir : `${rootDir}/`
-  const resolvedPath = upath.resolve(path)
 
-  if (resolvedPath.startsWith(rootDir) || `${resolvedPath}/` === rootDir) {
-    return upath.resolve(path)
-  }
-  return upath.join(rootDir, path)
+  return upath.resolve(rootDir, path)
 }
 
 export function parseVersion(version: string) {

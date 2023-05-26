@@ -33,33 +33,7 @@ describe('toAbsolutePath', () => {
         path: 'path/to/',
         rootDir: '/root/dir',
       }),
-    ).toBe('/root/dir/path/to/')
-  })
-  test('when `path` and `rootDir` are same', async () => {
-    expect(
-      toAbsolutePath({
-        path: '../',
-        rootDir: '../',
-      }),
-    ).toBe(upath.join(process.cwd(), '..'))
-    expect(
-      toAbsolutePath({
-        path: '..',
-        rootDir: '../',
-      }),
-    ).toBe(upath.join(process.cwd(), '..'))
-    expect(
-      toAbsolutePath({
-        path: '../',
-        rootDir: '..',
-      }),
-    ).toBe(upath.join(process.cwd(), '..'))
-    expect(
-      toAbsolutePath({
-        path: '..',
-        rootDir: '..',
-      }),
-    ).toBe(upath.join(process.cwd(), '..'))
+    ).toBe('/root/dir/path/to') // Trailing `/` is removed
   })
 })
 
