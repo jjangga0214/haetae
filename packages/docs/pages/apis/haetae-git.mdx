@@ -227,8 +227,8 @@ An argument interface for `recordData`
 
 ```ts
 interface RecordDataOptions {
-  commit?: PromiseOr<string>
-  branch?: PromiseOr<string>
+  commit?: string
+  branch?: string
   pkgVersion?: string
 }
 ```
@@ -315,8 +315,8 @@ An argument interface for [`changedFiles{:ts}`](#changedfiles).
 
 ```ts
 interface ChangedFilesOptions  {
-  from?: string | Promise<string | undefined | null | void>
-  to?: string | Promise<string | undefined | null | void>
+  from?: string
+  to?: string
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
