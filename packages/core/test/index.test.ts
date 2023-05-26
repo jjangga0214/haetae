@@ -30,8 +30,9 @@ describe('configure()', () => {
   describe("when commands' env and run are given with different types", () => {
     // eslint-disable-next-line jest/require-hook
     setConfigFilename({
-      filename: 'haetae.config-to-test.js',
+      filename: 'haetae.config.js',
       cwd: dirname(import.meta),
+      checkExistence: false,
     })
     const config = configure({
       commands: {

@@ -12,9 +12,11 @@
   "scripts": {
     "ts": "node --loader ts-node/esm --loader ./loader.js",
     "dev": "pnpm turbo dev --concurrency 11",
-    "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md --fix",
-    "lint:md": "markdownlint --fix",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "lint": "pnpm lint:ci --fix",
+    "lint:ci": "eslint \"*.{js,cjs,mjs,jsx,ts,cts,mts,tsx,md}\"",
+    "lint:md": "pnpm lint:md:ci --fix",
+    "lint:md:ci": "markdownlint",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "husky-skip": "cross-env HUSKY=0",
     "commit": "git cz",
     "prepare": "husky install",
@@ -29,25 +31,6 @@
     ]
   },
   "prettier": "@jjangga0214/prettier-config",
-  "eslintConfig": {
-    "extends": "@jjangga0214/eslint-config",
-    "rules": {
-      "unicorn/no-await-expression-member": "off"
-    },
-    "settings": {
-      "react": {
-        "version": "18"
-      }
-    }
-  },
-  "eslintIgnore": [
-    "node_modules",
-    "dist",
-    "test-project",
-    "coverage",
-    ".changeset",
-    "CHANGELOG.md"
-  ],
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.5",
     "@changesets/cli": "^2.23.2",

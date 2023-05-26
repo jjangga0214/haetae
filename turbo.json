@@ -6,6 +6,7 @@
       "dependsOn": ["^topo"]
     },
     "lint:md": {
+      "outputs": ["**/*.md", "**/*.mdx"],
       "inputs": [
         "**/*.md",
         "**/*.mdx",
@@ -13,7 +14,32 @@
         "../../.markdownlintignore"
       ]
     },
+    "//#lint:md": {
+      "outputs": ["*.md", "*.mdx"],
+      "inputs": ["*.md", "*.mdx", ".markdownlint.json", ".markdownlintignore"]
+    },
+    "lint:md:ci": {
+      "inputs": [
+        "**/*.md",
+        "**/*.mdx",
+        "../../.markdownlint.json",
+        "../../.markdownlintignore"
+      ]
+    },
+    "//#lint:md:ci": {
+      "inputs": ["*.md", "*.mdx", ".markdownlint.json", ".markdownlintignore"]
+    },
     "lint": {
+      "outputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.cts",
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.cjs",
+        "**/*.md",
+        "**/*.mdx"
+      ],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
@@ -23,7 +49,60 @@
         "**/*.cjs",
         "**/*.md",
         "**/*.mdx",
+        "../../.eslintrc*",
         "../../.prettierignore"
+      ]
+    },
+    "//#lint": {
+      "outputs": [
+        "*.ts",
+        "*.tsx",
+        "*.cts",
+        "*.js",
+        "*.jsx",
+        "*.cjs",
+        "*.md",
+        "*.mdx"
+      ],
+      "inputs": [
+        "*.ts",
+        "*.tsx",
+        "*.cts",
+        "*.js",
+        "*.jsx",
+        "*.cjs",
+        "*.md",
+        "*.mdx",
+        ".eslintrc*",
+        ".prettierignore"
+      ]
+    },
+    "lint:ci": {
+      "inputs": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.cts",
+        "**/*.js",
+        "**/*.jsx",
+        "**/*.cjs",
+        "**/*.md",
+        "**/*.mdx",
+        "../../.eslintrc*",
+        "../../.prettierignore"
+      ]
+    },
+    "//#lint:ci": {
+      "inputs": [
+        "*.ts",
+        "*.tsx",
+        "*.cts",
+        "*.js",
+        "*.jsx",
+        "*.cjs",
+        "*.md",
+        "*.mdx",
+        ".eslintrc*",
+        ".prettierignore"
       ]
     },
     "test": {

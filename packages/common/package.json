@@ -18,7 +18,7 @@
     "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md .",
     "lint:md": "markdownlint .",
     "build": "tsc --build tsconfig.build.json",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest -c ../../jest.config.js ./packages/common/",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage -c../../jest.config.js ./packages/common/",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "dependencies": {
@@ -30,9 +30,6 @@
   "devDependencies": {
     "@types/semver": "^7.3.10"
   },
-  "eslintIgnore": [
-    "CHANGELOG.md"
-  ],
   "keywords": [
     "haetae",
     "test",
