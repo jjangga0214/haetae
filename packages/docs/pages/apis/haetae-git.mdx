@@ -320,7 +320,6 @@ interface ChangedFilesOptions  {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
-  fallback?: (error?: Error) => PromiseOr<string[]> | never
 }
 ```
 
@@ -340,34 +339,43 @@ A function to get a list of changed files.<br/>
 
 **Options?**
 
-- `from?{:ts}` : A commit ID for `git diff <from> <to>{:sh}`.
+- `from?{:ts}` : A commit ID as a starting point of comparision.
   <small>(default: Previous record's `commit`.
-  If there's no previous record's `commit`, `Promise.resolve(undefined){:ts}` is the default.)</small>
-- `to?{:ts}` : A commit ID for `git diff <from> <to>{:sh}` or `git ls-tree --full-tree --name-only -r <to>{:sh}`.
-  <small>(default: `'HEAD'{:ts}`)</small>
+  `undefined{:ts}` if there's no previous record's `commit`.)</small>
+- `to?{:ts}` : A commit ID as an ending point of comparision.
+  <small>(default: `undefined{:ts}`)</small>
 - `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
-- `includeUntracked?{:ts}` : Whether to include [untracked files](https://stackoverflow.com/questions/9663507/what-are-tracked-files-and-untracked-files-in-the-context-of-git) in the result.
-If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
+- `includeUntracked?{:ts}` : Whether to include [untracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
+ files in the result. If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
 <small>(default: `true{:ts}`)</small>
-- `includeIgnored?{:ts}` : Whether to include ignored files (by .gitignore) in the result.
+- `includeIgnored?{:ts}` : Whether to include ignored <small>(by .gitignore)</small> files  in the result.
 If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 <small>(default: `false{:ts}`)</small>
-- `fallback?{:ts}` : A function executed when an error occurs, or  when `to` is falsy <small>(e.g. `null{:ts}`, `Promise{:ts}` resolved to be `undefined{:ts}`)</small>.
-If `fallback` is called and has return value, the value is returned from `changedFiles`.
-<small>(default: <TokenLinkCode tokens={{'utils.glob': './haetae-utils#glob'}}>`() => utils.glob(['**'], { rootDir }){:ts}`)</TokenLinkCode></small>
 
-**When `from` and `to` are all valid**
+**When both `from` and `to` are all valid** <small>*(truthy values unlike `undefined`)*</small>
 
-`git diff --name-only <from> <to>{:sh}` is included in the result.
+All changed files between the two commits are included.<br/>
+`git diff --name-only <from> <to>{:sh}` is executed under the hood.
 
-**When `from` is invalid <small>(e.g. `Promise{:ts}` resolved to be `undefined{:ts}`)</small> and `to` is valid**
+**When only `from` is valid**
 
-`git ls-tree --full-tree --name-only -r <to>{:sh}` is included in the result.<br/>
-All of the tracked files that have been committed until the commit ID `to` are included.
+All changed files since the commit ID `from` are included.<br/>
+`git diff --name-only <from>{:sh}` is executed under the hood.<br/>
+<small>(Note: This contains modified or deleted files which are [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
+ but not commited yet, no matter whether they're [staged](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository) or not.)</small>
 
-**When `to` is invalid <small>(regardless of `from`)</small>**
+**When only `to` is valid**
 
-`await fallback(){:ts}` is returned.
+All [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository) files
+since git initialization until the commit ID `to` are included.<br/>
+`git ls-tree --full-tree --name-only -r <to>{:sh}` is executed under the hood.<br/>
+<small>(Note: This does not contain files deleted in past commits because they became untracked.)</small>
+
+**When both `from` and `to` are all invalid**
+
+All [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository) files since git initialization until `HEAD` are included.<br/>
+`git ls-tree --full-tree --name-only -r HEAD{:sh}` is executed under the hood.<br/>
+<small>(Note: This does not contain files deleted in past commits because they became untracked.)</small>
 
 #### Usage With `js.dependsOn`
 
@@ -379,16 +387,16 @@ If your project is based on javascript ecosystem, it is a good practice to use `
 </Callout>
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae-core#configure',
   '.glob': './haetae-utils#glob',
   '.exec': './haetae-utils#exec',
   '.dependsOn': './haetae-javascript#dependsOn',
   '.recordData': './haetae-git#recorddata'
 }}>
 ```js filename="haetae.config.js"
-import { core, utils, git, js } from 'haetae'
+import { configure, utils, git, js } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are ommitted for brevity.
   commands: {
     myTest: {
@@ -397,9 +405,9 @@ export default core.configure({
         // An array of test files which (transitively) depend on changed files
         const filesToTest = (
            await utils.glob(['**/*.test.ts'])
-          ).filter((file) =>
+          ).filter((testFile) =>
             js.dependsOn({
-              dependent: file,
+              dependent: testFile,
               dependencies: changedFiles,
             })
           )

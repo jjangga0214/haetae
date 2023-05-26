@@ -140,8 +140,8 @@ export async function untrackedFiles({
     }
   }
   return files
-    .filter((f: string) => f) // this removes empty string
-    .map((f: string) => toAbsolutePath({ path: f, rootDir }))
+    .filter((f) => f) // this removes empty string
+    .map((f) => toAbsolutePath({ path: f, rootDir }))
 }
 
 export interface IgnoredFilesOptions {
@@ -159,8 +159,8 @@ export async function ignoredFiles({
     })
   )
     .split('\n')
-    .filter((f: string) => f) // this removes empty strings
-    .map((f: string) => toAbsolutePath({ path: f, rootDir }))
+    .filter((f) => f) // this removes empty strings
+    .map((f) => toAbsolutePath({ path: f, rootDir }))
 }
 
 export interface ChangedFilesOptions {
@@ -169,7 +169,6 @@ export interface ChangedFilesOptions {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
-  fallback?: (error?: Error) => PromiseOr<string[]> | never
 }
 
 export const changedFiles = memoizee(
@@ -181,11 +180,10 @@ export const changedFiles = memoizee(
       )
       // eslint-disable-next-line unicorn/no-useless-undefined
       .catch(() => undefined),
-    to = 'HEAD',
+    to,
     rootDir = core.getConfigDirname(),
     includeUntracked = true,
     includeIgnored = false,
-    fallback = () => utils.glob(['**'], { rootDir }),
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     // eslint-disable-next-line no-param-reassign
     rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
@@ -207,44 +205,42 @@ export const changedFiles = memoizee(
         .then((res: string) => res.split('\n'))
 
     const result = []
-    try {
-      if (_from && _to) {
-        try {
-          result.push(
-            ...(await execute(
-              `git --no-pager diff --name-only ${_from} ${_to}`,
-            )),
-          )
-        } catch (error) {
-          // When there is nothing to diff (e.g. when `_from` and `_to` are the same),
-          // an error (with exactly empty string '') occurs but it is not a problem.
-          if (error !== '') {
-            throw error
-          }
-        }
-      } else if (!_from && _to) {
+
+    if (_from) {
+      try {
         result.push(
-          ...(await utils.exec(
-            `git ls-tree --full-tree --name-only -r ${_to}`,
+          ...(await execute(
+            `git --no-pager diff --name-only ${_from} ${_to || ''}`.trim(),
           )),
         )
-      } else {
-        return await fallback()
+      } catch (error) {
+        // When there is nothing to diff (e.g. when `_from` and `_to` are the same),
+        // an error (with exactly empty string '') occurs but it is not a problem.
+        if (error !== '') {
+          throw error
+        }
       }
-
-      if (includeUntracked) {
-        result.push(...(await untrackedFiles({ rootDir })))
-      }
-      if (includeIgnored) {
-        result.push(...(await ignoredFiles({ rootDir })))
-      }
-
-      return result
-        .filter((f) => f) // this removes empty string
-        .map((f) => (upath.isAbsolute(f) ? f : upath.join(rootDir, f)))
-    } catch (error) {
-      return fallback(error as Error)
+    } else {
+      result.push(
+        ...(await utils.exec(
+          `git ls-tree --full-tree --name-only -r ${_to || 'HEAD'}`,
+        )),
+      )
     }
+
+    if (includeUntracked) {
+      result.push(...(await untrackedFiles({ rootDir })))
+    }
+    if (includeIgnored) {
+      result.push(...(await ignoredFiles({ rootDir })))
+    }
+    return [
+      ...new Set( // this removes duplicated files
+        result
+          .filter((f) => f) // this removes empty string
+          .map((f) => toAbsolutePath({ path: f, rootDir })),
+      ),
+    ]
   },
   {
     normalizer: serialize,
