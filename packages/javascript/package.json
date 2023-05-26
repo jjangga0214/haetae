@@ -17,7 +17,7 @@
     "ts": "node --loader ts-node/esm --loader ../../loader.js",
     "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md .",
     "lint:md": "markdownlint .",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage -c../../jest.config.js ./packages/javascript/",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage -c ../../jest.config.js ./packages/javascript/",
     "build": "tsc --build tsconfig.build.json",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
