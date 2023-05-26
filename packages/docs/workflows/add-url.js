@@ -106,8 +106,6 @@ async function main() {
   await writeUrl({ url, gitTags, gitBranch })
 }
 
-
-main()
 main().catch((error) => {
   console.error(error)
   console.log(2)

@@ -1,4 +1,3 @@
-import upath from 'upath'
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
 import { Rec, PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'

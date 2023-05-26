@@ -6,7 +6,7 @@ import { getConfigDirname } from '@haetae/core'
 import { parsePkg, toAbsolutePath } from '@haetae/common'
 import { DepsGraph, graph, dependsOn as graphDependsOn } from '@haetae/utils'
 
-export { version } from './version.js'
+export { version} from './version.js'
 // export { version, VersionOptions } from './version.js' TODO: export error of interface
 
 export const pkg = parsePkg({
