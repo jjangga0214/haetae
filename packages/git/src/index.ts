@@ -1,6 +1,6 @@
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
-import { Rec, PromiseOr, parsePkg, toAbsolutePath } from '@haetae/common'
+import { Rec, parsePkg, toAbsolutePath } from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'
@@ -91,16 +91,18 @@ const _branch = branch
 const _commit = commit
 
 export interface RecordDataOptions {
-  commit?: PromiseOr<string>
-  branch?: PromiseOr<string>
+  commit?: string
+  branch?: string
   pkgVersion?: string
 }
 
-export async function recordData({
-  commit = _commit(),
-  branch = _branch(),
-  pkgVersion = pkg.version.value,
-}: RecordDataOptions = {}): Promise<RecordData> {
+export async function recordData(
+  options: RecordDataOptions = {},
+): Promise<RecordData> {
+  const commit = options.commit || (await _commit())
+  const branch = options.branch || (await _branch())
+  const pkgVersion = options.pkgVersion || pkg.version.value
+
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
   }
@@ -163,8 +165,8 @@ export async function ignoredFiles({
 }
 
 export interface ChangedFilesOptions {
-  from?: PromiseOr<string | undefined>
-  to?: PromiseOr<string | undefined>
+  from?: string
+  to?: string
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
@@ -172,24 +174,28 @@ export interface ChangedFilesOptions {
 
 export const changedFiles = memoizee(
   async ({
-    from = core
-      .getRecord<RecordData>()
-      .then(
-        (res?: core.HaetaeRecord<RecordData>) => res?.data?.[pkg.name]?.commit,
-      )
-      // eslint-disable-next-line unicorn/no-useless-undefined
-      .catch(() => undefined),
+    from,
     to,
     rootDir = core.getConfigDirname(),
     includeUntracked = true,
     includeIgnored = false,
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     // eslint-disable-next-line no-param-reassign
-    rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const _from = await from
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const _to = await to
+    from =
+      from ||
+      (await core
+        .getRecord<RecordData>()
+        .then(
+          (res?: core.HaetaeRecord<RecordData>) =>
+            res?.data?.[pkg.name]?.commit,
+        )
+        // eslint-disable-next-line unicorn/no-useless-undefined
+        .catch(() => undefined))
+    // eslint-disable-next-line no-param-reassign
+    rootDir = toAbsolutePath({
+      path: rootDir,
+      rootDir: core.getConfigDirname,
+    })
     if (!(await installed())) {
       throw new Error(
         'git is not installed on the system, or $PATH is not set.',
@@ -205,11 +211,11 @@ export const changedFiles = memoizee(
 
     const result = []
 
-    if (_from) {
+    if (from) {
       try {
         result.push(
           ...(await execute(
-            `git --no-pager diff --name-only ${_from} ${_to || ''}`.trim(),
+            `git --no-pager diff --name-only ${from} ${to || ''}`.trim(),
           )),
         )
       } catch (error) {
@@ -222,7 +228,7 @@ export const changedFiles = memoizee(
     } else {
       result.push(
         ...(await utils.exec(
-          `git ls-tree --full-tree --name-only -r ${_to || 'HEAD'}`,
+          `git ls-tree --full-tree --name-only -r ${to || 'HEAD'}`,
         )),
       )
     }
