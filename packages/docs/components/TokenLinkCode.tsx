@@ -16,7 +16,7 @@ export default function TokenLinkCode({
 
   if (!Array.isArray(tokens)) {
     // eslint-disable-next-line no-param-reassign
-    tokens = [tokens]
+    tokens = [tokens,]
   }
   // Let's Change something inside the post
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function TokenLinkCode({
         )}</a>`
       }
     }
-  }, [children, tokens, containerRef])
+  }, [children, tokens, containerRef,])
 
   return <span ref={containerRef}>{children}</span>
 }

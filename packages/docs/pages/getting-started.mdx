@@ -1,5 +1,6 @@
 import { Callout } from 'nextra-theme-docs'
 import PkgManagerTabs from '../components/PkgManagerTabs'
+import TokenLinkCode from '../components/TokenLinkCode'
 
 # Getting Started
 
@@ -7,7 +8,52 @@ It's simple and flexible.<br/>
 You can easily use it both for a new project or an existing project.<br/>
 It works well with monorepo as well.
 
-## Installation
+
+## How to test incrementally?
+
+Let's say you're building a calculator project, named *'my-calculator'*.
+
+```fish
+my-calculator
+├── package.json
+├── src
+│   ├── add.js
+│   ├── exponent.js
+│   ├── multiply.js
+│   └── subtract.js
+└── test
+    ├── add.test.js
+    ├── exponent.test.js
+    ├── multiply.test.js
+    └── subtract.test.js
+```
+
+Dependency graph is like this:
+
+<img src="/my-calculator-dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
+
+*`exponent.js`* depends on *`multiply.js`*, which depends on *`add.js`* and so on.
+
+When testing, we should take the dependency graph into account.<br/>
+We do NOT have to test all files (*`*.test.js`*) for every single tiny change. <small>(Waste of your CI resources and time)</small><br/>
+Rather, **we should do it incrementally, which means testing only files affected by the changes.**
+
+For example, when *`multiply.js`* is changed, test only *`exponent.test.js`* and *`multiply.test.js`*.<br/>
+When *`add.js`* is changed, test all files (<small>*`exponent.test.js`*, *`multiply.test.js`*, *`subtract.test.js`* and *`add.test.js`*</small>).<br/>
+When test file <small>(e.g. *`add.test.js`*)</small> is changed, then just only execute the test file itself <small>(e.g. *`add.test.js`*)</small>.
+
+Nothing more, nothing less.
+
+Then how can we do it?<br/>
+Here is where **Haetae** comes in.<br/>
+By just a simple config, Haetae can automatically detect the dependency graph and test only affected files.
+
+### Installation
+
+So, let's install Haetae. (<small>Node 16 or higher is required.</small>)<br/>
+It doesn't matter whether your project is new or existing <small>(Haetae can be incrementally adapted)</small>.<br/>
+It's so good for monorepo as well. <small>(Guided later in other part of docs.)</small><br/>
+Literally **any project** is proper.
 
 <br/>
 
@@ -25,8 +71,74 @@ pnpm add --save-dev haetae
 
 <Callout>
   **Are you developing a library (e.g. plugin) for Haetae?** <br/>
-  You can install [`@haetae/core{:ts}`](apis/haetae-core), [`@haetae/utils{:ts}`](apis/haetae-utils),
+  You can depend on [`@haetae/core{:ts}`](apis/haetae-core), [`@haetae/utils{:ts}`](apis/haetae-utils),
   [`@haetae/git{:ts}`](apis/haetae-git), [`@haetae/javascript{:ts}`](apis/haetae-javascript),
   [`@haetae/cli{:ts}`](apis/haetae-cli) independently. Note that the package [`haetae{:ts}`](apis/haetae)
   include all of them.
 </Callout>
+
+### Basic configuration for incremental testing
+
+Now, we are ready to configure Haetae.<br/>
+Let's create a config file *`haetae.config.js`*.<br/>
+
+```fish
+my-calculator
+├── package.json
+├── haetae.config.js # <--- Haetae config file
+├── src # contents are omitted for brevity
+└── test # contents are omitted for brevity
+```
+
+<Callout>
+  **Typescript Support** <br/>
+  If you use typescript, it can be *`haetae.config.ts`*.
+  Then install [`ts-node`](https://www.npmjs.com/package/ts-node) as `peerDependencies`.
+  You need `ts-node` no matter if you actually use it directly or not.
+  The `peerDependencies` is marked as optional, which means non-typescript users don't have to install it.
+</Callout>
+
+<Callout>
+  **CJS/ESM** <br/>
+  Haetae supports both CJS and ESM project. <br/>
+  Haetae is written in ESM, but it can be used in CJS projects as well, as long as the config file is ESM.
+  If your project is CJS, name the config file *`haetae.config.mjs`* or *`haetae.config.mts`*.
+  If your project is ESM, name the config file *`haetae.config.js`* or *`haetae.config.ts`*.
+</Callout>
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetae#configure',
+  '.changedFiles': './apis/haetae-git#changedfiles',
+  '.glob': './apis/haetae-utils#glob',
+  '.dependsOn': './apis/haetae-js#dependsOn',
+  '.exec': './apis/haetae-utils#exec',
+}}>
+```js filename="haetae.config.js"
+import { configure, git, utils, js } from 'haetae'
+
+export default configure({
+  // Other options are ommitted for brevity.
+  commands: {
+    myTest: {
+      run: async () => {
+        const changedFiles = await git.changedFiles()
+        const testFiles = await utils.glob(['**/*.test.js'])
+        // An array of test files which (transitively) depend on changed files
+        const filesToTest = testFiles
+          .filter((testFile) =>
+            js.dependsOn({
+              dependent: testFile,
+              dependencies: changedFiles,
+            })
+          )
+
+        if (filesToTest.length > 0) {
+          // Equals to "npx jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
+          await utils.exec(`npx jest ${filesToTest.join(' ')}`)
+        }
+      },
+    },
+  },
+})
+```
+</TokenLinkCode>
