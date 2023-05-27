@@ -2,7 +2,7 @@ export default {
   github: 'https://github.com/jjangga0214/haetae',
   // TODO: dynamic branch
   docsRepositoryBase:
-    'https://github.com/jjangga0214/haetae/blob/main/docs/pages',
+    'https://github.com/jjangga0214/haetae/blob/main/packages/docs/pages',
   titleSuffix: ' – Haetae',
   logo: (
     <>
