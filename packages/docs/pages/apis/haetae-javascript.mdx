@@ -120,7 +120,6 @@ A function to get version (not SemVer range, but the exact real version) of ny i
 Literally any package, like `typescript`, `jest`, `react`, `@changesets/cli` etc.<br/>
 It supports npm, yarn classic, yarn berry and pnpm.
 
-
 <Callout>
 **Not For Global Package** <br/>
 `version` only works for local packages installed for your project, not globally installed packages on your system.
@@ -204,6 +203,13 @@ interface DependsOnOptions {
 
 A function to check if a module depends on one of different modules, transitively or directly.<br/>
 
+<Callout>
+**Multiple Formats Support**<br/>
+ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx), Webpack Loaders, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS, RequireJS are all supported.
+For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
+For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
+</Callout>
+
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
 (options: DependsOnOptions) => boolean
@@ -263,21 +269,19 @@ export default configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
+        const testFiles = await utils.glob(['**/*.test.js'])
         // An array of test files which (transitively) depend on changed files
-        const filesToTest = (
-           await utils.glob(['**/*.test.ts'])
-          ).filter((file) =>
-            js.dependsOn({
-              dependent: file,
-              dependencies: changedFiles,
-            })
-          )
+        const affectedTestFiles = testFiles.filter((testFile) =>
+          js.dependsOn({
+            dependent: testFile,
+            dependencies: changedFiles,
+          }),
+        )
 
-        if (filesToTest.length > 0) {
-          // Equals to "npx jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          await utils.exec(`npx jest ${filesToTest.join(' ')}`)
-        }
-        return git.recordData()
+        if (affectedTestFiles.length > 0) {
+          // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
+          // Change 'pnpm' and 'jest' to your package manager and test runner.
+          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
       },
     },
   },
