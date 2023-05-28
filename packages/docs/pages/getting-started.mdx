@@ -30,7 +30,7 @@ my-calculator
 
 Dependency graph is like this:
 
-<img src="/my-calculator-dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
+<img src="/getting-started/dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
 
 *`exponent.js`* depends on *`multiply.js`*, which depends on *`add.js`* and so on.
 
@@ -84,8 +84,8 @@ Let's create a config file *`haetae.config.js`*.<br/>
 
 ```fish
 my-calculator
-├── package.json
 ├── haetae.config.js # <--- Haetae config file
+├── package.json
 ├── src # contents are omitted for brevity
 └── test # contents are omitted for brevity
 ```
@@ -106,6 +106,9 @@ my-calculator
   If your project is ESM, name the config file *`haetae.config.js`* or *`haetae.config.ts`*.
 </Callout>
 
+We can write it down like this.<br/>
+Make sure you initialized git. Haetae can be used with any other version control systems, but using git is assumed in this article.
+
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '.changedFiles': './apis/haetae-git#changedfiles',
@@ -124,17 +127,17 @@ export default configure({
         const changedFiles = await git.changedFiles()
         const testFiles = await utils.glob(['**/*.test.js'])
         // An array of test files which (transitively) depend on changed files
-        const filesToTest = testFiles
-          .filter((testFile) =>
-            js.dependsOn({
-              dependent: testFile,
-              dependencies: changedFiles,
-            })
-          )
+        const affectedTestFiles = testFiles.filter((testFile) =>
+          js.dependsOn({
+            dependent: testFile,
+            dependencies: changedFiles,
+          })
+        )
 
-        if (filesToTest.length > 0) {
-          // Equals to "npx jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          await utils.exec(`npx jest ${filesToTest.join(' ')}`)
+        if (affectedTestFiles.length > 0) {
+          // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
+          // Change 'pnpm' and 'jest' to your package manager and test runner.
+          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
         }
       },
     },
@@ -142,3 +145,84 @@ export default configure({
 })
 ```
 </TokenLinkCode>
+
+Multiple APIs are used in the config file above.<br/>
+They all have various options <small>(Check out API docs)</small>.
+But we are going to use their sensible defaults in this article.<br/>
+I will explain the code above in detail later.<br/>
+For now, just change the command `pnpm jest` in `utils.exec(){:ts}` to your package manager and test runner.<br/>
+And let's run `haetae` CLI below.
+
+```bash
+$ haetae myTest
+```
+<small>(Unless you installed `haetae` globally, you should execute it through package manager (e.g. `pnpm haetae myTest`))</small>
+
+Note that `myTest` in the command above is the name of the command we defined in the config file.<br/>
+It will print the result like this.
+
+```bash filename="terminal"
+✔  success   Command myTest is successfully executed.
+
+⎡ 🕗 time: 2023 May 28 11:06:06 (timestamp: 1685239566483)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/git":
+⎜        commit: 979f3c6bcafe9f0b81611139823382d615f415fd
+⎜        branch: main
+⎣        pkgVersion: 0.0.12
+```
+
+As this is the first time of running the command `haetae myTest`, `git.changedFiles(){:ts}` in the config returns every file as changed files.
+This behavior results in running all of the tests.<br/>
+
+May you have noticed, the store file *`.haetae/store.json`* is generated.
+It stores history of Haetae executions, which makes incremental tasks possible.
+For example, the commit ID `979f3c6` above is the current git HEAD `haetae myTest` ran on,
+and this information is logged in the store file to be used later.
+
+```fish
+my-calculator
+├── .haetae/store.json # <--- Generated
+├── haetae.config.js
+├── package.json
+├── src
+└── test
+```
+
+### Detecting the last commit Haetae ran on successfully
+
+Let's say we made some changes and added 2 commits.
+
+<img src="/getting-started/commit-history.svg" alt="Commit history after the first running of Haetae"/>
+
+`979f3c6` is the last commit Haetae ran on successfully.<br/>
+What will happen when we run Haetae again?
+
+```bash
+$ haetae myTest
+```
+
+This time, only *`exponent.test.js`* and *`multiply.test.js`* are executed.<br/>
+That's because `git.changedFiles(){:ts}` returns only the files changed since the last successful execution of Haetae.<br/>
+
+```bash filename="terminal"
+✔  success   Command myTest is successfully executed.
+
+⎡ 🕗 time: 2023 May 28 19:03:25 (timestamp: 1685268205443)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/git":
+⎜        commit: 1d17a2f2d75e2ac94f31e53376c549751dca85fb
+⎜        branch: main
+⎣        pkgVersion: 0.0.12
+```
+
+Accordingly, the new commit `1d17a2f` is logged in the store file.<br/>
+
+The output above is an example of successful task.
+Conversely, if the test fails, `utils.exec(){:ts}` in the config throws an error.
+So `myTest.run(){:ts}` is not completed successfully, causing the store file is not renewed.<br/>
+
+This behavior is useful for incremental tasks.
+The failed test (or any incremental task) will be re-executed later until the problem is fixed.

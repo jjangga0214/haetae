@@ -25,7 +25,7 @@ export interface DependsOnOptions {
 export function dependsOn({
   dependent,
   dependencies,
-  tsConfig,
+  tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
   rootDir = getConfigDirname(),
   additionalGraph = graph({ edges: [], rootDir }),
 }: DependsOnOptions): boolean {
