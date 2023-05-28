@@ -118,7 +118,12 @@ If git is initialized for your project, it inserts `@haetae/git`'s record data a
 So you don't have to explictly return `git.initialized(){:ts}` from every commands' `run` functions,
 when you intend to record git.
 
-<TokenLinkCode tokens={{'.RootRecordData': './haetae-core#rootrecorddata', '.initialized': './haetae-git#initialized', '.recordData': './haetae-git#recorddata'}}>
+<TokenLinkCode tokens={{
+  '.RootRecordData': './haetae-core#rootrecorddata',
+  'RecordData': './haetae-git#recorddata',
+  '.initialized': './haetae-git#initialized',
+  '.recordData': './haetae-git#recorddata',
+  }}>
 ```ts
 import { git, core } from 'haetae'
 
@@ -145,13 +150,20 @@ export const defaultRootRecordData: core.RootRecordData<
 
 <Callout>
 **`configure` vs `core.configure`**<br/>
-The package `haetae` exports `configure`, which is different from [`core.configure`](./core#configure) exported from the package `@haetae/core`.<br/>
+The package `haetae` exports `configure`, which is different from [`core.configure`](./haetae-core#configure) exported from the package `@haetae/core`.<br/>
 
-* For `configure`, a default value of `recordData` option is [`defaultRootRecordData`](#defaultrootrecorddata).<br/>
-* For `core.configure`, a default value of `recordData` option is `(arg) => arg`. <small>(No modification of the original record data.)</small><br/>
+* For `configure`, the default value of `recordData` option is [`defaultRootRecordData`](#defaultrootrecorddata).<br/>
+* For `core.configure`, the default value of `recordData` option is `(arg) => arg`. <small>(No modification of the original record data.)</small><br/>
 
 This is the only difference and the rest are exactly same.<br/>
 **Use `configure` for majority of cases, unless you have a special reason or purpose to avoid recommended default.**
+</Callout>
+
+<Callout>
+**Idempotent function**<br/>
+`configure(obj){:ts}` is eqaul to `configure(configure(obj)){:ts}`.<br/>
+<small>(The only exception is when [`core.setStoreFilename{:ts}`](./haetae-core/#setstorefilename) is called with different arguments
+between each call of `configure`, which is unlikey to happen in real world scenario.)</small>
 </Callout>
 
 **Type**
@@ -179,7 +191,6 @@ only if `core.setStoreFilename` is never called before. If `core.setStoreFilenam
 the option `storeFile` does not have any effect, even to the result `core.HaetaeConfig` object.
 <small>(default: [`core.defaultStoreFile{:ts}`](./core#defaultstorefile))</small>
 
-
 #### Type-check for your config
 
 The below example is 100% valid. <br/>
@@ -197,6 +208,13 @@ import { configure } from 'haetae'
 
 export default configure({ /* ... */ })
 ```
+
+#### Normalization
+
+Schema of [`core.HaetaeConfig`](./haetae-core/#haetaeconfig) (return type) is ***roughly*** similar to that of [`core.HaetaePreConfig`](./haetae-core/#haetaepreconfig) (argument type).
+The return value is a normalized result of user-given (argument) config.
+Omitted options from user-given config(`core.HaetaePreConfig`) are to be set as their default values in `HaetaeConfig`.
+Given value of `storeFile` is replaced by a return value of [`core.getStoreFilename(){:ts}`](./haetae-core/#getstorefilename).
 
 ### `core`
 
