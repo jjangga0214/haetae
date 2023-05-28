@@ -4,12 +4,12 @@ import TokenLinkCode from '../components/TokenLinkCode'
 
 # Getting Started
 
-It's simple and flexible.<br/>
-You can easily use it both for a new project or an existing project.<br/>
-It works well with monorepo as well.
+Haetae is incremental task runner.<br/>
+The task can be test, lint, build, or anything.<br/>
+It can be used in any project, no matter what language, framework, test runner, linter, or build system you use.<br/>
+For now in this article, we are starting from an example of incremental testing.
 
-
-## How to test incrementally?
+## Incremental test
 
 Let's say you're building a calculator project, named *'my-calculator'*.
 
@@ -28,25 +28,24 @@ my-calculator
     └── subtract.test.js
 ```
 
-Dependency graph is like this:
+Dependency graph is like this.
 
 <img src="/getting-started/dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
 
 *`exponent.js`* depends on *`multiply.js`*, which depends on *`add.js`* and so on.
 
 When testing, we should take the dependency graph into account.<br/>
-We do NOT have to test all files (*`*.test.js`*) for every single tiny change. <small>(Waste of your CI resources and time)</small><br/>
+We do NOT have to test all files (*`*.test.js`*) for every single tiny change <small>(Waste of your CI resources and time)</small>.<br/>
 Rather, **we should do it incrementally, which means testing only files affected by the changes.**
 
 For example, when *`multiply.js`* is changed, test only *`exponent.test.js`* and *`multiply.test.js`*.<br/>
 When *`add.js`* is changed, test all files (<small>*`exponent.test.js`*, *`multiply.test.js`*, *`subtract.test.js`* and *`add.test.js`*</small>).<br/>
 When test file <small>(e.g. *`add.test.js`*)</small> is changed, then just only execute the test file itself <small>(e.g. *`add.test.js`*)</small>.
 
-Nothing more, nothing less.
-
-Then how can we do it?<br/>
+Then how can we do it, automatically?<br/>
 Here is where **Haetae** comes in.<br/>
-By just a simple config, Haetae can automatically detect the dependency graph and test only affected files.
+By just a simple config, Haetae can automatically detect the dependency graph and test only affected files.<br/>
+<small>(You do not have to change your test runner. In this article, [Jest](https://jestjs.io) is used just as an example.)</small>
 
 ### Installation
 
@@ -113,7 +112,7 @@ Make sure you initialized git. Haetae can be used with any other version control
   'configure': './apis/haetae#configure',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
-  '.dependsOn': './apis/haetae-js#dependsOn',
+  '.dependsOn': './apis/haetae-javascript#dependsOn',
   '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js"
@@ -124,7 +123,13 @@ export default configure({
   commands: {
     myTest: {
       run: async () => {
+        // An array of changed files
         const changedFiles = await git.changedFiles()
+        /* An array of test files.
+          ['/path/to/my-calculator/exponent.test.js',
+           '/path/to/my-calculator/multiply.test.js',
+           '/path/to/my-calculator/subtract.test.js',
+           '/path/to/my-calculator/add.test.js'] */
         const testFiles = await utils.glob(['**/*.test.js'])
         // An array of test files which (transitively) depend on changed files
         const affectedTestFiles = testFiles.filter((testFile) =>
@@ -148,10 +153,10 @@ export default configure({
 
 Multiple APIs are used in the config file above.<br/>
 They all have various options <small>(Check out API docs)</small>.
-But we are going to use their sensible defaults in this article.<br/>
+But we are going to use their sensible defaults for now.<br/>
 I will explain the code above in detail later.<br/>
 For now, just change the command `pnpm jest` in `utils.exec(){:ts}` to your package manager and test runner.<br/>
-And let's run `haetae` CLI below.
+Then run `haetae` CLI below.
 
 ```bash
 $ haetae myTest
@@ -173,7 +178,8 @@ It will print the result like this.
 ⎣        pkgVersion: 0.0.12
 ```
 
-As this is the first time of running the command `haetae myTest`, `git.changedFiles(){:ts}` in the config returns every file as changed files.
+As this is the first time of running the command `haetae myTest`,
+`git.changedFiles(){:ts}` in the config returns every file tracked by git in your project as changed files <small>(There are [options](./apis/haetae-git#changedfiles). Check out API docs)</small>.
 This behavior results in running all of the tests.<br/>
 
 May you have noticed, the store file *`.haetae/store.json`* is generated.
@@ -226,3 +232,84 @@ So `myTest.run(){:ts}` is not completed successfully, causing the store file is 
 
 This behavior is useful for incremental tasks.
 The failed test (or any incremental task) will be re-executed later until the problem is fixed.
+
+### Configure `env`
+
+Sometimes we need to separate several environments.<br/>
+For example, logic of your project might act differently depending on the environment variable `$NODE_ENV`.<br/>
+So, the history of an incremental task also should be recorded for each environment in a separated manner.<br/>
+Let's add `env` to the config file to achieve this.
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetaes#configure',
+}}>
+```js filename="haetae.config.js"
+// Other content of the config file is ommitted for brevity.
+export default configure({
+  commands: {
+    myTest: {
+      env: { // <--- Add this
+        NODE_ENV: process.env.NODE_ENV,
+      },
+      run: async () => { /* ... */ },
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+From now on, the store file will manage the history of each environment separately.
+The key name `NODE_ENV` is just an example. You can name it as you want.<br/>
+
+You don't have to care about the past history of `myTest` executed without `env`.
+When a command is configured without `env`, it's treated as if configured with `env: {}`, which is totally fine.
+The past history in the store file is not automatically deleted just by the change of the config file.
+
+Of course, you can add more keys in `env` object.<br/>
+For instance, let's change the config like this.<br/>
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetaes#configure',
+  '.hash': './apis/haetae-utils#hash',
+  '.version': './apis/haetae-javascript#version',
+  '.branch': './apis/haetae-git#branch',
+}}>
+```js filename="haetae.config.js"
+import assert from 'node:assert/strict'
+import { configure, git, utils, js } from 'haetae'
+
+export default configure({
+  commands: {
+    myTest: {
+      env: async () => { // <--- Changed to async function from object
+        assert(['development', 'production'].includes(process.env.NODE_ENV))
+        return {
+          dotenvAndJestConfig: await utils.hash([
+            `.env.${process.env.NODE_ENV}`,
+            'jest.config.js',
+          ]),
+          jest: (await js.version('jest')).major,
+          branch: await git.branch(),
+        }
+      },
+      run: async () => { /* ... */ },
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+The object has more keys than before, named `dotenvAndJestConfig`, `jest`, `branch`.
+If any of dotenv file, jest config file, jest's major version, or git branch is changed,
+it's treated as a different environment.
+
+And now it's a function. You can even freely write any additional code in it, like assertion (`assert(){:ts}`) in the example above.
+Just as like `run(){:ts}`, when an error is thrown in `env(){:ts}`,
+the store file is not renewed, which is good for incremental tasks.
+
+<Callout>
+  **Hash credentials** <br/>
+  `utils.hash(){:ts}` is good for credentials like a dotenv file.
+  By default, it hashes by SHA-256, and you can simply change it by its [options](./apis/haetae-utils#hash), like to SHA-512 for example.
+  Thus, you do not need to worry about what if the store file is leaked.
+</Callout>

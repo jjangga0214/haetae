@@ -352,30 +352,32 @@ A function to get a list of changed files.<br/>
 If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 <small>(default: `false{:ts}`)</small>
 
-**When both `from` and `to` are all valid** <small>*(truthy values unlike `undefined`)*</small>
+Note that *untracked* files <small>(usually newly added files not commited yet)</small> and *ignored* files are different.
+They don't have any intersection. A file is either *untracked* or *ignored* or *tracked*.
+
+**When both `from` and `to` are string** <small>(NOT `undefined{:ts}`)</small>
 
 All changed files between the two commits are included.<br/>
 `git diff --name-only <from> <to>{:sh}` is executed under the hood.
 
-**When only `from` is valid**
+**When only `from` is string** <small>(NOT `undefined{:ts}`)</small>
 
 All changed files since the commit ID `from` are included.<br/>
 `git diff --name-only <from>{:sh}` is executed under the hood.<br/>
-<small>(Note: This contains modified or deleted files which are [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
- but not commited yet, no matter whether they're [staged](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository) or not.)</small>
+<small>(Note: This also contains modified or deleted files which're not commited yet as long as they're *tracked*, no matter whether *[staged](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)* or not.)</small>
 
-**When only `to` is valid**
+**When only `to` is string** <small>(NOT `undefined{:ts}`)</small>
 
 All [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository) files
 since git initialization until the commit ID `to` are included.<br/>
 `git ls-tree --full-tree --name-only -r <to>{:sh}` is executed under the hood.<br/>
-<small>(Note: This does not contain files deleted in past commits because they became untracked.)</small>
+<small>(Note: This does NOT contain files deleted in past commits because they became *untracked* and non-existent.)</small>
 
-**When both `from` and `to` are all invalid**
+**When both `from` and `to` are NOT string** <small>(`undefined{:ts}`)</small>
 
 All [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository) files since git initialization until `HEAD` are included.<br/>
 `git ls-tree --full-tree --name-only -r HEAD{:sh}` is executed under the hood.<br/>
-<small>(Note: This does not contain files deleted in past commits because they became untracked.)</small>
+<small>(Note: This does NOT contain files deleted in past commits because they became *untracked* and non-existent.)</small>
 
 #### Usage With `js.dependsOn`
 
@@ -383,7 +385,7 @@ If your project is based on javascript ecosystem, it is a good practice to use `
 
 <Callout>
   **Usage with `dependsOn`**<br />
-  [`js.dependsOn`](./haetae-javascript#dependsOn) is just an example. You can use with others, like [`utils.dependsOn`](./haetae-utils#dependsOn).
+  Using with [`js.dependsOn`](./haetae-javascript#dependsOn) is just an example. You can use with others, like [`utils.dependsOn`](./haetae-utils#dependsOn).
 </Callout>
 
 <TokenLinkCode tokens={{
@@ -402,21 +404,18 @@ export default configure({
     myTest: {
       run: async () => {
         const changedFiles = await git.changedFiles()
+        const testFiles = await utils.glob(['**/*.test.js'])
         // An array of test files which (transitively) depend on changed files
-        const filesToTest = (
-           await utils.glob(['**/*.test.ts'])
-          ).filter((testFile) =>
-            js.dependsOn({
-              dependent: testFile,
-              dependencies: changedFiles,
-            })
-          )
+        const affectedTestFiles = testFiles.filter((testFile) =>
+          js.dependsOn({
+            dependent: testFile,
+            dependencies: changedFiles,
+          }),
+        )
 
-        if (filesToTest.length > 0) {
-          // Equals to "npx jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          await utils.exec(`npx jest ${filesToTest.join(' ')}`)
-        }
-        return git.recordData()
+        if (affectedTestFiles.length > 0) {
+          // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
+          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
       },
     }
   },

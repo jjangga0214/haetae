@@ -256,6 +256,19 @@ export default configure({
 ```
 </TokenLinkCode>
 
+#### Usage with `glob`
+
+If you target many files, consider using [`glob`](#glob) with `hash`.
+
+<TokenLinkCode tokens={['.glob']}>
+```js
+await utils.hash([
+  'foo',
+  ...(await utils.glob(['bar/**/*'])),
+])
+```
+</TokenLinkCode>
+
 ### `DepsEdge`
 
 An interface resolving dependencies edge. <br/>
