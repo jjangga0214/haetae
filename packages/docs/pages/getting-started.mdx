@@ -288,14 +288,16 @@ Of course, you can add more keys in `env` object.<br/>
 For instance, let's change the config like this.<br/>
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetaes#configure',
+  'configure': './apis/haetae#configure',
+  'pkg': './apis/haetae#pkg',
   '.hash': './apis/haetae-utils#hash',
   '.version': './apis/haetae-javascript#version',
   '.branch': './apis/haetae-git#branch',
 }}>
 ```js filename="haetae.config.js"
 import assert from 'node:assert/strict'
-import { configure, git, utils, js } from 'haetae'
+import { configure, pkg, git, utils, js } from 'haetae'
+import semver from 'semver'
 
 export default configure({
   commands: {
@@ -303,12 +305,13 @@ export default configure({
       env: async () => { // <--- Changed to async function from object
         assert(['development', 'production'].includes(process.env.NODE_ENV))
         return {
-          dotenvAndJestConfig: await utils.hash([
-            `.env.${process.env.NODE_ENV}`,
-            'jest.config.js',
-          ]),
+          NODE_ENV: process.env.NODE_ENV,
+          jestConfig: await utils.hash(['jest.config.js']),
           jest: (await js.version('jest')).major,
           branch: await git.branch(),
+          os: process.platform,
+          node: semver.major(process.version),
+          haetae: pkg.version.major,
         }
       },
       run: async () => { /* ... */ },
@@ -318,11 +321,11 @@ export default configure({
 ```
 </TokenLinkCode>
 
-The object has more keys than before, named `dotenvAndJestConfig`, `jest`, `branch`.
-If any of dotenv file, jest config file, jest's major version, or git branch is changed,
-it's treated as a different environment.
+The object has more keys than before, named `jestConfig`, `jest`, `branch` and so on.
+If any of `$NODE_ENV`, jest config file, major version of Jest, git branch, OS platform, major version of Node.js,
+or major version of the package `haetae` is changed, it's treated as a different environment.
 
-And now it's a function. You can even freely write any additional code in it, like assertion (`assert(){:ts}`) in the example above.
+And now `env` becomes a function. You can even freely write any additional code in it, like assertion (`assert(){:ts}`) in the example above.
 Just as like `myTest.run(){:ts}`, when an error is thrown in `myTest.env(){:ts}`,
 the store file is not renewed, which is good for incremental tasks.
 

@@ -84,9 +84,13 @@ importers:
 
   examples/basic-typescript:
     specifiers:
+      '@types/semver': ^7.5.0
       haetae: workspace:*
+      semver: ^7.5.1
     devDependencies:
+      '@types/semver': 7.5.0
       haetae: link:../../packages/haetae
+      semver: 7.5.1
 
   packages/cli:
     specifiers:

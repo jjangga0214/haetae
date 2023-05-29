@@ -14,7 +14,9 @@
     "ht": "pnpm ts ../../packages/haetae/src/cli.ts"
   },
   "devDependencies": {
-    "haetae": "workspace:*"
+    "@types/semver": "^7.5.0",
+    "haetae": "workspace:*",
+    "semver": "^7.5.1"
   },
   "repository": {
     "type": "git",
