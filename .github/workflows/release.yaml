@@ -37,7 +37,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 7.5.1
+          version: 8.6.0
           run_install: false # For cache
 
       - name: Read .nvmrc
