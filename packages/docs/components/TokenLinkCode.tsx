@@ -37,7 +37,7 @@ export default function TokenLinkCode({
       const link = tokenLinkMap[textContent as string]
       if (link) {
         const prefix = element?.textContent?.startsWith('.') ? '.' : ''
-        element.innerHTML = `${prefix}<a href="${link}" style=" color: inherit; cursor: pointer;">${element.textContent?.slice(
+        element.innerHTML = `${prefix}<a href="${link}" style=" color: inherit; text-decoration: underline; cursor: pointer;">${element.textContent?.slice(
           prefix.length,
         )}</a>`
       }
