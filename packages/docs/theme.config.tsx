@@ -1,12 +1,25 @@
+import { useRouter } from 'next/router'
+
 export default {
   github: 'https://github.com/jjangga0214/haetae',
+  project: {
+    link: 'https://github.com/jjangga0214/haetae',
+  },
   // TODO: dynamic branch
   docsRepositoryBase:
-    'https://github.com/jjangga0214/haetae/blob/main/packages/docs/pages',
-  titleSuffix: ' – Haetae',
+    'https://github.com/jjangga0214/haetae/blob/main/packages/docs',
+  useNextSeoProps() {
+    const { asPath } = useRouter()
+    if (asPath !== '/') {
+      return {
+        titleTemplate: '%s – Haetae',
+      }
+    }
+  },
   logo: (
     <>
       <span className="mr-2 font-extrabold hidden md:inline">Haetae</span>
+      &nbsp;-&nbsp;
       <span className="text-gray-600 font-normal hidden md:inline">
         Your Smart Incremental Tasks
       </span>
@@ -27,7 +40,8 @@ export default {
       <meta name="twitter:image" content="https://nextra.vercel.app/og.png" />
       <meta name="twitter:site:domain" content="https://haetae-mu.vercel.app" />
       <meta name="twitter:url" content="https://https://haetae-mu.vercel.app" />
-      <meta name="og:title" content="Haetae: Your Smart Incremental Tasks" />
+      <meta name="og:title" content="Haetae" />
+      <meta name="og:description" content="Incremental Task Runner" />
       <meta name="og:image" content="https://nextra.vercel.app/og.png" />
       <meta name="apple-mobile-web-app-title" content="Haetae" />
       <link
@@ -62,12 +76,25 @@ export default {
       <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
     </>
   ),
-  search: true,
-  prevLinks: true,
-  nextLinks: true,
-  footer: true,
-  footerEditLink: 'Edit this page on GitHub',
-  // footerText: <>MIT {new Date().getFullYear()} © jjangga0214 (bnbcmindnpass@gmail.com).</>,
-  footerText: <>MIT 2022 © jjangga0214 {'<bnbcmindnpass@gmail.com>'}</>,
-  unstable_faviconGlyph: '👋',
+  sidebar: {
+    defaultMenuCollapseLevel: 3,
+  },
+  toc: {
+    float: true,
+  },
+  navigation: {
+    prev: true,
+    next: true,
+  },
+  footer: {
+    text: (
+      <span>
+        MIT {new Date().getFullYear()} © jjangga0214
+        <a href="https://github.com/jjangga0214/haetae" target="_blank">
+          Haetae
+        </a>
+        .
+      </span>
+    ),
+  },
 }

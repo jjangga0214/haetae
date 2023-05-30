@@ -1,0 +1,11 @@
+{
+  "index": "Introduction",
+  "getting-started": "Getting Started",
+  "cli": "CLI",
+  "apis": "APIs",
+  "github_link": {
+    "title": "Haetae",
+    "href": "https://github.com/jjangga0214/haetae",
+    "newWindow": true
+  }
+}
