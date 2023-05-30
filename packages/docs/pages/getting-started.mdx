@@ -29,7 +29,7 @@ my-calculator
     └── subtract.test.js
 ```
 
-Dependency graph is like this.
+The dependency graph is like this.
 
 <img src="/getting-started/dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
 
@@ -120,7 +120,7 @@ Make sure you initialized git. Haetae can be used with any other version control
 import { configure, git, utils, js } from 'haetae'
 
 export default configure({
-  // Other options are ommitted for brevity.
+  // Other options are omitted for brevity.
   commands: {
     myTest: {
       run: async () => {
@@ -155,20 +155,23 @@ export default configure({
 Multiple APIs are used in the config file above.<br/>
 They all have various options <small>(Check out API docs)</small>.
 But we are going to use their sensible defaults for now.<br/>
+
 In the above config, `pnpm jest` is used in [`utils.exec(){:ts}`](./apis/haetae-utils#exec).
 Just change them to your package manager and test runner.<br/>
 
 Then run `haetae` like below.
 
-```bash
+```fish
 $ haetae myTest
 ```
 <small>(Unless you installed `haetae` globally, you should execute it through package manager (e.g. `pnpm haetae myTest`))</small>
 
-Note that `myTest` in the command above is the name of the command we defined in the config file.<br/>
+Note that `myTest` in the command above is the name of the command we defined in the config file.
+You can name it whatever you want. And as you might guess, you can define multiple commands (e.g. `myLint`, `myBuild`, `myAnotherTest`, etc) in the config file.<br/>
+
 It will print the result like this.
 
-```bash filename="terminal"
+```fish filename="terminal"
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 May 28 11:06:06 (timestamp: 1685239566483)
@@ -185,8 +188,9 @@ As this is the first time of running the command `haetae myTest`,
 <small>(There are [options](./apis/haetae-git#changedfiles). Check out API docs after reading this article)</small>.
 This behavior results in running all of the tests.<br/>
 
-[`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) detects direct or transitive dependencies between files, by parsing `import` or `require()` and so on.
-So it can be used to detect which test files depend on at least one of changed files.<br/>
+[`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) understands direct or transitive dependencies between files,
+ by parsing `import` or `require()`, etc.
+So it can be used to detect which test files (transitively) depend on at least one of the changed files.<br/>
 
 <Callout>
 **`js.dependsOn` can detect multiple formats**<br/>
@@ -194,6 +198,14 @@ ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx
 For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
 Check out the API docs and pass additional option(s) if you use Typescript or Webpack.
+</Callout>
+
+<Callout>
+**`utils.dependsOn`**<br/>
+There is also [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson).
+While `js.dependsOn` is mainly for javascript ecosystem,
+`utils.dependsOn` is a general-purpose transitive dependency detector.
+Check out the API docs after reading this article.
 </Callout>
 
 Note that it can not parse dynamic imports.
@@ -222,14 +234,21 @@ Let's say we made some changes and added 2 commits.
 `979f3c6` is the last commit Haetae ran on successfully.<br/>
 What will happen when we run Haetae again?
 
-```bash
+```fish
 $ haetae myTest
 ```
 
-This time, only *`exponent.test.js`* and *`multiply.test.js`* are executed.<br/>
-That's because [`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) automatically returns only the files changed since the last successful execution of Haetae.
-For another example, if you modify `add.js`, then all tests will be executed, because [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) works **transitively**.
-```bash filename="terminal"
+This time, only *`exponent.test.js`* and *`multiply.test.js`* are executed.
+That's because [`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) automatically
+returns only the files changed since the last successful execution of Haetae.
+
+For another example, if you modify `add.js`, then all tests will be executed,
+because [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) **detects dependency transitively**.
+
+If you modify `add.test.js`, only the test file itself `add.test.js` will be executed,
+as **every file is treated as depending on itself.**
+
+```fish filename="terminal"
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 May 28 19:03:25 (timestamp: 1685268205443)
@@ -253,9 +272,14 @@ The failed test (or any incremental task) will be re-executed later until the pr
 ## `env` configuration
 
 Sometimes we need to separate several environments.<br/>
-For example, logic of your project might act differently depending on the environment variable `$NODE_ENV`.<br/>
-So, the history of an incremental task also should be recorded for each environment in a separated manner.<br/>
+
+### Simple environment variable example
+
+For example, logic of your project might act differently depending on the environment variable `$NODE_ENV`.
+So, the history of an incremental task also should be recorded for each environment in a separated manner.
 Let's add `env` to the config file to achieve this.
+
+<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
@@ -276,16 +300,32 @@ export default configure({
 ```
 </TokenLinkCode>
 
-From now on, the store file will manage the history of each environment separately.
 The key name `NODE_ENV` is just an example. You can name it as you want.<br/>
+
+From now on, the store file will manage the history of each environment separately.
+For example, if `$NODE_ENV` can have two values, `'development'` or `'production'`,
+then Haetae will manage two incremental histories for each environment.
 
 You don't have to care about the past history of `myTest` executed without `env`.
 When a command is configured without `env`, it's treated as if configured with `env: {}`, which is totally fine.
-The past history in the store file is NOT automatically deleted just by the change of the config file.
-It is OK to keep the history of the past executions, unless you don't want <small>(A way to delete past history is guided later)</small>.<br/>
+So there will be 3 `env`s to be (or already) recorded in the store file:
 
-Of course, you can add more keys in `env` object.<br/>
-For instance, let's change the config like this.<br/>
+* `{}`
+* `{ NODE_ENV: 'production' }{:ts}`
+* `{ NODE_ENV: 'development' }{:ts}`
+
+Though we changed the schema of `env` in the config from `{}` to `{ NODE_ENV: 'development' | 'production' }{:ts}`,
+the history of `env: {}` already recorded in the store file is NOT automatically deleted.
+It just stays in the store file.
+And this behavior is OK in general.
+Configuring the removal of some history is guided later in this article.
+
+### Multiple keys
+
+You can add more keys in `env` object.<br/>
+For instance, let's change the config to this.
+
+<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
@@ -322,31 +362,67 @@ export default configure({
 </TokenLinkCode>
 
 The object has more keys than before, named `jestConfig`, `jest`, `branch` and so on.
-If any of `$NODE_ENV`, jest config file, major version of Jest, git branch, OS platform, major version of Node.js,
+If any of `$NODE_ENV`, Jest config file, major version of Jest, git branch, OS platform, major version of Node.js,
 or major version of the package `haetae` is changed, it's treated as a different environment.
 
-And now `env` becomes a function. You can even freely write any additional code in it, like assertion (`assert(){:ts}`) in the example above.
+And now `env` becomes a function. You can even freely write any additional code in it,
+like assertion (`assert(){:ts}`) in the example above. `myTest.env(){:ts}` is executed before `myTest.run(){:ts}`.
 Just as like `myTest.run(){:ts}`, when an error is thrown in `myTest.env(){:ts}`,
-the store file is not renewed, which is good for incremental tasks.
+the store file is not renewed, which is intended design for incremental tasks.
 
-<Callout>
-  **Hash credentials** <br/>
-  [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is good for credentials like a dotenv file.
-  By default, it hashes by SHA-256, and you can simply change it by its options, like to SHA-512 for example.
-  Thus, you do not need to worry about what if the store file is leaked.
-</Callout>
+If you want to check the value the `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
+This does not write to the store file, but just prints the value.
+
+```fish filename="terminal"
+$ haetae myTest --env
+
+✔  success   Current environment is successfully executed for the command myTest
+
+⎡ NODE_ENV: development
+⎜ jestConfig: 642645d6bc72ab14a26eeae881a0fc58e0fb4a25af31e55aa9b0d134160436eb
+⎜ jest: 29
+⎜ branch: main
+⎜ os: darwin
+⎜ node: 18
+⎣ haetae: 0
+```
 
 ## Additional dependency graph
 
 Until now, [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) is used for automatic detection of dependency graph.
 But sometimes, you need to add some dependencies manually.<br/>
 
-### Integration test
+### Simple integration test
 
-For example, let's say you're developing a web backend project.
-There're SQL files and Docker Compose file for integration test.
-It is not explicitly imported by any JavaScript file.
-In this kind of case, [`utils.graph(){:ts}`](./apis/haetae-utils#graph) and `options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) are useful.<br/>
+For example, let's say you're developing a project communicating with a database.
+There is a SQL file for integration test.
+It's not imported (e.g. `import`, `require()`) by any source code file of course.
+In this kind of case, [`utils.graph(){:ts}`](./apis/haetae-utils#graph) and
+`options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) are useful.<br/>
+
+```fish
+your-project
+├── haetae.config.js
+├── package.json
+├── src
+│   ├── external.js
+│   ├── logic.js
+│   └── index.js
+└── test
+    ├── data.sql
+    ├── external.test.js
+    ├── logic.test.js
+    └── index.test.js
+```
+
+The dependency graph is like this.<br/>
+*`logic.js`* contains business logic, including communicating with a database.<br/>
+*`external.js`* communicates with a certain external service, regardless of the database.
+
+<img src="/getting-started/dependency-graph-with-sql.svg" alt="Dependency graph"/>
+
+Let Haetae think *`logic.js`* depends on *`data.sql`*.
+<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
@@ -354,8 +430,9 @@ In this kind of case, [`utils.graph(){:ts}`](./apis/haetae-utils#graph) and `opt
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
+  '.exec': './apis/haetae-utils#exec',
 }}>
-```js filename="haetae.config.js" {10-21,26,}
+```js filename="haetae.config.js" {10-18,23}
 import { configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -369,11 +446,8 @@ export default configure({
         const additionalGraph = utils.graph({
           edges: [
             {
-              dependents: await utils.glob(['test/db/*.test.js']),
-              dependencies: [
-                'test/docker-compose.yml',
-                ...(await utils.glob(['test/db/*.sql'])),
-              ],
+              dependents: ['src/logic.js'],
+              dependencies: ['test/data.sql'],
             },
           ],
         })
@@ -395,38 +469,343 @@ export default configure({
 ```
 </TokenLinkCode>
 
-The config lets Haetae think that *`test/db/*.test.js`* depend on *`test/docker-compose.yml`* and *`test/db/*.sql`*, like the dependency graph below.
-This graph is purely additional.
-The original dependency graph automatically drawn by [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) still works.<br/>
+Then the dependency graph becomes explicit.<br/>
+<br/>
 
-<img src="/getting-started/additional-dependency-graph.svg" alt="Additional Dependency Graph"/>
+<img src="/getting-started/dependency-graph-with-sql-focus.svg" alt="Dependency graph with .env"/>
+
+From now on, when the file *`data.sql`* is changed, *`index.test.js`* and *`logic.test.js`*. are executed.
+As *`external.test.js`* doesn't transitively depend on *`data.sql`*, it's not executed.
+
+Unlike this general and natural flow, if you decide that *`index.test.js`* should never be affected by *`data.sql`*,
+you can change the config.
+
+<br/>
+
+<TokenLinkCode tokens={{
+  '.graph': './apis/haetae-utils#graph',
+}}>
+```js filename="haetae.config.js" {5,}
+// Other content is omitted for brevity
+const additionalGraph = utils.graph({
+  edges: [
+    {
+      dependents: ['test/logic.test.js'], // 'src/logic.js' to 'test/logic.test.js'
+      dependencies: ['test/data.sql'],
+    },
+  ],
+})
+```
+</TokenLinkCode>
+
+By this, *`data.sql`* doesn't affect *`index.test.js`* anymore.<br/>
+But I recommend this practice only when you're firmly sure that *`index.test.js`* will not be related to *`data.sql`*.
+Because, otherwise, you should update the config again when the relation is changed.
+
+### `env` vs `additionalGraph`
 
 The effect of `addtionalGraph` is different from `env`.
-Execution history is recorded separately by value of `env`.
-It's like parallel universes.
-So `env` sets boundaries of where the concept of *'increment'* of history is defined.
-If you place Docker Compose and SQL files in `env` (e.g. by [`utils.hash(){:ts}`](./apis/haetae-utils#hash)) instead of `additonalGraph`,
-every test files will be executed when any of Docker Compose or SQL files changes,
-unless the change of Docker Compose or SQL files is  rollback to past content which can be matched with a past value of `env` logged in the store file.
+`env` is like defining parallel universes, where history is recorded separately.
 
-If *`test/db/*.test.js`* is the only test files, this behavior is OK.
-However, if there're others, like *`test/utils/*.test.js`*, this is not ideal.
-Because *`test/utils/*.test.js`* should not be affected by the change of Docker Compose or SQL files.
-That's why `additionalGraph` is useful.
-It makes sure *`test/utils/*.test.js`* are NOT executed when Docker Compose or SQL files are changed, unlike *`test/db/*.test.js`*.
+If you place *`data.sql`* in `env` (e.g. with [`utils.hash(){:ts}`](./apis/haetae-utils#hash)) instead of `additonalGraph`,
+every test file will be executed when *`data.sql`* changes,
+unless the change is a rollback to past content which can be matched with a past value of `env` logged in the store file (*`.haetae/store.json`*).
 
-### Dotenv
+*`external.js`* and *`external.test.js`* are regardless of database.
+That's why *`data.sql`* is applied as `addtionalGraph`, not as `env`.
 
-`additionalGraph` is not just for test files.
-Source files can also get benefit from it.
-In the previous section ("[`env` configuration](#env-configuration)"), we dealt with handling dotenv <small>(.env)</small> file with Haetea's `env`.
-This can be done with `additionalGraph` as well. In fact, using `env` and `additionalGraph` together is the best in genreal.<br/>
+But that's case by case. In many situations, `env` is beneficial.
 
-Let's say you have a single *`.env`* file.
+1. if *`data.sql`* affects most of your integration test files,
+
+and/or
+
+2. if which test file does and doesn't depend on *`data.sql`* is not clear or changes frequently,
+
+and/or
+
+3. if *`data.sql`* is not frequently changed,
+
+then `env` is a good place.
+
+<br/>
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetae#configure',
+  '.hash': './apis/haetae-utils#hash',
+}}>
+```js filename="haetae.config.js" {8}
+import { configure, pkg, git, utils, js } from 'haetae'
+
+export default configure({
+  commands: {
+    myTest: {
+      env: async () => {
+        return {
+          sql: await utils.hash(['test/data.sql']),
+        }
+      },
+      run: async () => { /* ... */ }, // without additionalGraph
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+### Cartesian product
+
+You can specify dependency graph from a chunk of files to another chunk.
+
+<br/>
+
+<TokenLinkCode tokens={{
+  '.graph': './apis/haetae-utils#graph',
+}}>
+```js filename="haetae.config.js"
+// Other content is omitted for brevity
+const additionalGraph = utils.graph({
+  edges: [
+    {
+      dependents: await utils.glob(['test/db/*.test.js']),
+      dependencies: [
+        'test/docker-compose.yml',
+        ...(await utils.glob(['test/db/*.sql'])),
+      ],
+    },
+  ],
+})
+```
+</TokenLinkCode>
+
+This means that any test file under *`test/db/`* depends on any SQL file under *`test/db/`* and *`test/docker-compose.yml`*.
+
+<img src="/getting-started/additional-dependency-graph-cartesian-product.svg" alt="Additional Dependency Graph Cartesian Product"/>
+
+### Distributed notation
+
+You don't have to specify a dependent's dependencies all at once.
+It can be done in a distributed manner.
+
+<br/>
+
+<TokenLinkCode tokens={{
+  '.graph': './apis/haetae-utils#graph',
+}}>
+```js filename="haetae.config.js" showLineNumbers
+// Other content is omitted for brevity
+const additionalGraph = utils.graph({
+  edges: [
+    {
+      dependents: ['foo', 'bar'],
+      dependencies: ['one', 'two'],
+    },
+    {
+      dependents: ['foo', 'qux'], // 'foo' appears again, and it's fine
+      dependencies: ['two', 'three', 'bar'], // 'two' and 'bar' appear again, and it's fine
+    },
+    {
+      dependents: ['one', 'two', 'three'],
+      dependencies: ['two'], // 'two' depends on itself, and it's fine
+    },
+    {
+      dependents: ['foo'],
+      dependencies: ['one'], // 'foo' -> 'one' appears again, and it's fine
+    },
+  ],
+})
+```
+</TokenLinkCode>
+
+On line number 13-14, we marked *`two`* depending on *`two`* itself.
+That's OK, as every file is treated as depending on itself.
+So *`foo`* depends on *`foo`*. *`bar`* also depends on *`bar`*, and so on.
+
+<img src="/getting-started/additional-dependency-graph-distributed-notation.svg" alt="Additional Dependency Graph Distributed Notation"/>
+
+### Circular dependency
+
+Haetae supports circular dependency as well.
+Though circular dependency is considered, in general, not a good practice,
+it's fully up to you to decide whether to allow it.
+Haetae does not prevent you from using it.
+
+<br/>
+
+<TokenLinkCode tokens={{
+  '.graph': './apis/haetae-utils#graph',
+}}>
+```js filename="haetae.config.js"
+// Other content is omitted for brevity
+const additionalGraph = utils.graph({
+  edges: [
+    {
+      dependents: ['index.js'],
+      dependencies: ['foo'],
+    },
+    {
+      dependents: ['foo'],
+      dependencies: ['bar'],
+    },
+    {
+      dependents: ['bar'],
+      dependencies: ['index.js'],
+    },
+  ],
+})
+```
+</TokenLinkCode>
+
+<img src="/getting-started/circular-dependency-graph.svg" alt="Circular dependency graph"/>
+
+Assume the relations between *`index.js`*, *`foo`*, and *`bar`* are given by `additionalGraph`,
+and the rest is automatically detected.
+
+In this situation, *`index.test.js`* is executed when any of files are changed, including *`foo`*, and *`bar`*.<br/>
+On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`utils.test.js`* itself is changed.
+
+## Record Data
+
+Haetae has a concept of *'Record'* (type: [`HaetaeRecord`](./apis/haetae-core#haetaerecord)) and *'Record Data'* (type: `HaetaeRecord.data`).
+
+In the previous sections, you've already seen terminal outputs like this.
+
+```fish filename="terminal"
+$ haetae myTest
+
+✔  success   Command myTest is successfully executed.
+
+⎡ 🕗 time: 2023 May 28 11:06:06 (timestamp: 1685239566483)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/git":
+⎜        commit: 979f3c6bcafe9f0b81611139823382d615f415fd
+⎜        branch: main
+⎣        pkgVersion: 0.0.12
+```
+
+This information is logged in the store file (*`.haetae/store.json`*), and called *'Record'*.
+The `data` field is called *'Record Data'*. To query *'Records'*, you can use the CLI option [`-r, --record`](./cli#-r---record).
+
+```fish
+$ haetae myTest --record --json
+```
+
+<Callout>
+  **`-j, --json`** <br/>
+  The option [`-j, --json`](./cli#-j---json) is purely optional.
+  It lets the CLI print the result in JSON format.
+  Check out the API docs for more details.
+</Callout>
+
+The output is like this.
+
+```json filename="terminal"
+{
+  "status": "success",
+  "message": "5 records are found for the command myTest",
+  "result": [
+    {
+      "data": {
+        "@haetae/git": {
+          "commit": "979f3c6bcafe9f0b81611139823382d615f415fd",
+          "branch": "main",
+          "pkgVersion": "0.0.12"
+        }
+      },
+      "env": {},
+      "time": 1685239566483
+    },
+    {
+      "data": {
+        "@haetae/git": {
+          "commit": "a4f4e7e83eedbf2269fbf29d91f08289bdeece91",
+          "branch": "main",
+          "pkgVersion": "0.0.12"
+        }
+      },
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "time": 1685458529856
+    },
+    {
+      "data": {
+        "@haetae/git": {
+          "commit": "442fefc582889bdaee5ec2bd8b74804680fc30ee",
+          "branch": "main",
+          "pkgVersion": "0.0.12"
+        }
+      },
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "time": 1685452061199
+    },
+    {
+      "data": {
+        "@haetae/git": {
+          "commit": "ef3fdf88e9fad90396080335096a88633fbe893f",
+          "branch": "main",
+          "pkgVersion": "0.0.12"
+        }
+      },
+      "env": {
+        "jestConfig": "642645d6bc72ab14a26eeae881a0fc58e0fb4a25af31e55aa9b0d134160436eb",
+        "jest": 29,
+        "branch": "main",
+        "os": "darwin",
+        "node": 18,
+        "haetae": 0
+      },
+      "time": 1685455507556
+    },
+    {
+      "data": {
+        "@haetae/git": {
+          "commit": "7e3b332f0657272cb277c312ff25d4e1145f895c",
+          "branch": "main",
+          "pkgVersion": "0.0.12"
+        }
+      },
+      "env": {
+        "sql": "b87b8be8df58976ee7da391635a7f45d8dc808357ff63fdcda699df937910227"
+      },
+      "time": 1685451151035
+    }
+  ]
+}
+```
+
+5 Records are found in total.
+These are what we've done in this article so far.
+**Each of these is the last history of Records executed in each `env` respectively.**
+For example, the command `myTest` was executed with `env: {}` on several commits, and `979f3c6` is the last commit.
+
+TODO: how git.changedFiles works
+TODO: simple custom record data
+
+### App config ignored by git
+
+Configuration file for your application is a good example showing the usefulness of Record Data.
+I mean a config file not for Haetae, but for your project itself.
+To say, dotenv (*`.env`*), .yaml, .properties, .json, etc.
+Usually, an application config file satisfies these 2 conditions.
+
+1. It's not explicitly imported (e.g. `import`, `require()`) in the source code. Rather, the source code 'reads' it on runtime.
+---> `options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) or `env` are useful.
+2. It's ignored by git. ---> *'Record Data'* is useful.
+
+Let's see how it works, with a simple example project using '.env' as the application config.
+
+<Callout>
+**dotenv** <br/>
+*`.env`* is a configuration file for environment variables, and NOT related to Haetae's `env` at all.
+</Callout>
 
 ```fish
 your-project
-├── .env
+├── .env # <--- dotenv file
+├── .gitignore # <--- ignores '.env' file
 ├── haetae.config.js
 ├── package.json
 ├── src
@@ -440,7 +819,7 @@ your-project
     └── index.test.js
 ```
 
-*`src/config.js`* reads the file, by a library [dotenv](https://www.npmjs.com/package/dotenv) for example.
+*`src/config.js`* reads the file *`.env`*, by a library [dotenv](https://www.npmjs.com/package/dotenv) for example.
 
 ```js filename="src/config.js"
 import { config } from 'dotenv'
@@ -454,32 +833,14 @@ export default {
 }
 ```
 
-Dependency graph is like this.
+The explicit source code dependency graph is like this.
 Let's assume *`logic.js`* gets the value of environment variables through *`config.js`*, not directly reading from *`.env`* or `process.env{:ts}`.
 
 <img src="/getting-started/dependency-graph-with-dotenv.svg" alt="Dependency graph"/>
 
 Let Haetae think *`config.js`* depends on *`.env`*.
 
-<TokenLinkCode tokens={{
-  '.graph': './apis/haetae-utils#graph',
-}}>
-```js filename="haetae.config.js" {4-7}
-// Other content is ommitted for brevity.
-const additionalGraph = utils.graph({
-  edges: [
-    {
-      dependents: ['src/config.js'],
-      dependencies: ['.env'],
-    },
-  ],
-})
-```
-</TokenLinkCode>
-
-Then the dependency graph becomes explicit.
-
-<img src="/getting-started/dependency-graph-with-dotenv-focus.svg" alt="Dependency graph with .env"/>
+<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
@@ -487,6 +848,7 @@ Then the dependency graph becomes explicit.
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
+  '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {13-14,}
 import { configure, git, utils, js } from 'haetae'
@@ -517,6 +879,7 @@ export default configure({
         if (affectedTestFiles.length > 0) {
           await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
         }
+
       },
     },
   },
@@ -524,5 +887,76 @@ export default configure({
 ```
 </TokenLinkCode>
 
+Then the dependency graph becomes explicit.<br/>
+<br/>
 
-## Custom record data
+<img src="/getting-started/dependency-graph-with-dotenv-focus.svg" alt="Dependency graph with .env"/>
+
+But that's now enough, because *`.env`* is ignored by git.
+[`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) cannot detect if *`.env`* changed or not.
+
+Let's use *'Record Data'* to solve this problem.
+Change the config file like this.
+
+<br/>
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetaes#configure',
+  '.changedFiles': './apis/haetae-git#changedfiles',
+  '.glob': './apis/haetae-utils#glob',
+  '.graph': './apis/haetae-utils#graph',
+  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.exec': './apis/haetae-utils#exec',
+  '.hash': './apis/haetae-utils#hash',
+}}>
+```js filename="haetae.config.js" {9-11,32-34}
+import { configure, git, utils, js } from 'haetae'
+
+export default configure({
+  commands: {
+    myTest: {
+      env: { /* ... */ },
+      run: async () => {
+        const changedFiles = await git.changedFiles()
+        if (previousRecord?.data?.dotenv !== (await utils.hash(['.env']))) {
+          changedFiles.push('.env')
+        }
+        const testFiles = await utils.glob(['**/*.test.js'])
+        const additionalGraph = utils.graph({
+          edges: [
+            {
+              dependents: ['src/config.js'],
+              dependencies: ['.env'],
+            },
+          ],
+        })
+        const affectedTestFiles = testFiles.filter((testFile) =>
+          js.dependsOn({
+            dependent: testFile,
+            dependencies: changedFiles,
+            additionalGraph,
+          }),
+        )
+
+        if (affectedTestFiles.length > 0) {
+          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+        }
+        return {
+          dotenv: await utils.hash(['.env']),
+        }
+      },
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+From now on, when the file *`.env`* is changed, *`index.test.js`* and *`logic.test.js`*. are executed.
+As *`util.test.js`* doesn't transitively depend on *`.env`*, it's not executed.
+
+<Callout>
+  **Hash credentials** <br/>
+  [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is good for credentials like a dotenv file.
+  By default, it hashes by SHA-256, and you can simply change the cryptographic algorithm by its options, like to SHA-512 for example.
+  Thus, you do not need to worry about if the store file is leaked.
+</Callout>
