@@ -9,7 +9,6 @@ module.exports = {
     },
   },
   ignorePatterns: [
-    '**/tmp.*',
     'dist',
     'test-project',
     'coverage',
