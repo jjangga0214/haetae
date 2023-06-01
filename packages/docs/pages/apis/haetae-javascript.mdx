@@ -183,9 +183,48 @@ export default configure({
 ```
 </TokenLinkCode>
 
+### `GraphOptions`
+
+An argument interface for [`graph`](#graph).
+
+**Type**
+
+```ts
+interface GraphOptions {
+  entrypoint: string
+  tsConfig?: string
+  rootDir?: string
+}
+```
+
+### `graph`
+
+A function to create a dependency graph.<br/>
+it's not just for a specific language, but for *any* dependency graph.
+
+**Type**
+
+<TokenLinkCode tokens={{
+  'GraphOptions': './GraphOptions',
+  '.DepsGraph': './haetae-utils#depsgraph'
+}}>
+```ts
+(options: GraphOptions) => utils.DepsGraph
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `entrypoint{:ts}` : A starting point of a file to search the dependency graph.
+- `tsConfig?{:ts}` : A path to Typescript config file. <small>(e.g. tsconfig.json)</small>.
+- `rootDir?{:ts}` : A directory to use when `entrypoint` or `tsConfig` is given as relative paths.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
 ### `DependsOnOptions`
 
 An argument interface for [`dependsOn`](#dependson)
+
+**Type**
 
 <TokenLinkCode tokens={{ '.DepsGraph': './haetae-utils#depsgraph' }}>
 ```ts
@@ -201,7 +240,7 @@ interface DependsOnOptions {
 
 ### `dependsOn`
 
-A function to check if a module depends on one of different modules, transitively or directly.<br/>
+A function to check if a module depends on one of the different modules, transitively or directly.<br/>
 
 <Callout>
 **Multiple Formats Support**<br/>
@@ -209,6 +248,8 @@ ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx
 For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
 </Callout>
+
+**Type**
 
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
@@ -263,7 +304,7 @@ It is a good practice to use with [`git.changedFiles`](./haetae-git#changedfiles
 import { configure, utils, git, js } from 'haetae'
 
 export default configure({
-  // Other options are ommitted for brevity.
+  // Other options are ommitted for brevity
   commands: {
     myTest: {
       env: { /* ... */ },
