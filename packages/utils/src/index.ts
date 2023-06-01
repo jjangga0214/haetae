@@ -120,21 +120,33 @@ export function graph({
   const depsGraph: DepsGraph = {}
 
   for (let { dependents, dependencies } of edges) {
-    dependents = dependents.map((dependent) =>
-      toAbsolutePath({ path: dependent, rootDir }),
-    )
-    dependencies = dependencies.map((dependency) =>
-      toAbsolutePath({ path: dependency, rootDir }),
-    )
+    dependents = dependents.map((dep) => upath.resolve(rootDir, dep))
+    dependencies = dependencies.map((dep) => upath.resolve(rootDir, dep))
 
     for (const dependent of dependents) {
       depsGraph[dependent] = depsGraph[dependent] || new Set<string>()
       for (const dependency of dependencies) {
-        depsGraph[dependent].add(dependency)
+        depsGraph[dependency] = depsGraph[dependency] || new Set<string>()
+        if (dependent !== dependency) {
+          depsGraph[dependent].add(dependency)
+        }
       }
     }
   }
   return depsGraph
+}
+
+export function mergeGraphs( graphs : DepsGraph[]): DepsGraph {
+  const result: DepsGraph = {}
+  for (const graph of graphs) {
+    for (const [dependent, directDeps] of Object.entries(graph)) {
+      result[dependent] = result[dependent] || new Set()
+      for (const dep of directDeps) {
+        result[dependent].add(dep)
+      }
+    }
+  }
+  return result
 }
 
 export interface DependsOnOptions {
@@ -153,27 +165,30 @@ export function dependsOn({
   // eslint-disable-next-line no-param-reassign
   rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
   // eslint-disable-next-line no-param-reassign
-  dependent = toAbsolutePath({ path: dependent, rootDir })
+  dependent = upath.resolve(rootDir, dependent)
   // eslint-disable-next-line no-param-reassign
-  dependencies = [...dependencies].map((d) =>
-    toAbsolutePath({
-      path: d,
-      rootDir,
-    }),
-  )
+  dependencies = [...dependencies].map((dep) => upath.resolve(rootDir, dep))
 
   if (!graph[dependent]) {
     return false
   }
+
+  // Consider any file depends on itself.
+  // This is beneficial for using with changedFiles() for testing (e.g. git.changedFiles() or utils.changedFiles())
+  if (dependencies.includes(dependent)) {
+    return true
+  }
+  const checkedDeps = new Set<string>() // To avoid infinite loop by circular dependencies.
   // `transitiveDepsQueue` stores dependencies of dependencies.. and so on.
   // Until either the function finds the matching dependency or the loop ends.
   const transitiveDepsQueue = [...graph[dependent]]
   for (const dependency of transitiveDepsQueue) {
-    if (dependencies.includes(dependency)) {
-      return true
-    }
-    if (graph[dependency]) {
-      transitiveDepsQueue.push(...graph[dependency])
+    if (!checkedDeps.has(dependency)) {
+      checkedDeps.add(dependency)
+      transitiveDepsQueue.push(...(graph[dependency] || []))
+      if (dependencies.includes(dependency)) {
+        return true
+      }
     }
   }
   return false

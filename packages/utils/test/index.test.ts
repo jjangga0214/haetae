@@ -1,6 +1,6 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
-import { glob, graph, dependsOn } from '../src/index.js'
+import { glob, graph, dependsOn, mergeGraphs } from '../src/index.js'
 
 describe('glob', () => {
   test('basic usage', async () => {
@@ -38,6 +38,35 @@ describe('graph', () => {
         '/<rootDir>/path/to/b.ts',
         '/<rootDir>/path/to/c.ts',
       ]),
+      '/<rootDir>/path/to/b.ts': new Set([]),
+      '/<rootDir>/path/to/c.ts': new Set([]),
+    })
+  })
+
+  // Testing this is to check if infinite loop is prevented
+  test('circular dependency', () => {
+    const result = graph({
+      rootDir: '/',
+      edges: [
+        {
+          dependents: ['a'],
+          dependencies: ['b'],
+        },
+        {
+          dependents: ['b'],
+          dependencies: ['c'],
+        },
+        {
+          dependents: ['c'],
+          dependencies: ['a'],
+        },
+      ],
+    })
+
+    expect(result).toStrictEqual({
+      '/a': new Set(['/b']),
+      '/b': new Set(['/c']),
+      '/c': new Set(['/a']),
     })
   })
 
@@ -47,7 +76,7 @@ describe('graph', () => {
       edges: [
         {
           dependents: ['path/to/a.ts', 'path/to/b.ts'],
-          dependencies: ['path/to/d.ts', 'path/to/e.ts', 'path/to/c.ts'],
+          dependencies: ['path/to/c.ts', 'path/to/d.ts', 'path/to/e.ts'],
         },
         {
           dependents: ['path/to/b.ts', 'path/to/c.ts'],
@@ -57,21 +86,65 @@ describe('graph', () => {
     })
     expect(result).toStrictEqual({
       '/<rootDir>/path/to/a.ts': new Set([
+        '/<rootDir>/path/to/c.ts',
         '/<rootDir>/path/to/d.ts',
         '/<rootDir>/path/to/e.ts',
-        '/<rootDir>/path/to/c.ts',
       ]),
       '/<rootDir>/path/to/b.ts': new Set([
+        '/<rootDir>/path/to/c.ts',
         '/<rootDir>/path/to/d.ts',
         '/<rootDir>/path/to/e.ts',
         '/<rootDir>/path/to/f.ts',
         '/<rootDir>/path/to/g.ts',
-        '/<rootDir>/path/to/c.ts',
       ]),
       '/<rootDir>/path/to/c.ts': new Set([
         '/<rootDir>/path/to/f.ts',
         '/<rootDir>/path/to/g.ts',
       ]),
+      '/<rootDir>/path/to/d.ts': new Set([]),
+      '/<rootDir>/path/to/e.ts': new Set([]),
+      '/<rootDir>/path/to/f.ts': new Set([]),
+      '/<rootDir>/path/to/g.ts': new Set([]),
+    })
+  })
+})
+
+describe('mergeGraphs', () => {
+  test('basic usage', () => {
+    const result1 = graph({
+      rootDir: '/',
+      edges: [
+        {
+          dependents: ['a', 'b'],
+          dependencies: ['c', 'd', 'e'],
+        },
+      ],
+    })
+    const result2 = graph({
+      rootDir: '/',
+      edges: [
+        {
+          dependents: ['a'],
+          dependencies: ['e', 'f'],
+        },
+      ],
+    })
+    const result3 = graph({
+      rootDir: '/',
+      edges: [
+        {
+          dependents: ['b'],
+          dependencies: ['a', 'f'],
+        },
+      ],
+    })
+    expect(mergeGraphs([result1, result2, result3])).toStrictEqual({
+      '/a': new Set(['/c', '/d', '/e', '/f']),
+      '/b': new Set(['/c', '/d', '/e', '/a', '/f']),
+      '/c': new Set([]),
+      '/d': new Set([]),
+      '/f': new Set([]),
+      '/e': new Set([]),
     })
   })
 })

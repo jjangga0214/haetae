@@ -117,8 +117,9 @@ interface GlobOptions {
 <br/>
 <PathPrinciples/>
 
-A function to find files by glob pattern.<br/>
-Internally, the task is delegated to [**`globby` v11**](https://github.com/sindresorhus/globby/tree/v11.1.0).<br/>
+A function to find files by a glob pattern.<br/>
+Internally, the task is delegated to [**`globby`**](https://github.com/sindresorhus/globby/tree/v13.1.4)
+<small>(v13 as of writing)</small>.<br/>
 `glob` is a [facade function](https://en.wikipedia.org/wiki/Facade_pattern) for `globby`,
 providing more handy experience by default options and postprocessing.
 
@@ -134,8 +135,10 @@ providing more handy experience by default options and postprocessing.
 
 - `patterns{:ts}`: Array of glob patterns. <small>(e.g. `['**/*.test.ts', '**/*.test.tsx']{:ts}`)</small>
 - `options?{:ts}` :
-  - `options.rootDir?{:ts}` : A directory to start search. If `options.globbyOptions.cwd{:ts}` is not provided (`undefined{:ts}`), this value is used. Ignored otherwise. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
-  - `options.globbyOptions?{:ts}` : Refer to [globby v11 docs](https://github.com/sindresorhus/globby/tree/ca080d8a447e43ad489433ebfb421b176a46dfe1#options).
+  - `options.rootDir?{:ts}` : A directory to start search.
+  If `options.globbyOptions.cwd{:ts}` is not provided (`undefined{:ts}`), this value is used.
+  Ignored otherwise. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  - `options.globbyOptions?{:ts}` : Refer to [globby v13 docs](https://github.com/sindresorhus/globby/tree/v13.1.4).
 
 ### `ExecOptions`
 
@@ -297,6 +300,7 @@ interface GraphOptions {
 ### `DepsGraph`
 
 An return type of [`graph`](#graph).<br/>
+Its structure is similar to the traditional ['Adjacency List'](https://en.wikipedia.org/wiki/Adjacency_list).<br/>
 <small>**TIP**. The prefix **Deps** stands for 'Dependencies'.</small>
 
 ```ts
@@ -310,12 +314,12 @@ interface DepsGraph {
 <br/>
 <PathPrinciples/>
 
-A function to create a normalized graph.<br/>
-This function is for generic use, not just for a specific language.
+A function to create a dependency graph.<br/>
+Unlike [`js.graph{:ts}`](./haetae-javascript#graph), it's not just for a specific language, but for *any* dependency graph.
 
 **Type**
 
-<TokenLinkCode tokens={['GraphOptions']}>
+<TokenLinkCode tokens={['GraphOptions', 'DepsGraph']}>
 ```ts
 (options?: GraphOptions) => DepsGraph
 ```
@@ -324,15 +328,17 @@ This function is for generic use, not just for a specific language.
 **Options?**
 
 - `edges{:ts}` : A single or multiple edge(s). The `dependents` and `dependencies` have to be file path, not directory.
-- `rootDir?{:ts}` : When an element of `dependents` and `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : When an element of `dependents` and `dependencies` is given as a relative path,
+`rootDir{:ts}` is joined to transform it to an absolute path.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 #### Basic Usage
 
-Basically, you can specify any dependency relationship.<br/>
-This is just a pure function. Whether the files really depend on each other does not matter.
+You can specify any dependency relationship.<br/>
+This is just a pure function. Whether the files depend on each other does not matter.
 
 ```ts
-const normalizedGraph = graph({
+const result = graph({
   rootDir: '/path/to',
   edges: [
     {
@@ -361,21 +367,24 @@ const expected = {
   '/path/to/test/qux.ts': new Set([
     '/somewhere/the-other.txt', // Absolute path is preserved.
   ]),
+  '/path/to/assets/one.png': new Set([]),
+  '/path/to/config/another.json': new Set([]),
+  '/somewhere/the-other.txt': new Set([]),
 }
 
-assert(deepEqual(normalizedGraph, expected)) // They are same.
+assert(deepEqual(result, expected)) // They are same.
 ```
 
 #### Usage With `glob`
 
 [`glob`](#glob) is a good friend when you want to specify chunk-level dependency relationships.<br/>
 
-Let's say you have multiple python projects (packages) in a single monorepo.<br/>
+Let's say you have multiple Python projects (packages) in a single monorepo.<br/>
 For example, packages '*foo*' and '*bar*' depend on a package '*qux*'.<br/>
 Then you can create a normalized dependency graph like the snippet below.
 
 ```ts
-const normalizedGraph = graph({
+graph({
   edges: [
     {
       dependents: await glob(['packages/foo/**/*.py', 'packages/bar/**/*.py']),
@@ -384,6 +393,17 @@ const normalizedGraph = graph({
   ],
 })
 ```
+
+### `mergeGraphs`
+
+A function to merge multiple dependency graphs into one single unified graph.
+
+<TokenLinkCode tokens={['DepsGraph']}>
+```ts
+(graphs : DepsGraph[]) => DepsGraph
+```
+</TokenLinkCode>
+
 
 ### `DependsOnOptions`
 
@@ -402,7 +422,7 @@ interface DependsOnOptions {
 
 ### `dependsOn`
 
-A function to check if a file depends on one of different files, transitively or directly.<br/>
+A function to check if a file depends on one of different files, transitively or directly.
 
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
@@ -415,7 +435,9 @@ A function to check if a file depends on one of different files, transitively or
 - `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
 - `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
 - `graph{:ts}` : A graph. Return value of [`graph`](#graph) is proper.
-- `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path, `rootDir{:ts}` is joined to transform it to an absolute path. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path,
+`rootDir{:ts}` is joined to transform it to an absolute path.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 #### Basic Usage
 
