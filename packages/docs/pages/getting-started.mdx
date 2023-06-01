@@ -6,7 +6,7 @@ import TokenLinkCode from '../components/TokenLinkCode'
 
 Haetae is incremental task runner.<br/>
 The task can be test, lint, build, or anything.<br/>
-It can be used in any project, no matter what language, framework, test runner, linter/formatter, or build system you use.<br/>
+It can be used in any project, no matter what language, framework, test runner, linter/formatter, build system, or CI you use.<br/>
 
 For now, in this article, we are starting from an example of incremental testing.
 
@@ -92,7 +92,7 @@ my-calculator
 
 <Callout>
   **Typescript Support** <br/>
-  If you use typescript, it can be *`haetae.config.ts`*.
+  If you use typescript, you can name it *`haetae.config.ts`*.
   Then install [`ts-node`](https://www.npmjs.com/package/ts-node) as `peerDependencies`.
   You need `ts-node` no matter if you actually use it directly or not.
   The `peerDependencies` is marked as optional, which means non-typescript users don't have to install it.
@@ -195,9 +195,9 @@ So it can be used to detect which test files (transitively) depend on at least o
 <Callout>
 **`js.dependsOn` can detect multiple formats**<br/>
 ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx), Webpack Loaders, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS, RequireJS are all supported.
-For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
+For Node.js, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are supported.
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
-Check out the API docs and pass additional option(s) if you use Typescript or Webpack.
+Check out [the API docs](./apis/haetae-javascript#dependson) and pass additional option(s) if you use Typescript or Webpack.
 </Callout>
 
 <Callout>
@@ -279,8 +279,6 @@ For example, logic of your project might act differently depending on the enviro
 So, the history of an incremental task also should be recorded for each environment in a separated manner.
 Let's add `env` to the config file to achieve this.
 
-<br/>
-
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
 }}>
@@ -324,8 +322,6 @@ Configuring the removal of some history is guided later in this article.
 
 You can add more keys in `env` object.<br/>
 For instance, let's change the config to this.
-
-<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
@@ -422,7 +418,6 @@ The dependency graph is like this.<br/>
 <img src="/getting-started/dependency-graph-with-sql.svg" alt="Dependency graph"/>
 
 Let Haetae think *`logic.js`* depends on *`data.sql`*.
-<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
@@ -480,8 +475,6 @@ As *`external.test.js`* doesn't transitively depend on *`data.sql`*, it's not ex
 Unlike this general and natural flow, if you decide that *`index.test.js`* should never be affected by *`data.sql`*,
 you can change the config.
 
-<br/>
-
 <TokenLinkCode tokens={{
   '.graph': './apis/haetae-utils#graph',
 }}>
@@ -528,8 +521,6 @@ and/or
 
 then `env` is a good place.
 
-<br/>
-
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '.hash': './apis/haetae-utils#hash',
@@ -555,8 +546,6 @@ export default configure({
 ### Cartesian product
 
 You can specify dependency graph from a chunk of files to another chunk.
-
-<br/>
 
 <TokenLinkCode tokens={{
   '.graph': './apis/haetae-utils#graph',
@@ -585,8 +574,6 @@ This means that any test file under *`test/db/`* depends on any SQL file under *
 
 You don't have to specify a dependent's dependencies all at once.
 It can be done in a distributed manner.
-
-<br/>
 
 <TokenLinkCode tokens={{
   '.graph': './apis/haetae-utils#graph',
@@ -628,8 +615,6 @@ Haetae supports circular dependency as well.
 Though circular dependency is considered, in general, not a good practice,
 it's fully up to you to decide whether to allow it.
 Haetae does not prevent you from using it.
-
-<br/>
 
 <TokenLinkCode tokens={{
   '.graph': './apis/haetae-utils#graph',
@@ -840,8 +825,6 @@ Let's assume *`logic.js`* gets the value of environment variables through *`conf
 
 Let Haetae think *`config.js`* depends on *`.env`*.
 
-<br/>
-
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
   '.changedFiles': './apis/haetae-git#changedfiles',
@@ -897,8 +880,6 @@ But that's now enough, because *`.env`* is ignored by git.
 
 Let's use *'Record Data'* to solve this problem.
 Change the config file like this.
-
-<br/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',

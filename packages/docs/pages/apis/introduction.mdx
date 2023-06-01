@@ -14,11 +14,11 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='#path-p
 ### Type notations
 
 Types are annotated by typescript syntax.<br/>
-Note that trailing `?{:ts}` means an optional field.
+For example, trailing `?{:ts}` means an optional field.
 
 ### `PromiseOr`
 
-Some APIs depends on an utility type named `PromiseOr{:ts}`.
+Some APIs depend on a utility type named `PromiseOr{:ts}`.
 
 ```ts
 type PromiseOr<T> = Promise<T> | T
@@ -28,7 +28,7 @@ type PromiseOr<T> = Promise<T> | T
 
 ### `Rec`
 
-Some APIs depends on an utility type named `Rec{:ts}`.
+Some APIs depend on a utility type named `Rec{:ts}`.
 
 ```ts
 type Rec = Record<string, unknown>
@@ -40,17 +40,18 @@ type Rec = Record<string, unknown>
 
 [Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
 Some functions (e.g. [`getConfig`](./haetae-core#getconfig), [`getStore`](./haetae-core#getstore)) are memoized.
+The cache only exists in the same process's memory and is cleared when the process is terminated.
 
 <Callout>
-**Linked By Tag**<br/>
-Any functions linked to from here by <Memoized/> tag satisfy the principles below.
+**Linked by label**<br/>
+Any functions linked to from here by <Memoized/> label satisfy the principles below.
 </Callout>
 
 
 #### Cache hit and clear
 
-To clear memoization cache, you can call `<function>.clear(){:ts}`.
-For example, [`getConfig`](#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
+To clear the memoization cache, you can call `<function>.clear(){:ts}`.
+For example, [`core.getConfig{:ts}`](./haetae-core#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
 
 ```ts
 import { getConfig } from '@haetae/core'
@@ -58,7 +59,7 @@ import { getConfig } from '@haetae/core'
 // `getConfig` is executed.
 const config1 = await getConfig({ filename: '/foo/haetae.config.js' })
 
-// `getConfig` is executed. No memoization cache hit, due to different argument.
+// `getConfig` is executed. No memoization cache hit, due to the different argument.
 const config2 = await getConfig({ filename: '/bar/haetae.config.js' })
 
 // Cache hit from the 1st call result, thanks to the same argument.
@@ -78,7 +79,7 @@ const config5 = await getConfig({ filename: '/foo/haetae.config.js' })
 
 #### Cache by shallow copy
 
-Memoization cache is based on shallow copy.
+The memoization cache is based on shallow copy.
 
 ```ts
 // `config1` and `config2` would have same memory address.
@@ -88,24 +89,26 @@ const config2 = await getConfig()
 config1.foo = 'bar'
 // `config2` is also modified when `config1` is modified
 console.log(config2.foo) // 'bar'
+const config3 = await getConfig()
+console.log(config3.foo) // 'bar'
 ```
 
-If you want to avoid the side effect, you can clear cache before calling [`getConfig`](#getconfig).<br/>
-Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be good solution.
+If you want to avoid the side effect, you can clear the cache before calling `getConfig`.<br/>
+Or deep copy techniques like [immer](https://github.com/immerjs/immer) can be a good solution.
 
 ### Path Principles
 
 Haetae has a few design principles for file and directory paths.<br/>
 
 <Callout>
-**Linked By Tag**<br/>
-Any functions linked to from here by <PathPrinciples/> tag satisfy the principles below.
+**Linked by label**<br/>
+Any functions linked to from here by <PathPrinciples/> label satisfy the principles below.
 </Callout>
 
 **1. Absolute Return Value**
 
 Returned file or directory path is always **absolute** path (NOT relative).<br/>
-This is true even when the path is not directly returned entity, like even when it's an element of array, or object field.
+This is true even when the path is not a directly returned entity, like even when it's an element of an array or object field.
 For instance, [`glob`](./haetae-utils#glob) of [`@haetae/utils{:ts}`](./haetae-utils) and [`changedFiles`](./haetae-git#changedfiles) of [`@haetae/git{:ts}`](./haetae-git)
 are such functions.
 
@@ -118,29 +121,30 @@ const files = await utils.glob(['**/*.test.ts', '**/*.test.tsx'])
 ```
 </TokenLinkCode>
 
-Arguments or options, which are not return value, don't have to be/contain absolute path.<br/>
-In fact, for arguments or options, relative paths would probably be more suitable for majority of cases.
+Arguments or options, which are not return value, don't have to be/contain an absolute path.<br/>
+In fact, for arguments or options, relative paths would probably be more suitable for the majority of cases.
 
 **2. `/{:ts}` As Delimiter**
 
-Haetae only officially uses/supports `/{:ts}` as delimiter for path.
+Haetae only officially uses/supports `/{:ts}` as a delimiter for a path.
 
 `/{:ts}` is traditionally used in POSIX <small>(e.g. Linux, macOS)</small>.
-However, `/{:ts}` works well on Windows in nodejs (and other languages or runtimes as well).
+However, `/{:ts}` works well on Windows in Node.js (and other languages or runtimes as well).
 Thus, Haetae does NOT officially use/support Windows legacy <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> delimiter.
 
-This is better decision for cross-platform design as well as convenience of usage and development.
+This is a better decision for cross-platform design as well as convenience of usage and development.
 
 - **Return Value**: Delimiter is always `/{:ts}`.
-This is true even when the path is not a returned entity itself but a part of it, like an element of array or a field of object.
+This is true even when the path is not a returned entity itself but a part of it, like an element of an array or a field of object.
 
     For example,
+
     <TokenLinkCode tokens={{ '.configure': './haetae-core#configure' }}>
     ```ts
     import { core } from 'haetae'
 
     const config = await core.configure({ storeFile: '..\..\.haetae\store.json', /* ... */ })
-    // Relative path is transformed to absolute path.
+    // Relative path is transformed to an absolute path.
     // `\` is transformed to `/`.
     console.log(config.storeFile) // => '/path/to/.haetae/store.json'
     ```
@@ -177,7 +181,7 @@ pkg.version.untilPatch // '1.2.3'
 import { core, pkg } from 'haetae'
 
 export default core.configure({
-  // Other options are ommitted for brevity.
+  // Other options are omitted for brevity.
   commands: {
     myAwesomeCommand: {
       env: {
