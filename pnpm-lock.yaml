@@ -372,7 +372,7 @@ importers:
         version: link:../git
       '@haetae/javascript':
         specifier: workspace:*
-        version: link:../javascript
+        version: link:../js
       '@haetae/utils':
         specifier: workspace:*
         version: link:../utils
@@ -386,7 +386,7 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
 
-  packages/javascript:
+  packages/js:
     dependencies:
       '@haetae/common':
         specifier: workspace:*

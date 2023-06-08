@@ -10,7 +10,7 @@
     { "path": "../cli/tsconfig.build.json" },
     { "path": "../core/tsconfig.build.json" },
     { "path": "../git/tsconfig.build.json" },
-    { "path": "../javascript/tsconfig.build.json" },
+    { "path": "../js/tsconfig.build.json" },
     { "path": "../utils/tsconfig.build.json" },
     { "path": "../common/tsconfig.build.json" }
   ]
