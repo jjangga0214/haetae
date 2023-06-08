@@ -766,12 +766,9 @@ These are what we've done in this article so far.
 **Each of these is the last history of Records executed in each `env` respectively.**
 For example, the command `myTest` was executed with `env: {}` on several commits, and `979f3c6` is the last commit.
 
-TODO: how git.changedFiles works
-TODO: simple custom record data
+### Custom Record Data
 
-### App config ignored by git
-
-Configuration file for your application is a good example showing the usefulness of Record Data.
+Configuration files for your application is a good example showing the usefulness of Record Data.
 I mean a config file not for Haetae, but for your project itself.
 To say, dotenv (*`.env`*), .yaml, .properties, .json, etc.
 Usually, an application config file satisfies these 2 conditions.
@@ -780,7 +777,7 @@ Usually, an application config file satisfies these 2 conditions.
 ---> `options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) or `env` are useful.
 2. It's ignored by git. ---> *'Record Data'* is useful.
 
-Let's see how it works, with a simple example project using '.env' as the application config.
+Let's see how it works, with a simple example project using *`.env`* as the application config.
 
 <Callout>
 **dotenv** <br/>
@@ -842,7 +839,7 @@ export default configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
-        const testFiles = await utils.glob(['**/*.test.js'])
+        const testFiles = await utils.glob(['test/*.test.js'])
         const additionalGraph = utils.graph({
           edges: [
             {
@@ -890,7 +887,7 @@ Change the config file like this.
   '.exec': './apis/haetae-utils#exec',
   '.hash': './apis/haetae-utils#hash',
 }}>
-```js filename="haetae.config.js" {9-12,33-35}
+```js filename="haetae.config.js" {10-13,34-36}
 import { configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -900,7 +897,8 @@ export default configure({
       run: async () => {
         const changedFiles = await git.changedFiles()
         const previousRecord = await core.getRecord()
-        if (previousRecord?.data?.dotenv !== (await utils.hash(['.env']))) {
+        const dotenvHash = await utils.hash(['.env'])
+        if (previousRecord?.data?.dotenv !== dotenvHash) {
           changedFiles.push('.env')
         }
         const testFiles = await utils.glob(['**/*.test.js'])
@@ -924,7 +922,7 @@ export default configure({
           await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
         }
         return {
-          dotenv: await utils.hash(['.env']),
+          dotenv: dotenvHash
         }
       },
     },
@@ -933,12 +931,52 @@ export default configure({
 ```
 </TokenLinkCode>
 
-From now on, when the file *`.env`* is changed, *`index.test.js`* and *`logic.test.js`*. are executed.
-As *`util.test.js`* doesn't transitively depend on *`.env`*, it's not executed.
+Now, **we return an object** from `myTest.run{:ts}`.
+Let's execute it.
+
+```fish filename="terminal" {12}
+$ haetae myTest
+
+✔  success   Command myTest is successfully executed.
+
+⎡ 🕗 time: 2023 Jun 08 09:23:07 (timestamp: 1686183787453)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/git":
+⎜        commit: ac127da6531efa487b8ee35451f24a70dc58aeea
+⎜        branch: main
+⎜        pkgVersion: 0.0.12
+⎣      dotenv: 7f39224e335994886c26ba8c241fcbe1d474aadaa2bd0a8e842983b098cea894
+```
+
+Do you see the last line?
+The value we returned from `myTest.run{:ts}` is recorded in the store file.
 
 <Callout>
   **Hash credentials** <br/>
   [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is good for credentials like a dotenv file.
-  By default, it hashes by SHA-256, and you can simply change the cryptographic algorithm by its options, like to SHA-512 for example.
+  By default, it hashes by SHA-256, and you can simply change the cryptographic hash algorithm by its options, like to SHA-512 for example.
   Thus, you do not need to worry about if the store file is leaked.
 </Callout>
+
+This time, *`.env`* was treated as a changed file, as the key `dotenv` did not exist from `previousRecord`.
+
+```js filename="haetae.config.js"
+// Other content is omitted for brevity
+if (previousRecord?.data?.dotenv !== dotenvHash) {
+  changedFiles.push('.env')
+}
+```
+
+Therefore, *`index.test.js`* and *`logic.test.js`*, which transitively depend on *`.env`*, are executed.
+
+If you run haetae again immediately,
+
+```fish filename="terminal" {12}
+$ haetae myTest
+```
+
+This time, *`index.test.js`* and *`logic.test.js`* are not executed, as *`.env`* is treated as not changed.
+
+From now on, though the file *`.env`* is ignored by git, changes to it are recorded by custom *Record Data*.
+So it can be used in incremental tasks.
