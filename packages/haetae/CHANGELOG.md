@@ -1,19 +1,5 @@
 # haetae
 
-## 0.0.16
-
-### Patch Changes
-
-- [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: The packages become [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
-
-- Updated dependencies [[`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d)]:
-  - @haetae/common@0.0.3
-  - @haetae/core@0.0.14
-  - @haetae/cli@0.0.15
-  - @haetae/git@0.0.13
-  - @haetae/javascript@0.0.13
-  - @haetae/utils@0.0.14
-
 ## 0.0.15
 
 ### Patch Changes
