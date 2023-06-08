@@ -235,7 +235,7 @@ export async function run(): Promise<void> {
           toJson: !!argv.j,
           message: `${chalk.bold.underline(records?.length)} ${chalk.dim(
             `record${
-              records?.length < 2 ? ' is' : 's are'
+              (records?.length || 0) < 2 ? ' is' : 's are'
             } found for the command`,
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `There is no record for the command ${chalk.bold(
@@ -252,7 +252,7 @@ export async function run(): Promise<void> {
           toJson: !!argv.j,
           message: `${chalk.bold.underline(recordDataList?.length)} ${chalk.dim(
             `record data${
-              recordDataList?.length < 2 ? ' is' : 's are'
+              (recordDataList?.length || 0) < 2 ? ' is' : 's are'
             } found for the command`,
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `There is no record for the command ${chalk.bold.underline(
