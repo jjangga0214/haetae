@@ -339,6 +339,9 @@ importers:
       memoizee:
         specifier: ^0.4.15
         version: 0.4.15
+      node-filter-async:
+        specifier: 3.0.0
+        version: 3.0.0
       serialize-javascript:
         specifier: ^6.0.0
         version: 6.0.0
@@ -7992,6 +7995,11 @@ packages:
     dependencies:
       whatwg-url: 5.0.0
     dev: true
+
+  /node-filter-async@3.0.0:
+    resolution: {integrity: sha512-Cd/VFUD4SHoQLjuY4vhmIiv72OyIaWHPL5/C4tXI2wxfrrfK4rGR6B68Hf7gOWwvU58gUrWSxvWXC2bZeXgy7Q==}
+    engines: {node: '>=14.0.0'}
+    dev: false
 
   /node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}

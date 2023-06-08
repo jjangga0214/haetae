@@ -1,10 +1,12 @@
-import * as core from '@haetae/core'
-import * as utils from '@haetae/utils'
-import { Rec, parsePkg, toAbsolutePath } from '@haetae/common'
+import fs from 'node:fs/promises'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'
 import upath from 'upath'
+import filterAsync from 'node-filter-async'
+import * as core from '@haetae/core'
+import * as utils from '@haetae/utils'
+import { Rec, parsePkg, toAbsolutePath } from '@haetae/common'
 
 const pkgName = '@haetae/git'
 
@@ -171,6 +173,7 @@ export interface ChangedFilesOptions {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
+  checkExistence?: boolean
 }
 
 export const changedFiles = memoizee(
@@ -180,6 +183,7 @@ export const changedFiles = memoizee(
     rootDir = core.getConfigDirname(),
     includeUntracked = true,
     includeIgnored = false,
+    checkExistence = true,
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     // eslint-disable-next-line no-param-reassign
     from =
@@ -208,7 +212,7 @@ export const changedFiles = memoizee(
         .exec(command, { cwd: rootDir })
         .then((res: string) => res.split('\n'))
 
-    const result = []
+    let result = []
 
     if (from) {
       try {
@@ -238,13 +242,22 @@ export const changedFiles = memoizee(
     if (includeIgnored) {
       result.push(...(await ignoredFiles({ rootDir })))
     }
-    return [
-      ...new Set( // this removes duplicated files
-        result
-          .filter((f) => f) // this removes empty string
-          .map((f) => upath.resolve(rootDir, f)),
-      ),
-    ]
+    result = result
+      .filter((f) => f) // this removes empty string
+      .map((f) => upath.resolve(rootDir, f))
+
+    if (checkExistence) {
+      result = await filterAsync(result, async (f) => {
+        try {
+          await fs.access(f)
+          return true
+        } catch {
+          return false
+        }
+      })
+    }
+
+    return [...new Set(result)] // this removes duplicated files
   },
   {
     normalizer: serialize,
