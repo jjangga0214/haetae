@@ -1,4 +1,5 @@
 import { Callout } from 'nextra-theme-docs'
+import Image from '../components/Image';
 import PkgManagerTabs from '../components/PkgManagerTabs'
 import TokenLinkCode from '../components/TokenLinkCode'
 
@@ -31,7 +32,7 @@ my-calculator
 
 The dependency graph is like this.
 
-<img src="/getting-started/dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
+<Image src="/getting-started/dependency-graph.svg" alt="Dependeny graph of 'my-calculator'"/>
 
 *`exponent.js`* depends on *`multiply.js`*, which depends on *`add.js`* and so on.
 
@@ -229,7 +230,7 @@ my-calculator
 
 Let's say we made some changes and added 2 commits.
 
-<img src="/getting-started/commit-history.svg" alt="Commit history after the first running of Haetae"/>
+<Image src="/getting-started/commit-history.svg" alt="Commit history after the first running of Haetae"/>
 
 `979f3c6` is the last commit Haetae ran on successfully.<br/>
 What will happen when we run Haetae again?
@@ -415,7 +416,7 @@ The dependency graph is like this.<br/>
 *`logic.js`* contains business logic, including communicating with a database.<br/>
 *`external.js`* communicates with a certain external service, regardless of the database.
 
-<img src="/getting-started/dependency-graph-with-sql.svg" alt="Dependency graph"/>
+<Image src="/getting-started/dependency-graph-with-sql.svg" alt="Dependency graph"/>
 
 Let Haetae think *`logic.js`* depends on *`data.sql`*.
 
@@ -464,10 +465,9 @@ export default configure({
 ```
 </TokenLinkCode>
 
-Then the dependency graph becomes explicit.<br/>
-<br/>
+Then the dependency graph becomes explicit.
 
-<img src="/getting-started/dependency-graph-with-sql-focus.svg" alt="Dependency graph with .env"/>
+<Image src="/getting-started/dependency-graph-with-sql-focus.svg" alt="Dependency graph with .env"/>
 
 From now on, when the file *`data.sql`* is changed, *`index.test.js`* and *`logic.test.js`*. are executed.
 As *`external.test.js`* doesn't transitively depend on *`data.sql`*, it's not executed.
@@ -509,15 +509,15 @@ That's why *`data.sql`* is applied as `addtionalGraph`, not as `env`.
 
 But that's case by case. In many situations, `env` is beneficial.
 
-1. if *`data.sql`* affects most of your integration test files,
+1. If *`data.sql`* affects 'most' of your integration test files,
 
 and/or
 
-2. if which test file does and doesn't depend on *`data.sql`* is not clear or changes frequently,
+2. If which test file does and doesn't depend on *`data.sql`* is not clear or the relation changes frequently,
 
 and/or
 
-3. if *`data.sql`* is not frequently changed,
+3. If *`data.sql`* is not frequently changed,
 
 then `env` is a good place.
 
@@ -533,7 +533,7 @@ export default configure({
     myTest: {
       env: async () => {
         return {
-          sql: await utils.hash(['test/data.sql']),
+          testData: await utils.hash(['test/data.sql']),
         }
       },
       run: async () => { /* ... */ }, // without additionalGraph
@@ -568,7 +568,7 @@ const additionalGraph = utils.graph({
 
 This means that any test file under *`test/db/`* depends on any SQL file under *`test/db/`* and *`test/docker-compose.yml`*.
 
-<img src="/getting-started/additional-dependency-graph-cartesian-product.svg" alt="Additional Dependency Graph Cartesian Product"/>
+<Image src="/getting-started/additional-dependency-graph-cartesian-product.svg" alt="Additional Dependency Graph Cartesian Product"/>
 
 ### Distributed notation
 
@@ -607,14 +607,14 @@ On line number 13-14, we marked *`two`* depending on *`two`* itself.
 That's OK, as every file is treated as depending on itself.
 So *`foo`* depends on *`foo`*. *`bar`* also depends on *`bar`*, and so on.
 
-<img src="/getting-started/additional-dependency-graph-distributed-notation.svg" alt="Additional Dependency Graph Distributed Notation"/>
+<Image src="/getting-started/additional-dependency-graph-distributed-notation.svg" alt="Additional Dependency Graph Distributed Notation"/>
 
 ### Circular dependency
 
 Haetae supports circular dependency as well.
-Though circular dependency is considered, in general, not a good practice,
+Though circular dependency is, in general, considered not a good practice,
 it's fully up to you to decide whether to allow it.
-Haetae does not prevent you from using it.
+Haetae does not prevent you from defining it.
 
 <TokenLinkCode tokens={{
   '.graph': './apis/haetae-utils#graph',
@@ -640,10 +640,10 @@ const additionalGraph = utils.graph({
 ```
 </TokenLinkCode>
 
-<img src="/getting-started/circular-dependency-graph.svg" alt="Circular dependency graph"/>
+<Image src="/getting-started/circular-dependency-graph.svg" alt="Circular dependency graph"/>
 
 Assume the relations between *`index.js`*, *`foo`*, and *`bar`* are given by `additionalGraph`,
-and the rest is automatically detected.
+and the rests are automatically detected.
 
 In this situation, *`index.test.js`* is executed when any of files are changed, including *`foo`*, and *`bar`*.<br/>
 On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`utils.test.js`* itself is changed.
@@ -821,7 +821,7 @@ export default {
 The explicit source code dependency graph is like this.
 Let's assume *`logic.js`* gets the value of environment variables through *`config.js`*, not directly reading from *`.env`* or `process.env{:ts}`.
 
-<img src="/getting-started/dependency-graph-with-dotenv.svg" alt="Dependency graph"/>
+<Image src="/getting-started/dependency-graph-with-dotenv.svg" alt="Dependency graph"/>
 
 Let Haetae think *`config.js`* depends on *`.env`*.
 
@@ -870,10 +870,9 @@ export default configure({
 ```
 </TokenLinkCode>
 
-Then the dependency graph becomes explicit.<br/>
-<br/>
+Then the dependency graph becomes explicit.
 
-<img src="/getting-started/dependency-graph-with-dotenv-focus.svg" alt="Dependency graph with .env"/>
+<Image src="/getting-started/dependency-graph-with-dotenv-focus.svg" alt="Dependency graph with .env"/>
 
 But that's now enough, because *`.env`* is ignored by git.
 [`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) cannot detect if *`.env`* changed or not.
@@ -884,13 +883,14 @@ Change the config file like this.
 <TokenLinkCode tokens={{
   'configure': './apis/haetaes#configure',
   '.changedFiles': './apis/haetae-git#changedfiles',
+  '.getRecord': './apis/haetae-core#getrecord',
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
   '.exec': './apis/haetae-utils#exec',
   '.hash': './apis/haetae-utils#hash',
 }}>
-```js filename="haetae.config.js" {9-11,32-34}
+```js filename="haetae.config.js" {9-12,33-35}
 import { configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -899,6 +899,7 @@ export default configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
+        const previousRecord = await core.getRecord()
         if (previousRecord?.data?.dotenv !== (await utils.hash(['.env']))) {
           changedFiles.push('.env')
         }
