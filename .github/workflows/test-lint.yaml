@@ -59,7 +59,10 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        # uncomment --frozen-lockfile when the issue is fixed
+        # REF: https://github.com/pnpm/pnpm/issues/5144
+        # run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Test and measure coverage
         run: pnpm turbo test -- --ci
