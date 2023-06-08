@@ -1,5 +1,26 @@
 # @haetae/core
 
+## 0.0.14
+
+### Patch Changes
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `HaetaePreConfig` does not have generics any more.
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: A string constant `defaultConfigFile` is replaced by an contant array `defaultConfigFiles`. From now on, `haetae.config.js`, `haetae.config.mjs`, `haetae.config.ts`, `haetae.config.mts` are automatically searched. For typescript file, a peer dependency `ts-node` should be installed first.
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Types of env and record data should extend `Record<string, unknown>` from now on. (Anything was allowed before.)
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `fallback` option is replaced by `initWhenNotFound` in `GetStoreOptions`.
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `setCurrentCommand`, `setConfigFilename`, `setStoreFilename` receives `options` object as an argument, respectively `SetCurrentCommandOptions`, `SetConfigFilenameOptions`, `SetStoreFilenameOptions`.
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `RecordDataOptions` and `ChangedFilesOptions` do not receive `PromiseOr` anymore.
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: The packages become [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
+
+- Updated dependencies [[`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1)]:
+  - @haetae/common@0.0.3
+
 ## 0.0.13
 
 ### Patch Changes
