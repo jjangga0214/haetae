@@ -121,11 +121,8 @@ export const setStoreFilename = ({
 }: SetStoreFilenameOptions) => {
   // eslint-disable-next-line no-param-reassign
   filename = upath.normalize(filename)
-
-  if (!upath.isAbsolute(filename)) {
-    // eslint-disable-next-line no-param-reassign
-    filename = upath.join(rootDir, filename)
-  }
+  // eslint-disable-next-line no-param-reassign
+  filename = upath.resolve(rootDir, filename)
 
   const extension = upath.extname(filename)
   assert(

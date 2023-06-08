@@ -4,6 +4,7 @@ import { Rec, parsePkg, toAbsolutePath } from '@haetae/common'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'
+import upath from 'upath'
 
 const pkgName = '@haetae/git'
 
@@ -241,7 +242,7 @@ export const changedFiles = memoizee(
       ...new Set( // this removes duplicated files
         result
           .filter((f) => f) // this removes empty string
-          .map((f) => toAbsolutePath({ path: f, rootDir })),
+          .map((f) => upath.resolve(rootDir, f)),
       ),
     ]
   },
