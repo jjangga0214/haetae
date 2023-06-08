@@ -3,6 +3,7 @@ import {
   ThemeProvider as MuiThemeProvider,
   createTheme,
 } from '@mui/material/styles'
+// 'nextra-theme-docs' internally depends on 'next-themes'.
 import { useTheme, ThemeProvider } from 'next-themes'
 import { useEffect, useState } from 'react'
 
@@ -23,9 +24,7 @@ function Main({ Component, pageProps }: NextraProps): JSX.Element {
   const { resolvedTheme } = useTheme()
   const theme = createTheme({
     palette: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      mode: mounted ? resolvedTheme : 'light',
+      mode: mounted ? (resolvedTheme as 'light' | 'dark') : 'light',
     },
   })
 
