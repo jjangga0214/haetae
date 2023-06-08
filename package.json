@@ -50,6 +50,7 @@
     "@typescript-eslint/parser": "^4.28.4",
     "commitizen": "^4.2.4",
     "cross-env": "^7.0.3",
+    "del-cli": "^5.0.0",
     "dirname-filename-esm": "^1.1.1",
     "eslint": "^8.6.0",
     "eslint-import-resolver-typescript": "^2.5.0",
