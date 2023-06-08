@@ -1,5 +1,15 @@
 # @haetae/utils
 
+## 0.0.14
+
+### Patch Changes
+
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: The packages become [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
+
+- Updated dependencies [[`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1), [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1)]:
+  - @haetae/common@0.0.3
+  - @haetae/core@0.0.14
+
 ## 0.0.13
 
 ### Patch Changes
