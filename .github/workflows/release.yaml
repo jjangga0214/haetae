@@ -52,10 +52,10 @@ jobs:
           cache: pnpm
 
       - name: Install Dependencies
-        # uncomment --frozen-lockfile when the issue is fixed
+        # rollback to --frozen-lockfile when the issue is fixed
         # REF: https://github.com/pnpm/pnpm/issues/5144
         # run: pnpm install --frozen-lockfile
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Create Release PR or Publish
         uses: changesets/action@v1
