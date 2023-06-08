@@ -1,16 +1,5 @@
 # @haetae/javascript
 
-## 0.0.13
-
-### Patch Changes
-
-- [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: The packages become [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
-
-- Updated dependencies [[`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc), [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc)]:
-  - @haetae/common@0.0.3
-  - @haetae/core@0.0.14
-  - @haetae/utils@0.0.14
-
 ## 0.0.12
 
 ### Patch Changes

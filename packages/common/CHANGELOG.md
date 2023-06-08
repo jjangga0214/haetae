@@ -1,13 +1,5 @@
 # @haetae/common
 
-## 0.0.3
-
-### Patch Changes
-
-- [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc) Thanks [@jjangga0214](https://github.com/jjangga0214)! - `toAbsolutePath` receives `rootDir` as `string | (() => string)`.
-
-- [`93dac47`](https://github.com/jjangga0214/haetae/commit/93dac47ea0ea6282f8b00d9f847cd135bebb8acc) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: The packages become [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
-
 ## 0.0.2
 
 ### Patch Changes
