@@ -1,6 +1,6 @@
 import upath from 'upath'
-import * as utils from '@haetae/utils'
 import { dirname } from 'dirname-filename-esm'
+import * as utils from '@haetae/utils'
 import { dependsOn, graph } from '../src/index.js'
 
 // TODO: add tests for other various environments
