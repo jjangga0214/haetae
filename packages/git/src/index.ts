@@ -185,20 +185,18 @@ export const changedFiles = memoizee(
     includeIgnored = false,
     checkExistence = true,
   }: ChangedFilesOptions = {}): Promise<string[]> => {
-    // eslint-disable-next-line no-param-reassign
-    from =
-      from ||
-      (await core
-        .getRecord<RecordData>()
-        .then(
-          (res?: core.HaetaeRecord<RecordData>) =>
-            res?.data?.[pkg.name]?.commit,
-        ))
+    if (from === undefined) {
+      const previousRecord = await core.getRecord<RecordData>()
+      // eslint-disable-next-line no-param-reassign
+      from = previousRecord?.data?.[pkg.name]?.commit
+    }
+
     // eslint-disable-next-line no-param-reassign
     rootDir = toAbsolutePath({
       path: rootDir,
       rootDir: core.getConfigDirname,
     })
+
     if (!(await installed())) {
       throw new Error(
         'git is not installed on the system, or $PATH is not set.',
@@ -207,6 +205,7 @@ export const changedFiles = memoizee(
     if (!(await initialized())) {
       throw new Error('git is not initialized. This is not a git repository.')
     }
+
     const execute = (command: string): Promise<string[]> =>
       utils
         .exec(command, { cwd: rootDir })
@@ -230,7 +229,7 @@ export const changedFiles = memoizee(
       }
     } else {
       result.push(
-        ...(await utils.exec(
+        ...(await execute(
           `git ls-tree --full-tree --name-only -r ${to || 'HEAD'}`,
         )),
       )
