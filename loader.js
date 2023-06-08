@@ -9,7 +9,7 @@ const specifierMap = {
   '@haetae/common': 'packages/common/src/index.js',
   '@haetae/core': 'packages/core/src/index.js',
   '@haetae/git': 'packages/git/src/index.js',
-  '@haetae/javascript': 'packages/javascript/src/index.js',
+  '@haetae/javascript': 'packages/js/src/index.js',
   '@haetae/utils': 'packages/utils/src/index.js',
 }
 
