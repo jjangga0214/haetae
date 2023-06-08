@@ -5,6 +5,7 @@
     "rootDir": ".",
     "baseUrl": "packages",
     "paths": {
+      "@haetae/javascript": ["js/src"],
       "@haetae/*": ["*/src"],
       "haetae": ["haetae/src"]
     }
