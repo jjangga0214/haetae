@@ -1,6 +1,6 @@
 {
   "name": "@haetae/cli",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "A CLI for Haetae",
   "license": "MIT",
   "private": false,
@@ -47,7 +47,7 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:^0.0.13",
+    "@haetae/core": "workspace:^0.0.14",
     "@types/envinfo": "^7.8.1",
     "@types/lodash.isempty": "^4.4.7",
     "@types/lodash.isobject": "^3.0.7",
