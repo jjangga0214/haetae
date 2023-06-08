@@ -1,5 +1,22 @@
 # @haetae/git
 
+## 0.0.13
+
+### Patch Changes
+
+- [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: The packages become [Pure ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c).
+
+- [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `GitHaetaeRecordData` is renamed to `RecordData`.
+
+- [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `fallback` is removed from `changedFilesOption`, and behavior of `changedFiles` has changed.
+
+- [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `GetRecordsOptions`, `CommandFromConfig`, `FormRecordOptions`, `AddRecordOptions`, and `SaveStoreOptions` do not receive `PromiseOr` anymore.
+
+- Updated dependencies [[`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d), [`361bc96`](https://github.com/jjangga0214/haetae/commit/361bc964cafe6360322f148b50bc844ed302963d)]:
+  - @haetae/common@0.0.3
+  - @haetae/core@0.0.14
+  - @haetae/utils@0.0.14
+
 ## 0.0.12
 
 ### Patch Changes
