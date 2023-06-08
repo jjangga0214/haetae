@@ -25,10 +25,10 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:~"
+    "@haetae/core": "workspace:*"
   },
   "dependencies": {
-    "@haetae/common": "workspace:~",
+    "@haetae/common": "workspace:*",
     "chalk": "^5.2.0",
     "clipboardy": "^3.0.0",
     "commander": "^8.3.0",
@@ -47,7 +47,7 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:~",
+    "@haetae/core": "workspace:*",
     "@types/envinfo": "^7.8.1",
     "@types/lodash.isempty": "^4.4.7",
     "@types/lodash.isobject": "^3.0.7",

@@ -21,19 +21,19 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~"
+    "@haetae/core": "workspace:*",
+    "@haetae/utils": "workspace:*"
   },
   "dependencies": {
-    "@haetae/common": "workspace:~",
+    "@haetae/common": "workspace:*",
     "dirname-filename-esm": "^1.1.1",
     "memoizee": "^0.4.15",
     "serialize-javascript": "^6.0.0",
     "upath": "^2.0.1"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~",
+    "@haetae/core": "workspace:*",
+    "@haetae/utils": "workspace:*",
     "@types/memoizee": "^0.4.6",
     "@types/serialize-javascript": "^5.0.1"
   },

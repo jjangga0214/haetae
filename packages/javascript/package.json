@@ -22,11 +22,11 @@
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "peerDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~"
+    "@haetae/core": "workspace:*",
+    "@haetae/utils": "workspace:*"
   },
   "dependencies": {
-    "@haetae/common": "workspace:~",
+    "@haetae/common": "workspace:*",
     "dependency-tree": "^8.1.1",
     "dirname-filename-esm": "^1.1.1",
     "find-up": "^6.3.0",
@@ -37,8 +37,8 @@
     "yaml": "^2.1.1"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:~",
-    "@haetae/utils": "workspace:~"
+    "@haetae/core": "workspace:*",
+    "@haetae/utils": "workspace:*"
   },
   "keywords": [
     "haetae",

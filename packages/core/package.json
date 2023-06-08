@@ -30,7 +30,7 @@
     }
   },
   "dependencies": {
-    "@haetae/common": "workspace:~",
+    "@haetae/common": "workspace:*",
     "deep-equal": "^2.0.5",
     "dirname-filename-esm": "^1.1.1",
     "find-up": "^6.3.0",
