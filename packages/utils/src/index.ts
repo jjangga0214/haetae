@@ -267,7 +267,7 @@ export function dependsOn({
 
 export interface ChangedFilesOptions {
   rootDir?: string
-  hash?: (filename: string) => string | Promise<string>
+  hash?: (filename: string) => PromiseOr<string>
   filterByExistence?: boolean
   reserveRecordData?: boolean
 }
@@ -308,7 +308,7 @@ export const changedFiles = memoizee(
     if (reserveRecordData) {
       core.reserveRecordData(await recordData({ files: filesData }))
     }
-    return result
+    return result.map((file) => upath.resolve(rootDir, file))
   },
   {
     normalizer: serialize,
