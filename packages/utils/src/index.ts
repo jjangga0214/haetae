@@ -269,6 +269,7 @@ export interface ChangedFilesOptions {
   rootDir?: string
   hash?: (filename: string) => string | Promise<string>
   filterByExistence?: boolean
+  reserveRecordData?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -281,6 +282,7 @@ export const changedFiles = memoizee(
       rootDir = core.getConfigDirname(),
       hash = (filename) => _hash([filename], { rootDir }),
       filterByExistence = false,
+      reserveRecordData = true,
     }: ChangedFilesOptions = {},
   ): Promise<string[]> => {
     // eslint-disable-next-line no-param-reassign
@@ -303,7 +305,9 @@ export const changedFiles = memoizee(
       filesData[file] = hashed
       return previousFiles[file] !== hashed
     })
-    core.reserveRecordData(await recordData({ files: filesData }))
+    if (reserveRecordData) {
+      core.reserveRecordData(await recordData({ files: filesData }))
+    }
     return result
   },
   {
