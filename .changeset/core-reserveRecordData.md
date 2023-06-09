@@ -1,6 +1,6 @@
-```
+---
 '@haetae/core': patch
-```
+---
 
 `reserveRecordData` and `ReserveRecordDataOptions` are newly introduced.
 
