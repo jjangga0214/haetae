@@ -35,7 +35,7 @@
   "devDependencies": {
     "@haetae/core": "workspace:*",
     "@haetae/utils": "workspace:*",
-    "@types/memoizee": "^0.4.6",
+    "@types/memoizee": "^0.4.8",
     "@types/serialize-javascript": "^5.0.1"
   },
   "keywords": [

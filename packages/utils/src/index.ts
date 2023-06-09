@@ -1,15 +1,46 @@
 import childProcess from 'node:child_process'
+import fs from 'node:fs/promises'
+import memoizee from 'memoizee'
+import serialize from 'serialize-javascript'
+import filterAsync from 'node-filter-async'
 import upath from 'upath'
 import { globby, Options as GlobbyOptions } from 'globby'
 import hasha from 'hasha'
 import { dirname } from 'dirname-filename-esm'
-import { getConfigDirname } from '@haetae/core'
-import { parsePkg, PromiseOr, toAbsolutePath } from '@haetae/common'
+import * as core from '@haetae/core'
+import { parsePkg, PromiseOr, Rec, toAbsolutePath } from '@haetae/common'
+
+const pkgName = '@haetae/utils'
 
 export const pkg = parsePkg({
-  name: '@haetae/utils',
+  name: pkgName,
   rootDir: dirname(import.meta),
 })
+
+export interface RecordData extends Rec {
+  [pkgName]: {
+    files?: Record<string, string>
+    pkgVersion: string
+  }
+}
+
+export interface RecordDataOptions {
+  files?: Record<string, string>
+  pkgVersion?: string
+}
+
+// It's async for future compatibility
+export async function recordData({
+  files,
+  pkgVersion = pkg.version.value,
+}: RecordDataOptions = {}): Promise<RecordData> {
+  return {
+    [pkgName]: {
+      files,
+      pkgVersion,
+    },
+  }
+}
 
 export interface GlobOptions {
   rootDir?: string // A facade option for `globbyOptions.cwd`
@@ -18,10 +49,10 @@ export interface GlobOptions {
 
 export async function glob(
   patterns: readonly string[],
-  { rootDir = getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
+  { rootDir = core.getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
 ): Promise<string[]> {
   /* eslint-disable no-param-reassign, @typescript-eslint/ban-ts-comment */
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   // @ts-ignore
   globbyOptions.cwd = globbyOptions.cwd || rootDir
   // @ts-ignore
@@ -55,7 +86,7 @@ export async function exec(
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const _options = {
     trim: true,
-    cwd: options?.cwd || getConfigDirname(), // Why using `||` ? That's to avoid calling `getConfigDirname()` if possible.
+    cwd: options?.cwd || core.getConfigDirname(), // Why using `||` ? That's to avoid calling `core.getConfigDirname()` if possible.
     ...options,
   }
 
@@ -124,15 +155,14 @@ export interface HashOptions {
 // TODO: glob patterns and directories
 export async function hash(
   files: readonly string[],
-  { algorithm = 'sha256', rootDir = getConfigDirname() }: HashOptions = {},
+  { algorithm = 'sha256', rootDir = core.getConfigDirname() }: HashOptions = {},
 ): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   const hashes = await Promise.all(
     [...files] // Why copy by destructing the array? => To avoid modifying the original array when `sort()`.
       .sort()
       .map((file) => upath.resolve(rootDir, file))
-      .map((file) => upath.normalize(file))
       .map((file) => hasha.fromFile(file, { algorithm })),
   )
   return hasha.async(hashes.join('\n'), { algorithm })
@@ -154,10 +184,10 @@ export interface DepsGraph {
 
 export function graph({
   edges,
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: GraphOptions): DepsGraph {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   const depsGraph: DepsGraph = {}
 
   for (let { dependents, dependencies } of edges) {
@@ -201,10 +231,10 @@ export function dependsOn({
   dependent,
   dependencies,
   graph,
-  rootDir = getConfigDirname(),
+  rootDir = core.getConfigDirname(),
 }: DependsOnOptions): boolean {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: getConfigDirname })
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   // eslint-disable-next-line no-param-reassign
   dependent = upath.resolve(rootDir, dependent)
   // eslint-disable-next-line no-param-reassign
@@ -234,3 +264,49 @@ export function dependsOn({
   }
   return false
 }
+
+export interface ChangedFilesOptions {
+  rootDir?: string
+  hash?: (filename: string) => string | Promise<string>
+  filterByExistence?: boolean
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const _hash = hash
+
+export const changedFiles = memoizee(
+  async (
+    files: readonly string[],
+    {
+      rootDir = core.getConfigDirname(),
+      hash = (filename) => _hash([filename], { rootDir }),
+      filterByExistence = false,
+    }: ChangedFilesOptions = {},
+  ): Promise<string[]> => {
+    // eslint-disable-next-line no-param-reassign
+    rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+    // eslint-disable-next-line no-param-reassign
+    files = files.map((file) => upath.relative(rootDir, file))
+    const previousRecord = await core.getRecord<RecordData>()
+    const previousFiles = previousRecord?.data[pkgName]?.files || {}
+    const filesData: Record<string, string> = {}
+
+    const result = await filterAsync(files, async (file) => {
+      if (filterByExistence) {
+        try {
+          await fs.access(file)
+        } catch {
+          return false
+        }
+      }
+      const hashed = await hash(file)
+      filesData[file] = hashed
+      return previousFiles[file] !== hashed
+    })
+    core.reserveRecordData(await recordData({ files: filesData }))
+    return result
+  },
+  {
+    normalizer: serialize,
+  },
+)

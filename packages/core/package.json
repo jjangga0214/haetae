@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/deep-equal": "^1.0.1",
-    "@types/memoizee": "^0.4.6",
+    "@types/memoizee": "^0.4.8",
     "@types/serialize-javascript": "^5.0.1"
   },
   "keywords": [
