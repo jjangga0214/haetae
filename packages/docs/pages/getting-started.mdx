@@ -111,16 +111,16 @@ We can write it down like this.<br/>
 Make sure you initialized git. Haetae can be used with any other version control systems, but using git is assumed in this article.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
   '.dependsOn': './apis/haetae-javascript#dependson',
 }}>
 ```js filename="haetae.config.js"
-import { configure, $, git, utils, js } from 'haetae'
+import { $, core, git, utils, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   // Other options are omitted for brevity.
   commands: {
     myTest: {
@@ -310,12 +310,12 @@ So, the history of an incremental task also should be recorded for each environm
 Let's add `env` to the config file to achieve this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
 }}>
 ```js filename="haetae.config.js" {6-8}
-import { configure, $, git, utils, js } from 'haetae'
+import { $, core, git, utils, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   commands: {
     myTest: {
       env: { // <--- Add this
@@ -354,7 +354,7 @@ You can add more keys in `env` object.<br/>
 For instance, let's change the config to this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
   'pkg': './apis/haetae#pkg',
   '.hash': './apis/haetae-utils#hash',
   '.version': './apis/haetae-javascript#version',
@@ -362,10 +362,10 @@ For instance, let's change the config to this.
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import assert from 'node:assert/strict'
-import { configure, $, pkg, git, utils, js } from 'haetae'
+import { $, core, git, utils, js, pkg } from 'haetae'
 import semver from 'semver'
 
-export default configure({
+export default core.configure({
   commands: {
     myTest: {
       env: async () => { // <--- Changed to async function from object
@@ -450,7 +450,7 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by [`utils.graph(){:ts}`]
 `options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson).
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
@@ -459,9 +459,9 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by [`utils.graph(){:ts}`]
   '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {10-18,23}
-import { configure, $, git, utils, js } from 'haetae'
+import { $, core, git, utils, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   commands: {
     myTest: {
       env: { /* ... */ },
@@ -552,13 +552,13 @@ or
 then `env` is a good place.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
   '.hash': './apis/haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js" {7}
-import { configure, $, git, utils, js } from 'haetae'
+import { $, core, git, utils, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   commands: {
     myTest: {
       env: async () => ({
@@ -852,7 +852,7 @@ The explicit source code dependency graph is like this.
 Let Haetae think *`config.js`* depends on *`.env`*.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
@@ -861,9 +861,9 @@ Let Haetae think *`config.js`* depends on *`.env`*.
   '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {13-14,}
-import { configure, $, git, utils, js } from 'haetae'
+import { $, core, git, utils, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   commands: {
     myTest: {
       env: { /* ... */ },
@@ -907,7 +907,7 @@ Let's use *'Record Data'* to solve this problem.
 Add these into the config file like this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
+  '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.getRecord': './apis/haetae-core#getrecord',
@@ -918,9 +918,9 @@ Add these into the config file like this.
   '.hash': './apis/haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js" {9-13,34-36}
-import { configure, $, git, utils, js } from 'haetae'
+import { $, core, git, utils, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   commands: {
     myTest: {
       env: { /* ... */ },

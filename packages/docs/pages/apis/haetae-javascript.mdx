@@ -162,13 +162,13 @@ eslintVersion.untilPatch // '1.2.3'
 `env` in the config file can be a good place to use `version`.
 
 <TokenLinkCode tokens={{
-  'configure': './haetae#configure',
+  '.configure': './haetae-core#configure',
   '.hash': './haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js"
-import { configure, js, utils } from 'haetae'
+import { core, js, utils } from 'haetae'
 
-export default configure({
+export default core.configure({
   // Other options are ommitted for brevity.
   commands: {
     myLint: {
@@ -294,16 +294,15 @@ dependsOn({ dependent: 'f.ts', dependencies }) // true -> 'f.ts' depends on 'f.t
 It is a good practice to use with [`git.changedFiles`](./haetae-git#changedfiles) of `@haetae/git{:ts}`.
 
 <TokenLinkCode tokens={{
-  'configure': './haetae#configure',
+  '.configure': './haetae-core#configure',
   '.glob': './haetae-utils#glob',
-  '.exec': './haetae-utils#exec',
+  '$': './haetae-utils#dollar',
   '.changedFiles': './haetae-git#changedfiles',
-  '.recordData': './haetae-git#recorddata'
 }}>
 ```js filename="haetae.config.js"
-import { configure, utils, git, js, $ } from 'haetae'
+import { $, core, utils, git, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   // Other options are omitted for brevity
   commands: {
     myTest: {

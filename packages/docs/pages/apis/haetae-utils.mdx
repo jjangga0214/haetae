@@ -4,6 +4,7 @@ import PkgManagerTabs from '../../components/PkgManagerTabs'
 import TokenLinkCode from '../../components/TokenLinkCode'
 import Chip from '../../components/Chip'
 
+export const Memoized = () => (<Chip label='Memoized' href='./introduction#memoization' />)
 export const PathPrinciples = () => (<Chip label='Path Principles' href='./introduction/#path-principles' />)
 
 # `@haetae/utils{:ts}`
@@ -98,6 +99,53 @@ npm info @haetae/utils peerDependencies
 ### `pkg`
 
 Refer to [introduction#pkg](./introduction#pkg).
+
+### `RecordData`
+
+```ts
+interface RecordData extends Rec {
+  '@haetae/utils': {
+    files?: Record<string, string>
+    pkgVersion: string
+  }
+}
+```
+
+<Callout>
+  **Record Data Namespace**<br/>
+  *Record Data* can have arbitrary fields.
+  `'@haetae/utils'{:ts}` is a namespace to avoid collision.
+  Haetae uses a package name as a namespace by convention.
+</Callout>
+
+### `RecordDataOptions`
+
+An argument interface for `recordData`
+
+```ts
+interface RecordDataOptions {
+  files?: Record<string, string>
+  pkgVersion?: string
+}
+```
+
+### `recordData`
+
+A function to form *Record Data* `@haetae/utils{:ts}` manages.
+
+**Type**
+
+<TokenLinkCode tokens={['RecordDataOptions', 'RecordData']}>
+```ts
+(options?: RecordDataOptions) => Promise<RecordData>
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `files?{:ts}` : filename-hash pairs.
+- `pkgVersion?{:ts}` : Version of `@haetae/utils{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
+
 
 ### `GlobOptions`
 
@@ -304,14 +352,14 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
 `env` in the config file can be a good place to use `hash`.
 
 <TokenLinkCode tokens={{
-  'configure': './haetae-core#configure',
+  '.configure': './haetae-core#configure',
   '.version': './haetae-javascript#version',
   }}>
 ```js filename="haetae.config.js"
-import { configure, utils } from 'haetae'
+import { core, utils, js } from 'haetae'
 
-export default configure({
-  // Other options are ommitted for brevity.
+export default core.configure({
+  // Other options are omitted for brevity.
   commands: {
     myTest: {
       env: async () => ({
@@ -482,7 +530,7 @@ A function to merge multiple dependency graphs into one single unified graph.
 
 ### `DependsOnOptions`
 
-An argument interface for [`dependsOn`](#dependsOn).
+An argument interface for [`dependsOn`](#dependson).
 
 <TokenLinkCode tokens={['DepsGraph']}>
 ```ts
@@ -552,3 +600,43 @@ utils.dependsOn({ dependent: 'a', dependencies: ['non-existent']), graph }) // f
 utils.dependsOn({ dependent: 'c', dependencies: ['non-existent', 'b']), graph }) // true -> at least one (transitive) dependency is found
 ```
 </TokenLinkCode>
+
+### `ChangedFilesOptions`
+
+An argument interface for [`changedFiles{:ts}`](#changedfiles).
+
+```ts
+interface ChangedFilesOptions {
+  rootDir?: string
+  hash?: (filename: string) => PromiseOr<string>
+  filterByExistence?: boolean
+  reserveRecordData?: boolean
+}
+```
+
+### `changedFiles`
+<br/>
+<Memoized/>
+<PathPrinciples/>
+
+A function to get a list of changed files.<br/>
+[Getting Started](../getting-started) guide explains its principles.
+
+**Type**
+
+<TokenLinkCode tokens={['ChangedFilesOptions']}>
+```ts
+(files: readonly string[], options?: ChangedFilesOptions) => Promise<string[]>
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
+  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
+- `hash?{:ts}` : A commit ID as a starting point of comparison.
+  <small>(default: `(f) => _hash([f], { rootDir })`)</small>
+- `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
+  <small>(default: `false{:ts}`)</small>
+- `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
+  <small>(default: `true{:ts}`)</small>

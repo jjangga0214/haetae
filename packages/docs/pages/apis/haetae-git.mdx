@@ -113,8 +113,40 @@ interface RecordData extends Rec {
 
 <Callout>
   **Record Data Namespace**<br/>
-  Record data can have arbitrary data in it. `'@haetae/git'{:ts}` is a namespace to avoid collision.
+  *Record Data* can have arbitrary fields.
+  `'@haetae/git'{:ts}` is a namespace to avoid collision.
+  Haetae uses a package name as a namespace by convention.
 </Callout>
+
+### `RecordDataOptions`
+
+An argument interface for [`recordData`](#recorddata)
+
+```ts
+interface RecordDataOptions {
+  commit?: string
+  branch?: string
+  pkgVersion?: string
+}
+```
+
+### `recordData`
+
+A function to form *Record Data* `@haetae/git{:ts}` manages.
+
+**Type**
+
+<TokenLinkCode tokens={['RecordDataOptions', 'RecordData']}>
+```ts
+(options?: RecordDataOptions) => Promise<RecordData>
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `commit?{:ts}` : Commit ID of `HEAD`. <small>(default: [`commit(){:ts}`](#commit))</small>
+- `branch?{:ts}` : Current branch. <small>(default: [`branch(){:ts}`](#branch))</small>
+- `pkgVersion?{:ts}` : Version of `@haetae/git{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
 
 ### `InstalledOptions`
 
@@ -221,36 +253,6 @@ Return value would be the full 40-character commit hash. <small>(e.g. `'63a5812b
 
 - `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
-### `RecordDataOptions`
-
-An argument interface for `recordData`
-
-```ts
-interface RecordDataOptions {
-  commit?: string
-  branch?: string
-  pkgVersion?: string
-}
-```
-
-### `recordData`
-
-A function to form record data for git.
-
-**Type**
-
-<TokenLinkCode tokens={['RecordDataOptions', 'RecordData']}>
-```ts
-(options?: RecordDataOptions) => Promise<RecordData>
-```
-</TokenLinkCode>
-
-**Options?**
-
-- `commit?{:ts}` : Commit ID of `HEAD`. <small>(default: [`commit(){:ts}`](#commit))</small>
-- `branch?{:ts}` : Current branch. <small>(default: [`branch(){:ts}`](#branch))</small>
-- `pkgVersion?{:ts}` : Version of `@haetae/git{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
-
 ### `UntrackedFilesOptions`
 
 An argument interface for [`untrackedFiles{:ts}`](#untrackedfiles).
@@ -321,12 +323,14 @@ interface ChangedFilesOptions  {
   includeUntracked?: boolean
   includeIgnored?: boolean
   filterByExistence?: boolean
+  reserveRecordData?: boolean
 }
 ```
 
 ### `changedFiles`
 <br/>
 <Memoized/>
+<PathPrinciples/>
 
 A function to get a list of changed files.<br/>
 
@@ -340,7 +344,7 @@ A function to get a list of changed files.<br/>
 
 **Options?**
 
-- `from?{:ts}` : A commit ID as a starting point of comparision.
+- `from?{:ts}` : A commit ID as a starting point of comparison.
   <small>(default: Previous record's `commit`.
   `undefined{:ts}` if there's no previous record's `commit`.)</small>
 - `to?{:ts}` : A commit ID as an ending point of comparision.
@@ -355,9 +359,11 @@ If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 - `filterByExistence?{:ts}` : Whether to filter out non-existent files from the result.
 If you want to get removed files as well, set it `false{:ts}`.
 <small>(default: `true{:ts}`)</small>
+- `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
+<small>(default: `true{:ts}`)</small>
 
 Note that *untracked* files <small>(usually newly added files not commited yet)</small> and *ignored* files are different.
-They don't have any intersection. A file is either *untracked* or *ignored* or *tracked*.
+They don't have any intersections. A file is either *untracked* or *ignored* or *tracked*.
 
 **When both `from` and `to` are string** <small>(NOT `undefined{:ts}`)</small>
 
@@ -368,7 +374,9 @@ All changed files between the two commits are included.<br/>
 
 All changed files since the commit ID `from` are included.<br/>
 `git diff --name-only <from>{:sh}` is executed under the hood.<br/>
-<small>(Note: This also contains modified or deleted files which're not commited yet as long as they're *tracked*, no matter whether *[staged](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)* or not.)</small>
+<small>(Note: This also contains modified or deleted files which're not commited yet
+as long as they're *tracked*, no matter whether *[staged](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)* or not,
+unless `filterByExistence{:ts}` is `true{:ts}`.)</small>
 
 **When only `to` is string** <small>(NOT `undefined{:ts}`)</small>
 
@@ -385,24 +393,23 @@ All [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the
 
 #### Usage With `js.dependsOn`
 
-If your project is based on javascript ecosystem, it is a good practice to use `changedFiles` with [`js.dependsOn`](./haetae-javascript#dependsOn) of `@haetae/javascript{:ts}`.
+If your project is based on javascript ecosystem, it is a good practice to use `changedFiles` with [`js.dependsOn`](./haetae-javascript#dependson) of `@haetae/javascript{:ts}`.
 
 <Callout>
   **Usage with `dependsOn`**<br />
-  Using with [`js.dependsOn`](./haetae-javascript#dependsOn) is just an example. You can use with others, like [`utils.dependsOn`](./haetae-utils#dependsOn).
+  Using with [`js.dependsOn`](./haetae-javascript#dependson) is just an example. You can use with others, like [`utils.dependsOn`](./haetae-utils#dependson).
 </Callout>
 
 <TokenLinkCode tokens={{
-  'configure': './haetae-core#configure',
+  '.configure': './haetae-core#configure',
   '.glob': './haetae-utils#glob',
-  '.exec': './haetae-utils#exec',
-  '.dependsOn': './haetae-javascript#dependsOn',
-  '.recordData': './haetae-git#recorddata'
+  '$': './haetae-utils#dollar',
+  '.dependsOn': './haetae-javascript#dependson',
 }}>
 ```js filename="haetae.config.js"
-import { configure, utils, git, js, $ } from 'haetae'
+import { $, core, utils, git, js } from 'haetae'
 
-export default configure({
+export default core.configure({
   // Other options are omitted for brevity.
   commands: {
     myTest: {

@@ -25,9 +25,9 @@ For example,
 
 <TokenLinkCode tokens={{'configure': 'apis/haetae#configure', '.exec': 'apis/haetae-utils#exec'}}>
 ```js filename="haetae.config.js"
-import { configure, $ } from 'haetae'
+import { $, core } from 'haetae'
 
-export default configure({
+export default core.configure({
   // Other options are ommitted for brevity.
   commands: {
     myAwesomeCommand: {
