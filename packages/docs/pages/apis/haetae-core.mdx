@@ -61,7 +61,7 @@ Refer to [introduction#pkg](./introduction#pkg).
 
 ### `SetCurrentCommandOptions`
 
-An argument interface of function [`setCurrentCommand`](#setcurrentcommand).
+An argument interface of the function [`setCurrentCommand`](#setcurrentcommand).
 
 ```ts
 interface SetCurrentCommandOptions {
@@ -112,7 +112,7 @@ This is used when config file path is not given or given as a directory.
 
 ### `SetConfigFilenameOptions`
 
-An argument interface of function [`setConfigFilename`](#setconfigfilename).
+An argument interface of the function [`setConfigFilename`](#setconfigfilename).
 ```ts
 interface SetConfigFilenameOptions {
   filename?: string
@@ -193,7 +193,7 @@ This is used when store file is not given, or given as a directory.
 
 ### `SetStoreFilenameOptions`
 
-An argument interface of function [`setStoreFilename`](#setstorefilename).
+An argument interface of the function [`setStoreFilename`](#setstorefilename).
 
 ```ts
 interface SetStoreFilenameOptions {
@@ -319,7 +319,7 @@ interface HaetaeCommand<D extends Rec, E extends Rec> {
 ### `HaetaePreConfig`
 
 An interface of user-given config schema.<br/>
-Also an argument interface of function [`configure`](#configure).
+Also an argument interface of the function [`configure`](#configure).
 
 <TokenLinkCode tokens={['HaetaePreCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
@@ -367,11 +367,6 @@ interface HaetaeConfig<D extends Rec, E extends Rec> {
 `configure` validates and transform the user-provided config(e.g. `haetae.config.js`) into normalized config.
 
 <Callout>
-**`haetae`'s `configure` vs `@haetae/core`'s `configure`**<br/>
-They are different. Refer to docs of `haetae`'s [`configure`](./haetae#configure) for the difference.
-</Callout>
-
-<Callout>
 **Idempotent function**<br/>
 `configure(obj){:ts}` is eqaul to `configure(configure(obj)){:ts}`.<br/>
 <small>(The only exception is when [`setStoreFilename{:ts}`](#setstorefilename) is called with different arguments
@@ -389,8 +384,8 @@ between each call of `configure`, which is unlikey to happen in real world scena
 **Options**
 
 - `commands{:ts}` : Your commands as an object.
-- `env?{:ts}` : An env-to-env mapper/transformer. <small>(default: `(arg) => arg{:ts}`)</small>
-- `recordData?{:ts}` : An recordData-to-recordData mapper/transformer. <small>(default: `(arg) => arg{:ts}`)</small>
+- `env?{:ts}` : An env-to-env transformer. <small>(default: `(arg) => arg{:ts}`)</small>
+- `recordData?{:ts}` : A recordData-to-recordData transformer. <small>(default: `(arg) => arg{:ts}`)</small>
 - `recordRemoval.age?{:ts}` : Age threshold by milliseconds.
 Records whose age are older than this value are to be removed when calling [`addRecord`](#addrecord).
 <small>(default: `Number.POSITIVE_INFINITY{:ts}`)</small>
@@ -417,7 +412,6 @@ With `configure`, type-check is enabled. Your IDE is Happy! 😊
 
 ```js filename="haetae.config.js"
 import { core } from 'haetae'
-// Or `import * as core from '@haetae/core'`
 
 export default core.configure({ /* ... */ })
 ```
@@ -431,7 +425,7 @@ Given value of `storeFile` is replaced by a return value of [`getStoreFilename()
 
 ### `GetConfigOptions`
 
-An argument interface of function [`getConfig`](#getconfig) and [`deleteStore`](#deletestore).
+An argument interface of the function [`getConfig`](#getconfig).
 
 ```ts
 interface GetConfigOptions {
@@ -475,7 +469,7 @@ Initializes an empty store. It just returns an object. It does not save it as a 
 
 ### `GetStoreOptions`
 
-An argument interface of function [`getStore`](#getstore).
+An argument interface of the function [`getStore`](#getstore).
 
 <TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
@@ -509,7 +503,7 @@ If `true`, [`initNewStore(){:ts}`](#initnewstore) is returned, and filesystem is
 
 ### `GetRecordsOptions`
 
-An argument interface of function [`getRecords`](#getrecords).
+An argument interface of the function [`getRecords`](#getrecords).
 
 <Callout>
 There're [`GetRecordsOptions`](#getrecordsoptions) (plural) and [`GetRecordOptions`](#getrecordoptions) (singular). Don't confuse!
@@ -547,15 +541,46 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 - `command?{:ts}` : A command name to get records of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `store?{:ts}` : A store object. <small>(default: [`getStore(){:ts}`](`getstore()`))</small>
 
-### `CommandFromConfig`
 
-An argument interface of function [`invokeEnv`](#invokeenv) and [`invokeRun`](#invokerun).
+### `ReserveRecordDataOptions`
+
+An option interface of the function [`reserveRecordData`](#reserverecorddata).
+
+```ts
+interface ReserveRecordDataOptions {
+  dryRun?: boolean
+}
+```
+
+### `reserveRecordData`
+
+A function to reserve *Record Data*.<br/>
+This changes module-level state, the *Reserved Record Data*.<br/>
+It returns a result of the *Reserved Record Data*.
+
+**Type**
+
+<TokenLinkCode tokens={['ReserveRecordDataOptions']}>
+```ts
+<D extends Rec>(recordData: Rec, options?: ReserveRecordDataOptions) => D
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `dryRun?{:ts}` : If `true{:ts}`, the arg `recordData` is not reserved, but a return value is given as if it's applied.
+<small>(default: `false{:ts}`)</small>
+
+### `InvokeEnvOptions`
+
+An argument interface of the function [`invokeEnv`](#invokeenv).
 
 <TokenLinkCode tokens={['HaetaeConfig']}>
 ```ts
-interface CommandFromConfig<D extends Rec, E extends Rec> {
+interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<D, E>
+  config?: HaetaeConfig<Rec, E>
+  applyRootEnv?: boolean
 }
 ```
 </TokenLinkCode>
@@ -578,6 +603,22 @@ A function to invoke(execute) user-defined `env` of the given `command`.
 
 - `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
+- `applyRootEnv?{:ts}` : Whether to apply root env. <small>(default: `true{:ts}`)</small>
+
+### `InvokeRunOptions`
+
+An argument interface of the function [`invokeRun`](#invokerun).
+
+<TokenLinkCode tokens={['HaetaeConfig']}>
+```ts
+interface InvokeRunOptions<D extends Rec> {
+  command?: string
+  config?: HaetaeConfig<D, Rec>
+  applyReservedRecordData?: boolean
+  applyRootRecordData?: boolean
+}
+```
+</TokenLinkCode>
 
 ### `invokeRun`
 
@@ -595,6 +636,8 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 
 - `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
+- `applyReservedRecordData?{:ts}` : Whether to apply reserved record data. <small>(default: `true{:ts}`)</small>
+- `applyRootRecordData?{:ts}` : Whether to apply root record data. <small>(default: `true{:ts}`)</small>
 
 ### `compareEnvs`
 
@@ -656,7 +699,7 @@ There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (sin
 
 ### `FormRecordOptions`
 
-An argument interface of function [`formRecord`](#formrecord).
+An argument interface of the function [`formRecord`](#formrecord).
 
 ```ts
 interface FormRecordOptions<D extends Rec, E extends Rec> {
@@ -688,7 +731,7 @@ This only returns an object, not save it.
 
 ### `AddRecordOptions`
 
-An argument interface of function [`addRecord`](#addrecord).
+An argument interface of the function [`addRecord`](#addrecord).
 
 <TokenLinkCode tokens={['HaetaeConfig', 'HaetaeStore', 'HaetaeRecord']}>
 ```ts
@@ -725,7 +768,7 @@ A function to add a new record under the given command to store.
 
 ### `SaveStoreOptions`
 
-An argument interface of function [`saveStore`](#savestore).
+An argument interface of the function [`saveStore`](#savestore).
 
 <TokenLinkCode tokens={['HaetaeStore']}>
 ```ts
@@ -757,7 +800,7 @@ File IO and Memoization cache clear is done sequentially in synchronous manner, 
 
 ### `DeleteStoreOptions`
 
-An argument interface of function [`deleteStore`](#deleteStore).
+An argument interface of the function [`deleteStore`](#deleteStore).
 
 ```ts
 interface DeleteStoreOptions {
