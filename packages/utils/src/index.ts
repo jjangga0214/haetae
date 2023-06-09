@@ -4,7 +4,7 @@ import { globby, Options as GlobbyOptions } from 'globby'
 import hasha from 'hasha'
 import { dirname } from 'dirname-filename-esm'
 import { getConfigDirname } from '@haetae/core'
-import { parsePkg, toAbsolutePath } from '@haetae/common'
+import { parsePkg, PromiseOr, toAbsolutePath } from '@haetae/common'
 
 export const pkg = parsePkg({
   name: '@haetae/utils',
@@ -73,6 +73,49 @@ export async function exec(
   })
 }
 
+export interface $Exec extends ExecOptions {
+  (
+    statics: TemplateStringsArray,
+    ...dynamics: readonly PromiseOr<
+      string | number | PromiseOr<string | number>[]
+    >[]
+  ): Promise<string>
+}
+
+export const $: $Exec = async (statics, ...dynamics): Promise<string> => {
+  const result: string[] = []
+  const awaitedDynamics = await Promise.all(
+    dynamics.map(async (el) => {
+      const element = await el
+      if (Array.isArray(element)) {
+        return (await Promise.all(element)).join(' ')
+      }
+      return element
+    }),
+  )
+
+  result.push(statics[0])
+  for (const [index, element] of awaitedDynamics.entries()) {
+    result.push(`${element}`, statics[index + 1])
+  }
+
+  const shellCommand = result.join('')
+
+  return exec(shellCommand, {
+    // Why not just passing $ itself? Because it causes an error.
+    trim: $?.trim !== false,
+    uid: $?.uid,
+    gid: $?.gid,
+    cwd: $?.cwd,
+    env: $?.env,
+    windowsHide: $?.windowsHide,
+    timeout: $?.timeout,
+    shell: $?.shell,
+    maxBuffer: $?.maxBuffer,
+    killSignal: $?.killSignal,
+  })
+}
+
 export interface HashOptions {
   algorithm?: hasha.AlgorithmName // "md5" | "sha1" | "sha256" | "sha512"
   rootDir?: string
@@ -88,9 +131,7 @@ export async function hash(
   const hashes = await Promise.all(
     [...files] // Why copy by destructing the array? => To avoid modifying the original array when `sort()`.
       .sort()
-      .map((file) =>
-        upath.isAbsolute(file) ? file : upath.join(rootDir, file),
-      )
+      .map((file) => upath.resolve(rootDir, file))
       .map((file) => upath.normalize(file))
       .map((file) => hasha.fromFile(file, { algorithm })),
   )
@@ -136,7 +177,7 @@ export function graph({
   return depsGraph
 }
 
-export function mergeGraphs( graphs : DepsGraph[]): DepsGraph {
+export function mergeGraphs(graphs: DepsGraph[]): DepsGraph {
   const result: DepsGraph = {}
   for (const graph of graphs) {
     for (const [dependent, directDeps] of Object.entries(graph)) {

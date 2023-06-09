@@ -1,4 +1,5 @@
 import { Callout } from 'nextra-theme-docs'
+import Link from 'next/link'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 import Chip from '../../components/Chip'
 import TokenLinkCode from '../../components/TokenLinkCode'
@@ -98,6 +99,14 @@ export default configure({
 
 Refer to [introduction#pkg](./introduction#pkg).
 
+### <Link id="dollar-exec" href="#dollar-exec">`$Exec`</Link>
+
+This is identical to [`utils.$Exec{:ts}`](./haetae-utils#dollar-exec).
+
+### <Link id="dollar" href="#dollar">`$`</Link>
+
+This is identical to [`utils.${:ts}`](./haetae-utils#dollar).
+
 ### `defaultRootRecordData`
 
 A default `recordData` option for [configure](#configure).<br/>
@@ -115,7 +124,7 @@ core.RootRecordData
 
 The actual implementation is really simple. The source code is like the snippet below.<br/>
 If git is initialized for your project, it inserts `@haetae/git`'s record data automatically.<br/>
-So you don't have to explictly return `git.initialized(){:ts}` from every commands' `run` functions,
+So you don't have to explicitly return `git.initialized(){:ts}` from every command's `run` function,
 when you intend to record git.
 
 <TokenLinkCode tokens={{

@@ -320,6 +320,7 @@ interface ChangedFilesOptions  {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
+  checkExistence?: boolean
 }
 ```
 
@@ -348,9 +349,12 @@ A function to get a list of changed files.<br/>
 - `includeUntracked?{:ts}` : Whether to include [untracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
  files in the result. If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
 <small>(default: `true{:ts}`)</small>
-- `includeIgnored?{:ts}` : Whether to include ignored <small>(by .gitignore)</small> files  in the result.
+- `includeIgnored?{:ts}` : Whether to include ignored <small>(by .gitignore)</small> files in the result.
 If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 <small>(default: `false{:ts}`)</small>
+- `checkExistence?{:ts}` : Whether to filter out non-existent files from the result.
+If you want to get removed files as well, set it `false{:ts}`.
+<small>(default: `true{:ts}`)</small>
 
 Note that *untracked* files <small>(usually newly added files not commited yet)</small> and *ignored* files are different.
 They don't have any intersection. A file is either *untracked* or *ignored* or *tracked*.
@@ -396,16 +400,16 @@ If your project is based on javascript ecosystem, it is a good practice to use `
   '.recordData': './haetae-git#recorddata'
 }}>
 ```js filename="haetae.config.js"
-import { configure, utils, git, js } from 'haetae'
+import { configure, utils, git, js, $ } from 'haetae'
 
 export default configure({
-  // Other options are ommitted for brevity.
+  // Other options are omitted for brevity.
   commands: {
     myTest: {
       run: async () => {
         const changedFiles = await git.changedFiles()
         const testFiles = await utils.glob(['**/*.test.js'])
-        // An array of test files which (transitively) depend on changed files
+        // An array of test files that (transitively) depend on changed files
         const affectedTestFiles = testFiles.filter((testFile) =>
           js.dependsOn({
             dependent: testFile,
@@ -415,7 +419,7 @@ export default configure({
 
         if (affectedTestFiles.length > 0) {
           // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+          await $`pnpm jest ${affectedTestFiles}`
       },
     }
   },

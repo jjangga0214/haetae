@@ -301,10 +301,10 @@ It is a good practice to use with [`git.changedFiles`](./haetae-git#changedfiles
   '.recordData': './haetae-git#recorddata'
 }}>
 ```js filename="haetae.config.js"
-import { configure, utils, git, js } from 'haetae'
+import { configure, utils, git, js, $ } from 'haetae'
 
 export default configure({
-  // Other options are ommitted for brevity
+  // Other options are omitted for brevity
   commands: {
     myTest: {
       env: { /* ... */ },
@@ -322,7 +322,7 @@ export default configure({
         if (affectedTestFiles.length > 0) {
           // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
           // Change 'pnpm' and 'jest' to your package manager and test runner.
-          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+          await $`pnpm jest ${affectedTestFiles.join(' ')}`
       },
     },
   },

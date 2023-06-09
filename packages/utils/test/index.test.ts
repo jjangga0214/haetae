@@ -1,6 +1,6 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
-import { glob, graph, dependsOn, mergeGraphs } from '../src/index.js'
+import { glob, $, graph, dependsOn, mergeGraphs } from '../src/index.js'
 
 describe('glob', () => {
   test('basic usage', async () => {
@@ -18,6 +18,58 @@ describe('glob', () => {
       ]),
     )
     expect(res).toHaveLength(3)
+  })
+})
+
+describe('$', () => {
+  $.cwd = process.cwd()
+  test('basic usage', async () => {
+    const stdout = await $`echo hello`
+    expect(stdout).toBe('hello')
+  })
+
+  test('args usage', async () => {
+    const stdout = await $`echo ${1} ${2}`
+    expect(stdout).toBe('1 2')
+    const stdout1 = await $`echo ${1} ${2} ${3}`
+    expect(stdout1).toBe('1 2 3')
+  })
+
+  test('promise usage', async () => {
+    const stdout = await $`echo ${Promise.resolve('hello')}`
+    expect(stdout).toBe('hello')
+  })
+
+  test('array usage', async () => {
+    const stdout = await $`echo ${['hello']}`
+    expect(stdout).toBe('hello')
+    const stdout1 = await $`echo ${['hello', 'world']}`
+    expect(stdout1).toBe('hello world')
+  })
+
+  test('empty array', async () => {
+    const stdout = await $`echo ${[]}`
+    expect(stdout).toBe('')
+    const stdout1 = await $`echo ${'hello'} ${[]} ${'world'}`
+    expect(stdout1).toBe('hello world')
+  })
+
+  test('array of Promise usage', async () => {
+    const stdout = await $`echo ${[
+      Promise.resolve('hello'),
+      'world',
+      Promise.resolve('!'),
+    ]}`
+    expect(stdout).toBe('hello world !')
+  })
+
+  test('promise array of promise usage', async () => {
+    const stdout = await $`echo ${Promise.resolve([
+      Promise.resolve('hello'),
+      'world',
+      Promise.resolve('!'),
+    ])}`
+    expect(stdout).toBe('hello world !')
   })
 })
 

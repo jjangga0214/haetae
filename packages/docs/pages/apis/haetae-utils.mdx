@@ -1,4 +1,5 @@
 import { Callout } from 'nextra-theme-docs'
+import Link from 'next/link'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 import TokenLinkCode from '../../components/TokenLinkCode'
 import Chip from '../../components/Chip'
@@ -179,9 +180,83 @@ This command does NOT mean haetae's **command** concept.
 - `options?{:ts}` : Options for `childProcess.exec{:ts}`.
 Refer to [the nodejs official docs](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback).
   - `options.trim?{:ts}` : Some commands' result (**stdout**, **stderr**) ends with whitespace(s) or line terminator character (e.g. `\n{:ts}`).
-  If `true{:ts}`, the result would automatically [trimmed](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
+  If `true{:ts}`, the result would be automatically [trimmed](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
   If `false{:ts}`, the result would be returned as-is.
   `options.trim{:ts}` is the only option not a part of `childProcess.exec{:ts}`'s original options.
+
+### <Link id="dollar-exec" href="#dollar-exec">`$Exec`</Link>
+
+Type of [`$`](#dollar).<br/>
+It's an interface for function, but simultaneously [`ExecOptions`](#execoptions).
+
+**Type**
+
+<TokenLinkCode tokens={['ExecOptions']}>
+```ts
+interface $Exec extends ExecOptions {
+  (
+    statics: TemplateStringsArray,
+    ...dynamics: readonly PromiseOr<
+      string | number | PromiseOr<string | number>[]
+    >[]
+  ): Promise<string>
+}
+```
+</TokenLinkCode>
+
+### <Link id="dollar" href="#dollar">`$`</Link>
+
+A wrapper of [`exec`](#exec) as a [Tagged Template](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates).<br/>
+It can have properties as options ([`ExecOptions`](#execoptions)) of [`exec`](#exec).
+
+**Type**
+
+<TokenLinkCode tokens={{ '$Exec': '#dollar-exec' }}>
+```ts
+$Exec
+```
+</TokenLinkCode>
+
+#### Usage
+
+You can execute any shell command.
+
+```js
+const stdout = await $`echo hello world`
+assert(stdout === 'hello world')
+```
+
+Placeholders can be used. `Promise` is automatically awaited internally.
+
+```js
+const stdout = await $`echo ${123} ${'hello'} ${Promise.resolve('world')}`
+assert(stdout === '123 hello world')
+```
+
+When a placeholder is an array, a white space (`' '`) is joined between the elements.
+
+```js
+// Array
+let stdout = await $`echo ${[Promise.resolve('hello'), 'world']}`
+assert(stdout === 'hello world')
+
+// Promise<Array>
+stdout = await $`echo ${Promise.resolve([
+  Promise.resolve('hello'),
+  'world',
+])}`
+assert(stdout === 'hello world')
+```
+
+It can have properties as options ([`ExecOptions`](#execoptions)) of [`exec`](#exec).<br/>
+The state of properties of `$` does not take effect when independently calling [`exec`](#exec).
+
+```js
+$.cwd = '/path/to/somewhere'
+const stdout = await $`pwd`
+assert(stdout === '/path/to/somewhere')
+```
+
 
 ### `HashOptions`
 

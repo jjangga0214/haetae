@@ -25,21 +25,21 @@ For example,
 
 <TokenLinkCode tokens={{'configure': 'apis/haetae#configure', '.exec': 'apis/haetae-utils#exec'}}>
 ```js filename="haetae.config.js"
-import { configure, utils } from 'haetae'
+import { configure, $ } from 'haetae'
 
 export default configure({
   // Other options are ommitted for brevity.
   commands: {
     myAwesomeCommand: {
       run: async () => {
-        const stdout = await utils.exec('echo hello, world!')
+        const stdout = await $`echo hello, world!`
         console.log(stdout)
       },
       env: { /* ommitted for brevity. */ }
     },
     myAnotherCommand: {
       run: async () => {
-        const stdout = await utils.exec('echo hi, there!')
+        const stdout = await $`echo hi, there!`
         console.log(stdout)
       },
       env: { /* ommitted for brevity. */ }

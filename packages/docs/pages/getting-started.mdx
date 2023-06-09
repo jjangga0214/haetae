@@ -112,13 +112,13 @@ Make sure you initialized git. Haetae can be used with any other version control
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
+  '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
   '.dependsOn': './apis/haetae-javascript#dependson',
-  '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js"
-import { configure, git, utils, js } from 'haetae'
+import { configure, $, git, utils, js } from 'haetae'
 
 export default configure({
   // Other options are omitted for brevity.
@@ -144,7 +144,7 @@ export default configure({
         if (affectedTestFiles.length > 0) {
           // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
           // Change 'pnpm' and 'jest' to your package manager and test runner.
-          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+          await $`pnpm jest ${affectedTestFiles}`
         }
       },
     },
@@ -157,8 +157,34 @@ Multiple APIs are used in the config file above.<br/>
 They all have various options <small>(Check out API docs)</small>.
 But we are going to use their sensible defaults for now.<br/>
 
-In the above config, `pnpm jest` is used in [`utils.exec(){:ts}`](./apis/haetae-utils#exec).
+The [Tagged Template Literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) [`${:ts}`](./apis/haetae#dollar) can be used to run arbitrary shell commands.
+If it receives a placeholder (`${...}`) being an array, it automatically joins a whitespace (`' '`) between elements.
+It has other traits and options as well. Check out the [API docs](./apis/haetae#dollar) for more detail.
+
+<TokenLinkCode tokens={{
+  '$': './apis/haetae#dollar',
+  '.exec': './apis/haetae-utils#exec',
+}}>
+```js
+import { $, utils } from 'haetae'
+
+// The following three lines have same effects respectively
+await $`pnpm jest ${affectedTestFiles}`
+await $`pnpm jest ${affectedTestFiles.join(' ')}`
+// $ is a wrapper of utils.exec.
+// Use utils.exec if you need a function.
+// utils.exec may be easier to pass non-default options
+await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+```
+</TokenLinkCode>
+
+In the above config, `pnpm jest` is used in [`${:ts}`](./apis/haetae#dollar).
 Just change them to your package manager and test runner.<br/>
+
+<Callout>
+**Credit to `google/zx`**<br/>
+`$` as a Tagged Template Literal is inspired by [`google/zx`](https://github.com/google/zx). Thanks!
+</Callout>
 
 Then run `haetae` like below.
 
@@ -265,9 +291,9 @@ as **every file is treated as depending on itself.**
 Accordingly, the new commit `1d17a2f` is logged in the store file.<br/>
 
 The output above is an example of successful task.
-Conversely, if the test fails, `pnpm jest <...>`, which we gave to [`utils.exec(){:ts}`](./apis/haetae-utils#exec)
+Conversely, if the test fails, `pnpm jest <...>`, which we gave to [`${:ts}`](./apis/haetae#dollar)
 in the config, exits with non-zero exit code.
-This let [`utils.exec(){:ts}`](./apis/haetae-utils#exec) throws an error.
+This lets [`${:ts}`](./apis/haetae#dollar) throws an error.
 So `myTest.run(){:ts}` is not completed successfully, causing the store file is not renewed.<br/>
 
 This behavior is useful for incremental tasks.
@@ -284,10 +310,10 @@ So, the history of an incremental task also should be recorded for each environm
 Let's add `env` to the config file to achieve this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetaes#configure',
+  'configure': './apis/haetae#configure',
 }}>
 ```js filename="haetae.config.js" {6-8}
-import { configure, git, utils, js } from 'haetae'
+import { configure, $, git, utils, js } from 'haetae'
 
 export default configure({
   commands: {
@@ -336,7 +362,7 @@ For instance, let's change the config to this.
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import assert from 'node:assert/strict'
-import { configure, pkg, git, utils, js } from 'haetae'
+import { configure, $, pkg, git, utils, js } from 'haetae'
 import semver from 'semver'
 
 export default configure({
@@ -370,7 +396,7 @@ like assertion (`assert(){:ts}`) in the line number 9 above. `myTest.env(){:ts}`
 Just as like `myTest.run(){:ts}`, when an error is thrown in `myTest.env(){:ts}`,
 the store file is not renewed, which is intended design for incremental tasks.
 
-If you want to check the value the `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
+If you just want to check the value the `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
 This does not write to the store file, but just prints the value.
 
 ```fish filename="terminal"
@@ -424,7 +450,8 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by [`utils.graph(){:ts}`]
 `options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson).
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetaes#configure',
+  'configure': './apis/haetae#configure',
+  '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
@@ -432,7 +459,7 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by [`utils.graph(){:ts}`]
   '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {10-18,23}
-import { configure, git, utils, js } from 'haetae'
+import { configure, $, git, utils, js } from 'haetae'
 
 export default configure({
   commands: {
@@ -459,7 +486,7 @@ export default configure({
         )
 
         if (affectedTestFiles.length > 0) {
-          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+          await $`pnpm jest ${affectedTestFiles}`
         }
       },
     },
@@ -529,7 +556,7 @@ then `env` is a good place.
   '.hash': './apis/haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js" {7}
-import { configure, pkg, git, utils, js } from 'haetae'
+import { configure, $, git, utils, js } from 'haetae'
 
 export default configure({
   commands: {
@@ -825,7 +852,8 @@ The explicit source code dependency graph is like this.
 Let Haetae think *`config.js`* depends on *`.env`*.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetaes#configure',
+  'configure': './apis/haetae#configure',
+  '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
@@ -833,7 +861,7 @@ Let Haetae think *`config.js`* depends on *`.env`*.
   '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {13-14,}
-import { configure, git, utils, js } from 'haetae'
+import { configure, $, git, utils, js } from 'haetae'
 
 export default configure({
   commands: {
@@ -859,9 +887,8 @@ export default configure({
         )
 
         if (affectedTestFiles.length > 0) {
-          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+          await $`pnpm jest ${affectedTestFiles}`
         }
-
       },
     },
   },
@@ -880,7 +907,8 @@ Let's use *'Record Data'* to solve this problem.
 Add these into the config file like this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetaes#configure',
+  'configure': './apis/haetae#configure',
+  '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.getRecord': './apis/haetae-core#getrecord',
   '.glob': './apis/haetae-utils#glob',
@@ -890,7 +918,7 @@ Add these into the config file like this.
   '.hash': './apis/haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js" {9-13,34-36}
-import { configure, git, utils, js } from 'haetae'
+import { configure, $, git, utils, js } from 'haetae'
 
 export default configure({
   commands: {
@@ -921,7 +949,7 @@ export default configure({
         )
 
         if (affectedTestFiles.length > 0) {
-          await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
+          await $`pnpm jest ${affectedTestFiles}`
         }
         return {
           dotenv: dotenvHash
@@ -978,7 +1006,7 @@ If you run Haetae again immediately,
 $ haetae myTest
 ```
 
-This time, *`index.test.js`* and *`logic.test.js`* are not executed, as *`.env`* is treated as not changed.
+This time, no test is executed, as nothing is considered changed. *`.env`* is treated as not changed, thanks to the *Record Data*.
 
 From now on, though the file *`.env`* is ignored by git, changes to it are recorded by custom *Record Data*.
 So it can be used in incremental tasks.
