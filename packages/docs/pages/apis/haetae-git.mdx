@@ -320,7 +320,7 @@ interface ChangedFilesOptions  {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
-  checkExistence?: boolean
+  filterByExistence?: boolean
 }
 ```
 
@@ -352,7 +352,7 @@ A function to get a list of changed files.<br/>
 - `includeIgnored?{:ts}` : Whether to include ignored <small>(by .gitignore)</small> files in the result.
 If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 <small>(default: `false{:ts}`)</small>
-- `checkExistence?{:ts}` : Whether to filter out non-existent files from the result.
+- `filterByExistence?{:ts}` : Whether to filter out non-existent files from the result.
 If you want to get removed files as well, set it `false{:ts}`.
 <small>(default: `true{:ts}`)</small>
 

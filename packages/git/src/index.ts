@@ -173,7 +173,7 @@ export interface ChangedFilesOptions {
   rootDir?: string
   includeUntracked?: boolean
   includeIgnored?: boolean
-  checkExistence?: boolean
+  filterByExistence?: boolean
 }
 
 export const changedFiles = memoizee(
@@ -183,7 +183,7 @@ export const changedFiles = memoizee(
     rootDir = core.getConfigDirname(),
     includeUntracked = true,
     includeIgnored = false,
-    checkExistence = true,
+    filterByExistence = true,
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     if (from === undefined) {
       const previousRecord = await core.getRecord<RecordData>()
@@ -245,7 +245,7 @@ export const changedFiles = memoizee(
       .filter((f) => f) // this removes empty string
       .map((f) => upath.resolve(rootDir, f))
 
-    if (checkExistence) {
+    if (filterByExistence) {
       result = await filterAsync(result, async (f) => {
         try {
           await fs.access(f)
@@ -256,7 +256,9 @@ export const changedFiles = memoizee(
       })
     }
 
-    return [...new Set(result)] // this removes duplicated files
+    result = [...new Set(result)] // this removes duplicates
+    core.reserveRecordData(await recordData())
+    return result
   },
   {
     normalizer: serialize,
