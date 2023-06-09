@@ -18,6 +18,23 @@ export const pkg = parsePkg({
   rootDir: dirname(import.meta),
 })
 
+let reservedRecordData: Rec = {}
+
+export interface ReserveRecordDataOptions {
+  dryRun?: boolean
+}
+
+export function reserveRecordData<D extends Rec>(
+  recordData: Rec,
+  { dryRun = false }: ReserveRecordDataOptions = {},
+): D {
+  const result = { ...reservedRecordData, ...recordData }
+  if (!dryRun) {
+    reservedRecordData = result
+  }
+  return result as D
+}
+
 let currentCommand: string | undefined
 
 export interface SetCurrentCommandOptions {
@@ -386,20 +403,20 @@ export async function getRecords<D extends Rec = Rec, E extends Rec = Rec>({
   return (store || (await getStore())).commands[command] // `undefined` if non-existent
 }
 
-export interface CommandFromConfig<D extends Rec, E extends Rec> {
+export interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<D, E>
+  config?: HaetaeConfig<Rec, E>
+  applyRootEnv?: boolean
 }
 
 export const invokeEnv = memoizee(
-  async <E extends Rec>(
-    options: CommandFromConfig<Rec, E> = {},
-  ): Promise<E> => {
+  async <E extends Rec>(options: InvokeEnvOptions<E> = {}): Promise<E> => {
     const command = options.command || (await getCurrentCommand())
     const config = options.config || (await getConfig())
+    const applyRootEnv = options.applyRootEnv ?? true
     const haetaeCommand = config.commands[command]
     assert(!!haetaeCommand, `Command "${command}" is not configured.`)
-    const env = await haetaeCommand.env()
+    const env = (await haetaeCommand.env()) || ({} as E)
     let isObject = false
     try {
       isObject =
@@ -413,24 +430,36 @@ export const invokeEnv = memoizee(
       isObject,
       'The return type of `env` must be a plain object(`{ ... }`) or `void`.',
     )
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return config.env(env || {})
+
+    if (applyRootEnv) {
+      return config.env(env)
+    }
+    return env
   },
   {
     normalizer: serialize,
   },
 )
 
+export interface InvokeRunOptions<D extends Rec> {
+  command?: string
+  config?: HaetaeConfig<D, Rec>
+  applyReservedRecordData?: boolean
+  applyRootRecordData?: boolean
+}
+
 export const invokeRun = async <D extends Rec>(
-  options: CommandFromConfig<D, Rec> = {},
+  options: InvokeRunOptions<D> = {},
 ): Promise<D> => {
   const command = options.command || (await getCurrentCommand())
   const config = options.config || (await getConfig())
+  const applyReservedRecordData = options.applyReservedRecordData ?? true
+  const applyRootRecordData = options.applyRootRecordData ?? true
 
   const haetaeCommand = config.commands[command]
   assert(!!haetaeCommand, `Command "${command}" is not configured.`)
-  const recordData = await haetaeCommand.run()
+  let recordData = (await haetaeCommand.run()) || ({} as D)
+
   let isObject = false
   try {
     isObject =
@@ -445,9 +474,14 @@ export const invokeRun = async <D extends Rec>(
     isObject,
     'The return type of `run` must be a plain object(`{ ... }`) or `void`.',
   )
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return config.recordData(recordData || {})
+  if (applyReservedRecordData) {
+    recordData = reserveRecordData(recordData, { dryRun: true })
+  }
+
+  if (applyRootRecordData) {
+    return config.recordData(recordData)
+  }
+  return recordData
 }
 
 export interface GetRecordOptions<D extends Rec, E extends Rec>
