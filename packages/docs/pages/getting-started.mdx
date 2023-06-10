@@ -158,7 +158,7 @@ They all have various options <small>(Check out API docs)</small>.
 But we are going to use their sensible defaults for now.<br/>
 
 The [Tagged Template Literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)
-[`${:ts}`](./apis/haetae#dollar) on the line number 27 can run arbitrary shell commands.
+[`${:ts}`](./apis/haetae#dollar) on line number 27 can run arbitrary shell commands.
 If it receives a placeholder (`${...}`) being an array, it automatically joins a whitespace (`' '`) between elements.
 It has other traits and options as well. Check out the [API docs](./apis/haetae#dollar) for more detail.
 
@@ -393,7 +393,7 @@ If any of `$NODE_ENV`, Jest config file, major version of Jest, git branch, OS p
 or major version of the package `haetae` is changed, it's treated as a different environment.
 
 And now `env` becomes a function. You can even freely write any additional code in it,
-like assertion (`assert(){:ts}`) in the line number 9 above. `myTest.env(){:ts}` is executed before `myTest.run(){:ts}`.
+like assertion (`assert(){:ts}`) in line number 9 above. `myTest.env(){:ts}` is executed before `myTest.run(){:ts}`.
 Just as like `myTest.run(){:ts}`, when an error is thrown in `myTest.env(){:ts}`,
 the store file is not renewed, which is intended design for incremental tasks.
 
@@ -456,7 +456,6 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
-  '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {10-18,23}
 import { $, core, git, utils, js } from 'haetae'
@@ -849,7 +848,6 @@ config()
 export default {
   port: process.env.PORT,
   secretKey: process.env.SECRET_KEY,
-  env: process.env.ENV // e.g. 'development', 'staging', 'production', etc
 }
 ```
 
@@ -867,7 +865,6 @@ Let Haetae think *`config.js`* depends on *`.env`*.
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
-  '.exec': './apis/haetae-utils#exec',
 }}>
 ```js filename="haetae.config.js" {13-14,}
 import { $, core, git, utils, js } from 'haetae'
@@ -923,7 +920,6 @@ Add these into the config file like this.
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
-  '.exec': './apis/haetae-utils#exec',
   '.hash': './apis/haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js" {9-13,34-36}
@@ -1019,3 +1015,178 @@ This time, no test is executed, as nothing is considered changed. *`.env`* is tr
 
 From now on, though the file *`.env`* is ignored by git, changes to it are recorded by custom *Record Data*.
 So it can be used in incremental tasks.
+
+### Reserved Record Data
+
+We can enhance the workflow further.
+
+<TokenLinkCode tokens={{
+  '.configure': './apis/haetae-core#configure',
+  '$': './apis/haetae#dollar',
+  '.getRecord': './apis/haetae-core#getrecord',
+  '.glob': './apis/haetae-utils#glob',
+  '.graph': './apis/haetae-utils#graph',
+  '.dependsOn': './apis/haetae-javascript#dependson',
+}}>
+```js filename="haetae.config.js" {9-10,31}
+import { $, core, git, utils, js } from 'haetae'
+
+export default core.configure({
+  commands: {
+    myTest: {
+      env: { /* ... */ },
+      run: async () => {
+        const changedFiles = await git.changedFiles()
+        const changedFilesByHash = await utils.changedFiles(['.env'])
+        changedFiles.push(...changedFilesByHash)
+        const testFiles = await utils.glob(['**/*.test.js'])
+        const additionalGraph = utils.graph({
+          edges: [
+            {
+              dependents: ['src/config.js'],
+              dependencies: ['.env'],
+            },
+          ],
+        })
+        const affectedTestFiles = testFiles.filter((testFile) =>
+          js.dependsOn({
+            dependent: testFile,
+            dependencies: changedFiles,
+            additionalGraph,
+          }),
+        )
+
+        if (affectedTestFiles.length > 0) {
+          await $`pnpm jest ${affectedTestFiles}`
+        }
+        // No return value
+      },
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+We return nothing here.<br/>
+We do not calculate hash by ourselves.<br/>
+But this has the same effect as what we've done in the previous section.
+
+```fish filename="terminal" {13-14}
+$ haetae myTest
+
+✔  success   Command myTest is successfully executed.
+
+⎡ 🕗 time: 2023 Jun 11 00:27:40 (timestamp: 1686410860187)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/git":
+⎜        commit: 018dd7e0c65c3a9d405485df7949ef75ff96e757
+⎜        branch: main
+⎜        pkgVersion: 0.0.13
+⎜      "@haetae/utils":
+⎜        files:
+⎜          .env: 7f39224e335994886c26ba8c241fcbe1d474aadaa2bd0a8e842983b098cea894
+⎣        pkgVersion: 0.0.14
+```
+
+You can see the hash of *`.env`* is recorded.
+[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) automatically writes hash in record data,
+and compares the current hash with the previous one.
+
+How is this possible?
+There's a concept of *Reseved Record Data*.
+If you call [`core.reserveRecordData{:ts}`](./apis/haetae-core#reserverecorddata),
+you can 'reserve' *Record Data* without directly returning custom *Record Data* from the command's `run` function.
+[`git.changedFiles{:ts}`](./apis/haetae-git#changedfiles)
+and [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles)
+call [`core.reserveRecordData{:ts}`](./apis/haetae-core#reserverecorddata) internally.
+
+This mechanism can be especially useful for sharable generic features, like a 3rd-party library for Haetae.
+For that, it's important to avoid naming collision.
+*Record Data* can have arbitrary fields.
+So Haetae uses **a package name as a namespace by convention.**
+`'@haetae/git'{:ts}` and `'@haetae/utils'{:ts}` keys in *Record Data* are namespaces to avoid such a collision.
+
+[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) is more useful for multiple files.
+Let's say you have multiple dotenv files per environment, unlike the previous assumption.
+For example, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are targets to test.
+Now, *`config.js`* reads *`.env.${process.env.ENV}{:ts}`*,
+where `$ENV` is an indicater of environment: `'local'{:ts}`, `'development'{:ts}` or `'staging'{:ts}`.
+
+Then we can modify the config file like this.
+
+<TokenLinkCode tokens={{
+  '.configure': './apis/haetae-core#configure',
+  '$': './apis/haetae#dollar',
+  '.glob': './apis/haetae-utils#glob',
+  '.graph': './apis/haetae-utils#graph',
+  '.dependsOn': './apis/haetae-javascript#dependson',
+}}>
+```js filename="haetae.config.js" {9-13,19} showLineNumbers
+import { $, core, git, utils, js } from 'haetae'
+
+export default core.configure({
+  commands: {
+    myTest: {
+      env: { /* ... */ },
+      run: async () => {
+        const changedFiles = await git.changedFiles()
+        const changedFilesByHash = await utils.changedFiles(
+          ['.env.local', '.env.development', '.env.staging'],
+          { filterByExistence: true },
+        )
+        changedFiles.push(...changedFilesByHash)
+        const testFiles = await utils.glob(['**/*.test.js'])
+        const additionalGraph = utils.graph({
+          edges: [
+            {
+              dependents: ['src/config.js'],
+              dependencies: [`.env.${process.env.ENV}`],
+            },
+          ],
+        })
+        const affectedTestFiles = testFiles.filter((testFile) =>
+          js.dependsOn({
+            dependent: testFile,
+            dependencies: changedFiles,
+            additionalGraph,
+          }),
+        )
+
+        if (affectedTestFiles.length > 0) {
+          await $`pnpm jest ${affectedTestFiles}`
+        }
+      },
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+By this, changes to multiple dotenv files are recorded and compared as well as `additionalGraph` works well.
+
+<Callout>
+**`filterByExistence`** <br/>
+Note that the option `filterByExistence: true{:ts}` on line number 11 is needed
+only if not all of *`.env.local`*, *`.env.development`*, and *`.env.staging`* may exist simultaneously in the filesystem.
+It's `false{:ts}` by default for safety. By default, a non-existent file causes an error as hash cannot be calculated
+unless you give a non-default hash function that can handle this situation as another option.
+If `filterByExistence: true{:ts}`, non-existent files will just simply not be included in the returned result without an error.
+</Callout>
+
+But you should NOT give a dynamic argument to [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles).
+Otherwise, a file would be treated as changed every time dynamic argument changes.
+
+<TokenLinkCode tokens={{
+  '.changedFiles': './apis/haetae-utils#changedfiles',
+}}>
+```js filename="haetae.config.js" {9-13,19} showLineNumbers
+// Other content is omitted for brevity
+const changedFilesByHash = await utils.changedFiles(
+  [`.env.${process.env.ENV}`] // <--- Anti-pattern
+)
+```
+</TokenLinkCode>
+
+For [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) to work, the list of files should be recorded consistently.
+Therefore you should list all of the candidates, like `['.env.local', '.env.development', '.env.staging']{:ts}`.
