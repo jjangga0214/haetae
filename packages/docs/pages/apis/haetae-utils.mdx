@@ -635,7 +635,7 @@ A function to get a list of changed files.<br/>
 - `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
   <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
 - `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
-  <small>(default: `(f) => _hash([f], { rootDir })`)</small>
+  <small>(default: `(f) => hash([f], { rootDir })`)</small>
 - `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
   <small>(default: `false{:ts}`)</small>
 - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
