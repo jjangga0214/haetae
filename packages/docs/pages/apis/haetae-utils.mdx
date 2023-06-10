@@ -619,8 +619,8 @@ interface ChangedFilesOptions {
 <Memoized/>
 <PathPrinciples/>
 
-A function to get a list of changed files.<br/>
-[Getting Started](../getting-started) guide explains its principles.
+A function to get a list of changed files by hash comparison.<br/>
+<small>([Getting Started](../getting-started) guide explains its principles.)</small>
 
 **Type**
 
@@ -630,13 +630,20 @@ A function to get a list of changed files.<br/>
 ```
 </TokenLinkCode>
 
-**Options?**
+**Arguments**
 
-- `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
-  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
-- `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
-  <small>(default: `(f) => hash([f], { rootDir })`)</small>
-- `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
-  <small>(default: `false{:ts}`)</small>
-- `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
-  <small>(default: `true{:ts}`)</small>
+- `files{:ts}` : Files to detect if changed.
+- `options?{:ts}`
+  - `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
+    <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
+  - `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
+    <small>(default: <TokenLinkCode tokens={['hash']} inline>`(f) => hash([f], { rootDir }){:ts}`</TokenLinkCode>)</small>
+  - `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
+  If `true{:ts}`, non-existent files will just simply NOT be included in the returned result.
+  If `false{:ts}`, non-existent files are given to the `hash` function, and to be included in the returned result
+  if the calculated hash and previous hash are different.
+  But by default, a non-existent file causes an error as hash cannot be calculated
+unless you give a non-default `hash` function that can handle this situation as another option.
+    <small>(default: `false{:ts}`)</small>
+  - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
+    <small>(default: `true{:ts}`)</small>

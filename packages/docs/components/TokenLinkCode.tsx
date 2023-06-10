@@ -6,11 +6,13 @@ interface Children {
 
 interface TokenLinkCodeProps extends Children {
   tokens: (string | Record<string, string>)[] | Record<string, string>
+  inline?: boolean
 }
 
 export default function TokenLinkCode({
   children,
   tokens,
+  inline = false
 }: TokenLinkCodeProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -43,7 +45,13 @@ export default function TokenLinkCode({
       }
     }
   }, [children, tokens, containerRef])
-
+  if(inline){
+    return (
+      <span ref={containerRef} style={{ marginTop: '2em' }}>
+        {children}
+      </span>
+    )
+  }
   return (
     <div ref={containerRef} style={{ marginTop: '2em' }}>
       {children}
