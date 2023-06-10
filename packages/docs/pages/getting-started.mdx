@@ -93,7 +93,7 @@ my-calculator
 
 <Callout>
   **Typescript Support** <br/>
-  If you use typescript, you can name it *`haetae.config.ts`*.
+  If you want to write the config in typescript, name it *`haetae.config.ts`*.
   Then install [`ts-node`](https://www.npmjs.com/package/ts-node) as `peerDependencies`.
   You need `ts-node` no matter if you actually use it directly or not.
   The `peerDependencies` is marked as optional, which means non-typescript users don't have to install it.
@@ -117,7 +117,7 @@ Make sure you initialized git. Haetae can be used with any other version control
   '.glob': './apis/haetae-utils#glob',
   '.dependsOn': './apis/haetae-javascript#dependson',
 }}>
-```js filename="haetae.config.js"
+```js filename="haetae.config.js" showLineNumbers
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -157,7 +157,8 @@ Multiple APIs are used in the config file above.<br/>
 They all have various options <small>(Check out API docs)</small>.
 But we are going to use their sensible defaults for now.<br/>
 
-The [Tagged Template Literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) [`${:ts}`](./apis/haetae#dollar) can be used to run arbitrary shell commands.
+The [Tagged Template Literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)
+[`${:ts}`](./apis/haetae#dollar) on the line number 27 can run arbitrary shell commands.
 If it receives a placeholder (`${...}`) being an array, it automatically joins a whitespace (`' '`) between elements.
 It has other traits and options as well. Check out the [API docs](./apis/haetae#dollar) for more detail.
 
@@ -168,7 +169,7 @@ It has other traits and options as well. Check out the [API docs](./apis/haetae#
 ```js
 import { $, utils } from 'haetae'
 
-// The following three lines have same effects respectively
+// The following three lines of code have same effects respectively
 await $`pnpm jest ${affectedTestFiles}`
 await $`pnpm jest ${affectedTestFiles.join(' ')}`
 // $ is a wrapper of utils.exec.
@@ -336,7 +337,7 @@ then Haetae will manage two incremental histories for each environment.
 
 You don't have to care about the past history of `myTest` executed without `env`.
 When a command is configured without `env`, it's treated as if configured with `env: {}`, which is totally fine.
-So there will be 3 `env`s to be (or already) recorded in the store file:
+So there will be 3 `env`s to be recorded in the store file:
 
 * `{}`
 * `{ NODE_ENV: 'production' }{:ts}`
@@ -446,8 +447,7 @@ The explicit dependency graph is like this.<br/>
 But there is a SQL file named *`data.sql`* for an integration test.
 It's not (can't be) imported (e.g. `import`, `require()`) by any source code file.
 
-Let Haetae think *`logic.js`* depends on *`data.sql`*, by [`utils.graph(){:ts}`](./apis/haetae-utils#graph) and
-`options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson).
+Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
 
 <TokenLinkCode tokens={{
   '.configure': './apis/haetae-core#configure',
@@ -543,7 +543,7 @@ But that's case by case. In many situations, `env` is beneficial.
 
 or
 
-2. If which test file does and doesn't depend on *`data.sql`* is not clear or the relation changes frequently,
+2. If which test file does and doesn't depend on *`data.sql`* is not clear or the relations change frequently,
 
 or
 
@@ -673,7 +673,7 @@ const additionalGraph = utils.graph({
 Assume the relations between *`index.js`*, *`foo`*, and *`bar`* are given by `additionalGraph`,
 and the rests are automatically detected.
 
-In this situation, *`index.test.js`* is executed when any of files are changed, including *`foo`*, and *`bar`*.<br/>
+In this situation, *`index.test.js`* is executed when any of files, except *`utils.test.js`*, are changed, including *`foo`*, and *`bar`*.<br/>
 On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`utils.test.js`* itself is changed.
 
 ## Record Data
@@ -720,7 +720,7 @@ The output is like this.
     {
       "data": {
         "@haetae/git": {
-          "commit": "979f3c6bcafe9f0b81611139823382d615f415fd",
+          "commit": "1d17a2f2d75e2ac94f31e53376c549751dca85fb",
           "branch": "main",
           "pkgVersion": "0.0.12"
         }
@@ -792,7 +792,8 @@ The output is like this.
 5 Records are found in total.
 These are what we've done in this article so far.
 **Each of these is the last history of Records executed in each `env` respectively.**
-For example, the command `myTest` was executed with `env: {}` on several commits, and `979f3c6` is the last commit.
+For example, the command `myTest` was executed with `env: {}` on several commits,
+and `1d17a2f` is the last commit.
 
 ### Custom Record Data
 
@@ -803,7 +804,7 @@ To say, dotenv (*`.env`*), .yaml, .properties, .json, etc.
 Usually, an application config file satisfies these 2 conditions.
 
 1. It's not explicitly imported (e.g. `import`, `require()`) in the source code. Rather, the source code 'reads' it on runtime.
----> `options.additionalGraph` of [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) or `env` are useful.
+---> `additionalGraph` or `env` are useful.
 2. It's ignored by git. ---> *'Record Data'* is useful.
 
 Let's see how it works, with a simple example project using *`.env`* as the application config.
