@@ -320,13 +320,13 @@ interface HashOptions {
 ### `hash`
 
 A function to hash files.<br/>
-It reads content of a single or multiple file(s), and returns a cryptographic hash string.<br/>
+It reads the content of single or multiple files and returns a cryptographic hash string.<br/>
 
 <Callout>
 **Sorted Merkle Tree** <br />
 When multiple files are given, they are treated as a single depth [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree).
 However, the files are sorted by their path before hashed,
-resulting in same result even when different order is given.
+resulting in the same result even when different order is given.
 For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.txt'])`.
 </Callout>
 
@@ -342,8 +342,8 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
 
 - `files{:ts}` : Files to hash. <small>(e.g. `['package.json', 'package-lock.json']{:ts}`)</small>
 - `options?{:ts}`
-  - `options.algorithm?{:ts}` : An hash algorithm to use. <small>(default: `'sha256'{:ts}`)</small>
-  - `options.rootDir?{:ts}` : A directory to start file search.
+  - `algorithm?{:ts}` : An hash algorithm to use. <small>(default: `'sha256'{:ts}`)</small>
+  - `rootDir?{:ts}` : A directory to start file search.
   When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
   <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
@@ -634,7 +634,7 @@ A function to get a list of changed files.<br/>
 
 - `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
   <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
-- `hash?{:ts}` : A commit ID as a starting point of comparison.
+- `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
   <small>(default: `(f) => _hash([f], { rootDir })`)</small>
 - `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
   <small>(default: `false{:ts}`)</small>

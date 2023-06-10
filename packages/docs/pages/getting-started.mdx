@@ -676,6 +676,14 @@ and the rests are automatically detected.
 In this situation, *`index.test.js`* is executed when any of files, except *`utils.test.js`*, are changed, including *`foo`*, and *`bar`*.<br/>
 On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`utils.test.js`* itself is changed.
 
+<Callout>
+  **More APIs not covered** <br/>
+  There're more APIs, like [`js.graph{:ts}`](./apis/haetae-javascript#graph),
+  [`utils.mergeGraph{:ts}`](./apis/haetae-utils#mergegraph),
+  [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependsOn), etc.
+  This Getting Started article does not cover all of them. Check out the API docs for more.
+</Callout>
+
 ## Record Data
 
 Haetae has a concept of *'Record'* (type: [`HaetaeRecord`](./apis/haetae-core#haetaerecord)) and *'Record Data'* (type: `HaetaeRecord.data{:ts}`).
