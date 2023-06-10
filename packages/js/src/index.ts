@@ -14,14 +14,6 @@ export const pkg = parsePkg({
   rootDir: dirname(import.meta),
 })
 
-export interface DependsOnOptions {
-  dependent: string
-  dependencies: readonly string[] | Set<string>
-  tsConfig?: string
-  rootDir?: string
-  additionalGraph?: utils.DepsGraph
-}
-
 interface GraphOptions {
   entrypoint: string
   tsConfig?: string
@@ -65,6 +57,14 @@ export function graph({
   return result
 }
 
+export interface DependsOnOptions {
+  dependent: string
+  dependencies: readonly string[]
+  tsConfig?: string
+  rootDir?: string
+  additionalGraph?: utils.DepsGraph
+}
+
 export function dependsOn({
   dependent,
   dependencies,
@@ -87,3 +87,29 @@ export function dependsOn({
     rootDir,
   })
 }
+
+// export interface DependOnOptions {
+//   dependents: readonly string[]
+//   dependencies: readonly string[] | Set<string>
+//   tsConfig?: string
+//   rootDir?: string
+//   additionalGraph?: utils.DepsGraph
+// }
+
+// export async function dependOn({
+//   dependents,
+//   dependencies,
+//   tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
+//   rootDir,
+//   additionalGraph,
+// }: DependOnOptions): Promise<string[]> {
+//   return dependents.filter((dependent) =>
+//     dependsOn({
+//       dependent,
+//       dependencies,
+//       tsConfig,
+//       rootDir,
+//       additionalGraph,
+//     }),
+//   )
+// }

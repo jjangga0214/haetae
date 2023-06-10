@@ -230,7 +230,7 @@ An argument interface for [`dependsOn`](#dependson)
 ```ts
 interface DependsOnOptions {
   dependent: string
-  dependencies: readonly string[] | Set<string>
+  dependencies: readonly string[]
   tsConfig?: string
   rootDir?: string
   additionalGraph?: utils.DepsGraph

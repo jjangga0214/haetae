@@ -222,7 +222,7 @@ export function mergeGraphs(graphs: DepsGraph[]): DepsGraph {
 
 export interface DependsOnOptions {
   dependent: string
-  dependencies: readonly string[] | Set<string>
+  dependencies: readonly string[]
   graph: DepsGraph
   rootDir?: string
 }
