@@ -8,7 +8,7 @@
 
 - [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: A string constant `defaultConfigFile` is replaced by an contant array `defaultConfigFiles`. From now on, `haetae.config.js`, `haetae.config.mjs`, `haetae.config.ts`, `haetae.config.mts` are automatically searched. For typescript file, a peer dependency `ts-node` should be installed first.
 
-- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Types of env and record data should extend `Record<string, unknown>` from now on. (Anything was allowed before.)
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Types of env and *Record Data* should extend `Record<string, unknown>` from now on. (Anything was allowed before.)
 
 - [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `fallback` option is replaced by `initWhenNotFound` in `GetStoreOptions`.
 

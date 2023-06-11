@@ -63,11 +63,11 @@
 
 ### Patch Changes
 
-- [`9bcea20`](https://github.com/jjangga0214/haetae/commit/9bcea2009f933dface69a226909d2afa047d1a93) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Empty object(including array) and non-object literal are printed out properly when they are record data's env or data.
+- [`9bcea20`](https://github.com/jjangga0214/haetae/commit/9bcea2009f933dface69a226909d2afa047d1a93) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Empty object(including array) and non-object literal are printed out properly when they are *Record Data*'s env or data.
 
-- [`22da759`](https://github.com/jjangga0214/haetae/commit/22da75948486b8ecb780b1d07f13426a82d91c87) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Timestamp in `time` field of record is now printed in human-friendly format.
+- [`22da759`](https://github.com/jjangga0214/haetae/commit/22da75948486b8ecb780b1d07f13426a82d91c87) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Timestamp in `time` field of Record is now printed in a human-friendly format.
 
-- [`cce03e0`](https://github.com/jjangga0214/haetae/commit/cce03e03e1232b6bdcf49a8e424328c5a62158d9) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed `compareEnvs`, which compares two envs and determine if they are same env or not.
+- [`cce03e0`](https://github.com/jjangga0214/haetae/commit/cce03e03e1232b6bdcf49a8e424328c5a62158d9) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed `compareEnvs`, which compares two envs and determines if they are the same env or not.t
 
 - [`b274857`](https://github.com/jjangga0214/haetae/commit/b27485728a5a6951623406cbb42fba0995e5ad3a) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Print store as human-friendly format.
 
@@ -75,7 +75,7 @@
 
 ### Patch Changes
 
-- [`155eb39`](https://github.com/jjangga0214/haetae/commit/155eb390b4fb3181e9cc3fda8902e8c964cb48b4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed pure esm deps issue. Now depending on commonjs deps.
+- [`155eb39`](https://github.com/jjangga0214/haetae/commit/155eb390b4fb3181e9cc3fda8902e8c964cb48b4) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fixed pure ESM deps issue. Now depending on commonjs deps.
 
 ## 0.0.6
 
@@ -83,7 +83,7 @@
 
 - [`23eb1f3`](https://github.com/jjangga0214/haetae/commit/23eb1f3dad8e55e178c6375064b41b5a2e33fe6e) Thanks [@jjangga0214](https://github.com/jjangga0214)! - (BREAKING CHANGE) Moved `$HAETAE_CONFIG_FILE` handling from `@haetae/core` to `@haetae/cli`. From now on, `@haetae/core` does not detect `$HAETAE_CONFIG_FILE` automatically.
 
-- [`e547e18`](https://github.com/jjangga0214/haetae/commit/e547e18f5c43da3df059b4467010a831656a32a7) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Added `-d` option for record data.
+- [`e547e18`](https://github.com/jjangga0214/haetae/commit/e547e18f5c43da3df059b4467010a831656a32a7) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Added `-d` option for *Record Data*.
 
 - [`08bdcea`](https://github.com/jjangga0214/haetae/commit/08bdceac128ac3d58fc281385bbbf12fe581084c) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Introduced `-i, --info` option.
 
