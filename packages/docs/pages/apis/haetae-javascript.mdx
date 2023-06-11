@@ -8,12 +8,6 @@ import TokenLinkCode from '../../components/TokenLinkCode'
 For instance, you can find out which module depends on which modules.<br/>
 If your project do not use javascript-related languages, you don't need this package.
 
-<Callout>
-  **Ecosystem Supported**<br/>
-  CJS (CommonJS), ESM (ES6 module), AMD, Typescript, JSX, TSX, Sass, Stylus,
-  Less, CSS (PostCSS), nodejs-only modules, browser-only modules are all supported.
-</Callout>
-
 ## `peerDependencies`
 
 **Note**: This might not be exhaustive and lists only Haetae's packages.
@@ -92,7 +86,7 @@ Then, check out `peerDependencies` and manually handle them.<br/>
 (e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
 ```bash
-# This does not install, but just show peerDependencies.
+# This does not install, but just shows peerDependencies.
 npm info @haetae/javascript peerDependencies
 ```
 
@@ -116,9 +110,9 @@ interface VersionOptions {
 
 ### `version`
 
-A function to get version (not SemVer range, but the exact real version) of ny installed package.<br/>
-Literally any package, like `typescript`, `jest`, `react`, `@changesets/cli` etc.<br/>
-It supports npm, yarn classic, yarn berry and pnpm.
+A function to get the version (not SemVer range, but the exact real version) of installed packages.<br/>
+<small>(Any packages, like `typescript`, `jest`, `react`, `@changesets/cli` etc.)</small><br/>
+It supports npm, yarn classic(v1), yarn berry(v2, v3) and pnpm.
 
 <Callout>
 **Not For Global Package** <br/>
@@ -267,7 +261,8 @@ When `dependent` or an element of `dependencies`, or `tsConfig` is given as a re
 `rootDir{:ts}` is joined to transform it to an absolute path.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
-This is purely additional, not an overrider or replacement of the original source code dependency graph. <small>(default: <TokenLinkCode tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+This is purely additional, not an override or replacement of the source code dependency graph.
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 
 #### Basic Usage
 
@@ -332,7 +327,7 @@ export default core.configure({
 #### Usage With `additionalGraph`
 
 Sometimes, automatic dependency resolution is not enough.<br/>
-It only can find relationship between source code files, like **.js**, **.jsx**, **.ts** or **.tsx**.<br/>
+It can find relationships only between source code files, like **.js**, **.jsx**, **.ts** or **.tsx**.<br/>
 You can specify additional dependency relationships manually.<br/>
 Then `dependsOn` would still automatically resolve the dependencies, but also check the given `additionalGraph`.
 

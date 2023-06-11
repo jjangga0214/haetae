@@ -10,7 +10,7 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='./intro
 
 `@haetae/core{:ts}` provides every core feature for Haetae.<br/>
 For instance, it handles config file, store file, and your command's `env` and `run`.<br/>
-If you want to use Haetae by programatic api, you probably need this package.
+If you want to use Haetae by programmatic API, you probably need this package.
 
 ## Dependents
 
@@ -71,7 +71,7 @@ interface SetCurrentCommandOptions {
 
 ### `setCurrentCommand`
 
-A setter for current command name, which is a module-level state.<br/>
+A setter for the current command name, which is a module-level state.<br/>
 Set it before calling other APIs that require it (as a default parameter).
 
 **Type**
@@ -86,7 +86,7 @@ Set it before calling other APIs that require it (as a default parameter).
 
 ### `getCurrentCommand`
 
-A getter for current command name, which is a module-level state.
+A getter for the current command name, which is a module-level state.
 
 **Type**
 
@@ -96,8 +96,8 @@ A getter for current command name, which is a module-level state.
 
 ### `defaultConfigFiles`
 
-An array of string constant for default config file name.<br/>
-This is used when config file path is not given or given as a directory.
+An array of string constants for default config file name.<br/>
+This is used when the config file path is not given or given as a directory.
 
 **Type**
 
@@ -123,8 +123,8 @@ interface SetConfigFilenameOptions {
 
 ### `setConfigFilename`
 
-A setter for config file name, which is a module-level state.<br/>
-Set it before calling other APIs that requires a config file.
+A setter for the config file name, which is a module-level state.<br/>
+Set it before calling other APIs that require a config file.
 
 **Type**
 
@@ -137,8 +137,10 @@ Set it before calling other APIs that requires a config file.
 **Options?**
 
 - `filename?{:ts}` : A config file path.
-- `cwd?{:ts}` : A directory to join or start search from. <small>(default: [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd))</small>
-- `checkExistence?{:ts}`: Whether to check if `filename` exists. No effect when `filename` is not given. <small>(default: `true{:ts}`)</small>
+- `cwd?{:ts}` : A directory to join or start the search from.
+<small>(default: [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd))</small>
+- `checkExistence?{:ts}`: Whether to check if `filename` exists. No effect when `filename` is not given.
+<small>(default: `true{:ts}`)</small>
 
 #### When `filename` is given
 
@@ -153,13 +155,13 @@ by walking up parent directories recursively, starting from `cwd`.<br/>
 - If not found, it throws an error.<br/>
 - If multiple files (of [`defaultConfigFiles`](#defaultconfigfiles)) exist,
   - A file closer to `cwd` is chosen.
-  - If distances from `cwd` are same, priority order is same as [`defaultConfigFiles`](#defaultconfigfiles).
+  - If distances from `cwd` are equal, the priority order is the same as [`defaultConfigFiles`](#defaultconfigfiles).
 
 ### `getConfigFilename`
 <br/>
 <PathPrinciples/>
 
-A getter for config file name, which is a module-level state.
+A getter for the config file name, which is a module-level state.
 
 **Type**
 
@@ -171,7 +173,7 @@ A getter for config file name, which is a module-level state.
 <br/>
 <PathPrinciples/>
 
-A getter for config file's directory name, which is a derived module-level state.<br/>
+A getter for the config file's directory name, which is a derived module-level state.<br/>
 Throws an error if the config file is not yet set.
 
 **Type**
@@ -204,13 +206,14 @@ interface SetStoreFilenameOptions {
 
 ### `setStoreFilename`
 
-A setter for store file name, which is a module-level state.<br/>
+A setter for the name of the store file, which is a module-level state.<br/>
 Set the store filename by this setter function, before calling other APIs that require store filename.
 
 <Callout>
 **Priority against config**<br/>
-Calling this function overrides config file's `storeFile` option.<br/>
-But it does not change the content of the config file (e.g. haetae.config.js) or modify the [memoized](./introduction#memoization) (by [getConfig](#getconfig)) config object in memory.
+Calling this function overrides the config file's `storeFile` option.<br/>
+But it does not change the content of the config file (e.g. haetae.config.js)
+or modify the [memoized](./introduction#memoization) (by [getConfig](#getconfig)) config object in memory.
 </Callout>
 
 **Type**
@@ -223,13 +226,14 @@ But it does not change the content of the config file (e.g. haetae.config.js) or
 
 **Options**
 
-- `filename{:ts}` : A store file path. If it does not end with `'.json'{:ts}`, `'store.json'{:ts}` is appended internally. <small>(e.g. `'/path/to'{:ts}` becomes `'/path/to/store.json'{:ts}`)</small>
+- `filename{:ts}` : A store file path. If it does not end with `'.json'{:ts}`, `'store.json'{:ts}` is appended internally.
+<small>(e.g. `'/path/to'{:ts}` becomes `'/path/to/store.json'{:ts}`)</small>
 - `rootDir?{:ts}` : A directory to join with `filename{:ts}` when `filename{:ts}` is a relative path.
  <small>(default: [`getConfigDirname(){:ts}`](#getconfigdirname))</small>
 
 ### `getStoreFilename`
 
-A getter for store file name, which is a module-level state.<br/>
+A getter for the name of the store file, which is a module-level state.<br/>
 
 **Type**
 
@@ -370,7 +374,7 @@ interface HaetaeConfig<D extends Rec, E extends Rec> {
 **Idempotent function**<br/>
 `configure(obj){:ts}` is eqaul to `configure(configure(obj)){:ts}`.<br/>
 <small>(The only exception is when [`setStoreFilename{:ts}`](#setstorefilename) is called with different arguments
-between each call of `configure`, which is unlikey to happen in real world scenario.)</small>
+between each call of `configure`, which is unlikely to happen in real-world scenario.)</small>
 </Callout>
 
 **Type**
@@ -393,7 +397,8 @@ Records whose age are older than this value are to be removed when calling [`add
 When the number of records becomes larger than this value, old records are removed to satisfy the threshold
 when calling [`addRecord`](#addrecord). This task is executed after that of `recordRemoval.age`.
 <small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
-- `storeFile?{:ts}` : A store file path. Internally, it is used to [`setStoreFilename({ filename: storeFile }){:ts}`](#setstorefilename)
+- `storeFile?{:ts}` : A store file path. Internally, it is used to
+<TokenLinkCode inline tokens={['setStoreFilename']}>`setStoreFilename({ filename: storeFile }){:ts}`</TokenLinkCode>
 only if `setStoreFilename` is never called before. If `setStoreFilename` is called before calling `configure`,
 the option `storeFile` does not have any effect, even to the result `HaetaeConfig` object.
 <small>(default: [`defaultStoreFile{:ts}`](#defaultstorefile))</small>
@@ -402,7 +407,7 @@ the option `storeFile` does not have any effect, even to the result `HaetaeConfi
 
 The below example is 100% valid. <br/>
 The exported raw json will be processed by `configure` internally.<br/>
-But you'd not get type-check from the IDE.
+But you'd not get a type-check from the IDE.
 
 ```js filename="haetae.config.js"
 export default { /* ... */ }
@@ -419,9 +424,9 @@ export default core.configure({ /* ... */ })
 #### Normalization
 
 Schema of [`HaetaeConfig`](#haetaeconfig) (return type) is ***roughly*** similar to that of [`HaetaePreConfig`](#haetaepreconfig) (argument type).
-The return value is a normalized result of user-given (argument) config.
-Omitted options from user-given config(`HaetaePreConfig`) are to be set as their default values in `HaetaeConfig`.
-Given value of `storeFile` is replaced by a return value of [`getStoreFilename(){:ts}`](#getstorefilename).
+The return value is a normalized result of a user-given (argument) config.
+Omitted options from a user-given config(`HaetaePreConfig`) are to be set as their default values in `HaetaeConfig`.
+The given value of `storeFile` is replaced by a return value of [`getStoreFilename(){:ts}`](#getstorefilename).
 
 ### `GetConfigOptions`
 
@@ -450,7 +455,7 @@ A function to get config object by config file path.
 
 **Options?**
 
-- `filename?{:ts}` : A path to config file.
+- `filename?{:ts}` : A path to the config file.
 If given as a relative path, [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd) is joined in front of it.
 If given as an absolute path, it's used as-is.
 <small>(default: [`getConfigFilename(){:ts}`](#getconfigfilename))</small>
@@ -520,7 +525,7 @@ interface GetRecordsOptions<D extends Rec, E extends Rec> {
 
 ### `getRecords`
 
-A function to get records of a given command from given store. <br/>
+A function to get records of the given command from the given store. <br/>
 `undefined` is returned when there is no record.
 
 <Callout>
@@ -636,8 +641,8 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 
 - `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
-- `applyReservedRecordData?{:ts}` : Whether to apply reserved record data. <small>(default: `true{:ts}`)</small>
-- `applyRootRecordData?{:ts}` : Whether to apply root record data. <small>(default: `true{:ts}`)</small>
+- `applyReservedRecordData?{:ts}` : Whether to apply reserved *Record Data*. <small>(default: `true{:ts}`)</small>
+- `applyRootRecordData?{:ts}` : Whether to apply root *Record Data*. <small>(default: `true{:ts}`)</small>
 
 ### `compareEnvs`
 
@@ -725,7 +730,7 @@ This only returns an object, not save it.
 
 **Options?**
 
-- `data?{:ts}` : A record data. <small>(default: [`invokeRun(){:ts}`](#invokerun))</small>
+- `data?{:ts}` : A *Record Data*. <small>(default: [`invokeRun(){:ts}`](#invokerun))</small>
 - `env?{:ts}` : A resolved env object. <small>(default: [`invokeEnv(){:ts}`](#invokeenv)</small>
 - `time?{:ts}` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds. <small>(default: [`Date.now(){:ts}`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now))</small>
 
@@ -762,9 +767,11 @@ A function to add a new record under the given command to store.
 - `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
   - `config.recordRemoval.age{:ts}`: Age threshold by milliseconds. Records whose age are older than this value are removed.
   - `config.recordRemoval.count{:ts}`: The number of total records to keep. When the number of records becomes larger than this value, old records are removed to satisfy the threshold. This task is executed after that of `config.recordRemoval.age{:ts}`.
-- `command?{:ts}` : A command name to add record under. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
+- `command?{:ts}` : A command name to add record under.
+<small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `store?{:ts}` : A store object. <small>(default: [`getStore(){:ts}`](#getstore))</small>
-- `record?{:ts}` : A new record object to add. <small>(default: <TokenLinkCode tokens={['formRecord', 'invokeRun', 'invokeEnv']}>`formRecord({ data: invokeRun({ command }), env: invokeEnv({ command }) }){:ts}`</TokenLinkCode>)</small>
+- `record?{:ts}` : A new record object to add.
+<small>(default: <TokenLinkCode inline tokens={['formRecord', 'invokeRun', 'invokeEnv']}>`formRecord({ data: invokeRun({ command }), env: invokeEnv({ command }) }){:ts}`</TokenLinkCode>)</small>
 
 ### `SaveStoreOptions`
 
@@ -781,9 +788,9 @@ interface SaveStoreOptions {
 
 ### `saveStore`
 
-A function to save store object to file.<br/>
+A function to save a store object to a file.<br/>
 Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
-File IO and Memoization cache clear is done sequentially in synchronous manner, as a transaction.
+File IO and Memoization cache clear is done sequentially in a synchronous manner, as a transaction.
 
 **Type**
 
@@ -812,7 +819,7 @@ interface DeleteStoreOptions {
 
 A function to delete the entire store by removing the store file.<br/>
 Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
-File IO and Memoization cache clear is done sequentially in synchronous manner, as a transaction.
+File IO and Memoization cache clear is done sequentially in a synchronous manner, as a transaction.
 
 **Type**
 

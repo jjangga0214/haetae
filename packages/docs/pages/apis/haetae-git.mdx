@@ -89,7 +89,7 @@ Then, check out `peerDependencies` and manually handle them.<br/>
 (e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
 ```bash
-# This does not install, but just show peerDependencies.
+# This does not install, but just shows peerDependencies.
 npm info @haetae/git peerDependencies
 ```
 
@@ -172,7 +172,8 @@ A function to check whether git is installed on the system.
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute shell command. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute a shell command.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `InitializedOptions`
 
@@ -186,7 +187,7 @@ interface InitializedOptions {
 
 ### `initialized`
 
-A function to check whether git repository is initialized (by `git init{:sh}`).
+A function to check whether a git repository is initialized (by `git init{:sh}`).
 
 **Type**
 
@@ -198,7 +199,8 @@ A function to check whether git repository is initialized (by `git init{:sh}`).
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `BranchOptions`
 
@@ -224,7 +226,8 @@ A function to get the current branch name.
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `CommitOptions`
 
@@ -239,7 +242,8 @@ interface CommitOptions {
 ### `commit`
 
 A function to get the commit ID of `HEAD`.<br/>
-Return value would be the full 40-character commit hash. <small>(e.g. `'63a5812b39c4d01031024f98c8890bc90830cf1b'{:ts}`)</small>
+The return value would be the full 40-character commit hash.
+<small>(e.g. `'63a5812b39c4d01031024f98c8890bc90830cf1b'{:ts}`)</small>
 
 **Type**
 
@@ -251,7 +255,8 @@ Return value would be the full 40-character commit hash. <small>(e.g. `'63a5812b
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `UntrackedFilesOptions`
 
@@ -280,7 +285,8 @@ A function to get a list of [untracked files](https://stackoverflow.com/question
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`.
+<small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `IgnoredFilesOptions`
 
@@ -309,7 +315,8 @@ A function to get a list of ignored (by .gitignore) files.<br/>
 
 **Options?**
 
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `rootDir?{:ts}` : A directory to execute `git`.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `ChangedFilesOptions`
 
@@ -397,7 +404,8 @@ If your project is based on javascript ecosystem, it is a good practice to use `
 
 <Callout>
   **Usage with `dependsOn`**<br />
-  Using with [`js.dependsOn`](./haetae-javascript#dependson) is just an example. You can use with others, like [`utils.dependsOn`](./haetae-utils#dependson).
+  Using with [`js.dependsOn`](./haetae-javascript#dependson) is just an example.
+  You can use it with others, like [`utils.dependsOn`](./haetae-utils#dependson).
 </Callout>
 
 <TokenLinkCode tokens={{

@@ -184,8 +184,8 @@ $ haetae --record --env <command>
 
 #### When used with `-d, --record-data{:sh}` and `<command>{:sh}`
 
-The `<command>{:sh}`'s record data for current `env` is shown.<br/>
-This means, `env` in the config file is evaluated, and the command's record data matching with the evaluated `env` is searched from the store file.
+The `<command>{:sh}`'s *Record Data* for current `env` is shown.<br/>
+This means, `env` in the config file is evaluated, and the command's *Record Data* matching with the evaluated `env` is searched from the store file.
 
 ```sh
 $ haetae --record-data --env <command>
@@ -243,7 +243,7 @@ This option should not be used with these options.
 
 #### When used with command
 
-A list of every record data of the command is shown.
+A list of every *Record Data* of the command is shown.
 
 ```sh
 $ haetae --record-data <command>
@@ -251,8 +251,8 @@ $ haetae --record-data <command>
 
 #### When used with `-e, --env` and `<command>{:sh}`
 
-The `<command>{:sh}`'s record data for current `env` is shown.<br/>
-This means, `env` in the config file is resolved, and the command's record data matching with the resolved `env` is searched from the store file.
+The `<command>{:sh}`'s *Record Data* for current `env` is shown.<br/>
+This means, `env` in the config file is resolved, and the command's *Record Data* matching with the resolved `env` is searched from the store file.
 
 ```sh
 $ haetae --record-data --env <command>
