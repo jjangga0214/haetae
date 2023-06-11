@@ -9,7 +9,7 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='./intro
 
 # `@haetae/utils{:ts}`
 
-`@haetae/utils{:ts}` provides useful unitlities for general Heatae workflow.
+`@haetae/utils{:ts}` provides useful utilities for general Heatae workflow.
 
 ## `peerDependencies`
 
@@ -60,7 +60,7 @@ npx install-peerdeps --pnpm --dev @haetae/utils
 
 ### To manually handle installation
 
-You might want to manually deal with installation.<br/>
+You might want to manually deal with the installation.<br/>
 First, install `@haetae/utils{:ts}` itself.
 
 <br/>
@@ -605,14 +605,20 @@ utils.dependsOn({ dependent: 'c', dependencies: ['non-existent', 'b']), graph })
 
 An argument interface for [`changedFiles{:ts}`](#changedfiles).
 
+<TokenLinkCode tokens={{
+  '.HaetaeRecord': './haetae-core#haetaerecord',
+ }}>
 ```ts
 interface ChangedFilesOptions {
   rootDir?: string
+  renew?: readonly string[]
   hash?: (filename: string) => PromiseOr<string>
   filterByExistence?: boolean
   reserveRecordData?: boolean
+  previousRecord?: core.HaetaeRecord<RecordData, Rec>
 }
 ```
+</TokenLinkCode>
 
 ### `changedFiles`
 <br/>
@@ -635,15 +641,22 @@ A function to get a list of changed files by hash comparison.<br/>
 - `files{:ts}` : Files to detect if changed.
 - `options?{:ts}`
   - `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
-    <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
+  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
+  - `renew?{:ts}` : A list of files that will be renewed by their current hash.
+  If some elements in the `files{:ts}` are missing in `renew{:ts}`, they are just subject
+  to compare current and previous hashes to detect if changed.
+  In such cases, the current hashes are not recorded.
+  Rather, previous hashes are recorded by succession.
+  <small>(default: `files{:ts}` (the argument))</small>
   - `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
-    <small>(default: <TokenLinkCode tokens={['hash']} inline>`(f) => hash([f], { rootDir }){:ts}`</TokenLinkCode>)</small>
+  <small>(default: <TokenLinkCode tokens={['hash']} inline>`(f) => hash([f], { rootDir }){:ts}`</TokenLinkCode>)</small>
   - `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
   If `true{:ts}`, non-existent files will just simply NOT be included in the returned result.
   If `false{:ts}`, non-existent files are given to the `hash` function, and to be included in the returned result
   if the calculated hash and previous hash are different.
   But by default, a non-existent file causes an error as hash cannot be calculated
-unless you give a non-default `hash` function that can handle this situation as another option.
-    <small>(default: `false{:ts}`)</small>
+  unless you give a non-default `hash` function that can handle this situation as another option.
+  <small>(default: `false{:ts}`)</small>
   - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
-    <small>(default: `true{:ts}`)</small>
+  <small>(default: `true{:ts}`)</small>
+  - `previousRecord?{:ts}` : A previous *Record Data* to compare or succeed files' hash.

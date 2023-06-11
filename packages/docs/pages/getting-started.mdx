@@ -1090,7 +1090,7 @@ $ haetae myTest
 ```
 
 You can see the hash of *`.env`* is recorded.
-[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) automatically writes hash in record data,
+[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) automatically writes hash in *Record Data*,
 and compares the current hash with the previous one.
 
 How is this possible?
@@ -1122,7 +1122,7 @@ Then we can modify the config file like this.
   '.graph': './apis/haetae-utils#graph',
   '.dependsOn': './apis/haetae-javascript#dependson',
 }}>
-```js filename="haetae.config.js" {9-13,19} showLineNumbers
+```js filename="haetae.config.js" {9-15,22} showLineNumbers
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -1133,7 +1133,10 @@ export default core.configure({
         const changedFiles = await git.changedFiles()
         const changedFilesByHash = await utils.changedFiles(
           ['.env.local', '.env.development', '.env.staging'],
-          { filterByExistence: true },
+          {
+            renew: [`.env.${process.env.ENV}`],
+            filterByExistence: true,
+          },
         )
         changedFiles.push(...changedFilesByHash)
         const testFiles = await utils.glob(['**/*.test.js'])
@@ -1165,17 +1168,48 @@ export default core.configure({
 
 By this, changes to multiple dotenv files are recorded and compared as well as `additionalGraph` works well.
 
-<Callout>
-**`filterByExistence`** <br/>
-Note that the option `filterByExistence: true{:ts}` on line number 11 is needed
-only if not all of *`.env.local`*, *`.env.development`*, and *`.env.staging`* may exist simultaneously in the filesystem.
-It's `false{:ts}` by default for safety. By default, a non-existent file causes an error as hash cannot be calculated
-unless you give a non-default hash function that can handle this situation as another option.
-If `filterByExistence: true{:ts}`, non-existent files will just simply not be included in the returned result without an error.
-</Callout>
+[`renew`](./apis/haetae-utils#changedfiles) is a list of files that will be renewed(if changed) by their current hash.
+By default, `renew` is equal to all files in the argument.
+In our config, by limiting it to `.env.${process.env.ENV}{:ts}`, you only renew the single dotenv file.
+For example, let's say currently `$ENV` is `'local'`.
+Obviously, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are compared to the previous hashes to detect if changed.
+But *`.env.development`*, and *`.env.staging`* are not renewed in the new Record Data.
+Their previous hashes are recorded instead of current hashes, no matter whether the current ones are different from the previous ones.
+Only *`.env.local`* will be renewed.
+This is good for our test.
+For instance, *`.env.development`* can be changed when `$ENV` is `'local'`.
+And the detection of the change to *`.env.development`* is kept until `$ENV` changes to `'development'`.
+So when `$ENV` becomes `'development'`, [`utils.changedFiles`](./apis/haetae-utils#changedfiles)
+would think *`.env.development`* is still a changed file,
+though the change is, in fact, made in the past.
+This lets test files that transitively depend on the dotenv file executed when `$ENV` becomes `'development'`.
+**[`renew`](./apis/haetae-utils#changedfiles) exists for the discrepancy between
+when the physical change actually happens and when the detection of the change is needed.**
 
-But you should NOT give a dynamic argument to [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles).
-Otherwise, a file would be treated as changed every time dynamic argument changes.
+[`filterByExistence`](./apis/haetae-utils#changedfiles) is `false{:ts}` by default for intended safety.
+If so, all given files will be passed to `hash` function internally.
+If a non-existent file is given, the `hash` function won't be able to read the file.
+So it throws an error, unless you give a non-default hash function that can handle this situation as an option.
+
+If [`filterByExistence`](./apis/haetae-utils#changedfiles) is `true{:ts}`,
+a non-existent file will be treated as not changed.
+So it's just simply not included in the returned result without an error.
+And the hash of the non-existent file succeeds the previous record,
+which means recorded as the same value as the previous one from the previous *Record Data*.
+If the previous *Record Data* doesn't contain the file, the hash will not be recorded.
+
+When not all of the files might exist on the filesystem at the same time
+and only a few of them are dynamically used in incremental tasks,
+`filterByExistence: true{:ts}` and `renew` are useful.
+For instance, a CI workflow might have access to only *`.env.development`* at a certain time,
+while it might have access to only *`.env.staging`* at another time.
+And you may still want the incremental history not separated but shared between the two cases.
+`filterByExistence: true{:ts}` and `renew` are good for such a scenario.
+<small>(Haetae on CI is guided in 'CI' article.)</small>
+
+There's one more thing to take care of [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles).
+You should NOT give a dynamic files argument to it.
+Otherwise, a file would be treated as changed every time the dynamic argument changes.
 
 <TokenLinkCode tokens={{
   '.changedFiles': './apis/haetae-utils#changedfiles',
@@ -1188,5 +1222,7 @@ const changedFilesByHash = await utils.changedFiles(
 ```
 </TokenLinkCode>
 
-For [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) to work, the list of files should be recorded consistently.
-Therefore you should list all of the candidates, like `['.env.local', '.env.development', '.env.staging']{:ts}`.
+The snippet above lets only a single file to be recorded.
+So, if `$ENV` is changed, the previous one will no longer be recorded.
+Therefore you should list all of the candidates.<br/>
+Like `['.env.local', '.env.development', '.env.staging']{:ts}`.

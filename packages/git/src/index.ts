@@ -250,7 +250,7 @@ export const changedFiles = memoizee(
     if (filterByExistence) {
       result = await filterAsync(result, async (f) => {
         try {
-          await fs.access(f)
+          await fs.access(f) // Check if the file exists
           return true
         } catch {
           return false

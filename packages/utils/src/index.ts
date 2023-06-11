@@ -267,9 +267,11 @@ export function dependsOn({
 
 export interface ChangedFilesOptions {
   rootDir?: string
+  renew?: readonly string[]
   hash?: (filename: string) => PromiseOr<string>
   filterByExistence?: boolean
   reserveRecordData?: boolean
+  previousRecord?: core.HaetaeRecord<RecordData, Rec>
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -281,28 +283,36 @@ export const changedFiles = memoizee(
     {
       rootDir = core.getConfigDirname(),
       hash = (filename) => _hash([filename], { rootDir }),
+      renew = files,
       filterByExistence = false,
       reserveRecordData = true,
+      previousRecord,
     }: ChangedFilesOptions = {},
   ): Promise<string[]> => {
-    // eslint-disable-next-line no-param-reassign
+    /* eslint-disable no-param-reassign */
     rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-    // eslint-disable-next-line no-param-reassign
     files = files.map((file) => upath.relative(rootDir, file))
-    const previousRecord = await core.getRecord<RecordData>()
+    renew = renew.map((file) => upath.relative(rootDir, file))
+    previousRecord = previousRecord || (await core.getRecord<RecordData>())
+    /* eslint-enable no-param-reassign */
     const previousFiles = previousRecord?.data[pkgName]?.files || {}
     const filesData: Record<string, string> = {}
 
     const result = await filterAsync(files, async (file) => {
       if (filterByExistence) {
         try {
-          await fs.access(file)
+          await fs.access(file) // Check if the file exists.
         } catch {
+          filesData[file] = previousFiles[file]
           return false
         }
       }
       const hashed = await hash(file)
-      filesData[file] = hashed
+      if (renew.includes(file)) {
+        filesData[file] = hashed
+      } else {
+        filesData[file] = previousFiles[file]
+      }
       return previousFiles[file] !== hashed
     })
     if (reserveRecordData) {
