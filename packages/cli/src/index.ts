@@ -97,11 +97,11 @@ export async function run(): Promise<void> {
         ['$0 -e <command>', 'Show current env of the given command'],
         [
           '$0 -r -e <command>',
-          'Show a record of current env of the given command',
+          'Show a Record of current env of the given command',
         ],
         [
           '$0 -d -e <command>',
-          'Show a record data of current env of the given command',
+          'Show a Record Data of current env of the given command',
         ],
         [
           '$0 -i',
@@ -198,7 +198,7 @@ export async function run(): Promise<void> {
             'Record matching with current environment is found for the command',
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `${chalk.dim(
-            'No record matching with current environment is found for the command',
+            'No Record matching with current environment is found for the command',
           )} ${chalk.bold.underline(command)}`,
           result: record,
           render: ui.processRecord,
@@ -211,7 +211,7 @@ export async function run(): Promise<void> {
             'Record matching with current environment is found for the command',
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `${chalk.dim(
-            'No record data matching with current environment is found for the command',
+            'No Record Data matching with current environment is found for the command',
           )} ${chalk.bold.underline(command)}`,
           result: recordData,
           render: (result) => ui.asBlock(result),
@@ -238,7 +238,7 @@ export async function run(): Promise<void> {
               (records?.length || 0) < 2 ? ' is' : 's are'
             } found for the command`,
           )} ${chalk.bold.underline(command)}`,
-          noResultMessage: `There is no record for the command ${chalk.bold(
+          noResultMessage: `There is no Record for the command ${chalk.bold(
             command,
           )}`,
           result: records,
@@ -251,11 +251,11 @@ export async function run(): Promise<void> {
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.bold.underline(recordDataList?.length)} ${chalk.dim(
-            `record data${
+            `Record Data${
               (recordDataList?.length || 0) < 2 ? ' is' : 's are'
             } found for the command`,
           )} ${chalk.bold.underline(command)}`,
-          noResultMessage: `There is no record for the command ${chalk.bold.underline(
+          noResultMessage: `There is no Record for the command ${chalk.bold.underline(
             command,
           )}`,
           result: recordDataList,
