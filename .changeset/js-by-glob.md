@@ -1,5 +1,5 @@
 ---
-'@haetae/js': patch
+'@haetae/javascript': patch
 ---
 
 -
