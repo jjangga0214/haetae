@@ -167,9 +167,11 @@ interface GlobOptions {
 
 A function to find files by a glob pattern.<br/>
 Internally, the task is delegated to [**`globby`**](https://github.com/sindresorhus/globby/tree/v13.1.4)
-<small>(v13 as of writing)</small>.<br/>
+<small>(v13 as of writing)</small>.
 `glob` is a [facade function](https://en.wikipedia.org/wiki/Facade_pattern) for `globby`,
-providing more handy experience by default options and postprocessing.
+providing a more handy experience by sane default `rootDir` options and postprocessing.
+There're many options, but aren't explained here, except `roodDir`.
+Refer to [globby v13 docs](https://github.com/sindresorhus/globby/tree/v13.1.4) for other options.
 
 **Type**
 
@@ -183,10 +185,10 @@ providing more handy experience by default options and postprocessing.
 
 - `patterns{:ts}`: Array of glob patterns. <small>(e.g. `['**/*.test.{ts, tsx}']{:ts}`)</small>
 - `options?{:ts}` :
-  - `options.rootDir?{:ts}` : A directory to start search.
-  If `options.globbyOptions.cwd{:ts}` is not provided (`undefined{:ts}`), this value is used.
-  Ignored otherwise. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
-  - `options.globbyOptions?{:ts}` : Refer to [globby v13 docs](https://github.com/sindresorhus/globby/tree/v13.1.4).
+  - `rootDir?{:ts}` : A directory to start search.
+  Its role is same as globby's `cwd` option, but make sure to use `rootDir`, not `cwd`.
+  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+
 
 ### `ExecOptions`
 

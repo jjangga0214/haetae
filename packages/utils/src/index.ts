@@ -44,17 +44,18 @@ export async function recordData({
   }
 }
 
-export interface GlobOptions {
+export interface GlobOptions extends Omit<GlobbyOptions, 'cwd'> {
   rootDir?: string // A facade option for `globbyOptions.cwd`
-  globbyOptions?: GlobbyOptions
 }
 
 export async function glob(
   patterns: readonly string[],
-  { rootDir = core.getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
+  options: GlobOptions = {},
 ): Promise<string[]> {
-  // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  const rootDir = toAbsolutePath({
+    path: options.rootDir,
+    rootDir: core.getConfigDirname,
+  })
   // Why `walkUpCountMax` is needed? REF: https://github.com/sindresorhus/globby/issues/168
   const walkUpCountMax = { value: 0 }
   // eslint-disable-next-line no-param-reassign
@@ -70,11 +71,8 @@ export async function glob(
     })
 
   const res = await globby(patterns, {
-    ...globbyOptions,
-    cwd:
-      globbyOptions.cwd ||
-      upath.join(rootDir, '../'.repeat(walkUpCountMax.value)),
-    gitignore: globbyOptions.gitignore ?? true,
+    cwd: upath.resolve(rootDir, '../'.repeat(walkUpCountMax.value)),
+    ...options,
   })
   return [...new Set(res.map((f) => upath.resolve(rootDir, f)))]
 }
