@@ -203,7 +203,7 @@ it's not just for a specific language, but for *any* dependency graph.
   '.DepsGraph': './haetae-utils#depsgraph'
 }}>
 ```ts
-(options: GraphOptions) => utils.DepsGraph
+(options: GraphOptions) => Promise<utils.DepsGraph>
 ```
 </TokenLinkCode>
 
@@ -216,7 +216,13 @@ it's not just for a specific language, but for *any* dependency graph.
 
 ### `DependsOnOptions`
 
-An argument interface for [`dependsOn`](#dependson)
+An argument interface for [`dependsOn`](#dependson).
+
+<Callout>
+**`DependOnOptions` vs `DependsOnOptions`**<br/>
+There're [`DependOnOptions`](#dependonoptions) (plural) and [`DependsOnOptions`](#dependsonoptions) (singular).
+Don't confuse!
+</Callout>
 
 **Type**
 
@@ -228,13 +234,14 @@ interface DependsOnOptions {
   tsConfig?: string
   rootDir?: string
   additionalGraph?: utils.DepsGraph
+  glob?: boolean
 }
 ```
 </TokenLinkCode>
 
 ### `dependsOn`
 
-A function to check if a module depends on one of the different modules, transitively or directly.<br/>
+A function to check if a module depends on one of the other modules, transitively or directly.<br/>
 
 <Callout>
 **Multiple Formats Support**<br/>
@@ -243,26 +250,31 @@ For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
 </Callout>
 
+<Callout>
+**`dependOn` vs `dependsOn`**<br/>
+There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singular). Don't confuse!
+</Callout>
+
 **Type**
 
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
-(options: DependsOnOptions) => boolean
+(options: DependsOnOptions) => Promise<boolean>
 ```
 </TokenLinkCode>
 
 **Options?**
 
 - `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
-- `dependencies{:ts}` : Candidates that may be a dependency of dependent, directly or transitively.
+- `dependencies{:ts}` : Candidates that may be a dependency of Dependents, directly or transitively.
 - `tsConfig?{:ts}` : A path to typescript config file. <small>(e.g. **tsconfig.json**)</small>.
-- `rootDir?{:ts}` : A directory to execute `git`.
-When `dependent` or an element of `dependencies`, or `tsConfig` is given as a relative path,
-`rootDir{:ts}` is joined to transform it to an absolute path.
+- `rootDir?{:ts}` : A directory to join with when `dependent`, `dependencies`, or `tsConfig` is given as a relative path.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
 This is purely additional, not an override or replacement of the source code dependency graph.
-<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+- `glob?{:ts}` : Whether to enable glob pattern.
+<small>(default: `true{:ts}`)</small>
 
 #### Basic Usage
 
@@ -278,88 +290,77 @@ then the result would be like this.
 ```ts
 const dependencies = ['f.ts', 'b.ts']
 
-dependsOn({ dependent: 'a.ts', dependencies }) // true
-dependsOn({ dependent: 'c.ts', dependencies }) // true -> transitively
-dependsOn({ dependent: 'e.ts', dependencies }) // false
-dependsOn({ dependent: 'f.ts', dependencies }) // true -> 'f.ts' depends on 'f.ts' itself.
+await dependsOn({ dependent: 'a.ts', dependencies }) // true
+await dependsOn({ dependent: 'c.ts', dependencies }) // true -> transitively
+await dependsOn({ dependent: 'e.ts', dependencies }) // false
+await dependsOn({ dependent: 'f.ts', dependencies }) // true -> 'f.ts' depends on 'f.ts' itself.
 ```
 
-#### Usage With `git.changedFiles`
+### `DependOnOptions`
 
-It is a good practice to use with [`git.changedFiles`](./haetae-git#changedfiles) of `@haetae/git{:ts}`.
+An argument interface for [`dependOn`](#dependon).
 
-<TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
-  '.glob': './haetae-utils#glob',
-  '$': './haetae-utils#dollar',
-  '.changedFiles': './haetae-git#changedfiles',
-}}>
-```js filename="haetae.config.js"
-import { $, core, utils, git, js } from 'haetae'
+<Callout>
+**`DependOnOptions` vs `DependsOnOptions`**<br/>
+There're [`DependOnOptions`](#dependonoptions) (plural) and [`DependsOnOptions`](#dependsonoptions) (singular).
+Don't confuse!
+</Callout>
 
-export default core.configure({
-  // Other options are omitted for brevity
-  commands: {
-    myTest: {
-      env: { /* ... */ },
-      run: async () => {
-        const changedFiles = await git.changedFiles()
-        const testFiles = await utils.glob(['**/*.test.js'])
-        // An array of test files which (transitively) depend on changed files
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-          }),
-        )
+**Type**
 
-        if (affectedTestFiles.length > 0) {
-          // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          // Change 'pnpm' and 'jest' to your package manager and test runner.
-          await $`pnpm jest ${affectedTestFiles.join(' ')}`
-      },
-    },
-  },
-})
+<TokenLinkCode tokens={{ '.DepsGraph': './haetae-utils#depsgraph' }}>
+```ts
+interface DependOnOptions {
+  dependents: readonly string[]
+  dependencies: readonly string[]
+  tsConfig?: string
+  rootDir?: string
+  additionalGraph?: utils.DepsGraph
+  glob?: boolean
+}
 ```
 </TokenLinkCode>
 
-#### Usage With `additionalGraph`
+### `dependOn`
 
-Sometimes, automatic dependency resolution is not enough.<br/>
-It can find relationships only between source code files, like **.js**, **.jsx**, **.ts** or **.tsx**.<br/>
-You can specify additional dependency relationships manually.<br/>
-Then `dependsOn` would still automatically resolve the dependencies, but also check the given `additionalGraph`.
+A function to check if some of the given modules depend on one of the other modules, transitively or directly.<br/>
+It filters `options.dependencies{:ts}`.
+the result only contains files that depend on at least one of `options.dependencies{:ts}`.
 
-<TokenLinkCode tokens={{
-  '.graph': './haetae-utils#graph',
-  '.glob': './haetae-utils#glob',
-}}>
-```js
-import { utils, js } from 'haetae'
+<Callout>
+**Multiple Formats Support**<br/>
+ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx), Webpack Loaders, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS, RequireJS are all supported.
+For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
+For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
+</Callout>
 
-const additionalGraph = utils.graph({
-  edges: [
-    {
-      dependents: await utils.glob(['**/*.test.{ts,js}']),
-      dependencies:['.env.test', '.env.development'],
-    },
-    {
-      dependents: await utils.glob([
-        'tests/integration/**/*.test.ts',
-        'tests/e2e/**/*.test.tsx',
-      ]),
-      dependencies: ['data-for-test.sql'],
-    },
-  ],
-})
+<Callout>
+**`dependOn` vs `dependsOn`**<br/>
+There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singular). Don't confuse!
+</Callout>
 
-// Other contexts are ommitted for brevity.
-// Refer to the previous example snippet.
-js.dependsOn({
-  dependent: file,
-  dependencies: changedFiles,
-  additionalGraph, // <= Added
-})
+**Type**
+
+<TokenLinkCode tokens={['DependOnOptions']}>
+```ts
+(options: DependOnOptions) => Promise<string[]>
 ```
 </TokenLinkCode>
+
+**Options?**
+
+- `dependents{:ts}` : Targets to filter by whether it's a dependent of at least one of `dependencies`, directly or transitively.
+- `dependencies{:ts}` : Candidates that may be a dependency of dependent, directly or transitively.
+- `tsConfig?{:ts}` : A path to typescript config file. <small>(e.g. **tsconfig.json**)</small>.
+- `rootDir?{:ts}` : A directory to join with when `dependents`, `dependencies`, or `tsConfig` is given as relative paths.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
+This is purely additional, not an override or replacement of the source code dependency graph.
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+- `glob?{:ts}` : Whether to enable glob pattern.
+<small>(default: `true{:ts}`)</small>
+
+#### Usage
+
+Basic usage is guided in the [Getting Started](../getting-started) article.
+For example, combination with [`git.changedFiles`](./haetae-git#changedfiles) or how to utilize `additionalGraph`.

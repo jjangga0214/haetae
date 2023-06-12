@@ -146,7 +146,6 @@ A function to form *Record Data* `@haetae/utils{:ts}` manages.
 - `files?{:ts}` : filename-hash pairs.
 - `pkgVersion?{:ts}` : Version of `@haetae/utils{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
 
-
 ### `GlobOptions`
 
 A function to add a new record under the given command to store.
@@ -182,7 +181,7 @@ providing more handy experience by default options and postprocessing.
 
 **Arguments**
 
-- `patterns{:ts}`: Array of glob patterns. <small>(e.g. `['**/*.test.ts', '**/*.test.tsx']{:ts}`)</small>
+- `patterns{:ts}`: Array of glob patterns. <small>(e.g. `['**/*.test.{ts, tsx}']{:ts}`)</small>
 - `options?{:ts}` :
   - `options.rootDir?{:ts}` : A directory to start search.
   If `options.globbyOptions.cwd{:ts}` is not provided (`undefined{:ts}`), this value is used.
@@ -227,10 +226,10 @@ Internally, nodejs's [`childProcess.exec{:ts}`](https://nodejs.org/api/child_pro
 This command does NOT mean haetae's **command** concept.
 - `options?{:ts}` : Options for `childProcess.exec{:ts}`.
 Refer to [the nodejs official docs](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback).
-  - `options.trim?{:ts}` : Some commands' result (**stdout**, **stderr**) ends with whitespace(s) or line terminator character (e.g. `\n{:ts}`).
+  - `trim?{:ts}` : Some commands' result (**stdout**, **stderr**) ends with whitespace(s) or line terminator character (e.g. `\n{:ts}`).
   If `true{:ts}`, the result would be automatically [trimmed](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
   If `false{:ts}`, the result would be returned as-is.
-  `options.trim{:ts}` is the only option not a part of `childProcess.exec{:ts}`'s original options.
+  `trim{:ts}` is the only option that is not a part of `childProcess.exec{:ts}`'s original options.
 
 ### <Link id="dollar-exec" href="#dollar-exec">`$Exec`</Link>
 
@@ -305,7 +304,6 @@ const stdout = await $`pwd`
 assert(stdout === '/path/to/somewhere')
 ```
 
-
 ### `HashOptions`
 
 An argument interface for [`hash`](#hash).
@@ -314,6 +312,7 @@ An argument interface for [`hash`](#hash).
 interface HashOptions {
   algorithm?: 'md5' | 'sha1' | 'sha256' | 'sha512'
   rootDir?: string
+  glob?: boolean
 }
 ```
 
@@ -346,6 +345,8 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
   - `rootDir?{:ts}` : A directory to start file search.
   When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
   <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  - `glob?{:ts}` : Whether to enable glob pattern.
+  <small>(default: `true{:ts}`)</small>
 
 #### Usage
 
@@ -382,16 +383,13 @@ export default core.configure({
 ```
 </TokenLinkCode>
 
-#### Usage with `glob`
+#### Usage with glob pattern
 
-If you target many files, consider using [`glob`](#glob) with `hash`.
+If you target many files, consider using glob pattern.
 
 <TokenLinkCode tokens={['.glob']}>
 ```js
-await utils.hash([
-  'foo',
-  ...(await utils.glob(['bar/**/*'])),
-])
+await utils.hash(['foo', 'bar/**/*.json'])
 ```
 </TokenLinkCode>
 
@@ -416,13 +414,14 @@ An argument interface for [`graph`](#graph).
 interface GraphOptions {
   edges: readonly DepsEdge[]
   rootDir?: string
+  glob?: boolean
 }
 ```
 </TokenLinkCode>
 
 ### `DepsGraph`
 
-An return type of [`graph`](#graph).<br/>
+A return type of [`graph`](#graph).<br/>
 Its structure is similar to the traditional ['Adjacency List'](https://en.wikipedia.org/wiki/Adjacency_list).<br/>
 <small>**TIP**. The prefix **Deps** stands for 'Dependencies'.</small>
 
@@ -444,24 +443,32 @@ Unlike [`js.graph{:ts}`](./haetae-javascript#graph), it's not just for a specifi
 
 <TokenLinkCode tokens={['GraphOptions', 'DepsGraph']}>
 ```ts
-(options?: GraphOptions) => DepsGraph
+(options?: GraphOptions) => Promise<DepsGraph>
 ```
 </TokenLinkCode>
 
 **Options?**
 
-- `edges{:ts}` : A single or multiple edge(s). The `dependents` and `dependencies` have to be file path, not directory.
+- `edges{:ts}` : A single or multiple edge(s).
+The `dependents` and `dependencies` have to be file paths, not directories.
+Each of them supports glob pattern when `glob` is true.
 - `rootDir?{:ts}` : When an element of `dependents` and `dependencies` is given as a relative path,
 `rootDir{:ts}` is joined to transform it to an absolute path.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `glob?{:ts}` : Whether to enable glob pattern.
+<small>(default: `true{:ts}`)</small>
 
 #### Basic Usage
 
+Basic usage is guided in [Getting Started](../getting-started) article.
+
 You can specify any dependency relationship.<br/>
-This is just a pure function. Whether the files depend on each other does not matter.
+This is just a pure function that does not hit the filesystem.
+Whether the files actually depend on each other does not matter.
+It only works as you specify.
 
 ```ts
-const result = graph({
+const result = await graph({
   rootDir: '/path/to',
   edges: [
     {
@@ -498,25 +505,6 @@ const expected = {
 assert(deepEqual(result, expected)) // They are same.
 ```
 
-#### Usage With `glob`
-
-[`glob`](#glob) is a good friend when you want to specify chunk-level dependency relationships.<br/>
-
-Let's say you have multiple Python projects (packages) in a single monorepo.<br/>
-For example, packages '*foo*' and '*bar*' depend on a package '*qux*'.<br/>
-Then you can create a normalized dependency graph like the snippet below.
-
-```ts
-graph({
-  edges: [
-    {
-      dependents: await glob(['packages/foo/**/*.py', 'packages/bar/**/*.py']),
-      dependencies: await glob(['packages/qux/**/*.py']),
-    },
-  ],
-})
-```
-
 ### `mergeGraphs`
 
 A function to merge multiple dependency graphs into one single unified graph.
@@ -532,6 +520,12 @@ A function to merge multiple dependency graphs into one single unified graph.
 
 An argument interface for [`dependsOn`](#dependson).
 
+<Callout>
+**`DependOnOptions` vs `DependsOnOptions`**<br/>
+There're [`DependOnOptions`](#dependonoptions) (plural) and [`DependsOnOptions`](#dependsonoptions) (singular).
+Don't confuse!
+</Callout>
+
 <TokenLinkCode tokens={['DepsGraph']}>
 ```ts
 interface DependsOnOptions {
@@ -539,28 +533,35 @@ interface DependsOnOptions {
   dependencies: readonly string[]
   graph: DepsGraph
   rootDir?: string
+  glob?: boolean
 }
 ```
 </TokenLinkCode>
 
 ### `dependsOn`
 
-A function to check if a file depends on one of different files, transitively or directly.
+A function to check if a file depends on one of the given files, transitively or directly.
+
+<Callout>
+**`dependOn` vs `dependsOn`**<br/>
+There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singular). Don't confuse!
+</Callout>
 
 <TokenLinkCode tokens={['DependsOnOptions']}>
 ```ts
-(options: DependsOnOptions) => boolean
+(options: DependsOnOptions) => Promise<boolean>
 ```
 </TokenLinkCode>
 
 **Options**
 
 - `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
-- `dependencies{:ts}` : A list of candidates that may be a dependency of dependent, directly or transitively.
-- `graph{:ts}` : A graph. Return value of [`graph`](#graph) is proper.
-- `rootDir?{:ts}` : When `dependent` or an element of `dependencies` is given as a relative path,
-`rootDir{:ts}` is joined to transform it to an absolute path.
+- `dependencies{:ts}` : Candidates that may be a dependency of Dependents, directly or transitively.
+- `graph{:ts}` : A dependency graph. Return value of [`graph`](#graph) is proper.
+- `rootDir?{:ts}` : A directory to join with when `dependent` or `dependencies` is given as a relative path.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `glob?{:ts}` : Whether to enable glob pattern.
+<small>(default: `true{:ts}`)</small>
 
 #### Basic Usage
 
@@ -592,14 +593,66 @@ const graph = utils.graph({
   ],
 })
 
-utils.dependsOn({ dependent: 'a', dependencies: ['f', 'b'], graph }) // true
-utils.dependsOn({ dependent: 'c', dependencies: ['f', 'b'], graph }) // true -> transitively
-utils.dependsOn({ dependent: 'f', dependencies: ['f', 'b'], graph }) // true -> 'f' depends on 'f' itself.
-utils.dependsOn({ dependent: 'non-existent', dependencies: ['f', 'b'], graph }) // false -> `graph[dependent] === undefined`, so false
-utils.dependsOn({ dependent: 'a', dependencies: ['non-existent']), graph }) // false
-utils.dependsOn({ dependent: 'c', dependencies: ['non-existent', 'b']), graph }) // true -> at least one (transitive) dependency is found
+await utils.dependsOn({ dependent: 'a', dependencies: ['f', 'b'], graph }) // true
+await utils.dependsOn({ dependent: 'c', dependencies: ['f', 'b'], graph }) // true -> transitively
+await utils.dependsOn({ dependent: 'f', dependencies: ['f', 'b'], graph }) // true -> 'f' depends on 'f' itself.
+await utils.dependsOn({ dependent: 'non-existent', dependencies: ['f', 'b'], graph }) // false -> `graph[dependent] === undefined`, so false
+await utils.dependsOn({ dependent: 'a', dependencies: ['non-existent']), graph }) // false
+await utils.dependsOn({ dependent: 'c', dependencies: ['non-existent', 'b']), graph }) // true -> at least one (transitive) dependency is found
 ```
 </TokenLinkCode>
+
+### `DependOnOptions`
+
+An argument interface for [`dependOn`](#dependon).
+
+<Callout>
+**`DependOnOptions` vs `DependsOnOptions`**<br/>
+There're [`DependOnOptions`](#dependonoptions) (plural) and [`DependsOnOptions`](#dependsonoptions) (singular).
+Don't confuse!
+</Callout>
+
+<TokenLinkCode tokens={['DepsGraph']}>
+```ts
+interface DependOnOptions {
+  dependents: readonly string[]
+  dependencies: readonly string[]
+  graph: DepsGraph
+  rootDir?: string
+  glob?: boolean
+}
+```
+</TokenLinkCode>
+
+### `dependOn`
+
+A function to check if a file depends on one of the given files, transitively or directly.
+
+<Callout>
+**`dependOn` vs `dependsOn`**<br/>
+There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singular). Don't confuse!
+</Callout>
+
+<TokenLinkCode tokens={['DependOnOptions']}>
+```ts
+(options: DependOnOptions) => Promise<string[]>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `dependents{:ts}` : Targets to filter by whether it's a dependent of at least one of `dependencies`, directly or transitively.
+- `dependencies{:ts}` : Candidates that may be a dependency of dependent, directly or transitively.
+- `graph{:ts}` : A dependency graph. Return value of [`graph`](#graph) is proper.
+- `rootDir?{:ts}` : A directory to join with when `dependents`, or `dependencies` are given as relative paths.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `glob?{:ts}` : Whether to enable glob pattern.
+<small>(default: `true{:ts}`)</small>
+
+#### Usage
+
+Basic usage is very similar to [`js.dependOn{:ts}`](./haetae-javascript#dependon),
+which is guided in the [Getting Started](../getting-started) article.
 
 ### `ChangedFilesOptions`
 
@@ -616,6 +669,7 @@ interface ChangedFilesOptions {
   filterByExistence?: boolean
   reserveRecordData?: boolean
   previousRecord?: core.HaetaeRecord<RecordData, Rec>
+  glob?: boolean
 }
 ```
 </TokenLinkCode>
@@ -661,3 +715,5 @@ A function to get a list of changed files by hash comparison.<br/>
   <small>(default: `true{:ts}`)</small>
   - `previousRecord?{:ts}` : A previous *Record Data* to compare or succeed files' hash.
   <small>(default: <TokenLinkCode tokens={{'.getRecord': './haetae-core#getrecord', 'RecordData': '#recorddata'}} inline>`core.getRecord<RecordData>(){:ts}`</TokenLinkCode>)</small>
+  - `glob?{:ts}` : Whether to enable glob pattern.
+  <small>(default: `true{:ts}`)</small>

@@ -114,8 +114,7 @@ Make sure you initialized git. Haetae can be used with any other version control
   '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
-  '.glob': './apis/haetae-utils#glob',
-  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.dependOn': './apis/haetae-javascript#dependon',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import { $, core, git, utils, js } from 'haetae'
@@ -127,19 +126,11 @@ export default core.configure({
       run: async () => {
         // An array of changed files
         const changedFiles = await git.changedFiles()
-        /* An array of test files.
-          ['/path/to/my-calculator/test/exponent.test.js',
-           '/path/to/my-calculator/test/multiply.test.js',
-           '/path/to/my-calculator/test/subtract.test.js',
-           '/path/to/my-calculator/test/add.test.js'] */
-        const testFiles = await utils.glob(['**/*.test.js'])
-        // An array of test files which (transitively) depend on changed files
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-          })
-        )
+        // An array of test files that (transitively) depend on changed files
+        const affectedTestFiles = await js.dependOn({
+          dependents: ['**/*.test.js'], // glob pattern
+          dependencies: changedFiles,
+        })
 
         if (affectedTestFiles.length > 0) {
           // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
@@ -217,28 +208,31 @@ As this is the first time of running the command `haetae myTest`,
 <small>(There are [options](./apis/haetae-git#changedfiles). Check out API docs after reading this article)</small>.
 This behavior results in running all of the tests.<br/>
 
-[`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) understands direct or transitive dependencies between files,
+[`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) understands direct or transitive dependencies between files,
  by parsing `import` or `require()`, etc.
 So it can be used to detect which test files (transitively) depend on at least one of the changed files.<br/>
 
 <Callout>
-**`js.dependsOn` can detect multiple formats**<br/>
+**`js.dependOn` can detect multiple formats**<br/>
 ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx), Webpack Loaders, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS, RequireJS are all supported.
 For Node.js, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are supported.
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
-Check out [the API docs](./apis/haetae-javascript#dependson) and pass additional option(s) if you use Typescript or Webpack.
+Check out [the API docs](./apis/haetae-javascript#dependon) and pass additional option(s) if you use Typescript or Webpack.
 </Callout>
 
 <Callout>
-**`utils.dependsOn`**<br/>
-There is also [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson).
-While `js.dependsOn` is mainly for javascript ecosystem,
-`utils.dependsOn` is a general-purpose transitive dependency detector.
-Check out the API docs after reading this article.
+**`js.dependOn`** vs **`js.dependsOn`** vs **`utils.dependOn`** vs **`utils.dependsOn`** <br/>
+There are severel APIs of simliar purposes.
+- [`js.dependOn{:ts}`](./apis/haetae-jss#dependon) : For multiple dependents. On js ecosystem.
+- [`js.dependsOn{:ts}`](./apis/haetae-jss#dependson) : For a single dependent. On js ecosystem.
+- [`utils.dependOn{:ts}`](./apis/haetae-utils#dependon) : For multiple dependents. General-purpose.
+- [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson) : For a single dependent. General-purpose.
+
+Check out the API docs later for more detail.
 </Callout>
 
-Note that it can not parse dynamic imports.
-Dynamic or extra dependencies can be specified as `additionalGraph` option, which is explained later in this article.
+Note that it cannot parse dynamic imports.
+Dynamic or extra dependencies can be specified as `additionalGraph` option, explained later in this article.
 
 May you have noticed, the store file *`.haetae/store.json`* is generated.
 It stores history of Haetae executions, which makes incremental tasks possible.
@@ -272,7 +266,7 @@ That's because [`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) autom
 returns only the files changed since the last successful execution of Haetae.
 
 For another example, if you modify `add.js`, then all tests will be executed,
-because [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) **detects dependency transitively**.
+because [`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) **detects dependency transitively**.
 
 If you modify `add.test.js`, only the test file itself `add.test.js` will be executed,
 as **every file is treated as depending on itself.**
@@ -416,7 +410,7 @@ $ haetae myTest --env
 
 ## Additional dependency graph
 
-Until now, [`js.dependsOn(){:ts}`](./apis/haetae-javascript#dependson) is used for automatic detection of dependency graph.
+Until now, [`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) is used for automatic detection of dependency graph.
 But sometimes, you need to specify some dependencies manually.<br/>
 
 ### Simple integration test
@@ -453,11 +447,10 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
   '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
-  '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
-  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.dependOn': './apis/haetae-javascript#dependon',
 }}>
-```js filename="haetae.config.js" {10-18,23}
+```js filename="haetae.config.js" {10-17,21}
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -466,9 +459,8 @@ export default core.configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
-        const testFiles = await utils.glob(['**/*.test.js'])
         // A graph of additional dependencies specified manually
-        const additionalGraph = utils.graph({
+        const additionalGraph = await utils.graph({
           edges: [
             {
               dependents: ['src/logic.js'],
@@ -476,14 +468,11 @@ export default core.configure({
             },
           ],
         })
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-            additionalGraph, // <--- New option
-          }),
-        )
-
+        const affectedTestFiles = await js.dependOn({
+          dependents: ['**/*.test.js'],
+          dependencies: changedFiles,
+          additionalGraph, // <--- New option
+        })
         if (affectedTestFiles.length > 0) {
           await $`pnpm jest ${affectedTestFiles}`
         }
@@ -509,7 +498,7 @@ you can change the config.
 }}>
 ```js filename="haetae.config.js" {5,}
 // Other content is omitted for brevity
-const additionalGraph = utils.graph({
+const additionalGraph = await utils.graph({
   edges: [
     {
       dependents: ['test/logic.test.js'], // 'src/logic.js' to 'test/logic.test.js'
@@ -563,7 +552,7 @@ export default core.configure({
       env: async () => ({
         testData: await utils.hash(['test/data.sql']),
       }),
-      run: async () => { /* ... */ }, // without additionalGraph
+      run: async () => { /* ... */ }, // without `additionalGraph`
     },
   },
 })
@@ -572,20 +561,20 @@ export default core.configure({
 
 ### Cartesian product
 
-You can specify dependency graph from a chunk of files to another chunk.
+You can specify the dependency graph from a chunk of files to another chunk.
 
 <TokenLinkCode tokens={{
   '.graph': './apis/haetae-utils#graph',
 }}>
 ```js filename="haetae.config.js"
 // Other content is omitted for brevity
-const additionalGraph = utils.graph({
+const additionalGraph = await utils.graph({
   edges: [
     {
-      dependents: await utils.glob(['test/db/*.test.js']),
+      dependents: ['test/db/*.test.js'],
       dependencies: [
         'test/docker-compose.yml',
-        ...(await utils.glob(['test/db/*.sql'])),
+        'test/db/*.sql',
       ],
     },
   ],
@@ -607,7 +596,7 @@ It can be done in a distributed manner.
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 // Other content is omitted for brevity
-const additionalGraph = utils.graph({
+const additionalGraph = await utils.graph({
   edges: [
     {
       dependents: ['foo', 'bar'],
@@ -648,7 +637,7 @@ Haetae does not prevent you from defining it.
 }}>
 ```js filename="haetae.config.js"
 // Other content is omitted for brevity
-const additionalGraph = utils.graph({
+const additionalGraph = await utils.graph({
   edges: [
     {
       dependents: ['index.js'],
@@ -677,10 +666,11 @@ On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`uti
 
 <Callout>
   **More APIs not covered** <br/>
-  There're more APIs, like [`js.graph{:ts}`](./apis/haetae-javascript#graph),
+  There're more APIs related to dependency graph, like [`js.graph{:ts}`](./apis/haetae-javascript#graph),
   [`utils.mergeGraph{:ts}`](./apis/haetae-utils#mergegraph),
-  [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependsOn), etc.
-  This Getting Started article does not cover all of them. Check out the API docs for more.
+  [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson),
+  [`utils.dependOn{:ts}`](./apis/haetae-utils#dependon), etc.
+  This article doesn't cover them all. Check out the API docs for more detail.
 </Callout>
 
 ## Record Data
@@ -862,11 +852,10 @@ Let Haetae think *`config.js`* depends on *`.env`*.
   '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
-  '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
-  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.dependOn': './apis/haetae-javascript#dependon',
 }}>
-```js filename="haetae.config.js" {13-14,}
+```js filename="haetae.config.js" {12-13,}
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -875,8 +864,7 @@ export default core.configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
-        const testFiles = await utils.glob(['test/*.test.js'])
-        const additionalGraph = utils.graph({
+        const additionalGraph = await utils.graph({
           edges: [
             {
               dependents: ['src/config.js'],
@@ -884,14 +872,11 @@ export default core.configure({
             },
           ],
         })
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-            additionalGraph,
-          }),
-        )
-
+        const affectedTestFiles = await js.dependOn({
+          dependents: ['**/*.test.js'],
+          dependencies: changedFiles,
+          additionalGraph,
+        })
         if (affectedTestFiles.length > 0) {
           await $`pnpm jest ${affectedTestFiles}`
         }
@@ -917,12 +902,11 @@ Add these into the config file like this.
   '$': './apis/haetae#dollar',
   '.changedFiles': './apis/haetae-git#changedfiles',
   '.getRecord': './apis/haetae-core#getrecord',
-  '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
-  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.dependOn': './apis/haetae-javascript#dependon',
   '.hash': './apis/haetae-utils#hash',
 }}>
-```js filename="haetae.config.js" {9-13,34-36}
+```js filename="haetae.config.js" {9-13,31-33}
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -936,8 +920,7 @@ export default core.configure({
         if (previousRecord?.data?.dotenv !== dotenvHash) {
           changedFiles.push('.env')
         }
-        const testFiles = await utils.glob(['**/*.test.js'])
-        const additionalGraph = utils.graph({
+        const additionalGraph = await utils.graph({
           edges: [
             {
               dependents: ['src/config.js'],
@@ -945,13 +928,11 @@ export default core.configure({
             },
           ],
         })
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-            additionalGraph,
-          }),
-        )
+        const affectedTestFiles = await js.dependOn({
+          dependents: ['**/*.test.js'],
+          dependencies: changedFiles,
+          additionalGraph,
+        })
 
         if (affectedTestFiles.length > 0) {
           await $`pnpm jest ${affectedTestFiles}`
@@ -1026,9 +1007,9 @@ We can enhance the workflow further.
   '.getRecord': './apis/haetae-core#getrecord',
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
-  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.dependOn': './apis/haetae-javascript#dependon',
 }}>
-```js filename="haetae.config.js" {9-10,31}
+```js filename="haetae.config.js" {9-10,28}
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -1039,8 +1020,7 @@ export default core.configure({
         const changedFiles = await git.changedFiles()
         const changedFilesByHash = await utils.changedFiles(['.env'])
         changedFiles.push(...changedFilesByHash)
-        const testFiles = await utils.glob(['**/*.test.js'])
-        const additionalGraph = utils.graph({
+        const additionalGraph = await utils.graph({
           edges: [
             {
               dependents: ['src/config.js'],
@@ -1048,13 +1028,11 @@ export default core.configure({
             },
           ],
         })
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-            additionalGraph,
-          }),
-        )
+        const affectedTestFiles = await js.dependOn({
+          dependents: ['**/*.test.js'],
+          dependencies: changedFiles,
+          additionalGraph,
+        })
 
         if (affectedTestFiles.length > 0) {
           await $`pnpm jest ${affectedTestFiles}`
@@ -1071,7 +1049,7 @@ We return nothing here.<br/>
 We do not calculate hash by ourselves.<br/>
 But this has the same effect as what we've done in the previous section.
 
-```fish filename="terminal" {13-14}
+```fish filename="terminal" {12-15}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -1118,11 +1096,10 @@ Then we can modify the config file like this.
 <TokenLinkCode tokens={{
   '.configure': './apis/haetae-core#configure',
   '$': './apis/haetae#dollar',
-  '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
-  '.dependsOn': './apis/haetae-javascript#dependson',
+  '.dependOn': './apis/haetae-javascript#dependon',
 }}>
-```js filename="haetae.config.js" {9-15,22} showLineNumbers
+```js filename="haetae.config.js" {9-15,21} showLineNumbers
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -1139,8 +1116,7 @@ export default core.configure({
           },
         )
         changedFiles.push(...changedFilesByHash)
-        const testFiles = await utils.glob(['**/*.test.js'])
-        const additionalGraph = utils.graph({
+        const additionalGraph = await utils.graph({
           edges: [
             {
               dependents: ['src/config.js'],
@@ -1148,13 +1124,11 @@ export default core.configure({
             },
           ],
         })
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-            additionalGraph,
-          }),
-        )
+        const affectedTestFiles = await js.dependOn({
+          dependents: ['**/*.test.js'],
+          dependencies: changedFiles,
+          additionalGraph,
+        })
 
         if (affectedTestFiles.length > 0) {
           await $`pnpm jest ${affectedTestFiles}`

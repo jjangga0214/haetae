@@ -5,8 +5,10 @@ import serialize from 'serialize-javascript'
 import filterAsync from 'node-filter-async'
 import upath from 'upath'
 import { globby, Options as GlobbyOptions } from 'globby'
+import multimatch from 'multimatch'
 import hasha from 'hasha'
 import { dirname } from 'dirname-filename-esm'
+import isEqual from 'lodash.isequal'
 import * as core from '@haetae/core'
 import { parsePkg, PromiseOr, Rec, toAbsolutePath } from '@haetae/common'
 
@@ -51,17 +53,34 @@ export async function glob(
   patterns: readonly string[],
   { rootDir = core.getConfigDirname(), globbyOptions = {} }: GlobOptions = {},
 ): Promise<string[]> {
-  /* eslint-disable no-param-reassign, @typescript-eslint/ban-ts-comment */
+  // eslint-disable-next-line no-param-reassign
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-  // @ts-ignore
-  globbyOptions.cwd = globbyOptions.cwd || rootDir
-  // @ts-ignore
-  globbyOptions.gitignore =
-    globbyOptions.gitignore === undefined ? true : globbyOptions.gitignore
-  /* eslint-enable no-param-reassign, @typescript-eslint/ban-ts-comment */
-  const res = await globby(patterns, globbyOptions)
-  return res.map((f) => toAbsolutePath({ path: f, rootDir }))
+  // Why `walkUpCountMax` is needed? REF: https://github.com/sindresorhus/globby/issues/168
+  const walkUpCountMax = { value: 0 }
+  // eslint-disable-next-line no-param-reassign
+  patterns = patterns
+    .map((p) => upath.normalizeSafe(p))
+    .map((p) => {
+      const upCount =
+        (p.match(/\.{2}\//g) || []).length - (p.match(/\.{3}\//g) || []).length
+      if (walkUpCountMax.value < upCount) {
+        walkUpCountMax.value = upCount
+      }
+      return upath.resolve(rootDir, p)
+    })
+
+  const res = await globby(patterns, {
+    ...globbyOptions,
+    cwd:
+      globbyOptions.cwd ||
+      upath.join(rootDir, '../'.repeat(walkUpCountMax.value)),
+    gitignore: globbyOptions.gitignore ?? true,
+  })
+  return [...new Set(res.map((f) => upath.resolve(rootDir, f)))]
 }
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const _glob = glob
 
 export interface ExecOptions {
   uid?: number | undefined
@@ -150,15 +169,24 @@ export const $: $Exec = async (statics, ...dynamics): Promise<string> => {
 export interface HashOptions {
   algorithm?: hasha.AlgorithmName // "md5" | "sha1" | "sha256" | "sha512"
   rootDir?: string
+  glob?: boolean
 }
 
 // TODO: glob patterns and directories
 export async function hash(
   files: readonly string[],
-  { algorithm = 'sha256', rootDir = core.getConfigDirname() }: HashOptions = {},
+  {
+    algorithm = 'sha256',
+    rootDir = core.getConfigDirname(),
+    glob = true,
+  }: HashOptions = {},
 ): Promise<string> {
   // eslint-disable-next-line no-param-reassign
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  if (glob) {
+    // eslint-disable-next-line no-param-reassign
+    files = await _glob(files, { rootDir })
+  }
   const hashes = await Promise.all(
     [...files] // Why copy by destructing the array? => To avoid modifying the original array when `sort()`.
       .sort()
@@ -176,16 +204,18 @@ export interface DepsEdge {
 export interface GraphOptions {
   edges: readonly DepsEdge[]
   rootDir?: string
+  glob?: boolean
 }
 
 export interface DepsGraph {
   [dependent: string]: Set<string> // dependencies[]
 }
 
-export function graph({
+export async function graph({
   edges,
   rootDir = core.getConfigDirname(),
-}: GraphOptions): DepsGraph {
+  glob = true,
+}: GraphOptions): Promise<DepsGraph> {
   // eslint-disable-next-line no-param-reassign
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   const depsGraph: DepsGraph = {}
@@ -193,6 +223,14 @@ export function graph({
   for (let { dependents, dependencies } of edges) {
     dependents = dependents.map((dep) => upath.resolve(rootDir, dep))
     dependencies = dependencies.map((dep) => upath.resolve(rootDir, dep))
+    if (glob) {
+      dependents = await _glob(dependents, {
+        rootDir,
+      })
+      dependencies = await _glob(dependencies, {
+        rootDir,
+      })
+    }
 
     for (const dependent of dependents) {
       depsGraph[dependent] = depsGraph[dependent] || new Set<string>()
@@ -225,20 +263,21 @@ export interface DependsOnOptions {
   dependencies: readonly string[]
   graph: DepsGraph
   rootDir?: string
+  glob?: boolean
 }
 
-export function dependsOn({
+export async function dependsOn({
   dependent,
   dependencies,
   graph,
   rootDir = core.getConfigDirname(),
-}: DependsOnOptions): boolean {
-  // eslint-disable-next-line no-param-reassign
+  glob = true,
+}: DependsOnOptions): Promise<boolean> {
+  /* eslint-disable no-param-reassign */
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-  // eslint-disable-next-line no-param-reassign
   dependent = upath.resolve(rootDir, dependent)
-  // eslint-disable-next-line no-param-reassign
   dependencies = [...dependencies].map((dep) => upath.resolve(rootDir, dep))
+  /* eslint-enable no-param-reassign */
 
   if (!graph[dependent]) {
     return false
@@ -246,9 +285,14 @@ export function dependsOn({
 
   // Consider any file depends on itself.
   // This is beneficial for using with changedFiles() for testing (e.g. git.changedFiles() or utils.changedFiles())
-  if (dependencies.includes(dependent)) {
+  if (glob) {
+    if (isEqual([dependent], multimatch([dependent], dependencies))) {
+      return true
+    }
+  } else if (dependencies.includes(dependent)) {
     return true
   }
+
   const checkedDeps = new Set<string>() // To avoid infinite loop by circular dependencies.
   // `transitiveDepsQueue` stores dependencies of dependencies.. and so on.
   // Until either the function finds the matching dependency or the loop ends.
@@ -257,12 +301,42 @@ export function dependsOn({
     if (!checkedDeps.has(dependency)) {
       checkedDeps.add(dependency)
       transitiveDepsQueue.push(...(graph[dependency] || []))
-      if (dependencies.includes(dependency)) {
+      if (glob) {
+        if (isEqual([dependency], multimatch([dependency], dependencies))) {
+          return true
+        }
+      } else if (dependencies.includes(dependency)) {
         return true
       }
     }
   }
   return false
+}
+
+export interface DependOnOptions {
+  dependents: readonly string[]
+  dependencies: readonly string[]
+  graph: DepsGraph
+  rootDir?: string
+  glob?: boolean
+}
+
+export async function dependOn({
+  dependents,
+  dependencies,
+  graph,
+  rootDir,
+  glob,
+}: DependOnOptions): Promise<string[]> {
+  return filterAsync(dependents, (dependent) =>
+    dependsOn({
+      dependent,
+      dependencies,
+      graph,
+      rootDir,
+      glob,
+    }),
+  )
 }
 
 export interface ChangedFilesOptions {
@@ -272,6 +346,7 @@ export interface ChangedFilesOptions {
   filterByExistence?: boolean
   reserveRecordData?: boolean
   previousRecord?: core.HaetaeRecord<RecordData, Rec>
+  glob?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -287,12 +362,17 @@ export const changedFiles = memoizee(
       filterByExistence = false,
       reserveRecordData = true,
       previousRecord,
+      glob = true,
     }: ChangedFilesOptions = {},
   ): Promise<string[]> => {
     /* eslint-disable no-param-reassign */
     rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
     files = files.map((file) => upath.relative(rootDir, file))
     renew = renew.map((file) => upath.relative(rootDir, file))
+    if (glob) {
+      files = await _glob(files, { rootDir })
+      renew = await _glob(renew, { rootDir })
+    }
     previousRecord = previousRecord || (await core.getRecord<RecordData>())
     /* eslint-enable no-param-reassign */
     const previousFiles = previousRecord?.data[pkgName]?.files || {}

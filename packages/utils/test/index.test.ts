@@ -1,23 +1,56 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
+import isEqual from 'lodash.isequal'
 import { glob, $, graph, dependsOn, mergeGraphs } from '../src/index.js'
 
 describe('glob', () => {
   test('basic usage', async () => {
-    expect.hasAssertions()
-    const rootDir = upath.join(dirname(import.meta), '../../../test-project')
+    const rootDir = upath.resolve(dirname(import.meta), '../../../test-project')
     const res = await glob(['**/*.test.ts'], {
       rootDir,
     })
 
     expect(res).toStrictEqual(
       expect.arrayContaining([
-        upath.join(rootDir, 'packages/bar/test/unit/index.test.ts'),
-        upath.join(rootDir, 'packages/foo/test/integration/index.test.ts'),
-        upath.join(rootDir, 'packages/foo/test/unit/index.test.ts'),
+        upath.resolve(rootDir, 'packages/bar/test/unit/index.test.ts'),
+        upath.resolve(rootDir, 'packages/foo/test/integration/index.test.ts'),
+        upath.resolve(rootDir, 'packages/foo/test/unit/index.test.ts'),
       ]),
     )
     expect(res).toHaveLength(3)
+  })
+
+  test('walk up over the rootDir', async () => {
+    const rootDir = dirname(import.meta)
+    await expect(
+      glob(['../package.json'], {
+        rootDir,
+      }),
+    ).resolves.toStrictEqual([upath.resolve(rootDir, '../package.json')])
+
+    const res = await glob(['../*.json'], {
+      rootDir,
+    })
+
+    expect(res).toStrictEqual(
+      expect.arrayContaining([
+        upath.resolve(rootDir, '../package.json'),
+        upath.resolve(rootDir, '../tsconfig.json'),
+        upath.resolve(rootDir, '../tsconfig.build.json'),
+      ]),
+    )
+    expect(res).toHaveLength(3)
+  })
+
+  test('non-existent file is not included in the result', async () => {
+    const rootDir = dirname(import.meta)
+
+    await expect(
+      // non-existent
+      glob(['../non-existent', 'non-existent'], {
+        rootDir,
+      }),
+    ).resolves.toStrictEqual([])
   })
 })
 
@@ -74,8 +107,8 @@ describe('$', () => {
 })
 
 describe('graph', () => {
-  test('basic usage', () => {
-    const result = graph({
+  test('basic usage', async () => {
+    const result = await graph({
       rootDir: '/<rootDir>',
       edges: [
         {
@@ -83,6 +116,7 @@ describe('graph', () => {
           dependencies: ['path/to/b.ts', 'path/to/c.ts'],
         },
       ],
+      glob: false,
     })
 
     expect(result).toStrictEqual({
@@ -96,8 +130,8 @@ describe('graph', () => {
   })
 
   // Testing this is to check if infinite loop is prevented
-  test('circular dependency', () => {
-    const result = graph({
+  test('circular dependency', async () => {
+    const result = await graph({
       rootDir: '/',
       edges: [
         {
@@ -113,6 +147,7 @@ describe('graph', () => {
           dependencies: ['a'],
         },
       ],
+      glob: false,
     })
 
     expect(result).toStrictEqual({
@@ -122,8 +157,8 @@ describe('graph', () => {
     })
   })
 
-  test('advanced usage', () => {
-    const result = graph({
+  test('advanced usage', async () => {
+    const result = await graph({
       rootDir: '/<rootDir>',
       edges: [
         {
@@ -135,6 +170,7 @@ describe('graph', () => {
           dependencies: ['path/to/f.ts', 'path/to/g.ts'],
         },
       ],
+      glob: false,
     })
     expect(result).toStrictEqual({
       '/<rootDir>/path/to/a.ts': new Set([
@@ -162,8 +198,8 @@ describe('graph', () => {
 })
 
 describe('mergeGraphs', () => {
-  test('basic usage', () => {
-    const result1 = graph({
+  test('basic usage', async () => {
+    const result1 = await graph({
       rootDir: '/',
       edges: [
         {
@@ -171,8 +207,9 @@ describe('mergeGraphs', () => {
           dependencies: ['c', 'd', 'e'],
         },
       ],
+      glob: false,
     })
-    const result2 = graph({
+    const result2 = await graph({
       rootDir: '/',
       edges: [
         {
@@ -180,8 +217,9 @@ describe('mergeGraphs', () => {
           dependencies: ['e', 'f'],
         },
       ],
+      glob: false,
     })
-    const result3 = graph({
+    const result3 = await graph({
       rootDir: '/',
       edges: [
         {
@@ -189,6 +227,7 @@ describe('mergeGraphs', () => {
           dependencies: ['a', 'f'],
         },
       ],
+      glob: false,
     })
     expect(mergeGraphs([result1, result2, result3])).toStrictEqual({
       '/a': new Set(['/c', '/d', '/e', '/f']),
@@ -202,6 +241,7 @@ describe('mergeGraphs', () => {
 })
 
 describe('dependsOn', () => {
+  // Promise
   const depsGraph = graph({
     rootDir: '/<rootDir>',
     edges: [
@@ -218,45 +258,49 @@ describe('dependsOn', () => {
         dependencies: ['f.ts'],
       },
     ],
+    glob: false,
   })
-  test('direct dependency', () => {
-    expect(
+  test('direct dependency', async () => {
+    await expect(
       dependsOn({
-        dependent: '/<rootDir>/a.ts',
-        dependencies: ['/<rootDir>/c.ts'],
-        graph: depsGraph,
+        dependent: 'a.ts',
+        dependencies: ['c.ts'],
+        graph: await depsGraph,
         rootDir: '/<rootDir>',
+        glob: false,
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
-  test('transitive dependency', () => {
-    expect(
+  test('transitive dependency', async () => {
+    await expect(
       dependsOn({
         dependent: '/<rootDir>/a.ts',
         dependencies: ['/<rootDir>/x.ts', '/<rootDir>/f.ts'],
-        graph: depsGraph,
+        graph: await depsGraph,
         rootDir: '/<rootDir>',
+        glob: false,
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
-  test('non-existent dependency', () => {
-    expect(
+  test('non-existent dependency', async () => {
+    await expect(
       dependsOn({
         dependent: '/<rootDir>/a.ts',
         dependencies: ['/<rootDir>/non-existent.ts'],
-        graph: depsGraph,
+        graph: await depsGraph,
         rootDir: '/<rootDir>',
       }),
-    ).toBe(false)
+    ).resolves.toBe(false)
   })
-  test('non-existent dependent', () => {
-    expect(
+  test('non-existent dependent', async () => {
+    await expect(
       dependsOn({
         dependent: '/<rootDir>/non-existent.ts',
         dependencies: ['/<rootDir>/c.ts'],
-        graph: depsGraph,
+        graph: await depsGraph,
         rootDir: '/<rootDir>',
+        glob: false,
       }),
-    ).toBe(false)
+    ).resolves.toBe(false)
   })
 })

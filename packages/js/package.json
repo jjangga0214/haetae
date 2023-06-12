@@ -31,6 +31,7 @@
     "dirname-filename-esm": "^1.1.1",
     "find-up": "^6.3.0",
     "memoizee": "^0.4.15",
+    "node-filter-async": "3.0.0",
     "read-pkg-up": "^9.1.0",
     "serialize-javascript": "^6.0.0",
     "upath": "^2.0.1",

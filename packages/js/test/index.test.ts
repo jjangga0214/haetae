@@ -11,8 +11,8 @@ const rootDir = upath.join(dirname(import.meta), '../../../test-project')
  and test of `dependsOn()` does through test.
  */
 describe('graph', () => {
-  test('basic usage', () => {
-    const result = graph({
+  test('basic usage', async () => {
+    const result = await graph({
       entrypoint: 'packages/foo/src/index.ts',
       rootDir,
     })
@@ -23,8 +23,8 @@ describe('graph', () => {
       [`${rootDir}/packages/foo/src/hello.ts`]: new Set([]),
     })
   })
-  test('circular dependencies', () => {
-    const result = graph({
+  test('circular dependencies', async () => {
+    const result = await graph({
       entrypoint: 'packages/bar/src/a.ts',
       rootDir,
     })
@@ -42,8 +42,8 @@ describe('graph', () => {
   })
   // TODO: uncomment this test once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
   // eslint-disable-next-line jest/no-commented-out-tests
-  // test('against test file', () => {
-  //   const result = graph({
+  // test('against test file', async () => {
+  //   const result = await graph({
   //     entrypoint: 'packages/bar/test/unit/index.test.ts',
   //     rootDir,
   //   })
@@ -60,8 +60,8 @@ describe('graph', () => {
   //     [`${rootDir}/packages/foo/src/hello.ts`]: new Set([]),
   //   })
   // })
-  test('non-existent file', () => {
-    const result = graph({
+  test('non-existent file', async () => {
+    const result = await graph({
       entrypoint: 'packages/bar/src/non-existent.ts',
       rootDir,
     })
@@ -73,25 +73,25 @@ describe('dependsOn', () => {
   // TODO: uncomment this test once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
   // eslint-disable-next-line jest/no-commented-out-tests
   // test('through typescript path mapping', async () => {
-  //   expect(
+  //   await expect(
   //     dependsOn({
   //       rootDir,
   //       dependent: 'packages/bar/test/index.test.ts',
   //       dependencies: ['packages/bar/src/index.ts'],
   //     }),
-  //   ).toBe(true)
+  //   ).resolves.toBe(true)
   // })
 
   test('from a same package', async () => {
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'packages/foo/src/index.ts',
         dependencies: ['packages/foo/src/hello.ts'],
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
 
-    expect(
+    await expect(
       /*
        * `foo/test/integration/index.test.ts` file does not use path mapping,
        * unlike `foo/test/unit/index.test.ts`.
@@ -101,74 +101,74 @@ describe('dependsOn', () => {
         dependent: 'packages/foo/test/integration/index.test.ts',
         dependencies: ['packages/foo/src/hello.ts'],
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
 
   test('from a different package', async () => {
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'packages/foo/src/index.ts',
         dependencies: ['packages/bar/src/index.ts'],
       }),
-    ).toBe(false)
+    ).resolves.toBe(false)
 
     // TODO: uncomment these expectation once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
-    // expect(
+    // await expect(
     //   dependsOn({
     //     rootDir,
     //     dependent: 'packages/bar/src/index.ts',
     //     dependencies: ['packages/foo/src/hello.ts'],
     //   }),
-    // ).toBe(true)
-    // expect(
+    // ).resolves.toBe(true)
+    // await expect(
     //   dependsOn({
     //     rootDir,
     //     dependent: 'packages/bar/test/unit/index.test.ts',
     //     dependencies: ['packages/foo/src/hello.ts'],
     //   }),
-    // ).toBe(true)
+    // ).resolves.toBe(true)
   })
 
   test('itself', async () => {
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'packages/bar/src/index.ts',
         dependencies: ['packages/bar/src/index.ts'],
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
 
   test('from a non-existent path', async () => {
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'path/to/non-existent.ts',
         dependencies: ['packages/foo/src/hello.ts'],
       }),
-    ).toBe(false)
+    ).resolves.toBe(false)
   })
 
-  test('circular dependencies', () => {
-    expect(
+  test('circular dependencies', async () => {
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'packages/bar/src/a.ts',
         dependencies: ['packages/bar/src/c.ts'],
       }),
-    ).toBe(true)
-    expect(
+    ).resolves.toBe(true)
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'packages/bar/src/a.ts',
         dependencies: ['packages/bar/src/b.ts'],
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
 
   test('with additional dependencies', async () => {
-    const additionalGraph = utils.graph({
+    const additionalGraph = await utils.graph({
       rootDir,
       edges: [
         {
@@ -188,40 +188,40 @@ describe('dependsOn', () => {
 
     const dependencies = ['f', 'b']
 
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'a',
         dependencies,
         additionalGraph,
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
 
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'c',
         dependencies,
         additionalGraph,
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
 
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'e',
         dependencies,
         additionalGraph,
       }),
-    ).toBe(false)
+    ).resolves.toBe(false)
 
-    expect(
+    await expect(
       dependsOn({
         rootDir,
         dependent: 'f',
         dependencies,
         additionalGraph,
       }),
-    ).toBe(true)
+    ).resolves.toBe(true)
   })
 })

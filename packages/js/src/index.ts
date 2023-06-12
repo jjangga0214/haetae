@@ -3,6 +3,7 @@ import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { dirname } from 'dirname-filename-esm'
 import { parsePkg, toAbsolutePath } from '@haetae/common'
+import filterAsync from 'node-filter-async'
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
 
@@ -20,11 +21,13 @@ interface GraphOptions {
   rootDir?: string
 }
 
-export function graph({
+// Why async even though it doesn't use any async operation?
+// That's to prevent breaking change from sync to async in the future.
+export async function graph({
   entrypoint,
   rootDir = core.getConfigDirname(),
   tsConfig,
-}: GraphOptions): utils.DepsGraph {
+}: GraphOptions): Promise<utils.DepsGraph> {
   // eslint-disable-next-line no-param-reassign
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
   if (tsConfig) {
@@ -63,16 +66,21 @@ export interface DependsOnOptions {
   tsConfig?: string
   rootDir?: string
   additionalGraph?: utils.DepsGraph
+  glob?: boolean
 }
 
-export function dependsOn({
+export async function dependsOn({
   dependent,
   dependencies,
   tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
   rootDir = core.getConfigDirname(),
-  additionalGraph = utils.graph({ edges: [], rootDir }),
-}: DependsOnOptions): boolean {
-  const jsGraph = graph({
+  additionalGraph,
+  glob = true,
+}: DependsOnOptions): Promise<boolean> {
+  // eslint-disable-next-line no-param-reassign
+  additionalGraph =
+    additionalGraph || (await utils.graph({ edges: [], rootDir }))
+  const jsGraph = await graph({
     entrypoint: dependent,
     rootDir,
     tsConfig,
@@ -85,31 +93,35 @@ export function dependsOn({
     dependencies,
     graph: mergedGraph,
     rootDir,
+    glob,
   })
 }
 
-// export interface DependOnOptions {
-//   dependents: readonly string[]
-//   dependencies: readonly string[] | Set<string>
-//   tsConfig?: string
-//   rootDir?: string
-//   additionalGraph?: utils.DepsGraph
-// }
+export interface DependOnOptions {
+  dependents: readonly string[]
+  dependencies: readonly string[]
+  tsConfig?: string
+  rootDir?: string
+  additionalGraph?: utils.DepsGraph
+  glob?: boolean
+}
 
-// export async function dependOn({
-//   dependents,
-//   dependencies,
-//   tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
-//   rootDir,
-//   additionalGraph,
-// }: DependOnOptions): Promise<string[]> {
-//   return dependents.filter((dependent) =>
-//     dependsOn({
-//       dependent,
-//       dependencies,
-//       tsConfig,
-//       rootDir,
-//       additionalGraph,
-//     }),
-//   )
-// }
+export async function dependOn({
+  dependents,
+  dependencies,
+  tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
+  rootDir,
+  additionalGraph,
+  glob,
+}: DependOnOptions): Promise<string[]> {
+  return filterAsync(dependents, (dependent) =>
+    dependsOn({
+      dependent,
+      dependencies,
+      tsConfig,
+      rootDir,
+      additionalGraph,
+      glob,
+    }),
+  )
+}
