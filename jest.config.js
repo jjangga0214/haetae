@@ -20,8 +20,8 @@ export default {
   testPathIgnorePatterns: ['/node_modules/', 'test-project'],
   // A map from regular expressions to paths to transformers
   // transform: { '^.+\\.(t|j)sx?$': ['@swc/jest'] },
-  // transform: { '^.+\\.tsx?$': ['esbuild-jest'] },
-  // transform: { '^.+\\.tsx?$': ['ts-jest'] },
+  // transform: { '^.+\\.(t|j)sx?$': ['esbuild-jest'] },
+  // transform: { '^.+\\.(t|j)sx?$': ['ts-jest'] },
   moduleNameMapper: {
     ...config.moduleNameMapper,
     ...pathsToModuleNameMapper(tsConfig.compilerOptions.paths, {
