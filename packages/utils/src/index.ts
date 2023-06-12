@@ -53,7 +53,7 @@ export async function glob(
   options: GlobOptions = {},
 ): Promise<string[]> {
   const rootDir = toAbsolutePath({
-    path: options.rootDir,
+    path: options.rootDir || '.',
     rootDir: core.getConfigDirname,
   })
   // Why `walkUpCountMax` is needed? REF: https://github.com/sindresorhus/globby/issues/168
@@ -62,10 +62,10 @@ export async function glob(
   patterns = patterns
     .map((p) => upath.normalizeSafe(p))
     .map((p) => {
-      const upCount =
+      const walkUpCount =
         (p.match(/\.{2}\//g) || []).length - (p.match(/\.{3}\//g) || []).length
-      if (walkUpCountMax.value < upCount) {
-        walkUpCountMax.value = upCount
+      if (walkUpCountMax.value < walkUpCount) {
+        walkUpCountMax.value = walkUpCount
       }
       return upath.resolve(rootDir, p)
     })

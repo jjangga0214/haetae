@@ -7,7 +7,7 @@ export type PromiseOr<T> = Promise<T> | T
 export type Rec = Record<string, unknown>
 
 export interface ToAbsolutePathOptions {
-  path?: string
+  path: string
   rootDir: string | (() => string)
 }
 
@@ -15,15 +15,12 @@ export function toAbsolutePath({
   path,
   rootDir,
 }: ToAbsolutePathOptions): string {
+  if (upath.isAbsolute(path)) {
+    return upath.normalizeSafe(path)
+  }
   if (typeof rootDir === 'function') {
     // eslint-disable-next-line no-param-reassign
     rootDir = rootDir()
-  }
-  if (path === undefined) {
-    return upath.resolve(rootDir)
-  }
-  if (upath.isAbsolute(path)) {
-    return upath.normalizeSafe(path)
   }
 
   return upath.resolve(rootDir, path)

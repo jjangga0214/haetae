@@ -1,6 +1,5 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
-import isEqual from 'lodash.isequal'
 import { glob, $, graph, dependsOn, mergeGraphs } from '../src/index.js'
 
 describe('glob', () => {
@@ -246,16 +245,32 @@ describe('dependsOn', () => {
     rootDir: '/<rootDir>',
     edges: [
       {
-        dependents: ['a.ts'],
-        dependencies: ['b.ts', 'c.ts'],
+        dependents: ['a'],
+        dependencies: ['b', 'c'],
       },
       {
-        dependents: ['c.ts'],
-        dependencies: ['d.ts'],
+        dependents: ['c'],
+        dependencies: ['d'],
       },
       {
-        dependents: ['d.ts', 'e.ts'],
-        dependencies: ['f.ts'],
+        dependents: ['d', 'e'],
+        dependencies: ['f'],
+      },
+      {
+        dependents: ['g', 'h'],
+        dependencies: ['h', 'g'],
+      },
+      {
+        dependents: ['i'],
+        dependencies: ['j'],
+      },
+      {
+        dependents: ['j'],
+        dependencies: ['k'],
+      },
+      {
+        dependents: ['k'],
+        dependencies: ['i'],
       },
     ],
     glob: false,
@@ -263,8 +278,8 @@ describe('dependsOn', () => {
   test('direct dependency', async () => {
     await expect(
       dependsOn({
-        dependent: 'a.ts',
-        dependencies: ['c.ts'],
+        dependent: 'a',
+        dependencies: ['c'],
         graph: await depsGraph,
         rootDir: '/<rootDir>',
         glob: false,
@@ -274,8 +289,8 @@ describe('dependsOn', () => {
   test('transitive dependency', async () => {
     await expect(
       dependsOn({
-        dependent: '/<rootDir>/a.ts',
-        dependencies: ['/<rootDir>/x.ts', '/<rootDir>/f.ts'],
+        dependent: 'a',
+        dependencies: ['x', 'f'],
         graph: await depsGraph,
         rootDir: '/<rootDir>',
         glob: false,
@@ -285,8 +300,8 @@ describe('dependsOn', () => {
   test('non-existent dependency', async () => {
     await expect(
       dependsOn({
-        dependent: '/<rootDir>/a.ts',
-        dependencies: ['/<rootDir>/non-existent.ts'],
+        dependent: 'a',
+        dependencies: ['non-existent'],
         graph: await depsGraph,
         rootDir: '/<rootDir>',
       }),
@@ -295,12 +310,41 @@ describe('dependsOn', () => {
   test('non-existent dependent', async () => {
     await expect(
       dependsOn({
-        dependent: '/<rootDir>/non-existent.ts',
-        dependencies: ['/<rootDir>/c.ts'],
+        dependent: 'non-existent',
+        dependencies: ['c'],
         graph: await depsGraph,
         rootDir: '/<rootDir>',
         glob: false,
       }),
     ).resolves.toBe(false)
+  })
+  test('circular dependency', async () => {
+    await expect(
+      dependsOn({
+        dependent: 'g',
+        dependencies: ['h'],
+        graph: await depsGraph,
+        rootDir: '/<rootDir>',
+        glob: false,
+      }),
+    ).resolves.toBe(true)
+    await expect(
+      dependsOn({
+        dependent: 'i',
+        dependencies: ['k'],
+        graph: await depsGraph,
+        rootDir: '/<rootDir>',
+        glob: false,
+      }),
+    ).resolves.toBe(true)
+    await expect(
+      dependsOn({
+        dependent: 'k',
+        dependencies: ['j'],
+        graph: await depsGraph,
+        rootDir: '/<rootDir>',
+        glob: false,
+      }),
+    ).resolves.toBe(true)
   })
 })
