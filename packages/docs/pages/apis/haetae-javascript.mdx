@@ -214,6 +214,42 @@ it's not just for a specific language, but for *any* dependency graph.
 - `rootDir?{:ts}` : A directory to use when `entrypoint` or `tsConfig` is given as relative paths.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
+### `DepsOptions`
+
+An argument interface for [`deps`](#deps).
+
+<TokenLinkCode tokens={{'.DepsGraph': './haetae-utils#depsgraph'}}>
+```ts
+interface DepsOptions {
+  entrypoint: string
+  tsConfig?: string
+  rootDir?: string
+  additionalGraph?: utils.DepsGraph
+}
+```
+</TokenLinkCode>
+
+### `deps`
+
+A function to get all of the direct and transitive dependencies of a single entry point.<br/>
+The searched result keeps the order by breath-first approach, without duplication of elements.
+
+<TokenLinkCode tokens={['DepsOptions']}>
+```ts
+(options: DepsOptions) => Promise<string[]>
+```
+</TokenLinkCode>
+
+**Options**
+
+- `entrypoint{:ts}` : An entry point to get all of whose direct and transitive dependencies.
+- `tsConfig?{:ts}` : A path to Typescript config file. <small>(e.g. tsconfig.json)</small>.
+- `rootDir?{:ts}` : A directory to join with when `entrypoint` is given as a relative path.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+- `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
+This is purely additional, not an override or replacement of the source code dependency graph.
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+
 ### `DependsOnOptions`
 
 An argument interface for [`dependsOn`](#dependson).

@@ -1,6 +1,6 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
-import { glob, $, graph, dependsOn, mergeGraphs } from '../src/index.js'
+import { glob, $, graph, dependsOn, mergeGraphs, deps } from '../src/index.js'
 
 describe('glob', () => {
   test('basic usage', async () => {
@@ -236,6 +236,49 @@ describe('mergeGraphs', () => {
       '/f': new Set([]),
       '/e': new Set([]),
     })
+  })
+})
+
+describe('deps', () => {
+  // Promise
+  const depsGraph = graph({
+    rootDir: '/',
+    edges: [
+      {
+        dependents: ['x', 'y'],
+        dependencies: ['a', 'e'],
+      },
+      {
+        dependents: ['a'],
+        dependencies: ['b', 'c'],
+      },
+      {
+        dependents: ['b'],
+        dependencies: ['d'],
+      },
+      {
+        dependents: ['d', 'e'],
+        dependencies: ['f'],
+      },
+      {
+        dependents: ['c', 'g'],
+        dependencies: ['e', 'f'],
+      },
+      {
+        dependents: ['h'],
+        dependencies: ['i'],
+      },
+    ],
+    glob: false,
+  })
+  test('basic usage', async () => {
+    expect(
+      deps({
+        entrypoint: 'a',
+        graph: await depsGraph,
+        rootDir: '/',
+      }),
+    ).toStrictEqual(['/a', '/b', '/c', '/d', '/e', '/f'])
   })
 })
 

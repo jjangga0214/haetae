@@ -60,6 +60,35 @@ export async function graph({
   return result
 }
 
+export interface DepsOptions {
+  entrypoint: string
+  rootDir?: string
+  tsConfig?: string
+  additionalGraph?: utils.DepsGraph
+}
+
+export async function deps({
+  entrypoint,
+  tsConfig,
+  rootDir = core.getConfigDirname(),
+  additionalGraph,
+}: DepsOptions): Promise<string[]> {
+  /* eslint-disable no-param-reassign */
+  entrypoint = upath.resolve(rootDir, entrypoint)
+  additionalGraph =
+    additionalGraph || (await utils.graph({ edges: [], rootDir }))
+  /* eslint-enable no-param-reassign */
+
+  const jsGraph = await graph({
+    entrypoint,
+    tsConfig,
+    rootDir,
+  })
+  const mergedGraph = utils.mergeGraphs([jsGraph, additionalGraph])
+
+  return utils.deps({ entrypoint, graph: mergedGraph, rootDir })
+}
+
 export interface DependsOnOptions {
   dependent: string
   dependencies: readonly string[]
@@ -85,7 +114,6 @@ export async function dependsOn({
     rootDir,
     tsConfig,
   })
-
   const mergedGraph = utils.mergeGraphs([jsGraph, additionalGraph])
 
   return utils.dependsOn({

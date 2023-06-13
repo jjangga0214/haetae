@@ -333,6 +333,42 @@ export interface ChangedFilesOptions {
   glob?: boolean
 }
 
+export interface DepsOptions {
+  entrypoint: string
+  graph: DepsGraph
+  rootDir?: string
+}
+
+export function deps({
+  entrypoint,
+  graph,
+  rootDir = core.getConfigDirname(),
+}: DepsOptions): string[] {
+  /* eslint-disable no-param-reassign */
+  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  entrypoint = upath.resolve(rootDir, entrypoint)
+  /* eslint-enable no-param-reassign */
+
+  const checkedDeps = new Set<string>() // To avoid infinite loop by circular dependencies.
+  // `depsQueue` stores dependencies of dependencies.. and so on.
+  const depsQueue = [entrypoint] // Preserving dependency order (breadth-first search)
+  for (const dependency of depsQueue) {
+    if (!checkedDeps.has(dependency)) {
+      checkedDeps.add(dependency)
+      depsQueue.push(...(graph[dependency] || []))
+    }
+  }
+  checkedDeps.clear()
+  // Remove duplicates while preserving order
+  return depsQueue.filter((dep) => {
+    if (checkedDeps.has(dep)) {
+      return false
+    }
+    checkedDeps.add(dep)
+    return true
+  })
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const _hash = hash
 

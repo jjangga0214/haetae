@@ -517,6 +517,37 @@ A function to merge multiple dependency graphs into one single unified graph.
 ```
 </TokenLinkCode>
 
+### `DepsOptions`
+
+An argument interface for [`deps`](#deps).
+
+<TokenLinkCode tokens={['DepsGraph']}>
+```ts
+interface DepsOptions {
+  entrypoint: string
+  graph: DepsGraph
+  rootDir?: string
+}
+```
+</TokenLinkCode>
+
+### `deps`
+
+A function to get all of the direct and transitive dependencies of a single entry point.<br/>
+The searched result keeps the order by breath-first approach, without duplication of elements.
+
+<TokenLinkCode tokens={['DepsOptions']}>
+```ts
+(options: DepsOptions) => string[]
+```
+</TokenLinkCode>
+
+**Options**
+
+- `entrypoint{:ts}` : An entry point to get all of whose direct and transitive dependencies.
+- `graph{:ts}` : A dependency graph. Return value of [`graph`](#graph) is proper.
+- `rootDir?{:ts}` : A directory to join with when `entrypoint` is given as a relative path.
+<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `DependsOnOptions`
 
