@@ -30,6 +30,7 @@
     "globby": "^13.1.4",
     "hasha": "^5.2.2",
     "lodash.isequal": "^4.5.0",
+    "lodash.pickby": "^4.6.0",
     "memoizee": "^0.4.15",
     "multimatch": "^6.0.0",
     "node-filter-async": "3.0.0",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@haetae/core": "workspace:*",
     "@types/lodash.isequal": "^4.5.6",
+    "@types/lodash.pickby": "^4.6.7",
     "@types/memoizee": "^0.4.8",
     "@types/serialize-javascript": "^5.0.1"
   },

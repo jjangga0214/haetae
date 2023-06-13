@@ -1,6 +1,17 @@
 import upath from 'upath'
 import { dirname } from 'dirname-filename-esm'
-import { glob, $, graph, dependsOn, mergeGraphs, deps } from '../src/index.js'
+import * as core from '@haetae/core'
+import {
+  glob,
+  $,
+  graph,
+  dependsOn,
+  mergeGraphs,
+  deps,
+  changedFiles,
+  ChangedFilesOptions,
+  recordData,
+} from '../src/index.js'
 
 describe('glob', () => {
   test('basic usage', async () => {
@@ -389,5 +400,83 @@ describe('dependsOn', () => {
         glob: false,
       }),
     ).resolves.toBe(true)
+  })
+})
+
+describe('changedFiles', () => {
+  const rootDir = upath.resolve(dirname(import.meta), 'changedFiles')
+  const options = async (): Promise<ChangedFilesOptions> => ({
+    renew: ['c', 'd', 'f', 'g'],
+    previousRecord: await core.formRecord({
+      data: await recordData({
+        files: {
+          b: 'b',
+          'b.notChanged':
+            '1e4a09343495ad2d7792c67e1b970084943efa24ceef8affc3943c060f56475c',
+          c: 'c',
+          'c.notChanged':
+            '1e4a09343495ad2d7792c67e1b970084943efa24ceef8affc3943c060f56475c',
+          e: 'e',
+          f: 'f',
+        },
+      }),
+      env: {},
+    }),
+    rootDir,
+  })
+
+  test('basic usage', async () => {
+    const result = await changedFiles(['*'], {
+      ...(await options()),
+    })
+    expect(new Set(result)).toStrictEqual(
+      new Set([
+        upath.resolve(rootDir, 'a'),
+        upath.resolve(rootDir, 'b'),
+        upath.resolve(rootDir, 'c'),
+        upath.resolve(rootDir, 'd'),
+        upath.resolve(rootDir, 'e'),
+        upath.resolve(rootDir, 'f'),
+      ]),
+    )
+  })
+
+  test('glob: false', async () => {
+    const result = await changedFiles(['*'], {
+      ...(await options()),
+      glob: false,
+    })
+    expect(new Set(result)).toStrictEqual(new Set())
+    const result2 = await changedFiles(
+      ['a', 'b', 'b.notChanged', 'c', 'c.notChanged', 'd', 'e', 'f'],
+      {
+        ...(await options()),
+        glob: false,
+      },
+    )
+    expect(new Set(result2)).toStrictEqual(
+      new Set([
+        upath.resolve(rootDir, 'a'),
+        upath.resolve(rootDir, 'b'),
+        upath.resolve(rootDir, 'c'),
+        upath.resolve(rootDir, 'd'),
+        upath.resolve(rootDir, 'e'),
+        upath.resolve(rootDir, 'f'),
+      ]),
+    )
+  })
+  test('filterByExistence: true', async () => {
+    const result = await changedFiles(['*'], {
+      ...(await options()),
+      filterByExistence: true,
+    })
+    expect(new Set(result)).toStrictEqual(
+      new Set([
+        upath.resolve(rootDir, 'a'),
+        upath.resolve(rootDir, 'b'),
+        upath.resolve(rootDir, 'c'),
+        upath.resolve(rootDir, 'd'),
+      ]),
+    )
   })
 })

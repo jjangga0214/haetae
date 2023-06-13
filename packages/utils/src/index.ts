@@ -1,16 +1,17 @@
+import { parsePkg, PromiseOr, Rec, toAbsolutePath } from '@haetae/common'
+import * as core from '@haetae/core'
+import { dirname } from 'dirname-filename-esm'
+import { globby, Options as GlobbyOptions } from 'globby'
+import hasha from 'hasha'
+import isEqual from 'lodash.isequal'
+import pickBy from 'lodash.pickby'
+import memoizee from 'memoizee'
+import multimatch from 'multimatch'
+import filterAsync from 'node-filter-async'
 import childProcess from 'node:child_process'
 import fs from 'node:fs/promises'
-import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
-import filterAsync from 'node-filter-async'
 import upath from 'upath'
-import { globby, Options as GlobbyOptions } from 'globby'
-import multimatch from 'multimatch'
-import hasha from 'hasha'
-import { dirname } from 'dirname-filename-esm'
-import isEqual from 'lodash.isequal'
-import * as core from '@haetae/core'
-import { parsePkg, PromiseOr, Rec, toAbsolutePath } from '@haetae/common'
 
 const pkgName = '@haetae/utils'
 
@@ -323,16 +324,6 @@ export async function dependOn({
   )
 }
 
-export interface ChangedFilesOptions {
-  rootDir?: string
-  renew?: readonly string[]
-  hash?: (filename: string) => PromiseOr<string>
-  filterByExistence?: boolean
-  reserveRecordData?: boolean
-  previousRecord?: core.HaetaeRecord<RecordData, Rec>
-  glob?: boolean
-}
-
 export interface DepsOptions {
   entrypoint: string
   graph: DepsGraph
@@ -369,6 +360,17 @@ export function deps({
   })
 }
 
+export interface ChangedFilesOptions {
+  rootDir?: string
+  renew?: readonly string[]
+  hash?: (filename: string) => PromiseOr<string>
+  filterByExistence?: boolean
+  keepRemovedFiles?: boolean
+  reserveRecordData?: boolean
+  previousRecord?: core.HaetaeRecord<RecordData, Rec>
+  glob?: boolean
+}
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const _hash = hash
 
@@ -380,6 +382,7 @@ export const changedFiles = memoizee(
       hash = (filename) => _hash([filename], { rootDir }),
       renew = files,
       filterByExistence = false,
+      keepRemovedFiles = true,
       reserveRecordData = true,
       previousRecord,
       glob = true,
@@ -387,40 +390,77 @@ export const changedFiles = memoizee(
   ): Promise<string[]> => {
     /* eslint-disable no-param-reassign */
     rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-    if (glob) {
-      files = await _glob(files, { rootDir })
-      renew = await _glob(renew, { rootDir })
-    }
-    files = files.map((file) => upath.resolve(rootDir, file))
-    renew = renew.map((file) => upath.resolve(rootDir, file))
     previousRecord = previousRecord || (await core.getRecord<RecordData>())
+    files = files.map((f) =>
+      upath.isAbsolute(f) ? upath.relative(rootDir, f) : f,
+    )
+    renew = renew.map((f) =>
+      upath.isAbsolute(f) ? upath.relative(rootDir, f) : f,
+    )
     /* eslint-enable no-param-reassign */
+    // `previousFiles` are filtered by `files`
+    const previousFiles = pickBy(
+      previousRecord?.data[pkgName]?.files || {},
+      (_, file) =>
+        glob
+          ? isEqual([file], multimatch([file], files))
+          : files.includes(file),
+    )
+    const toRenew = new Set<string>(
+      glob
+        ? [
+            ...multimatch(files, renew),
+            ...multimatch(Object.keys(previousFiles), renew),
+          ]
+        : renew,
+    )
 
-    const previousFiles = previousRecord?.data[pkgName]?.files || {}
     const filesData: Record<string, string> = {}
 
-    const result = await filterAsync(files, async (file) => {
-      const relativeFile = upath.relative(rootDir, file)
-      if (filterByExistence) {
-        try {
-          await fs.access(file) // Check if the file exists.
-        } catch {
-          filesData[relativeFile] = previousFiles[relativeFile]
-          return false
+    const exists = async (file: string) => {
+      try {
+        await fs.access(upath.resolve(rootDir, file))
+        return true
+      } catch {
+        return false
+      }
+    }
+    const targets = [
+      ...new Set(
+        [
+          ...(glob ? await _glob(files, { rootDir }) : files),
+          ...Object.keys(previousFiles),
+        ].map((f) => (upath.isAbsolute(f) ? upath.relative(rootDir, f) : f)),
+      ),
+    ]
+
+    const result = await filterAsync(targets, async (file) => {
+      if (await exists(file)) {
+        if (!toRenew.has(file) && !previousFiles[file]) {
+          // This is a new file and hash is not needed to be calculated as not to be recorded
+          return true
         }
+        const hashed = await hash(file)
+        if (toRenew.has(file)) {
+          filesData[file] = hashed
+        } else if (previousFiles[file]) {
+          filesData[file] = previousFiles[file]
+        }
+        return previousFiles[file] !== hashed
       }
-      const hashed = await hash(file)
-      if (renew.includes(file)) {
-        filesData[relativeFile] = hashed
-      } else {
-        filesData[relativeFile] = previousFiles[relativeFile]
+      if (previousFiles[file]) {
+        if (keepRemovedFiles && !toRenew.has(file)) {
+          filesData[file] = previousFiles[file]
+        }
+        return !filterByExistence
       }
-      return previousFiles[relativeFile] !== hashed
+      return false
     })
+
     if (reserveRecordData) {
       core.reserveRecordData(await recordData({ files: filesData }))
     }
-    return result
+    return result.map((file) => upath.resolve(rootDir, file))
   },
   {
     normalizer: serialize,
