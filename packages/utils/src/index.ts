@@ -277,28 +277,14 @@ export async function dependsOn({
   dependencies = [...dependencies].map((dep) => upath.resolve(rootDir, dep))
   /* eslint-enable no-param-reassign */
 
-  if (!graph[dependent]) {
-    return false
-  }
-
-  // Consider any file depends on itself.
-  // This is beneficial for using with changedFiles() for testing (e.g. git.changedFiles() or utils.changedFiles())
-  if (glob) {
-    if (isEqual([dependent], multimatch([dependent], dependencies))) {
-      return true
-    }
-  } else if (dependencies.includes(dependent)) {
-    return true
-  }
-
   const checkedDeps = new Set<string>() // To avoid infinite loop by circular dependencies.
-  // `transitiveDepsQueue` stores dependencies of dependencies.. and so on.
+  // `depsQueue` stores dependencies of dependencies.. and so on.
   // Until either the function finds the matching dependency or the loop ends.
-  const transitiveDepsQueue = [...graph[dependent]]
-  for (const dependency of transitiveDepsQueue) {
+  const depsQueue = [dependent, ...(graph[dependent] || [])]
+  for (const dependency of depsQueue) {
     if (!checkedDeps.has(dependency)) {
       checkedDeps.add(dependency)
-      transitiveDepsQueue.push(...(graph[dependency] || []))
+      depsQueue.push(...(graph[dependency] || []))
       if (glob) {
         if (isEqual([dependency], multimatch([dependency], dependencies))) {
           return true
@@ -365,38 +351,40 @@ export const changedFiles = memoizee(
   ): Promise<string[]> => {
     /* eslint-disable no-param-reassign */
     rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-    files = files.map((file) => upath.relative(rootDir, file))
-    renew = renew.map((file) => upath.relative(rootDir, file))
     if (glob) {
       files = await _glob(files, { rootDir })
       renew = await _glob(renew, { rootDir })
     }
+    files = files.map((file) => upath.resolve(rootDir, file))
+    renew = renew.map((file) => upath.resolve(rootDir, file))
     previousRecord = previousRecord || (await core.getRecord<RecordData>())
     /* eslint-enable no-param-reassign */
+
     const previousFiles = previousRecord?.data[pkgName]?.files || {}
     const filesData: Record<string, string> = {}
 
     const result = await filterAsync(files, async (file) => {
+      const relativeFile = upath.relative(rootDir, file)
       if (filterByExistence) {
         try {
           await fs.access(file) // Check if the file exists.
         } catch {
-          filesData[file] = previousFiles[file]
+          filesData[relativeFile] = previousFiles[relativeFile]
           return false
         }
       }
       const hashed = await hash(file)
       if (renew.includes(file)) {
-        filesData[file] = hashed
+        filesData[relativeFile] = hashed
       } else {
-        filesData[file] = previousFiles[file]
+        filesData[relativeFile] = previousFiles[relativeFile]
       }
-      return previousFiles[file] !== hashed
+      return previousFiles[relativeFile] !== hashed
     })
     if (reserveRecordData) {
       core.reserveRecordData(await recordData({ files: filesData }))
     }
-    return result.map((file) => upath.resolve(rootDir, file))
+    return result
   },
   {
     normalizer: serialize,
