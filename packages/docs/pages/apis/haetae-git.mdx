@@ -330,7 +330,7 @@ interface ChangedFilesOptions  {
   includeUntracked?: boolean
   includeIgnored?: boolean
   filterByExistence?: boolean
-  reserveRecordData?: boolean
+  reserveRecordData?: boolean | typeof core.reserveRecordData
 }
 ```
 
@@ -367,6 +367,8 @@ If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 If you want to get removed files as well, set it `false{:ts}`.
 <small>(default: `true{:ts}`)</small>
 - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
+If `true{:ts}`, [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata) is called internally.
+If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata).
 <small>(default: `true{:ts}`)</small>
 
 Note that *untracked* files <small>(usually newly added files not commited yet)</small> and *ignored* files are different.

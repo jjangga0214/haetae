@@ -174,7 +174,7 @@ export interface ChangedFilesOptions {
   includeUntracked?: boolean
   includeIgnored?: boolean
   filterByExistence?: boolean
-  reserveRecordData?: boolean
+  reserveRecordData?: boolean | typeof core.reserveRecordData
 }
 
 export const changedFiles = memoizee(
@@ -259,8 +259,11 @@ export const changedFiles = memoizee(
     }
 
     result = [...new Set(result)] // this removes duplicates
-    if (reserveRecordData) {
+
+    if (reserveRecordData === true) {
       core.reserveRecordData(await recordData())
+    } else if (typeof reserveRecordData === 'function') {
+      reserveRecordData(await recordData())
     }
     return result
   },

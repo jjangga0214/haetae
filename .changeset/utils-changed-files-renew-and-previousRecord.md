@@ -2,4 +2,4 @@
 '@haetae/utils': patch
 ---
 
-`renew`, and `previousRecord` are added to `ChangedFilesOptions`.
+`renew`, and `previousFiles` are added to `ChangedFilesOptions`.

@@ -666,16 +666,18 @@ On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`uti
 
 <Callout>
   **More APIs not covered** <br/>
-  There're more APIs related to dependency graph, like [`js.graph{:ts}`](./apis/haetae-javascript#graph),
-  [`utils.mergeGraph{:ts}`](./apis/haetae-utils#mergegraph),
-  [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson),
-  [`utils.dependOn{:ts}`](./apis/haetae-utils#dependon), etc.
+  There're more APIs related to dependency graph, like
+  [`js.graph{:ts}`](./apis/haetae-javascript#graph),
+  [`js.deps{:ts}`](./apis/haetae-javascript#deps),
+  [`utils.deps{:ts}`](./apis/haetae-utils#deps),
+  [`utils.mergeGraph{:ts}`](./apis/haetae-utils#mergegraph), etc.
   This article doesn't cover them all. Check out the API docs for more detail.
 </Callout>
 
 ## Record Data
 
-Haetae has a concept of *'Record'* (type: [`HaetaeRecord`](./apis/haetae-core#haetaerecord)) and *'Record Data'* (type: `HaetaeRecord.data{:ts}`).
+Haetae has a concept of *'Record'* (type: [`core.HaetaeRecord`](./apis/haetae-core#haetaerecord))
+and *'Record Data'* (type: `core.HaetaeRecord.data{:ts}`).
 
 In the previous sections, we've already seen terminal outputs like this.
 
@@ -1099,7 +1101,7 @@ Then we can modify the config file like this.
   '.graph': './apis/haetae-utils#graph',
   '.dependOn': './apis/haetae-javascript#dependon',
 }}>
-```js filename="haetae.config.js" {9-15,21} showLineNumbers
+```js filename="haetae.config.js" {9-14,20} showLineNumbers
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({
@@ -1109,10 +1111,9 @@ export default core.configure({
       run: async () => {
         const changedFiles = await git.changedFiles()
         const changedFilesByHash = await utils.changedFiles(
-          ['.env.local', '.env.development', '.env.staging'],
+          ['.env.*'], // or ['.env.{local,development,staging}']
           {
             renew: [`.env.${process.env.ENV}`],
-            filterByExistence: true,
           },
         )
         changedFiles.push(...changedFilesByHash)
@@ -1140,46 +1141,42 @@ export default core.configure({
 ```
 </TokenLinkCode>
 
-By this, changes to multiple dotenv files are recorded and compared as well as `additionalGraph` works well.
-
-[`renew`](./apis/haetae-utils#changedfiles) is a list of files that will be renewed(if changed) by their current hash.
-By default, `renew` is equal to all files in the argument.
+[`renew`](./apis/haetae-utils#changedfiles) is a list of files (or glob pattern)
+that will be renewed (if changed) by their current hash.
+By default, `renew` is equal to all files(`['env.*']{:ts}`) we gave as the argument.
 In our config, by limiting it to `.env.${process.env.ENV}{:ts}`, you only renew the single dotenv file.
-For example, let's say currently `$ENV` is `'local'`.
-Obviously, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are compared to the previous hashes to detect if changed.
-But *`.env.development`*, and *`.env.staging`* are not renewed in the new Record Data.
-Their previous hashes are recorded instead of current hashes, no matter whether the current ones are different from the previous ones.
-Only *`.env.local`* will be renewed.
-This is good for our test.
-For instance, *`.env.development`* can be changed when `$ENV` is `'local'`.
-And the detection of the change to *`.env.development`* is kept until `$ENV` changes to `'development'`.
-So when `$ENV` becomes `'development'`, [`utils.changedFiles`](./apis/haetae-utils#changedfiles)
-would think *`.env.development`* is still a changed file,
-though the change is, in fact, made in the past.
-This lets test files that transitively depend on the dotenv file executed when `$ENV` becomes `'development'`.
+
+Let's say currently `$ENV` is `'local'`.
+Obviously, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are compared to the previous hashes.
+If changes are detected, included in the result array.
+
+But regardless of it, *`.env.development`*, and *`.env.staging`* are not renewed in the new Record Data.
+Their previous hashes are recorded instead of current hashes.
+
+This behavior can be good for our test in many scenarios.
+
+For instance, *`.env.development`* can be modified when `$ENV` is `'local'`.
+As it's not in `renew` list, the hash of *`.env.development`* is not updated.
+When later `$ENV` becomes `'development'`, [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles)
+would still think *`.env.development`* is a changed file,
+as the current hash and previously recorded hash are different.
+This makes sure test files are to be re-executed when `$ENV` becomes `'development'`.
 **[`renew`](./apis/haetae-utils#changedfiles) exists for the discrepancy between
 when the physical change actually happens and when the detection of the change is needed.**
 
-[`filterByExistence`](./apis/haetae-utils#changedfiles) is `false{:ts}` by default for intended safety.
-If so, all given files will be passed to `hash` function internally.
-If a non-existent file is given, the `hash` function won't be able to read the file.
-So it throws an error, unless you give a non-default hash function that can handle this situation as an option.
+[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) has many more options,
+and acts in a bit complicated way.
 
-If [`filterByExistence`](./apis/haetae-utils#changedfiles) is `true{:ts}`,
-a non-existent file will be treated as not changed.
-So it's just simply not included in the returned result without an error.
-And the hash of the non-existent file succeeds the previous record,
-which means recorded as the same value as the previous one from the previous *Record Data*.
-If the previous *Record Data* doesn't contain the file, the hash will not be recorded.
-
-When not all of the files might exist on the filesystem at the same time
-and only a few of them are dynamically used in incremental tasks,
-`filterByExistence: true{:ts}` and `renew` are useful.
+For example, by an option `keepRemovedFiles`, which is not introduced above,
+you can handle cases like when not all of the files might exist on the filesystem at the same time
+and only a few of them are dynamically used in incremental tasks.
 For instance, a CI workflow might have access to only *`.env.development`* at a certain time,
 while it might have access to only *`.env.staging`* at another time.
 And you may still want the incremental history not separated but shared between the two cases.
-`filterByExistence: true{:ts}` and `renew` are good for such a scenario.
-<small>(Haetae on CI is guided in 'CI' article.)</small>
+That's where `keepRemovedFiles` comes in.
+
+[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) is not covered thoroughly here.
+Check out the API docs for more detail.
 
 There's one more thing to take care of [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles).
 You should NOT give a dynamic files argument to it.
@@ -1197,6 +1194,105 @@ const changedFilesByHash = await utils.changedFiles(
 </TokenLinkCode>
 
 The snippet above lets only a single file to be recorded.
-So, if `$ENV` is changed, the previous one will no longer be recorded.
-Therefore you should list all of the candidates.<br/>
-Like `['.env.local', '.env.development', '.env.staging']{:ts}`.
+So, if `$ENV` is changed, the previous file is no longer recorded.
+This has no safety problem, but reduces incrementality.
+
+Therefore you should list all of the candidates, like `['.env.*']{:ts}`.
+
+## Root Env and Root Record Data
+
+Haetae has a concept of *'Root Env'* (type: [`core.RootEnv{:ts}`](./apis/haetae-core#rootenv))
+and *'Root Record Data'* (type: [`core.RootRecordData{:ts}`](./apis/haetae-core#rootrecorddata)).
+They are [decorater](https://en.wikipedia.org/wiki/Decorator_pattern)-like transformers
+for the return value of `env` and `run` of every command.
+
+<TokenLinkCode tokens={{
+  '.configure': './apis/haetae-core#configure',
+  '.hash': './apis/haetae-utils#hash',
+  '.deps': './apis/haetae-js#deps',
+}}>
+```js filename="haetae.config.js" {4-6, 9}
+import { $, core, git, utils, js } from 'haetae'
+
+export default core.configure({
+  recordData: async (data) => ({ // <--- 'Root Record Data'
+    hello: data.hello.toUpperCase(),
+  }),
+  commands: {
+    myGreeting: {
+      run: () => ({ hello: 'world' }),
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+
+```fish filename="terminal" {8}
+$ haetae myGreeting
+
+✔  success   Command myGreeting is successfully executed.
+
+⎡ 🕗 time: 2023 Jun 14 15:49:52 (timestamp: 1686725392672)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎣      hello: WORLD # <--- capitalized
+```
+
+Let's get into a more practical example.<br/>
+You may want the config file's hash to be automatically recorded into every command's `env`.
+
+<TokenLinkCode tokens={{
+  '.configure': './apis/haetae-core#configure',
+  '.hash': './apis/haetae-utils#hash',
+}}>
+```js filename="haetae.config.js" {5-9, 13}
+import * as url from 'node:url' // `node:` protocol is optional
+import { $, core, git, utils, js } from 'haetae'
+
+export default core.configure({
+  env: async (env) => ({ // <--- 'Root Env'
+    ...env,
+    // Equals to => await utils.hash(['haetae.config.js']),
+    haetaeConfig: await utils.hash([url.fileURLToPath(import.meta.url)]),
+  }),
+  commands: {
+    myGreeting: {
+      env: {
+        NODE_ENV: process.env.NODE_ENV
+      },
+      run: () => { /* ... */ }
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+By *Root Env*, it's done in a single place.
+
+```fish filename="terminal" {6}
+$ haetae myGreeting --env
+
+✔  success   Current environment is successfully executed for the command myGreeting
+
+⎡ NODE_ENV: development
+⎣ haetaeConfig: f7c12d5131846a5db496b87cda59d3e07766ed1bde8ed159538e85f42f3a8dae
+```
+
+By the way, you can go even thoroughly.
+[`js.deps{:ts}`](./apis/haetae-javascript#deps) lists every direct and transitive dependency.
+
+<TokenLinkCode tokens={{
+  '.hash': './apis/haetae-utils#hash',
+  '.deps': './apis/haetae-js#deps',
+}}>
+```js filename="haetae.config.js" {3}
+// Other content is omitted for brevity
+haetaeConfig: await utils.hash(
+  await js.deps({ entrypoint: url.fileURLToPath(import.meta.url) }),
+),
+```
+</TokenLinkCode>
+
+This snippet calculates a hash of the config file and its dependencies.
+If you don't import other modules in the config, this is not necessary.

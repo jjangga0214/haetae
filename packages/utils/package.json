@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@haetae/common": "workspace:*",
+    "@jest/globals": "^29.5.0",
     "dirname-filename-esm": "^1.1.1",
     "globby": "^13.1.4",
     "hasha": "^5.2.2",

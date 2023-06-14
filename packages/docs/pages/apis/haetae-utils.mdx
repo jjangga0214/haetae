@@ -3,6 +3,7 @@ import Link from 'next/link'
 import PkgManagerTabs from '../../components/PkgManagerTabs'
 import TokenLinkCode from '../../components/TokenLinkCode'
 import Chip from '../../components/Chip'
+import Image from '../../components/Image';
 
 export const Memoized = () => (<Chip label='Memoized' href='./introduction#memoization' />)
 export const PathPrinciples = () => (<Chip label='Path Principles' href='./introduction/#path-principles' />)
@@ -700,6 +701,7 @@ interface ChangedFilesOptions {
   renew?: readonly string[]
   hash?: (filename: string) => PromiseOr<string>
   filterByExistence?: boolean
+  keepRemovedFiles?: boolean
   reserveRecordData?: boolean
   previousRecord?: core.HaetaeRecord<RecordData, Rec>
   glob?: boolean
@@ -713,7 +715,7 @@ interface ChangedFilesOptions {
 <PathPrinciples/>
 
 A function to get a list of changed files by hash comparison.<br/>
-<small>([Getting Started](../getting-started) guide explains its principles.)</small>
+<small>([Getting Started](../getting-started) guide explains its basic usage.)</small>
 
 **Type**
 
@@ -735,18 +737,176 @@ A function to get a list of changed files by hash comparison.<br/>
   In such cases, the current hashes are not recorded.
   Rather, previous hashes are recorded by succession.
   <small>(default: `files{:ts}` (the argument))</small>
-  - `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
+  - `hash?{:ts}` : A function to generate a cryptographic hash for each file. Always an absolute path is given as an argument.
   <small>(default: <TokenLinkCode tokens={['hash']} inline>`(f) => hash([f], { rootDir }){:ts}`</TokenLinkCode>)</small>
-  - `filterByExistence?{:ts}` : Whether to filter out non-existent files before passing to `hash` function.
-  If `true{:ts}`, non-existent files will just simply NOT be included in the returned result.
-  If `false{:ts}`, non-existent files are given to the `hash` function, and to be included in the returned result
-  if the calculated hash and previous hash are different.
-  But by default, a non-existent file causes an error as hash cannot be calculated
-  unless you give a non-default `hash` function that can handle this situation as another option.
+  - `keepRemovedFiles?{:ts}` : Whether to succeed hash of a file that is previously recorded
+  but currently non-existent on the filesystem.
+  <small>(default: `true{:ts}`)</small>
+  - `filterByExistence?{:ts}` : Whether to filter out non-existent files from the result.
+  By default, removed files are treated as changed, so included in the result.
+  But if `filterByExistence` is `true{:ts}`, they aren't included.
   <small>(default: `false{:ts}`)</small>
   - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
+  If `true{:ts}`, [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata) is called internally.
+  If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata).
   <small>(default: `true{:ts}`)</small>
   - `previousRecord?{:ts}` : A previous *Record Data* to compare or succeed files' hash.
   <small>(default: <TokenLinkCode tokens={{'.getRecord': './haetae-core#getrecord', 'RecordData': '#recorddata'}} inline>`core.getRecord<RecordData>(){:ts}`</TokenLinkCode>)</small>
   - `glob?{:ts}` : Whether to enable glob pattern.
   <small>(default: `true{:ts}`)</small>
+
+#### Usage
+
+Let's say your project is like this.
+
+```fish
+<your-project>
+# Other directories and files like package.json are omitted for brevity
+├── haetae.config.js
+└── targets
+    ├── b
+    ├── c
+    ├── e
+    ├── f
+    └── i
+```
+
+<TokenLinkCode tokens={{
+  '.configure': './haetae-core#configure',
+  '.changedFiles': './haetae-git#changedfiles',
+}}>
+```js filename="haetae.config.js" showLineNumbers
+import { $, core, git, utils, js } from 'haetae'
+
+export default core.configure({
+  commands: {
+    myCommand: {
+      run: async () => {
+        // ...
+        const changedFiles = await utils.changedFiles(['targets/*'])
+        console.log('changedFiles:', changedFiles)
+        // ...
+      },
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+If you run `myCommand` for the first time, the result would be like this.
+
+```fish filename="terminal"
+$ haetae myCommand
+
+changedFiles: [
+  '/path/to/targets/b',
+  '/path/to/targets/c',
+  '/path/to/targets/e',
+  '/path/to/targets/f',
+  '/path/to/targets/i'
+]
+
+✔  success   Command myCommand is successfully executed.
+
+⎡ 🕗 time: 2023 May 28 11:06:06 (timestamp: 1685239566483)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/utils":
+⎜        files:
+⎜          targets/b: d9298e6da7af05e586f751d7970b2c7f24672a8ba6c9ce181dd08d7806d57577
+⎜          targets/c: c1da9e80c56455de246bc51f13b08a268cfb18cda6e1cb62aeabe97296be1a96
+⎜          targets/e: 68dd4ebaba3b6c6a4de18927efbe62da5ebd1bfd720e2ab73bdb3195773fff9c
+⎜          targets/f: d8eb1fc8e0f5d0c6f4a710ee0bfd27eeb43eb3c9d5e57f338715bf5c5a660f36
+⎜          targets/i: d7b68040b472acede5847c237f0d5a206caa4f3c4df393ac47ab5f6bd9124a9c
+⎣        pkgVersion: 0.0.14
+```
+
+As it's the first time, there're no hashes in the previous *Record Data*.
+So *`b`*, *`c`*, *`e`*, *`f`* and *`i`* are all detected as changed files.
+And their hashes are recorded in the new *Record Data*.
+
+If we run it again immediately, no file is detected as changed.
+The hashes are recorded the same as well.
+
+```fish filename="terminal"
+$ haetae myCommand
+
+changedFiles: []
+
+✔  success   Command myCommand is successfully executed.
+
+⎡ 🕗 time: 2023 Jun 15 00:40:28 (timestamp: 1686757228698)
+⎜ 🌱 env: {}
+⎜ 💾 data:
+⎜      "@haetae/utils":
+⎜        files:
+⎜          targets/b: d9298e6da7af05e586f751d7970b2c7f24672a8ba6c9ce181dd08d7806d57577
+⎜          targets/c: c1da9e80c56455de246bc51f13b08a268cfb18cda6e1cb62aeabe97296be1a96
+⎜          targets/e: 68dd4ebaba3b6c6a4de18927efbe62da5ebd1bfd720e2ab73bdb3195773fff9c
+⎜          targets/f: d8eb1fc8e0f5d0c6f4a710ee0bfd27eeb43eb3c9d5e57f338715bf5c5a660f36
+⎜          targets/i: d7b68040b472acede5847c237f0d5a206caa4f3c4df393ac47ab5f6bd9124a9c
+⎣        pkgVersion: 0.0.14
+```
+
+After then, you made some changes on the project.
+
+```fish
+<your-project>
+# Other directories and files like package.json are omitted for brevity
+├── haetae.config.js
+└── targets
+    ├── a
+    ├── b
+    ├── c
+    └── d
+```
+
+*`a`* and *`d`* are newly created.<br/>
+*`e`*, *`f`*, and *`i`* are removed.
+
+You modified the config file as well.
+
+<TokenLinkCode tokens={{
+  '.changedFiles': './haetae-git#changedfiles',
+}}>
+```js filename="haetae.config.js"
+// Other content is omitted for brevity.
+const changedFiles = await utils.changedFiles(['targets/{a,b,c,d,e,f,h}'], {
+  renew: ['c', 'd', 'f', 'g']
+})
+```
+</TokenLinkCode>
+
+So, the positional argument `files` is `['targets/{a,b,c,d,e,f,h}']{:ts}`,
+and the named option `renew` is `['c', 'd', 'f', 'g']{:ts}`.
+
+<Image src="/apis/utils/changedFiles.svg" alt="changedFiles explanation"/>
+
+What would be the result if we run the command again?
+
+```fish filename="terminal"
+$ haetae myCommand
+```
+
+It will be partially different relying on `options` and whether the content is changed.
+
+The rule to determine the result is like this. This example covers every possible scenario.
+
+- *`a`* : Hash is **not recorded**, as it's not a target to `renew`.
+Detected as **changed**, because it's not in the previous Record Data,
+but exists on the filesystem currently.
+- *`b`* : **Previous hash is recorded** as it's not a target to `renew`.
+Detected as **changed if the current and previous hashes are different.**
+- *`c`* : **Current hash is recorded**.
+Detected as **changed if the current and previous hashes are different.**
+- *`d`* : **Current hash is recorded**.
+Detected as **changed**, because it's not in the previous Record Data,
+but exists on the filesystem currently.
+- *`e`* : **Previous hash is recorded if `options.keepRemovedFiles{:ts}` is `true{:ts}`**<small>(default)</small>.
+Detected as **changed if `options.filterByExistence{:ts}` is `false{:ts}`** <small>(not default)</small>.
+- *`f`* : Hash is **not recorded**, as it's a target to `renew`
+and doesn't exist on the filesystem currently.
+Detected as **changed if `options.filterByExistence{:ts}` is `false{:ts}`**<small>(not default)</small>.
+- *`g`* : Hash is **not recorded**. **Not detected as changed**.
+- *`h`* : Hash is **not recorded**. **Not detected as changed**.
+- *`i`* : Hash is **not recorded**. **Not detected as changed**.
