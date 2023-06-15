@@ -6,13 +6,14 @@ interface Children {
 
 interface TokenLinkCodeProps extends Children {
   tokens: (string | Record<string, string>)[] | Record<string, string>
+  // eslint-disable-next-line react/require-default-props
   inline?: boolean
 }
 
 export default function TokenLinkCode({
   children,
   tokens,
-  inline = false
+  inline = false,
 }: TokenLinkCodeProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -45,7 +46,7 @@ export default function TokenLinkCode({
       }
     }
   }, [children, tokens, containerRef])
-  if(inline){
+  if (inline) {
     return (
       <span ref={containerRef} style={{ marginTop: '2em' }}>
         {children}
