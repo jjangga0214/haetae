@@ -24,7 +24,8 @@ export async function glob(
     .map((p) => upath.normalizeSafe(p))
     .map((p) => {
       const walkUpCount =
-        (p.match(/\.{2}\//g) || []).length - (p.match(/\.{3}\//g) || []).length
+        (p.match(/^\.{2}\//g) || []).length + // starts with '../'
+        (p.match(/\/\.{2}\//g) || []).length // '/../'
       if (walkUpCountMax.value < walkUpCount) {
         walkUpCountMax.value = walkUpCount
       }
