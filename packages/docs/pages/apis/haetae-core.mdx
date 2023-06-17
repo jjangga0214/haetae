@@ -276,6 +276,7 @@ interface HaetaeConfig<D extends Rec, E extends Rec> {
   commands: Record<string, HaetaeCommand<D, E>>
   env: RootEnv<E>
   recordData: RootRecordData<D>
+  store?: StoreConnector
 }
 ```
 </TokenLinkCode>
@@ -304,7 +305,7 @@ interface HaetaeConfig<D extends Rec, E extends Rec> {
 - `commands{:ts}` : Your commands as an object.
 - `env?{:ts}` : An env-to-env transformer. <small>(default: `(arg) => arg{:ts}`)</small>
 - `recordData?{:ts}` : A recordData-to-recordData transformer. <small>(default: `(arg) => arg{:ts}`)</small>
-- `store?{:ts}` : A store connector. <small>(default: [`localStore()`](#localstore))</small>
+- `store?{:ts}` : A store connector. <small>(default: [`localStore(){:ts}`](#localstore))</small>
 
 #### Type-check for your config
 

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import upath from 'upath'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
-import deepEqual from 'deep-equal'
 import { findUp } from 'find-up'
 import hashObject from 'hash-obj'
 import { PromiseOr, Rec, parsePkg, toAbsolutePath } from '@haetae/common'
@@ -135,52 +134,91 @@ export interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec> {
   time: number
 }
 
-export type HaetaeCommandEnv<E extends Rec> = () => void | PromiseOr<E>
+export interface HaetaeCommandEnvOptions<S extends StoreConnector> {
+  store: S
+}
 
-export type HaetaePreCommandEnv<E extends Rec> =
-  | HaetaeCommandEnv<E>
+export type HaetaeCommandEnv<E extends Rec, S extends StoreConnector> = (
+  options: HaetaeCommandRunOptions<S>,
+) => void | PromiseOr<E>
+
+export type HaetaePreCommandEnv<E extends Rec, S extends StoreConnector> =
+  | HaetaeCommandEnv<E, S>
   | PromiseOr<E | void>
 
-export type HaetaeCommandRun<D extends Rec> = () => void | PromiseOr<D | void>
-
-export interface HaetaePreCommand<D extends Rec, E extends Rec> {
-  run: HaetaeCommandRun<D>
-  env?: HaetaePreCommandEnv<E>
+export interface HaetaeCommandRunOptions<S extends StoreConnector> {
+  store: S
 }
 
-export interface HaetaeCommand<D extends Rec, E extends Rec> {
-  run: HaetaeCommandRun<D>
-  env: HaetaeCommandEnv<E>
+export type HaetaeCommandRun<D extends Rec, S extends StoreConnector> = (
+  options: HaetaeCommandRunOptions<S>,
+) => void | PromiseOr<D | void>
+
+export interface HaetaePreCommand<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  run: HaetaeCommandRun<D, S>
+  env?: HaetaePreCommandEnv<E, S>
 }
 
-export type RootEnv<E extends Rec> = (envFromCommand: E) => PromiseOr<E>
+export interface HaetaeCommand<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  run: HaetaeCommandRun<D, S>
+  env: HaetaeCommandEnv<E, S>
+}
 
-export type RootRecordData<A extends Rec, R extends Rec = A> = (
+export type RootEnv<
+  A extends Rec,
+  S extends StoreConnector,
+  R extends Rec = A,
+> = (envFromCommand: A, options: HaetaeCommandEnvOptions<S>) => PromiseOr<R>
+
+export type RootRecordData<
+  A extends Rec,
+  S extends StoreConnector,
+  R extends Rec = A,
+> = (
   recordDataFromCommand: A,
+  options: HaetaeCommandRunOptions<S>,
 ) => PromiseOr<R>
 
-export interface HaetaePreConfig {
-  commands: Record<string, HaetaePreCommand<Rec, Rec>>
-  env?: RootEnv<Rec>
-  recordData?: RootRecordData<Rec>
-  store?: StoreConnector
+export interface HaetaePreConfig<S extends StoreConnector> {
+  commands: Record<string, HaetaePreCommand<Rec, Rec, S>>
+  env?: RootEnv<Rec, S>
+  recordData?: RootRecordData<Rec, S>
+  store?: S
 }
 
-export interface HaetaeConfig<D extends Rec, E extends Rec> {
-  commands: Record<string, HaetaeCommand<D, E>>
-  env: RootEnv<E>
-  recordData: RootRecordData<D>
+export interface HaetaeConfig<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  commands: Record<string, HaetaeCommand<D, E, S>>
+  env: RootEnv<E, S>
+  recordData: RootRecordData<D, S>
+  store: S
 }
 
-export function configure<D extends Rec, E extends Rec>(
-  preConfig: HaetaePreConfig,
-): HaetaeConfig<D, E> {
+export function configure<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector = LocalStoreConnector,
+>(preConfig: HaetaePreConfig<S>): HaetaeConfig<D, E, S> {
   const { commands } = preConfig
   const env = preConfig.env || ((envFromCommand) => envFromCommand)
   const recordData =
     preConfig.recordData || ((recordDataFromCommand) => recordDataFromCommand)
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define, @typescript-eslint/naming-convention
+  const _store = preConfig.store || localStore()
+
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  store = preConfig.store || localStore()
+  store = _store // module-level store
 
   // Convert it to a function if not
   assert(
@@ -196,7 +234,9 @@ export function configure<D extends Rec, E extends Rec>(
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
       // Convert it to a function if not
       if (typeof commands[command].env !== 'function') {
-        const value = commands[command].env as ReturnType<HaetaeCommandEnv<E>>
+        const value = commands[command].env as ReturnType<
+          HaetaeCommandEnv<E, S>
+        >
         commands[command].env = () => value
       }
 
@@ -208,9 +248,10 @@ export function configure<D extends Rec, E extends Rec>(
   }
 
   return {
-    commands: commands as HaetaeConfig<D, E>['commands'],
-    env: env as RootEnv<E>,
-    recordData: recordData as RootRecordData<D>,
+    commands: commands as HaetaeConfig<D, E, S>['commands'],
+    env: env as RootEnv<E, S>,
+    recordData: recordData as RootRecordData<D, S>,
+    store: _store as S,
   }
 }
 
@@ -252,16 +293,16 @@ export interface GetConfigOptions {
 }
 
 export const getConfig = memoizee(
-  async <D extends Rec, E extends Rec>({
+  async <D extends Rec, E extends Rec, S extends StoreConnector>({
     filename = getConfigFilename(),
-  }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E>> => {
+  }: GetConfigOptions = {}): Promise<HaetaeConfig<D, E, S>> => {
     // eslint-disable-next-line no-param-reassign
     filename = upath.resolve(filename)
     const preConfigModule = await (filename.endsWith('.ts')
       ? importTs(filename)
       : import(filename))
 
-    return configure<D, E>(preConfigModule.default || preConfigModule)
+    return configure<D, E, S>(preConfigModule.default || preConfigModule)
   },
   {
     normalizer: serialize,
@@ -270,7 +311,7 @@ export const getConfig = memoizee(
 
 export interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<Rec, E>
+  config?: HaetaeConfig<Rec, E, StoreConnector>
   applyRootEnv?: boolean
 }
 
@@ -281,7 +322,7 @@ export const invokeEnv = memoizee(
     const applyRootEnv = options.applyRootEnv ?? true
     const haetaeCommand = config.commands[command]
     assert(!!haetaeCommand, `Command "${command}" is not configured.`)
-    const env = (await haetaeCommand.env()) || ({} as E)
+    const env = (await haetaeCommand.env({ store: config.store })) || ({} as E)
     let isObject = false
     try {
       isObject =
@@ -297,7 +338,7 @@ export const invokeEnv = memoizee(
     )
 
     if (applyRootEnv) {
-      return config.env(env)
+      return config.env(env, { store: config.store })
     }
     return env
   },
@@ -308,7 +349,7 @@ export const invokeEnv = memoizee(
 
 export interface InvokeRunOptions<D extends Rec> {
   command?: string
-  config?: HaetaeConfig<D, Rec>
+  config?: HaetaeConfig<D, Rec, StoreConnector>
   applyReservedRecordData?: boolean
   applyRootRecordData?: boolean
 }
@@ -323,7 +364,8 @@ export const invokeRun = async <D extends Rec>(
 
   const haetaeCommand = config.commands[command]
   assert(!!haetaeCommand, `Command "${command}" is not configured.`)
-  let recordData = (await haetaeCommand.run()) || ({} as D)
+  let recordData =
+    (await haetaeCommand.run({ store: config.store })) || ({} as D)
 
   let isObject = false
   try {
@@ -344,7 +386,7 @@ export const invokeRun = async <D extends Rec>(
   }
 
   if (applyRootRecordData) {
-    return config.recordData(recordData)
+    return config.recordData(recordData, { store: config.store })
   }
   return recordData
 }
