@@ -36,12 +36,12 @@ export async function run(): Promise<void> {
         r: {
           alias: 'record',
           type: 'boolean',
-          description: 'All/partial record(s)',
+          description: 'All/partial Record(s)',
         },
         d: {
           alias: 'record-data',
           type: 'boolean',
-          description: 'All/partial record(s) data',
+          description: 'All/partial Record(s) data',
         },
         e: {
           alias: 'env',
@@ -58,14 +58,23 @@ export async function run(): Promise<void> {
           type: 'boolean',
           description: 'Print output in JSON format (for programmatic use)',
         },
+        'dry-run': {
+          // alias: 'json',
+          type: 'boolean',
+          description: 'Skip storing record, but print the result',
+        },
       })
       .conflicts('r', 'd')
-      .conflicts('r', 'e')
+      .conflicts('r ', 'e')
+      .conflicts('r', 'dry-run')
       .conflicts('d', 'e')
+      .conflicts('d', 'dry-run')
+      .conflicts('e', 'dry-run')
       .conflicts('i', 'c')
       .conflicts('i', 'r')
       .conflicts('i', 'd')
       .conflicts('i', 'e')
+      .conflicts('i', 'dry-run')
       .example([
         [
           `$0 -c ./${core.defaultConfigFiles[0]} <...>`,
@@ -194,7 +203,9 @@ export async function run(): Promise<void> {
         })
       } else {
         const record = await core.createRecord()
-        await config.store.addRecord({ record })
+        if (!argv.dryRun) {
+          await config.store.addRecord({ record })
+        }
         assert(
           !!record,
           'Oops! Something went wrong. The new Record is not found from the store even though the command was just executed.',

@@ -55,16 +55,28 @@ export default core.configure({
 
 Then the commands become available from the CLI.<br/>
 
-```sh
+```fish
 $ haetae myAwesomeCommand
 
 hello world!
+
+✔  success   Command myAwesomeCommand is successfully executed.
+
+⎡ 🕗 time: 2023 Jun 08 09:23:07 (timestamp: 1686183787453)
+⎜ 🌱 env: {}
+⎜ 💾 data: {}
 ```
 
-```sh
+```fish
 $ haetae myAnotherCommand
 
 hi, there!
+
+✔  success   Command myAwesomeCommand is successfully executed.
+
+⎡ 🕗 time: 2023 Jun 08 09:23:10 (timestamp: 1686183790481)
+⎜ 🌱 env: {}
+⎜ 💾 data: {}
 ```
 
 ## Options
@@ -77,7 +89,7 @@ If specified, usage help is shown.
 
 #### Usage
 
-```sh
+```fish
 $ haetae --help
 ```
 
@@ -98,7 +110,7 @@ If you want to know comprehensive versions, use [`-i, --info{:sh}`](#-i---info).
 
 #### Usage
 
-```sh
+```fish
 $ haetae --version
 ```
 
@@ -114,7 +126,7 @@ A config file path.
 
 #### Usage
 
-```sh
+```fish
 $ haetae --config path/to/haetae.config.js [<other-options>] <command>
 ```
 
@@ -133,65 +145,16 @@ This option should not be used with these options.
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 
-### `-s, --store`
-<br/>
-<small>(**Type** : `string`, **Default**: Read "*Store File Priority*" section below)</small>
-
-A store file path.
-
-#### Usage
-
-```sh
-$ haetae --store path/to/.haetae/store.json [<other-options>] <command>
-$ haetae --store path/to/dir [<other-options>] <command>
-```
-
-If the value does not end with `.json`, `store.json` would be appended.<br/>
-For instance, `--store path/to/dir` is identical to `--store path/to/dir/store.json`.
-
-<Callout>
-**Store File Priority**<br/>
-1. The option `-s, --store`
-2. [`storeFile`](./apis/haetae-core#haetaepreconfig) in config file.
-3. <TokenLinkCode tokens={{'directory-of-config-file': './apis/haetae-core#getconfigdirname'}}>`<directory-of-config-file>/.haetae/store.json{:sh}`</TokenLinkCode>
-</Callout>
-
-#### Conflicts
-
-This option should not be used with these options.
-
-- [`-i, --info{:sh}`](#-i---info)
-- [`-h, --help{:sh}`](#-h---help)
-- [`-v, --version{:sh}`](#-v---version)
-
 ### `-e, --env`
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
-#### When used with `<command>{:sh}`
+#### Usage
 
 `env` of the `<command>{:sh}` in the config file is evaluated.<br/>
 The evaluated value, which is the current `env`, is shown on the shell.
-```sh
+```fish
 $ haetae --env <command>
-```
-
-#### When used with `-r, --record{:sh}` and `<command>{:sh}`
-
-The `<command>{:sh}`'s record for current `env` is shown.<br/>
-This means, `env` in the config file is evaluated, and the command's record matching with the evaluated `env` is searched from the store file.
-
-```sh
-$ haetae --record --env <command>
-```
-
-#### When used with `-d, --record-data{:sh}` and `<command>{:sh}`
-
-The `<command>{:sh}`'s *Record Data* for current `env` is shown.<br/>
-This means, `env` in the config file is evaluated, and the command's *Record Data* matching with the evaluated `env` is searched from the store file.
-
-```sh
-$ haetae --record-data --env <command>
 ```
 
 #### Conflicts
@@ -201,34 +164,22 @@ This option should not be used with these options.
 - [`-i, --info{:sh}`](#-i---info)
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
+- [`--dry-run{:sh}`](#--dry-run)
+- [`-r, --record{:sh}`](#-r---record )
+- [`-d, --record-data{:sh}`](#-d---record-data)
 
 ### `-r, --record`
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
-#### When used alone
+#### Usage
 
-Content of store file is shown.
+The `<command>{:sh}`'s *Record* for the current `env` is shown.<br/>
+This means, `env` in the config file is evaluated,
+and the command's *Record* matching with the evaluated `env` is searched from the *Store*.
 
-```sh
-$ haetae --record
-```
-
-#### When used with command
-
-A list of every records of the command is shown.
-
-```sh
+```fish
 $ haetae --record <command>
-```
-
-#### When used with `-e, --env` and `<command>{:sh}`
-
-The `<command>{:sh}`'s record for current `env` is shown.<br/>
-This means, `env` in the config file is resolved, and the command's record matching with the resolved `env` is searched from the store file.
-
-```sh
-$ haetae --record --env <command>
 ```
 
 #### Conflicts
@@ -237,6 +188,8 @@ This option should not be used with these options.
 
 - [`-d, --record-data{:sh}`](#-d---record-data)
 - [`-i, --info{:sh}`](#-i---info)
+- [`-e, --env{:sh}`](#-e---env)
+- [`--dry-run{:sh}`](#--dry-run)
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 
@@ -244,21 +197,18 @@ This option should not be used with these options.
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false`)</small>
 
-#### When used with command
-
-A list of every *Record Data* of the command is shown.
-
-```sh
+```fish
 $ haetae --record-data <command>
 ```
 
-#### When used with `-e, --env` and `<command>{:sh}`
+#### Usage
 
 The `<command>{:sh}`'s *Record Data* for current `env` is shown.<br/>
-This means, `env` in the config file is resolved, and the command's *Record Data* matching with the resolved `env` is searched from the store file.
+This means, `env` in the config file is evaluated,
+and the command's *Record Data* matching with the evaluated `env` is searched from the *Store*.
 
-```sh
-$ haetae --record-data --env <command>
+```fish
+$ haetae --record-data <command>
 ```
 
 #### Conflicts
@@ -267,6 +217,8 @@ This option should not be used with these options.
 
 - [`-r, --record{:sh}`](#-r---record)
 - [`-i, --info{:sh}`](#-i---info)
+- [`-e, --env{:sh}`](#-e---env)
+- [`--dry-run{:sh}`](#--dry-run)
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 
@@ -291,34 +243,52 @@ This hinders ease of sharing and reporting. That's why plain text is copied to t
 $ haetae --info
 ```
 
+### `--dry-run`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
+
+If specified, a new record is not stored, but the result is printed.
+
+#### Usage
+
+```sh
+$ haetae --dry-run [<other-options>] <command>
+```
+
 #### Conflicts
 
-This option should not be used with other options, except [``-j, --json``](#-j---json).
+This option should not be used with these options.
+
+- [`-r, --record{:sh}`](#-r---record)
+- [`-d, --record-data{:sh}`](#-d---record-data)
+- [`-e, --env{:sh}`](#-e---env)
+- [`-i, --info{:sh}`](#-i---info)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
 
 ### `-j, --json`
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
-This option exists for programatic use (e.g. unix pipeline).<br/>
+This option exists for programmatic use (e.g. Unix pipeline).<br/>
 If specified, the result (**stdout**, **stderr**) would be expressed in JSON format without ANSI color code.<br/>
 
 #### Usage
 
 You can freely use this option to transform any result into JSON.
 
-```sh
+```fish
 $ haetae --json [<other-options>] [<command>]
 ```
 
 For examples,
 
-```sh
-$ haetae --record --json
+```fish
 $ haetae --record --json <command>
-$ haetae --record --env --json <command>
-$ haetae --record-data --json <command>
-$ haetae --record-data --env --json <command>
 $ haetae --env --json <command>
+$ haetae --record-data --json <command>
+$ haetae --json <command>
+$ haetae --json --dry-run <command>
 $ haetae --info --json
 ```
 
