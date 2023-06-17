@@ -703,7 +703,7 @@ interface ChangedFilesOptions {
   filterByExistence?: boolean
   keepRemovedFiles?: boolean
   reserveRecordData?: boolean
-  previousRecord?: core.HaetaeRecord<RecordData, Rec>
+  previousFiles?: Record<string, string>
   glob?: boolean
 }
 ```
@@ -750,8 +750,9 @@ A function to get a list of changed files by hash comparison.<br/>
   If `true{:ts}`, [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata) is called internally.
   If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata).
   <small>(default: `true{:ts}`)</small>
-  - `previousRecord?{:ts}` : A previous *Record Data* to compare or succeed files' hash.
-  <small>(default: <TokenLinkCode tokens={{'.getRecord': './haetae-core#getrecord', 'RecordData': '#recorddata'}} inline>`core.getRecord<RecordData>(){:ts}`</TokenLinkCode>)</small>
+  - `previousFiles?{:ts}` : File-hash pair dictionary that's in the previous *Record Data*.<br/>
+  <small>(default: <TokenLinkCode tokens={{'getConfig': './haetae-core#getconfig', 'RecordData': '#recorddata', 'pkg': '#pkg'}} inline>
+  `(await (await getConfig()).store.getRecord<RecordData>())?.data['@haetae/utils'].files{:ts}`</TokenLinkCode>)</small>
   - `glob?{:ts}` : Whether to enable glob pattern.
   <small>(default: `true{:ts}`)</small>
 

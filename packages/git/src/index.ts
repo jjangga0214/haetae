@@ -188,9 +188,10 @@ export const changedFiles = memoizee(
     reserveRecordData = true,
   }: ChangedFilesOptions = {}): Promise<string[]> => {
     if (from === undefined) {
-      const previousRecord = await core.getRecord<RecordData>()
+      const config = await core.getConfig()
+      const record = await config.store.getRecord<RecordData>()
       // eslint-disable-next-line no-param-reassign
-      from = previousRecord?.data?.[pkg.name]?.commit
+      from = record?.data?.[pkg.name]?.commit
     }
 
     // eslint-disable-next-line no-param-reassign

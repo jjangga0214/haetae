@@ -189,78 +189,134 @@ Throws an error if the config file is not yet set.
 interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec>  {
   data: D
   env: E
+  envHash: string
   time: number
 }
 ```
 
+### `HaetaeCommandEnvOptions`
+
+<TokenLinkCode tokens={['StoreConnector']}>
+```ts
+interface HaetaeCommandEnvOptions<S extends StoreConnector> {
+  store: S
+}
+```
+</TokenLinkCode>
+
 ### `HaetaeCommandEnv`
 
 ```ts
-<E extends Rec>() => void | PromiseOr<E>
+<E extends Rec, S extends StoreConnector> = (
+  options: HaetaeCommandEnvOptions<S>,
+) => void | PromiseOr<E>
 ```
 
 ### `HaetaePreCommandEnv`
 
-<TokenLinkCode tokens={['HaetaeCommandEnv']}>
+<TokenLinkCode tokens={['StoreConnector']}>
 ```ts
-type HaetaePreCommandEnv<E extends Rec> =
-  | HaetaeCommandEnv<E>
+type HaetaePreCommandEnv<E extends Rec, S extends StoreConnector> =
+  | HaetaeCommandEnv<E, S>
   | PromiseOr<E | void>
 ```
 </TokenLinkCode>
 
 ### `HaetaeCommandRun`
 
+<TokenLinkCode tokens={['StoreConnector']}>
 ```ts
-<D extends Rec>() => void | PromiseOr<D | void>
+interface HaetaeCommandRunOptions<
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  env: E
+  store: S
+}
 ```
+</TokenLinkCode>
+
+### `HaetaeCommandRun`
+
+<TokenLinkCode tokens={['StoreConnector', 'HaetaeCommandRunOptions']}>
+```ts
+type HaetaeCommandRun<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> = (options: HaetaeCommandRunOptions<E, S>) => void | PromiseOr<D | void>
+```
+</TokenLinkCode>
 
 ### `HaetaePreCommand`
 
-<TokenLinkCode tokens={['HaetaeCommandRun', 'HaetaePreCommandEnv']}>
+<TokenLinkCode tokens={['StoreConnector', 'HaetaeCommandRun', 'HaetaePreCommandEnv']}>
 ```ts
-interface HaetaePreCommand<D extends Rec, E extends Rec> {
-  run: HaetaeCommandRun<D>
-  env?: HaetaePreCommandEnv<E>
+interface HaetaePreCommand<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  run: HaetaeCommandRun<D, E, S>
+  env?: HaetaePreCommandEnv<E, S>
 }
 ```
 </TokenLinkCode>
 
 ### `HaetaeCommand`
 
-<TokenLinkCode tokens={['HaetaeCommandRun', 'HaetaeCommandEnv']}>
+<TokenLinkCode tokens={['StoreConnector', 'HaetaeCommandRun', 'HaetaeCommandEnv']}>
 ```ts
-interface HaetaeCommand<D extends Rec, E extends Rec> {
-  run: HaetaeCommandRun<D>
-  env: HaetaeCommandEnv<E>
+interface HaetaeCommand<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  run: HaetaeCommandRun<D, E, S>
+  env: HaetaeCommandEnv<E, S>
 }
 ```
 </TokenLinkCode>
 
 ### `RootEnv`
 
+<TokenLinkCode tokens={['StoreConnector', 'HaetaeCommandEnvOptions']}>
 ```ts
-<E extends Rec>(envFromCommand: E) => PromiseOr<E>
+type RootEnv<
+  A extends Rec,
+  S extends StoreConnector,
+  R extends Rec = A,
+> = (envFromCommand: A, options: HaetaeCommandEnvOptions<S>) => PromiseOr<R>
 ```
+</TokenLinkCode>
 
 ### `RootRecordData`
-
+<TokenLinkCode tokens={['StoreConnector', 'HaetaeCommandRunOptions']}>
 ```ts
-<A extends Rec, R extends Rec = A>(recordDataFromCommand: A) => PromiseOr<R>
+type RootRecordData<
+  A extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+  R extends Rec = A,
+> = (
+  recordDataFromCommand: A,
+  options: HaetaeCommandRunOptions<E, S>,
+) => PromiseOr<R>
 ```
+</TokenLinkCode>
 
 ### `HaetaePreConfig`
 
 An interface of user-given config schema.<br/>
 Also an argument interface of the function [`configure`](#configure).
 
-<TokenLinkCode tokens={['HaetaePreCommand', 'RootEnv', 'RootRecordData', 'StoreConnector']}>
+<TokenLinkCode tokens={['StoreConnector', 'HaetaePreCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
-interface HaetaePreConfig {
-  commands: Record<string, HaetaePreCommand<Rec, Rec>>
-  env?: RootEnv<Rec>
-  recordData?: RootRecordData<Rec>
-  store?: StoreConnector
+ interface HaetaePreConfig<S extends StoreConnector> {
+  commands: Record<string, HaetaePreCommand<Rec, Rec, S>>
+  env?: RootEnv<Rec, S>
+  recordData?: RootRecordData<Rec, Rec, S>
+  store?: S
 }
 ```
 </TokenLinkCode>
@@ -270,13 +326,17 @@ interface HaetaePreConfig {
 An interface of normalized config schema.<br/>
 Also a return type of function [`configure`](#configure).
 
-<TokenLinkCode tokens={['HaetaeCommand', 'RootEnv', 'RootRecordData']}>
+<TokenLinkCode tokens={['StoreConnector', 'HaetaeCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
-interface HaetaeConfig<D extends Rec, E extends Rec> {
-  commands: Record<string, HaetaeCommand<D, E>>
-  env: RootEnv<E>
-  recordData: RootRecordData<D>
-  store?: StoreConnector
+interface HaetaeConfig<
+  D extends Rec,
+  E extends Rec,
+  S extends StoreConnector,
+> {
+  commands: Record<string, HaetaeCommand<D, E, S>>
+  env: RootEnv<E, S>
+  recordData: RootRecordData<D, E, S>
+  store: S
 }
 ```
 </TokenLinkCode>
@@ -294,9 +354,12 @@ interface HaetaeConfig<D extends Rec, E extends Rec> {
 
 **Type**
 
-<TokenLinkCode tokens={['HaetaePreConfig', 'HaetaeConfig']}>
+<TokenLinkCode tokens={['StoreConnector', 'LocalStoreConnector', 'HaetaePreConfig', 'HaetaeConfig']}>
 ```ts
-<D extends Rec, E extends Rec>(options: HaetaePreConfig) => HaetaeConfig<D, E>
+< D extends Rec,
+  E extends Rec,
+  S extends StoreConnector = LocalStoreConnector,
+>(options: HaetaePreConfig<S>) => HaetaeConfig<D, E, S>
 ```
 </TokenLinkCode>
 
@@ -353,8 +416,10 @@ A function to get config object by config file path.
 
 <TokenLinkCode tokens={['GetConfigOptions', 'HaetaeConfig']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: GetConfigOptions)
-  => Promise<HaetaeConfig<D, E>>
+< D extends Rec,
+  E extends Rec,
+  S extends StoreConnector = StoreConnector,
+>(options: GetConfigOptions) => Promise<HaetaeConfig<D, E, S>>
 ```
 </TokenLinkCode>
 
@@ -402,44 +467,73 @@ An argument interface of the function [`invokeEnv`](#invokeenv).
 ```ts
 interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<Rec, E>
-  applyRootEnv?: boolean
+  config?: HaetaeConfig<Rec, E, StoreConnector>
 }
 ```
 </TokenLinkCode>
 
 ### `invokeEnv`
-<br/>
-<Memoized/>
 
 A function to invoke(execute) user-defined `env` of the given `command`.
 
 **Type**
 
-<TokenLinkCode tokens={['CommandFromConfig']}>
+<TokenLinkCode tokens={['InvokeEnvOptions']}>
 ```ts
-<E extends Rec>(options?: CommandFromConfig<Rec, E>) => Promise<E>
+<E extends Rec>(options?: InvokeEnvOptions<Rec, E>) => Promise<E>
 ```
 </TokenLinkCode>
 
 **Options?**
 
-- `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
+- `command?{:ts}` : A command name to invoke `env` of.
+<small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `config?{:ts}` : A config object.
 <small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
-- `applyRootEnv?{:ts}` : Whether to apply root env. <small>(default: `true{:ts}`)</small>
+
+### `InvokeRootEnvOptions`
+
+An argument interface of the function [`invokeRootEnv`](#invokerootenv).
+
+<TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
+```ts
+interface InvokeRootEnvOptions<A extends Rec, R extends Rec> {
+  env?: A
+  config?: HaetaeConfig<Rec, R, StoreConnector>
+}
+```
+</TokenLinkCode>
+
+### `invokeRootEnv`
+
+A function to invoke(execute) user-defined `env` of the given `command`.
+
+**Type**
+
+<TokenLinkCode tokens={['InvokeEnvOptions']}>
+```ts
+<A extends Rec, R extends Rec>(options?: InvokeRootEnvOptions<A, R>): Promise<R>
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `env?{:ts}` : A `env` object returned from a command. It receives the object and returns a transformed object.
+<small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
+- `config?{:ts}` : A config object.
+<small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
 
 ### `InvokeRunOptions`
 
 An argument interface of the function [`invokeRun`](#invokerun).
 
-<TokenLinkCode tokens={['HaetaeConfig']}>
+<TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
 ```ts
 interface InvokeRunOptions<D extends Rec> {
   command?: string
-  config?: HaetaeConfig<D, Rec>
+  env?: Rec // env before RootEnv
+  config?: HaetaeConfig<D, Rec, StoreConnector>
   applyReservedRecordData?: boolean
-  applyRootRecordData?: boolean
 }
 ```
 </TokenLinkCode>
@@ -458,17 +552,53 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 
 **Options?**
 
-- `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
+- `command?{:ts}` : A command name to invoke `run` of.
+<small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
 - `config?{:ts}` : A config object.
 <small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
+- `env?{:ts}` : A `env` object to pass to `run`.
+<small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
 - `applyReservedRecordData?{:ts}` : Whether to apply reserved *Record Data*. <small>(default: `true{:ts}`)</small>
-- `applyRootRecordData?{:ts}` : Whether to apply root *Record Data*. <small>(default: `true{:ts}`)</small>
 
-### `compareEnvs`
+### `InvokeRootRecordDataOptions`
 
-A function to calculate a hash of an env object.<br/>
-The object is serialized by a deterministic method no matter how deep it is,
-and calculated as a hash by SHA-1.
+An argument interface of the function [`invokeRootRecordData`](#invokerootrecorddata).
+
+<TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
+```ts
+interface InvokeRunOptions<D extends Rec> {
+  command?: string
+  env?: Rec // env before RootEnv
+  config?: HaetaeConfig<D, Rec, StoreConnector>
+  applyReservedRecordData?: boolean
+}
+```
+</TokenLinkCode>
+
+### `invokeRootRecordData`
+
+A function to invoke (execute) user-defined *Root Record Data* `recordData`.
+
+**Type**
+
+<TokenLinkCode tokens={['InvokeRootRecordDataOptions']}>
+```ts
+<A extends Rec, R extends Rec>(options: InvokeRootRecordDataOptions<A, R>): Promise<R>
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `config?{:ts}` : A config object.
+<small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
+- `recordData?{:ts}` : A *Record Data* object to pass to `recordData`.
+<small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
+- `env?{:ts}` : A `env` object to pass to `recordData`.
+<small>(default: <TokenLinkCode tokens={['invokeRootEnv']} inline>`await invokeRootEnv(){:ts}`</TokenLinkCode></small>
+
+### `hashEnv`
+
+A function to calculate a deterministic cryptographic hash of an `env` object.
 
 **Type**
 
@@ -476,71 +606,75 @@ and calculated as a hash by SHA-1.
 (env: Rec) => string
 ```
 
-**Arguments**
+**Argument**
 
-- `env` : An `env` object to calculate a hash of.
+- `env?{:ts}` : An `env` object*.
 
-### `FormRecordOptions`
-
-An argument interface of the function [`formRecord`](#formrecord).
-
-```ts
-interface FormRecordOptions<D extends Rec, E extends Rec> {
-  data?: D
-  env?: E
-  time?: number
-}
-```
-
-### `formRecord`
+### `createRecord`
 
 A function to create a new record object.<br/>
 This only returns an object, not saves it.
 
 **Type**
 
-<TokenLinkCode tokens={['FormRecordOptions', 'HaetaeRecord']}>
+<TokenLinkCode tokens={['HaetaeRecord']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: FormRecordOptions<D, E>)
-  => Promise<HaetaeRecord<D, E>>
+<D extends Rec, E extends Rec>() => Promise<HaetaeRecord<D, E>>
 ```
 </TokenLinkCode>
 
-**Options?**
+### `LocalStore`
 
-- `data?{:ts}` : A *Record Data*.
-<small>(default: <TokenLinkCode tokens={['invokeRun']} inline>`await invokeRun(){:ts}`</TokenLinkCode></small>
-- `env?{:ts}` : A resolved env object.
-<small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
-- `time?{:ts}` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds.
-<small>(default: [`Date.now(){:ts}`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now))</small>
+An interface for the local store file.
+
+<TokenLinkCode tokens={['HaetaeRecord']}>
+```ts
+interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
+  version: string
+  commands: {
+    [command: string]: HaetaeRecord<D, E>[]
+  }
+}
+```
+</TokenLinkCode>
+
+### `StoreConnector`
+
+An interface of *Store Connector*.
+
+<TokenLinkCode tokens={['AddRecord', 'GetRecord']}>
+```ts
+interface StoreConnector {
+  addRecord: AddRecord
+  getRecord: GetRecord
+}
+```
+</TokenLinkCode>
 
 ### `AddRecordOptions`
 
-An argument interface of the function [`addRecord`](#addrecord-1).
+An argument interface of the function [`StoreConnector.addRecord`](#storeconnectoraddrecord).
 
 <TokenLinkCode tokens={['HaetaeRecord']}>
 ```ts
 interface AddRecordOptions<D extends Rec, E extends Rec> {
   command?: string
-  record?: HaetaeRecord<D, E>
+  record: HaetaeRecord
 }
 ```
 </TokenLinkCode>
 
 ### `AddRecord`
 
-A type of function [`addRecord`](#addrecord-1).
+A type of function [`StoreConnector.addRecord`](#storeconnectoraddrecord).
 
 <TokenLinkCode tokens={['AddRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec, E extends Rec>(
-  options?: AddRecordOptions<D, E>,
-) => PromiseOr<HaetaeRecord<D, E>>
+(options: AddRecordOptions) => PromiseOr<void>
 ```
 </TokenLinkCode>
 
-### `addRecord`
+### `StoreConnector.addRecord`
 
 A function to add a new record to the store.<br/>
 The record is to be persisted to the store.
@@ -553,41 +687,36 @@ AddRecord
 ```
 </TokenLinkCode>
 
-**Options?**
+**Options**
 
+- `record{:ts}` : A new record object to add.
 - `command?{:ts}` : A command name to add a new record.
 <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `record?{:ts}` : A new record object to add.<br/>
-<small>(default: <TokenLinkCode inline tokens={['formRecord', 'invokeRun', 'invokeEnv']}>
-`await formRecord({ data: await invokeRun({ command }), env: await invokeEnv({ command }) }){:ts}`
-</TokenLinkCode>)</small>
 
 ### `GetRecordOptions`
 
-An argument interface of a function [`getRecord`](#getrecord-1).
+An argument interface of a function [`StoreConnector.getRecord`](#storeconnectorgetrecord).
 
-<TokenLinkCode tokens={['GetRecordsOptions']}>
 ```ts
-interface GetRecordOptions<E extends Rec> {
+interface GetRecordOptions {
   command?: string
-  env?: E
+  envHash?: string
 }
 ```
-</TokenLinkCode>
 
 ### `GetRecord`
 
-A type of function [`getRecord`](#getrecord-1).
+A type of function [`getRecord`](#storeconnectorgetrecord).
 
-<TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
+<TokenLinkCode tokens={['GetRecordOptions', 'HaetaeRecord']}>
 ```ts
 <D extends Rec = Rec, E extends Rec = Rec>(
-  options?: GetRecordOptions<E>,
+  options?: GetRecordOptions,
 ) => PromiseOr<HaetaeRecord<D, E> | undefined>
 ```
 </TokenLinkCode>
 
-### `getRecord`
+### `StoreConnector.getRecord`
 
 A function to get a record of a given command, corresponding to the given env.<br/>
 `undefined` is returned when there's no record.
@@ -604,37 +733,37 @@ GetRecord
 
 - `command?{:ts}` : A command name to get records of.
 <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `env?{:ts}` : A resolved env object. <small>
-(default: <TokenLinkCode tokens={['invokeEnv']} inline>
-`await invokeEnv({ command }){:ts}`</TokenLinkCode>)</small>
+- `envHash?{:ts}` : A hash of `env` object. Used to compare with previous *Records* and to get the matching result. <small>
+(default: <TokenLinkCode tokens={['hashEnv', 'invokeEnv']} inline>
+`hashEnv(await invokeEnv({ command })){:ts}`</TokenLinkCode>)</small>
 
-### `StoreConnector`
+### `LoadStoreOptions`
 
-An interface of store connector.
+An interface of function [`StoreConnector.loadStore`](#storeconnectorloadstore).
 
-<TokenLinkCode tokens={['AddRecord', 'GetRecord']}>
 ```ts
-interface StoreConnector {
-  addRecord: AddRecord
-  getRecord: GetRecord
+interface LoadStoreOptions {
+  initWhenNotFound?: boolean
 }
 ```
-</TokenLinkCode>
 
 ### `LocalStoreConnector`
 
-An interface of local store connector.
+An interface of local *Store Connector*.
 
-<TokenLinkCode tokens={[
-  'LocalStoreConnectorInitNewStore',
-  'LocalStoreConnectorLoadStore',
-  'LocalStoreConnectorSaveStore']}>
+<TokenLinkCode tokens={{
+  'StoreConnector': '#storeconnector',
+  'LocalStore': '#localstore',
+  'LoadStoreOptions': '#localstoreoptions',
+  'initNewStore': '#localstoreconnectorinitnewstore',
+  'loadStore': '#localstoreconnectorloadstore',
+  'saveStore': '#localstoreconnectorsavestore',
+}}>
 ```ts
 interface LocalStoreConnector extends StoreConnector {
   initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E>
-  loadStore<D extends Rec, E extends Rec>(
-    options?: LoadStoreOptions,
-  ): Promise<LocalStore<D, E>>
+  loadStore<D extends Rec, E extends Rec>
+    (options?: LoadStoreOptions): Promise<LocalStore<D, E>>
   saveStore(store: LocalStore): Promise<void>
   localStore: {
     filename: string
@@ -686,7 +815,7 @@ Records whose age is older than this value are to be removed when calling [`addR
 When the number of records becomes larger than this value, old records are removed to satisfy the threshold
 when calling [`addRecord`](#addrecord). This task is executed after `recordRemoval.age{:ts}` is used.
 <small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
-- `recordRemoval.leaveOnlyLastestPerEnv?{:ts}` : If `true{:ts}`, only the last records per `env` exist in the store file.
+- `recordRemoval.leaveOnlyLastestPerEnv?{:ts}` : If `true{:ts}`, only the lastet records per `env` exist in the store file.
 This is useful if you only depend on the latest record per `env`.
 <small>(default: `true{:ts}`) </small>
 
@@ -696,9 +825,9 @@ Initializes an empty store. It just returns an object. It does not save it as a 
 
 **Type**
 
-<TokenLinkCode tokens={['LocalStore']}>
+<TokenLinkCode tokens={['LocalStoreConnector']}>
 ```ts
-<D extends Rec, E extends Rec>() => LocalStore<D, E>
+LocalStoreConnector.initNewStore
 ```
 </TokenLinkCode>
 
@@ -712,21 +841,6 @@ interface LoadStoreOptions {
 }
 ```
 
-### `LocalStore`
-
-An interface for the local store file.
-
-<TokenLinkCode tokens={['HaetaeRecord']}>
-```ts
-interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
-  version: string
-  commands: {
-    [command: string]: HaetaeRecord<D, E>[]
-  }
-}
-```
-</TokenLinkCode>
-
 ### `LocalStoreConnector.loadStore`
 <br/>
 <Memoized/>
@@ -735,10 +849,9 @@ A function to load a store object from the file.
 
 **Type**
 
-<TokenLinkCode tokens={['LoadStoreOptions', 'LocalStore']}>
+<TokenLinkCode tokens={['LocalStoreConnector']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: LoadStoreOptions<D, E>)
-  => Promise<LocalStore<D, E>>
+LocalStoreConnector.loadStore
 ```
 </TokenLinkCode>
 
@@ -758,9 +871,9 @@ Memoization cache of [`LocalStoreConnector.loadStore{:ts}`](#localstoreconnector
 
 **Type**
 
-<TokenLinkCode tokens={['LocalStore']}>
+<TokenLinkCode tokens={['LocalStoreConnector']}>
 ```ts
-(store: LocalStore) => Promise<void>
+LocalStoreConnector.saveStore
 ```
 </TokenLinkCode>
 

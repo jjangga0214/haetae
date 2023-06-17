@@ -9,7 +9,7 @@ import fs from 'node:fs/promises'
 import serialize from 'serialize-javascript'
 import upath from 'upath'
 import { glob, hash } from './utils.js'
-import { recordData, RecordData } from './pkg.js'
+import { recordData, RecordData, pkg } from './pkg.js'
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 const _hash = hash
@@ -50,15 +50,15 @@ export const changedFiles = memoizee(
     renew = renew.map((f) =>
       upath.isAbsolute(f) ? upath.relative(rootDir, f) : f,
     )
+
     // `previousFiles` are filtered by `files`
-    const matchedPrevFiles = pickBy(
-      previousFiles ||
-        (await core.getRecord<RecordData>())?.data['@haetae/utils'].files ||
-        {},
-      (_, file) =>
-        glob
-          ? isEqual([file], multimatch([file], files))
-          : files.includes(file),
+    if (!previousFiles) {
+      const config = await core.getConfig()
+      const record = await config.store.getRecord<RecordData>()
+      previousFiles = record?.data[pkg.name].files || {}
+    }
+    const matchedPrevFiles = pickBy(previousFiles, (_, file) =>
+      glob ? isEqual([file], multimatch([file], files)) : files.includes(file),
     )
     /* eslint-enable no-param-reassign */
     const targets = [

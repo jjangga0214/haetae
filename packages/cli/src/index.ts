@@ -115,7 +115,7 @@ export async function run(): Promise<void> {
     await core.setConfigFilename({
       filename: argv.c || process.env.HAETAE_CONFIG_FILE,
     })
-    await core.getConfig() // Loads config file
+    const config = await core.getConfig() // Loads config file
 
     // 2. Run
     if (argv._.length === 0) {
@@ -154,7 +154,7 @@ export async function run(): Promise<void> {
       })
 
       if (argv.r) {
-        const record = await core.getRecord()
+        const record = await config.store.getRecord()
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -167,7 +167,7 @@ export async function run(): Promise<void> {
           render: ui.processRecord,
         })
       } else if (argv.d) {
-        const recordData = (await core.getRecord())?.data
+        const recordData = (await config.store.getRecord())?.data
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -193,7 +193,8 @@ export async function run(): Promise<void> {
           render: (result) => ui.asBlock(result),
         })
       } else {
-        const record = await core.addRecord()
+        const record = await core.createRecord()
+        await config.store.addRecord({ record })
         assert(
           !!record,
           'Oops! Something went wrong. The new Record is not found from the store even though the command was just executed.',
