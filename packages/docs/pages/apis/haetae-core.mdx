@@ -654,8 +654,9 @@ An argument interface of a function [`localStore`](#localStore).
 interface LocalStoreOptions {
   filename?: string
   recordRemoval?: {
-    age?: number
+    age?: number | string
     count?: number
+    leaveOnlyLastestPerEnv?: boolean
   }
 }
 ```
@@ -676,14 +677,17 @@ A function to create a *Store Connector* that reads and writes to a local file.
 
 - `filename?{:ts}` : The store file.
 <small>(default: `core.getConfigDirname() + '/.haetae/store.json'{:ts}`</small>
-- `recordRemoval.age?{:ts}` : Age threshold by milliseconds
-(e.g. 90 * 24 * 60 * 60 * 1000 => 90days).
+- `recordRemoval.age?{:ts}` : Age threshold by milliseconds (e.g. `90 * 24 * 60 * 60 * 1000` => 90 days).
+[*vercel/ms*](https://github.com/vercel/ms)-compatible string is allowed (e.g. `'90 days'{:ts}` => 90 days).
 Records whose age is older than this value are to be removed when calling [`addRecord`](#addrecord).
 <small>(default: `Number.POSITIVE_INFINITY{:ts}`)</small>
 - `recordRemoval.count?{:ts}` : The number of total records to keep.
 When the number of records becomes larger than this value, old records are removed to satisfy the threshold
 when calling [`addRecord`](#addrecord). This task is executed after `recordRemoval.age{:ts}` is used.
 <small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
+- `recordRemoval.leaveOnlyLastestPerEnv?{:ts}` : If `true{:ts}`, only the last records per `env` exist in the store file.
+This is useful if you only depend on the latest record per `env`.
+<small>(default: `true{:ts}`) </small>
 
 ### `LocalStoreConnector.initNewStore`
 

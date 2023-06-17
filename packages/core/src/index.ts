@@ -450,8 +450,10 @@ export interface LocalStoreConnector extends StoreConnector {
 export interface LocalStoreOptions {
   filename?: string
   recordRemoval?: {
-    age?: number
+    age?: number | string
     count?: number
+    // countPerEnv?: number // TODO: Implement this
+    leaveOnlyLastestPerEnv?: boolean
   }
 }
 
@@ -459,7 +461,9 @@ export interface LocalStoreOptions {
 export function localStore({
   recordRemoval: {
     age = Number.POSITIVE_INFINITY,
+    // countPerEnv = Number.POSITIVE_INFINITY, // TODO: Implement this
     count = Number.POSITIVE_INFINITY,
+    leaveOnlyLastestPerEnv = true,
   } = {},
   filename = '.haetae/store.json',
 }: LocalStoreOptions = {}): LocalStoreConnector {
@@ -517,17 +521,19 @@ export function localStore({
         // That's because the store object is memoized by shallow copy.
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        draft.commands[command] = [
-          record,
-          ...(draft.commands[command] || []).filter(
-            (oldRecord) => !compareEnvs(record.env, oldRecord.env), // remove old record with same env. So there's only one record left for each env.
-          ),
-        ].filter((r) => Date.now() - r.time < this.localStore.recordRemoval.age)
+        draft.commands[command] = draft.commands[command] || []
+        if (leaveOnlyLastestPerEnv) {
+          draft.commands[command] = draft.commands[command].filter(
+            // remove old record with same env. So there's only one record left for each env.
+            (oldRecord) => !compareEnvs(record.env, oldRecord.env),
+          )
+        }
+        draft.commands[command] = draft.commands[command]
+          .filter(
+            (r) => Date.now() - r.time < this.localStore.recordRemoval.age,
+          )
+          .slice(0, this.localStore.recordRemoval.count)
 
-        draft.commands[command] = draft.commands[command].slice(
-          0,
-          this.localStore.recordRemoval.count,
-        )
         /* eslint-enable no-param-reassign */
         return draft
       })
