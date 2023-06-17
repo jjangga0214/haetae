@@ -23,12 +23,15 @@ You define your commands in the config file.<br/>
 
 For example,
 
-<TokenLinkCode tokens={{'configure': 'apis/haetae#configure', '.exec': 'apis/haetae-utils#exec'}}>
+<TokenLinkCode tokens={{
+  '.configure': './apis/haetae-core#configure',
+  '$': './apis/haetae-utils#dollar'
+}}>
 ```js filename="haetae.config.js"
 import { $, core } from 'haetae'
 
 export default core.configure({
-  // Other options are ommitted for brevity.
+  // Other options are omitted for brevity.
   commands: {
     myAwesomeCommand: {
       run: async () => {

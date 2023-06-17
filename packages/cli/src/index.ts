@@ -7,18 +7,7 @@ import chalk from 'chalk'
 import clipboard from 'clipboardy'
 import stripAnsi from 'strip-ansi'
 import { dirname } from 'dirname-filename-esm'
-import {
-  setCurrentCommand,
-  invokeEnv,
-  setConfigFilename,
-  defaultConfigFiles,
-  defaultStoreFile,
-  saveStore,
-  getStore,
-  getRecord,
-  getRecords,
-  setStoreFilename,
-} from '@haetae/core'
+import * as core from '@haetae/core'
 import { parsePkg } from '@haetae/common'
 import { getInfo } from './info.js'
 import * as ui from './ui.js'
@@ -40,14 +29,9 @@ export async function run(): Promise<void> {
         c: {
           alias: 'config',
           type: 'string',
-          description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or finding one of ${defaultConfigFiles.join(
+          description: `Config file path. Default to an environment variable $HAETAE_CONFIG_FILE or finding one of ${core.defaultConfigFiles.join(
             ', ',
           )} by walking up parent directories.`,
-        },
-        s: {
-          alias: 'store',
-          type: 'string',
-          description: 'Store file path',
         },
         r: {
           alias: 'record',
@@ -76,16 +60,16 @@ export async function run(): Promise<void> {
         },
       })
       .conflicts('r', 'd')
+      .conflicts('r', 'e')
+      .conflicts('d', 'e')
       .conflicts('i', 'c')
-      .conflicts('i', 's')
       .conflicts('i', 'r')
       .conflicts('i', 'd')
       .conflicts('i', 'e')
       .example([
-        [`$0 -c ./${defaultConfigFiles[0]} <...>`, 'Specify config file path.'],
         [
-          `$0 -s ./${defaultStoreFile} <...>`,
-          'Specify store file path, ignoring "storeFile" field in config file.',
+          `$0 -c ./${core.defaultConfigFiles[0]} <...>`,
+          'Specify config file path.',
         ],
         [
           '$0 <command>',
@@ -128,35 +112,16 @@ export async function run(): Promise<void> {
     // 1. Set config file path
 
     // Throws error if config file does not exist.
-    setConfigFilename({
+    core.setConfigFilename({
       filename: argv.c || process.env.HAETAE_CONFIG_FILE,
     })
+    await core.getConfig() // Loads config file
 
-    // 2. Set store file path
-    if (argv.s) {
-      setStoreFilename({
-        filename: argv.s,
-      })
-    }
-
-    // 3. Run
+    // 2. Run
     if (argv._.length === 0) {
-      // 3.1. When command is not given
+      // 2.1. When command is not given
 
-      if (argv.r) {
-        const haetaeStore = await getStore({
-          initWhenNotFound: false,
-        })
-
-        const message = `${chalk.dim('Store is loaded successfully.')}`
-        if (argv.j) {
-          ui.json.success(message, haetaeStore)
-        } else {
-          const result = await ui.processStore(haetaeStore)
-          signale.success(chalk.dim(`The store is successfully loaded\n`))
-          console.log(result)
-        }
-      } else if (argv.i) {
+      if (argv.i) {
         const info = await getInfo()
         if (argv.j) {
           ui.json.success(
@@ -176,22 +141,20 @@ export async function run(): Promise<void> {
           console.log(message)
         }
       } else {
-        throw new Error(
-          'Option `-r` or `-i` must be given when <command> is not given.',
-        )
+        throw new Error('An option is invalid or <command> is not given.')
       }
     } else if (argv._.length === 1) {
-      // 3.2. When a single command is given
+      // 2.2. When a single command is given
 
       const command = argv._[0]
       assert(typeof command === 'string')
       // Set current command
-      setCurrentCommand({
+      core.setCurrentCommand({
         command,
       })
 
-      if (argv.r && argv.e) {
-        const record = await getRecord()
+      if (argv.r) {
+        const record = await core.getRecord()
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -203,8 +166,8 @@ export async function run(): Promise<void> {
           result: record,
           render: ui.processRecord,
         })
-      } else if (argv.d && argv.e) {
-        const recordData = (await getRecord())?.data
+      } else if (argv.d) {
+        const recordData = (await core.getRecord())?.data
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -217,7 +180,7 @@ export async function run(): Promise<void> {
           render: (result) => ui.asBlock(result),
         })
       } else if (argv.e) {
-        const env = await invokeEnv()
+        const env = await core.invokeEnv()
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -229,45 +192,11 @@ export async function run(): Promise<void> {
           result: env,
           render: (result) => ui.asBlock(result),
         })
-      } else if (argv.r) {
-        const records = await getRecords()
-        ui.conditional({
-          toJson: !!argv.j,
-          message: `${chalk.bold.underline(records?.length)} ${chalk.dim(
-            `record${
-              (records?.length || 0) < 2 ? ' is' : 's are'
-            } found for the command`,
-          )} ${chalk.bold.underline(command)}`,
-          noResultMessage: `There is no Record for the command ${chalk.bold(
-            command,
-          )}`,
-          result: records,
-          render: (records) =>
-            records.map((record) => ui.processRecord(record)).join('\n\n'),
-        })
-      } else if (argv.d) {
-        const records = await getRecords()
-        const recordDataList = records?.map((r) => r.data)
-        ui.conditional({
-          toJson: !!argv.j,
-          message: `${chalk.bold.underline(recordDataList?.length)} ${chalk.dim(
-            `Record Data${
-              (recordDataList?.length || 0) < 2 ? ' is' : 's are'
-            } found for the command`,
-          )} ${chalk.bold.underline(command)}`,
-          noResultMessage: `There is no Record for the command ${chalk.bold.underline(
-            command,
-          )}`,
-          result: recordDataList,
-          render: (result) =>
-            result.map((recordData) => ui.asBlock(recordData)).join('\n\n'),
-        })
       } else {
-        await saveStore()
-        const record = await getRecord()
+        const record = await core.addRecord()
         assert(
           !!record,
-          'Oops! Something went wrong. Record is not found the store even though the command was just executed.',
+          'Oops! Something went wrong. The new Record is not found from the store even though the command was just executed.',
         )
         const message = `${chalk.dim('Command')} ${chalk.bold.underline(
           command,
@@ -280,7 +209,7 @@ export async function run(): Promise<void> {
         }
       }
     } else {
-      // 3.3. When multiple commands are given
+      // 2.3. When multiple commands are given
       throw new Error('Too many commands. Only one command is allowed.')
     }
   } catch (error) {

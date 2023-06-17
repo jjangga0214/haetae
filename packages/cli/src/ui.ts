@@ -1,5 +1,5 @@
 import yaml from 'yaml'
-import { HaetaeRecord, HaetaeStore } from '@haetae/core'
+import { HaetaeRecord, LocalStore } from '@haetae/core'
 import chalk from 'chalk'
 import stripAnsi from 'strip-ansi'
 import signale from 'signale'
@@ -67,7 +67,7 @@ export function processRecord({ time, env, data }: HaetaeRecord): string {
   return processColons(wrapBlock(lines)).join('\n')
 }
 
-export async function processStore(store: HaetaeStore): Promise<string> {
+export async function processStore(store: LocalStore): Promise<string> {
   const uuid = '4f9360a0-9920-4159-a68d-8b151699d7a7'
   const patchedStore = await produce(store, async (draft) => {
     for (const command in draft.commands) {

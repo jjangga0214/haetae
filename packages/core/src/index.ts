@@ -1,17 +1,16 @@
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'node:fs/promises'
 import assert from 'node:assert/strict'
 import upath from 'upath'
 import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
-import { produce } from 'immer'
 import deepEqual from 'deep-equal'
-import { findUpSync } from 'find-up'
-import { dirname } from 'dirname-filename-esm'
+import { findUp } from 'find-up'
+import { PromiseOr, Rec, parsePkg, toAbsolutePath } from '@haetae/common'
+import { produce } from 'immer'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import ms from 'ms' // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
-import { parsePkg, PromiseOr, Rec } from '@haetae/common'
+import { dirname } from 'dirname-filename-esm'
 
 export const pkg = parsePkg({
   name: '@haetae/core',
@@ -74,24 +73,29 @@ export interface SetConfigFilenameOptions {
   checkExistence?: boolean
 }
 
-export const setConfigFilename = ({
+export async function setConfigFilename({
   filename,
   cwd = process.cwd(),
   checkExistence = true,
-}: SetConfigFilenameOptions = {}) => {
+}: SetConfigFilenameOptions = {}) {
   if (filename) {
     // eslint-disable-next-line no-param-reassign
     filename = upath.resolve(cwd, filename)
     if (checkExistence) {
-      assert(
-        fs.existsSync(filename),
-        `Path to config file(${filename}) is non-existent path.`,
-      )
+      try {
+        await fs.access(filename)
+      } catch (error) {
+        console.error(error)
+        throw new Error(
+          `Path to config file(${filename}) is non-existent path.`,
+        )
+      }
     }
     configFilename = filename
   } else {
-    const candidates = defaultConfigFiles
-      .map((f) => findUpSync(f, { cwd }))
+    const candidates = (
+      await Promise.all(defaultConfigFiles.map((f) => findUp(f, { cwd })))
+    )
       .filter((v) => v)
       .map((f) => upath.resolve(f))
     candidates.sort((a, b) => {
@@ -123,55 +127,10 @@ export const setConfigFilename = ({
 // todo: set/get current config dirname
 export const getConfigDirname = () => upath.dirname(getConfigFilename())
 
-export const defaultStoreFile = '.haetae/store.json'
-
-let storeFilename: string | undefined
-
-export interface SetStoreFilenameOptions {
-  filename: string
-  rootDir?: string
-}
-
-export const setStoreFilename = ({
-  filename,
-  rootDir = getConfigDirname(),
-}: SetStoreFilenameOptions) => {
-  // eslint-disable-next-line no-param-reassign
-  filename = upath.normalize(filename)
-  // eslint-disable-next-line no-param-reassign
-  filename = upath.resolve(rootDir, filename)
-
-  const extension = upath.extname(filename)
-  assert(
-    !extension || extension === '.json',
-    `Extension of the store file "${filename}" is not .json.`,
-  )
-  if (extension !== '.json') {
-    // eslint-disable-next-line no-param-reassign
-    filename = upath.join(filename, upath.basename(defaultStoreFile))
-  }
-
-  storeFilename = filename
-}
-
-export const getStoreFilename = (): string => {
-  if (storeFilename) {
-    return storeFilename
-  }
-  return upath.join(getConfigDirname(), defaultStoreFile)
-}
-
 export interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec> {
   data: D
   env: E
   time: number
-}
-
-export interface HaetaeStore<D extends Rec = Rec, E extends Rec = Rec> {
-  version: string
-  commands: {
-    [command: string]: HaetaeRecord<D, E>[]
-  }
 }
 
 export type HaetaeCommandEnv<E extends Rec> = () => void | PromiseOr<E>
@@ -199,51 +158,28 @@ export type RootRecordData<A extends Rec, R extends Rec = A> = (
 ) => PromiseOr<R>
 
 export interface HaetaePreConfig {
-  commands: {
-    [command: string]: HaetaePreCommand<Rec, Rec>
-  }
+  commands: Record<string, HaetaePreCommand<Rec, Rec>>
   env?: RootEnv<Rec>
   recordData?: RootRecordData<Rec>
-  recordRemoval?: {
-    age?: string | number // by milliseconds if number // e.g. 90 * 24 * 60 * 60 * 1000 => 90days
-    count?: number // e.g. 10 => Only leave equal to or less than 10 records
-  }
-  // It should be an absolute or relative path (relative to config file path)
-  storeFile?: string
+  store?: StoreConnector
 }
 
 export interface HaetaeConfig<D extends Rec, E extends Rec> {
-  commands: {
-    [command: string]: HaetaeCommand<D, E>
-  }
+  commands: Record<string, HaetaeCommand<D, E>>
   env: RootEnv<E>
   recordData: RootRecordData<D>
-  recordRemoval: {
-    age: number
-    count: number
-  }
-  storeFile: string
 }
 
-export function configure<D extends Rec, E extends Rec>({
-  commands,
-  env = (envFromCommand) => envFromCommand,
-  recordData = (recordDataFromCommand) => recordDataFromCommand,
-  recordRemoval: {
-    age = Number.POSITIVE_INFINITY,
-    count = Number.POSITIVE_INFINITY,
-  } = {},
-  storeFile = defaultStoreFile,
-}: HaetaePreConfig): HaetaeConfig<D, E> {
-  /* eslint-disable no-param-reassign */
-  if (typeof age === 'string') {
-    age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
-    assert(
-      // `undefined` if invalid string
-      age === 0 || !!age,
-      `'recordRemoval.age' is given as an invalid string. Refer to https://github.com/vercel/ms for supported value.`,
-    )
-  }
+export function configure<D extends Rec, E extends Rec>(
+  preConfig: HaetaePreConfig,
+): HaetaeConfig<D, E> {
+  const { commands } = preConfig
+  const env = preConfig.env || ((envFromCommand) => envFromCommand)
+  const recordData =
+    preConfig.recordData || ((recordDataFromCommand) => recordDataFromCommand)
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  store = preConfig.store || localStore()
+
   // Convert it to a function if not
   assert(
     typeof env === 'function',
@@ -253,25 +189,6 @@ export function configure<D extends Rec, E extends Rec>({
     typeof recordData === 'function',
     `'recordData' is misconfigured. It should be a function.`,
   )
-  assert(
-    typeof storeFile === 'string',
-    `'storeFile' is misconfigured. It should be string.`,
-  )
-  assert(
-    age >= 0,
-    `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
-  )
-  assert(
-    count >= 0,
-    `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
-  )
-
-  // If store file is already set before, `storeFile` in config would be ignored.
-  if (!storeFilename) {
-    setStoreFilename({
-      filename: storeFile,
-    })
-  }
 
   for (const command in commands) {
     if (Object.prototype.hasOwnProperty.call(commands, command)) {
@@ -288,16 +205,10 @@ export function configure<D extends Rec, E extends Rec>({
     }
   }
 
-  /* eslint-enable no-param-reassign */
   return {
     commands: commands as HaetaeConfig<D, E>['commands'],
     env: env as RootEnv<E>,
     recordData: recordData as RootRecordData<D>,
-    recordRemoval: {
-      age,
-      count,
-    },
-    storeFile: getStoreFilename(),
   }
 }
 
@@ -354,54 +265,6 @@ export const getConfig = memoizee(
     normalizer: serialize,
   },
 )
-
-export function initNewStore<D extends Rec, E extends Rec>(): HaetaeStore<
-  D,
-  E
-> {
-  return { version: pkg.version.value, commands: {} }
-}
-
-export interface GetStoreOptions {
-  filename?: string
-  initWhenNotFound?: boolean
-}
-
-export const getStore = memoizee(
-  async <D extends Rec, E extends Rec>({
-    filename = getStoreFilename(),
-    initWhenNotFound = true,
-  }: GetStoreOptions = {}): Promise<HaetaeStore<D, E>> => {
-    let rawStore
-    try {
-      rawStore = fs.readFileSync(await filename, {
-        encoding: 'utf8',
-      })
-    } catch (error) {
-      if (initWhenNotFound) {
-        return initNewStore() // This does not affect to filesystem, just creates a new store object
-      }
-      throw error
-    }
-    const store = JSON.parse(rawStore)
-    return store
-  },
-  {
-    normalizer: serialize,
-  },
-)
-
-export interface GetRecordsOptions<D extends Rec, E extends Rec> {
-  command?: string
-  store?: HaetaeStore<D, E>
-}
-
-export async function getRecords<D extends Rec = Rec, E extends Rec = Rec>({
-  command = getCurrentCommand(),
-  store,
-}: GetRecordsOptions<D, E> = {}): Promise<HaetaeRecord<D, E>[] | undefined> {
-  return (store || (await getStore())).commands[command] // `undefined` if non-existent
-}
 
 export interface InvokeEnvOptions<E extends Rec> {
   command?: string
@@ -484,11 +347,6 @@ export const invokeRun = async <D extends Rec>(
   return recordData
 }
 
-export interface GetRecordOptions<D extends Rec, E extends Rec>
-  extends GetRecordsOptions<D, E> {
-  env?: E
-}
-
 export function compareEnvs(one: Rec, theOther: Rec): boolean {
   let sOne
   let sTheOther
@@ -502,24 +360,6 @@ export function compareEnvs(one: Rec, theOther: Rec): boolean {
   return deepEqual(JSON.parse(sOne), JSON.parse(sTheOther), {
     strict: true,
   })
-}
-
-export async function getRecord<D extends Rec = Rec, E extends Rec = Rec>(
-  options: GetRecordOptions<D, E> = {},
-): Promise<HaetaeRecord<D, E> | undefined> {
-  const command = options.command || (await getCurrentCommand())
-  const env = options.env || (await invokeEnv({ command }))
-  const store = options.store || (await getStore())
-
-  const records = await getRecords<D, E>({ command, store })
-  if (records) {
-    for (const record of records) {
-      if (compareEnvs(env, record.env)) {
-        return record
-      }
-    }
-  }
-  return undefined // `undefined` if non-existent
 }
 
 export interface FormRecordOptions<D extends Rec, E extends Rec> {
@@ -541,87 +381,212 @@ export async function formRecord<D extends Rec, E extends Rec>(
   }
 }
 
+export interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
+  version: string
+  commands: {
+    [command: string]: HaetaeRecord<D, E>[]
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const _loadStore = memoizee(
+  async <D extends Rec, E extends Rec>(
+    filename: string,
+  ): Promise<LocalStore<D, E>> => {
+    // This will throw an error if the file does not exist.
+    const rawStore = await fs.readFile(filename, {
+      encoding: 'utf8',
+    })
+    const store = JSON.parse(rawStore)
+    return store
+  },
+  {
+    normalizer: serialize,
+  },
+)
+
 export interface AddRecordOptions<D extends Rec, E extends Rec> {
-  config?: HaetaeConfig<D, E>
   command?: string
-  store?: HaetaeStore<D, E>
   record?: HaetaeRecord<D, E>
 }
 
-export async function addRecord<D extends Rec, E extends Rec>(
-  options: AddRecordOptions<D, E> = {},
-): Promise<HaetaeStore<D, E>> {
-  const config = options.config || (await getConfig())
-  const command = options.command || (await getCurrentCommand())
-  const store = options.store || (await getStore())
-  const record =
-    options.record ||
-    (await formRecord({
-      data: await invokeRun({ command }),
-      env: await invokeEnv({ command }),
-    }))
+export type AddRecord = <D extends Rec, E extends Rec>(
+  options?: AddRecordOptions<D, E>,
+) => PromiseOr<HaetaeRecord<D, E>>
 
-  return produce<HaetaeStore<D, E>>(await store, async (draft) => {
-    /* eslint-disable no-param-reassign, @typescript-eslint/naming-convention */
-    const _config = await config
-    const _record = await record
-    const _command = await command
-    draft.version = pkg.version.value
-    draft.commands = draft.commands || {}
-    // Do NOT change the original array! (e.g. use `slice` instead of `splice`)
-    // That's because the store object is memoized by shallow copy.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    draft.commands[_command] = [
-      _record,
-      ...(draft.commands[_command] || []).filter(
-        (oldRecord) => !compareEnvs(_record.env, oldRecord.env), // remove old record with same env. So there's only one record left for each env.
-      ),
-    ].filter((r) => Date.now() - r.time < _config.recordRemoval.age)
-
-    draft.commands[_command] = draft.commands[_command].slice(
-      0,
-      _config.recordRemoval.count,
-    )
-    /* eslint-enable no-param-reassign, @typescript-eslint/naming-convention */
-    return draft
-  })
+export interface GetRecordOptions<E extends Rec> {
+  command?: string
+  env?: E
 }
 
-export interface SaveStoreOptions {
-  filename?: string
-  store?: HaetaeStore
+export type GetRecord = <D extends Rec = Rec, E extends Rec = Rec>(
+  options?: GetRecordOptions<E>,
+) => PromiseOr<HaetaeRecord<D, E> | undefined>
+
+export interface StoreConnector {
+  addRecord: AddRecord
+  getRecord: GetRecord
 }
 
-export async function saveStore({
-  filename = getStoreFilename(),
-  store,
-}: SaveStoreOptions = {}): Promise<void> {
-  // eslint-disable-next-line no-param-reassign
-  filename = await filename
-  // eslint-disable-next-line no-param-reassign
-  store = store || (await addRecord())
-  const dirname = path.dirname(filename)
-  if (!fs.existsSync(dirname)) {
-    fs.mkdirSync(dirname, { recursive: true })
+export interface LoadStoreOptions {
+  initWhenNotFound?: boolean
+}
+
+export interface LocalStoreConnector extends StoreConnector {
+  initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E>
+  loadStore<D extends Rec, E extends Rec>(
+    options?: LoadStoreOptions,
+  ): Promise<LocalStore<D, E>>
+  saveStore(store: LocalStore): Promise<void>
+  localStore: {
+    filename: string // It should be an absolute or relative path (relative to config file path)
+    recordRemoval: {
+      age: number // by milliseconds if number // e.g. 90 * 24 * 60 * 60 * 1000 => 90days
+      count: number // e.g. 10 => Only leave equal to or less than 10 records
+    }
   }
-  fs.writeFileSync(
-    filename,
-    `${JSON.stringify(store, undefined, 2)}\n`, // trailing empty line
-    {
-      encoding: 'utf8',
-    },
-  )
-  getStore.clear() // memoization cache clear
 }
 
-export interface DeleteStoreOptions {
+export interface LocalStoreOptions {
   filename?: string
+  recordRemoval?: {
+    age?: number
+    count?: number
+  }
 }
 
-export async function deleteStore({
-  filename = getStoreFilename(),
-}: DeleteStoreOptions = {}): Promise<void> {
-  fs.unlinkSync(await filename)
-  getStore.clear() // memoization cache clear
+// State does not change after initialization.
+export function localStore({
+  recordRemoval: {
+    age = Number.POSITIVE_INFINITY,
+    count = Number.POSITIVE_INFINITY,
+  } = {},
+  filename = '.haetae/store.json',
+}: LocalStoreOptions = {}): LocalStoreConnector {
+  if (typeof age === 'string') {
+    // eslint-disable-next-line no-param-reassign
+    age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
+    assert(
+      // `undefined` if invalid string
+      age === 0 || !!age,
+      `'recordRemoval.age' is given as an invalid string. Refer to https://github.com/vercel/ms for supported value.`,
+    )
+  }
+  assert(
+    count >= 0,
+    `'recordRemoval.count' is misconfigured. It should be zero or positive value.`,
+  )
+  // eslint-disable-next-line no-param-reassign
+  filename = toAbsolutePath({ path: filename, rootDir: getConfigDirname })
+  const extension = upath.extname(filename)
+  assert(
+    !extension || extension === '.json',
+    `Extension of the store file "${filename}" is not .json.`,
+  )
+  if (extension !== '.json') {
+    // eslint-disable-next-line no-param-reassign
+    filename = upath.join(filename, upath.basename('.haetae/store.json'))
+  }
+
+  return {
+    // This `localStore` field is a namespace to preserve properties for mixin.
+    localStore: {
+      filename,
+      recordRemoval: {
+        count,
+        age,
+      },
+    },
+    async addRecord<D extends Rec, E extends Rec>(
+      options: AddRecordOptions<D, E> = {},
+    ) {
+      const store = await this.loadStore<D, E>()
+      const command = options.command || getCurrentCommand()
+      const record =
+        options.record ||
+        (await formRecord<D, E>({
+          data: await invokeRun<D>({ command }),
+          env: await invokeEnv<E>({ command }),
+        }))
+
+      const newStore = produce(store, (draft) => {
+        /* eslint-disable no-param-reassign */
+        draft.version = pkg.version.value
+        draft.commands = draft.commands || {}
+        // Do NOT change the original array! (e.g. use `slice` instead of `splice`)
+        // That's because the store object is memoized by shallow copy.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        draft.commands[command] = [
+          record,
+          ...(draft.commands[command] || []).filter(
+            (oldRecord) => !compareEnvs(record.env, oldRecord.env), // remove old record with same env. So there's only one record left for each env.
+          ),
+        ].filter((r) => Date.now() - r.time < this.localStore.recordRemoval.age)
+
+        draft.commands[command] = draft.commands[command].slice(
+          0,
+          this.localStore.recordRemoval.count,
+        )
+        /* eslint-enable no-param-reassign */
+        return draft
+      })
+      await this.saveStore(newStore)
+      return record
+    },
+    async getRecord<D extends Rec = Rec, E extends Rec = Rec>(
+      options: GetRecordOptions<E> = {},
+    ): Promise<HaetaeRecord<D, E> | undefined> {
+      const command = options.command || (await getCurrentCommand())
+      const env = options.env || (await invokeEnv<E>({ command }))
+      const store = await this.loadStore<D, E>()
+      const records = store.commands[command]
+
+      for (const record of records || []) {
+        if (compareEnvs(env, record.env)) {
+          return record
+        }
+      }
+      return undefined // `undefined` if non-existent
+    },
+    async loadStore<D extends Rec, E extends Rec>({
+      initWhenNotFound = true,
+    }: LoadStoreOptions = {}) {
+      try {
+        return await _loadStore<D, E>(this.localStore.filename)
+      } catch (error) {
+        if (initWhenNotFound) {
+          return this.initNewStore<D, E>()
+        }
+        throw error
+      }
+    },
+    // This does not affect to filesystem, just creates a new store object
+    initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E> {
+      return { version: pkg.version.value, commands: {} }
+    },
+    async saveStore(store: LocalStore) {
+      const dirname = upath.dirname(this.localStore.filename)
+      try {
+        await fs.access(dirname)
+      } catch {
+        await fs.mkdir(dirname, { recursive: true })
+      }
+      await fs.writeFile(
+        this.localStore.filename,
+        `${JSON.stringify(store, undefined, 2)}\n`, // trailing empty line
+        {
+          encoding: 'utf8',
+        },
+      )
+      _loadStore.clear() // memoization cache clear
+    },
+  }
 }
+
+let store: StoreConnector
+
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const getRecord: GetRecord = (options) => store!.getRecord(options)
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const addRecord: AddRecord = (options) => store!.addRecord(options)

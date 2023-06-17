@@ -3,26 +3,72 @@ import { dirname } from 'dirname-filename-esm'
 import {
   configure,
   setConfigFilename,
-  setStoreFilename,
-  getStoreFilename,
+  localStore,
   invokeEnv,
   invokeRun,
 } from '../src/index.js'
 
-describe('setStoreFilename()', () => {
+describe('localStore()', () => {
   test('when filename does not end with .json', () => {
-    setStoreFilename({
-      filename: 'path/to',
-      rootDir: '/<rootDir>',
-    })
-    expect(getStoreFilename()).toBe('/<rootDir>/path/to/store.json')
+    const store = localStore({ filename: '/path/to' })
+    expect(store.localStore.filename).toBe('/path/to/store.json')
   })
   test('when filename ends with .json', () => {
-    setStoreFilename({
-      filename: 'path/to/state.json', // different name
-      rootDir: '/<rootDir>',
+    const store = localStore({ filename: '/path/to/store.json' })
+    expect(store.localStore.filename).toBe('/path/to/store.json')
+  })
+  describe('when recordRemoval is given', () => {
+    test('as undefined', () => {
+      const store = localStore({ filename: '.' })
+      expect(store.localStore.recordRemoval.age).toBe(Number.POSITIVE_INFINITY)
+      expect(store.localStore.recordRemoval.count).toBe(
+        Number.POSITIVE_INFINITY,
+      )
     })
-    expect(getStoreFilename()).toBe('/<rootDir>/path/to/state.json')
+    test('without age', () => {
+      const store = localStore({ filename: '.', recordRemoval: { count: 10 } })
+      expect(store.localStore.recordRemoval.age).toBe(Number.POSITIVE_INFINITY)
+      expect(store.localStore.recordRemoval.count).toBe(10)
+    })
+    test('without count', () => {
+      const store = localStore({
+        filename: '.',
+        recordRemoval: { age: 60 * 60 * 24 * 30 },
+      })
+      expect(store.localStore.recordRemoval.age).toBe(60 * 60 * 24 * 30)
+      expect(store.localStore.recordRemoval.count).toBe(
+        Number.POSITIVE_INFINITY,
+      )
+    })
+    test('with age and count', () => {
+      const store = localStore({
+        filename: '.',
+        recordRemoval: { age: 60 * 60 * 24 * 30, count: 10 },
+      })
+      expect(store.localStore.recordRemoval.age).toBe(60 * 60 * 24 * 30)
+      expect(store.localStore.recordRemoval.count).toBe(10)
+    })
+    test('with negative age or count', () => {
+      const store = localStore({
+        filename: '.',
+        recordRemoval: { age: -1 },
+      })
+      expect(store.localStore.recordRemoval.age).toBe(-1)
+      expect(() =>
+        localStore({
+          filename: '.',
+          recordRemoval: { count: -1 },
+        }),
+      ).toThrow(AssertionError)
+    })
+    test('with zero age or count', () => {
+      expect(() =>
+        localStore({
+          filename: '.',
+          recordRemoval: { count: 0, age: 0 },
+        }),
+      ).not.toThrow(AssertionError)
+    })
   })
 })
 
@@ -85,63 +131,6 @@ describe('configure()', () => {
           config,
         }),
       ).resolves.toStrictEqual({ hello2: 'world2' })
-    })
-  })
-
-  describe('when recordRemoval is given', () => {
-    test('as undefined', () => {
-      const config = configure({ commands: {} })
-      expect(config.recordRemoval.age).toBe(Number.POSITIVE_INFINITY)
-      expect(config.recordRemoval.count).toBe(Number.POSITIVE_INFINITY)
-    })
-    test('without age', () => {
-      const config = configure({ commands: {}, recordRemoval: { count: 10 } })
-      expect(config.recordRemoval.age).toBe(Number.POSITIVE_INFINITY)
-      expect(config.recordRemoval.count).toBe(10)
-    })
-    test('without count', () => {
-      const config = configure({
-        commands: {},
-        recordRemoval: { age: 60 * 60 * 24 * 30 },
-      })
-      expect(config.recordRemoval.age).toBe(60 * 60 * 24 * 30)
-      expect(config.recordRemoval.count).toBe(Number.POSITIVE_INFINITY)
-    })
-    test('with age and count', () => {
-      const config = configure({
-        commands: {},
-        recordRemoval: { age: 60 * 60 * 24 * 30, count: 10 },
-      })
-      expect(config.recordRemoval.age).toBe(60 * 60 * 24 * 30)
-      expect(config.recordRemoval.count).toBe(10)
-    })
-    test('with negative age or count', () => {
-      expect(() =>
-        configure({
-          commands: {},
-          recordRemoval: { age: -1 },
-        }),
-      ).toThrow(AssertionError)
-      expect(() =>
-        configure({
-          commands: {},
-          recordRemoval: { count: -1 },
-        }),
-      ).toThrow(AssertionError)
-    })
-    test('with zero age or count', () => {
-      expect(() =>
-        configure({
-          commands: {},
-          recordRemoval: { age: 0 },
-        }),
-      ).not.toThrow(AssertionError)
-      expect(() =>
-        configure({
-          commands: {},
-          recordRemoval: { count: 0 },
-        }),
-      ).not.toThrow(AssertionError)
     })
   })
 })

@@ -9,7 +9,7 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='./intro
 # `@haetae/core`
 
 `@haetae/core{:ts}` provides every core feature for Haetae.<br/>
-For instance, it handles config file, store file, and your command's `env` and `run`.<br/>
+For instance, it handles the config file, your command's `env` and `run`, etc.<br/>
 If you want to use Haetae by programmatic API, you probably need this package.
 
 ## Dependents
@@ -82,7 +82,7 @@ Set it before calling other APIs that require it (as a default parameter).
 
 **Options?**
 
-- `command{:ts}` : A name of command to run for current execution.
+- `command{:ts}` : A name of the command to run for current execution.
 
 ### `getCurrentCommand`
 
@@ -113,6 +113,7 @@ This is used when the config file path is not given or given as a directory.
 ### `SetConfigFilenameOptions`
 
 An argument interface of the function [`setConfigFilename`](#setconfigfilename).
+
 ```ts
 interface SetConfigFilenameOptions {
   filename?: string
@@ -130,7 +131,7 @@ Set it before calling other APIs that require a config file.
 
 <TokenLinkCode tokens={['SetConfigFilenameOptions']}>
 ```ts
-(options?: SetConfigFilenameOptions) => void
+(options?: SetConfigFilenameOptions) => Promise<void>
 ```
 </TokenLinkCode>
 
@@ -182,65 +183,6 @@ Throws an error if the config file is not yet set.
 () => string
 ```
 
-### `defaultStoreFile`
-
-A string constant for default store file name.<br/>
-This is used when store file is not given, or given as a directory.
-
-**Type**
-
-```ts
-'.haetae/store.json'
-```
-
-### `SetStoreFilenameOptions`
-
-An argument interface of the function [`setStoreFilename`](#setstorefilename).
-
-```ts
-interface SetStoreFilenameOptions {
-  filename: string
-  rootDir?: string
-}
-```
-
-### `setStoreFilename`
-
-A setter for the name of the store file, which is a module-level state.<br/>
-Set the store filename by this setter function, before calling other APIs that require store filename.
-
-<Callout>
-**Priority against config**<br/>
-Calling this function overrides the config file's `storeFile` option.<br/>
-But it does not change the content of the config file (e.g. haetae.config.js)
-or modify the [memoized](./introduction#memoization) (by [getConfig](#getconfig)) config object in memory.
-</Callout>
-
-**Type**
-
-<TokenLinkCode tokens={['SetStoreFilenameOptions']}>
-```ts
-(options: SetStoreFilenameOptions) => void
-```
-</TokenLinkCode>
-
-**Options**
-
-- `filename{:ts}` : A store file path. If it does not end with `'.json'{:ts}`, `'store.json'{:ts}` is appended internally.
-<small>(e.g. `'/path/to'{:ts}` becomes `'/path/to/store.json'{:ts}`)</small>
-- `rootDir?{:ts}` : A directory to join with `filename{:ts}` when `filename{:ts}` is a relative path.
- <small>(default: [`getConfigDirname(){:ts}`](#getconfigdirname))</small>
-
-### `getStoreFilename`
-
-A getter for the name of the store file, which is a module-level state.<br/>
-
-**Type**
-
-```ts
-() => string
-```
-
 ### `HaetaeRecord`
 
 ```ts
@@ -250,19 +192,6 @@ interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec>  {
   time: number
 }
 ```
-
-### `HaetaeStore`
-
-<TokenLinkCode tokens={['HaetaeRecord']}>
-```ts
-interface HaetaeStore<D extends Rec = Rec, E extends Rec = Rec> {
-  version: string
-  commands: {
-    [command: string]: HaetaeRecord<D, E>[]
-  }
-}
-```
-</TokenLinkCode>
 
 ### `HaetaeCommandEnv`
 
@@ -325,19 +254,13 @@ interface HaetaeCommand<D extends Rec, E extends Rec> {
 An interface of user-given config schema.<br/>
 Also an argument interface of the function [`configure`](#configure).
 
-<TokenLinkCode tokens={['HaetaePreCommand', 'RootEnv', 'RootRecordData']}>
+<TokenLinkCode tokens={['HaetaePreCommand', 'RootEnv', 'RootRecordData', 'StoreConnector']}>
 ```ts
-export interface HaetaePreConfig {
-  commands: {
-    [command: string]: HaetaePreCommand<Rec, Rec>
-  }
+interface HaetaePreConfig {
+  commands: Record<string, HaetaePreCommand<Rec, Rec>>
   env?: RootEnv<Rec>
   recordData?: RootRecordData<Rec>
-  recordRemoval?: {
-    age?: string | number
-    count?: number
-  }
-  storeFile?: string
+  store?: StoreConnector
 }
 ```
 </TokenLinkCode>
@@ -350,16 +273,9 @@ Also a return type of function [`configure`](#configure).
 <TokenLinkCode tokens={['HaetaeCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
 interface HaetaeConfig<D extends Rec, E extends Rec> {
-  commands: {
-    [command: string]: HaetaeCommand<D, E>
-  }
+  commands: Record<string, HaetaeCommand<D, E>>
   env: RootEnv<E>
   recordData: RootRecordData<D>
-  recordRemoval: {
-    age: number
-    count: number
-  }
-  storeFile: string
 }
 ```
 </TokenLinkCode>
@@ -373,8 +289,6 @@ interface HaetaeConfig<D extends Rec, E extends Rec> {
 <Callout>
 **Idempotent function**<br/>
 `configure(obj){:ts}` is eqaul to `configure(configure(obj)){:ts}`.<br/>
-<small>(The only exception is when [`setStoreFilename{:ts}`](#setstorefilename) is called with different arguments
-between each call of `configure`, which is unlikely to happen in real-world scenario.)</small>
 </Callout>
 
 **Type**
@@ -390,18 +304,7 @@ between each call of `configure`, which is unlikely to happen in real-world scen
 - `commands{:ts}` : Your commands as an object.
 - `env?{:ts}` : An env-to-env transformer. <small>(default: `(arg) => arg{:ts}`)</small>
 - `recordData?{:ts}` : A recordData-to-recordData transformer. <small>(default: `(arg) => arg{:ts}`)</small>
-- `recordRemoval.age?{:ts}` : Age threshold by milliseconds.
-Records whose age are older than this value are to be removed when calling [`addRecord`](#addrecord).
-<small>(default: `Number.POSITIVE_INFINITY{:ts}`)</small>
-- `recordRemoval.count?{:ts}` : The number of total records to keep.
-When the number of records becomes larger than this value, old records are removed to satisfy the threshold
-when calling [`addRecord`](#addrecord). This task is executed after that of `recordRemoval.age`.
-<small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
-- `storeFile?{:ts}` : A store file path. Internally, it is used to
-<TokenLinkCode inline tokens={['setStoreFilename']}>`setStoreFilename({ filename: storeFile }){:ts}`</TokenLinkCode>
-only if `setStoreFilename` is never called before. If `setStoreFilename` is called before calling `configure`,
-the option `storeFile` does not have any effect, even to the result `HaetaeConfig` object.
-<small>(default: [`defaultStoreFile{:ts}`](#defaultstorefile))</small>
+- `store?{:ts}` : A store connector. <small>(default: [`localStore()`](#localstore))</small>
 
 #### Type-check for your config
 
@@ -423,10 +326,11 @@ export default core.configure({ /* ... */ })
 
 #### Normalization
 
-Schema of [`HaetaeConfig`](#haetaeconfig) (return type) is ***roughly*** similar to that of [`HaetaePreConfig`](#haetaepreconfig) (argument type).
+Schema of [`HaetaeConfig`](#haetaeconfig) (return type) is ***roughly*** similar to
+that of [`HaetaePreConfig`](#haetaepreconfig) (argument type).
 The return value is a normalized result of a user-given (argument) config.
-Omitted options from a user-given config(`HaetaePreConfig`) are to be set as their default values in `HaetaeConfig`.
-The given value of `storeFile` is replaced by a return value of [`getStoreFilename(){:ts}`](#getstorefilename).
+Omitted options from a user-given config [`HaetaePreConfig`](#haetaepreconfig) are to be set
+as their default values in [`HaetaeConfig`](#haetaeconfig).
 
 ### `GetConfigOptions`
 
@@ -459,93 +363,6 @@ A function to get config object by config file path.
 If given as a relative path, [`process.cwd(){:ts}`](https://nodejs.org/api/process.html#processcwd) is joined in front of it.
 If given as an absolute path, it's used as-is.
 <small>(default: [`getConfigFilename(){:ts}`](#getconfigfilename))</small>
-
-### `initNewStore`
-
-Initializes an empty store. It just returns an object. It does not save it as a file.
-
-**Type**
-
-<TokenLinkCode tokens={['HaetaeStore']}>
-```ts
-<D extends Rec, E extends Rec>() => HaetaeStore<D, E>
-```
-</TokenLinkCode>
-
-### `GetStoreOptions`
-
-An argument interface of the function [`getStore`](#getstore).
-
-<TokenLinkCode tokens={['HaetaeStore']}>
-```ts
-interface GetStoreOptions {
-  filename?: string
-  initWhenNotFound?: boolean
-}
-```
-</TokenLinkCode>
-
-### `getStore`
-<br/>
-<Memoized/>
-
-**Type**
-
-<TokenLinkCode tokens={['GetStoreOptions', 'HaetaeStore']}>
-```ts
-<D extends Rec, E extends Rec>(options?: GetStoreOptions<D, E>)
-  => Promise<HaetaeStore<D, E>>
-```
-</TokenLinkCode>
-
-A function to get store object.
-
-**Options?**
-
-- `filename?{:ts}` : A path to store file (e.g. `'/path/to/.haetae/store.json'{:ts}`). <small>(default: [`getStoreFilename(){:ts}`](#getstorefilename))</small>
-- `initWhenNotFound?{:ts}` : Whether to throw an error or just initialize new store object when `filename` does not exist in filesystem.
-If `true`, [`initNewStore(){:ts}`](#initnewstore) is returned, and filesystem is not affected. <small>(default: `true{:ts}`)</small>
-
-### `GetRecordsOptions`
-
-An argument interface of the function [`getRecords`](#getrecords).
-
-<Callout>
-There're [`GetRecordsOptions`](#getrecordsoptions) (plural) and [`GetRecordOptions`](#getrecordoptions) (singular). Don't confuse!
-</Callout>
-
-<TokenLinkCode tokens={['HaetaeStore']}>
-```ts
-interface GetRecordsOptions<D extends Rec, E extends Rec> {
-  command?: string
-  store?: HaetaeStore<D, E>
-}
-```
-</TokenLinkCode>
-
-### `getRecords`
-
-A function to get records of the given command from the given store. <br/>
-`undefined` is returned when there is no record.
-
-<Callout>
-There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (singular). Don't confuse!
-</Callout>
-
-**Type**
-
-<TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
-```ts
-<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordsOptions<D, E>)
-  => Promise<HaetaeRecord<D, E>[] | undefined>
-```
-</TokenLinkCode>
-
-**Options?**
-
-- `command?{:ts}` : A command name to get records of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `store?{:ts}` : A store object. <small>(default: [`getStore(){:ts}`](`getstore()`))</small>
-
 
 ### `ReserveRecordDataOptions`
 
@@ -607,7 +424,8 @@ A function to invoke(execute) user-defined `env` of the given `command`.
 **Options?**
 
 - `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
+- `config?{:ts}` : A config object.
+<small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
 - `applyRootEnv?{:ts}` : Whether to apply root env. <small>(default: `true{:ts}`)</small>
 
 ### `InvokeRunOptions`
@@ -640,7 +458,8 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 **Options?**
 
 - `command?{:ts}` : A command name to invoke `env` of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
+- `config?{:ts}` : A config object.
+<small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
 - `applyReservedRecordData?{:ts}` : Whether to apply reserved *Record Data*. <small>(default: `true{:ts}`)</small>
 - `applyRootRecordData?{:ts}` : Whether to apply root *Record Data*. <small>(default: `true{:ts}`)</small>
 
@@ -660,48 +479,6 @@ Returns `true{:ts}` if they're equal, `false{:ts}` otherwise.
 - `one` : A resolved env object to compare with `theOther`.
 - `theOther` : A resolved env object to compare with `one`.
 
-### `GetRecordOptions`
-
-An argument interface of a function `getRecord`.
-
-<Callout>
-There're [`GetRecordsOptions`](#getrecordsoptions) (plural) and [`GetRecordOptions`](#getrecordoptions) (singular). Don't confuse!
-</Callout>
-
-<TokenLinkCode tokens={['GetRecordsOptions']}>
-```ts
-interface GetRecordOptions<D extends Rec, E extends Rec>
-  extends GetRecordsOptions<D, E> {
-  env?: PromiseOr<E>
-}
-```
-</TokenLinkCode>
-
-### `getRecord`
-
-A function to get a record of a given command from given store, corresponding to the given env.<br/>
-`undefined` is returned when there is no record.
-
-
-<Callout>
-There're [`getRecords`](#getrecords) (plural) and [`getRecord`](#getrecord) (singular). Don't confuse!
-</Callout>
-
-**Type**
-
-<TokenLinkCode tokens={['GetRecordOptions', 'HaetaeRecord']}>
-```ts
-<D extends Rec = Rec, E extends Rec = Rec>(options?: GetRecordOptions<D, E>)
-  => Promise<HaetaeRecord<D, E> | undefined>
-```
-</TokenLinkCode>
-
-**Options?**
-
-- `command?{:ts}` : A command name to get records of. <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `store?{:ts}` : A store object. <small>(default: [`getStore(){:ts}`](#getstore))</small>
-- `env?{:ts}` : A resolved env object. <small>(default: [`invokeEnv({ command }){:ts}`](#invokeenv))</small>
-
 ### `FormRecordOptions`
 
 An argument interface of the function [`formRecord`](#formrecord).
@@ -717,7 +494,7 @@ interface FormRecordOptions<D extends Rec, E extends Rec> {
 ### `formRecord`
 
 A function to create a new record object.<br/>
-This only returns an object, not save it.
+This only returns an object, not saves it.
 
 **Type**
 
@@ -730,105 +507,259 @@ This only returns an object, not save it.
 
 **Options?**
 
-- `data?{:ts}` : A *Record Data*. <small>(default: [`invokeRun(){:ts}`](#invokerun))</small>
-- `env?{:ts}` : A resolved env object. <small>(default: [`invokeEnv(){:ts}`](#invokeenv)</small>
-- `time?{:ts}` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds. <small>(default: [`Date.now(){:ts}`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now))</small>
+- `data?{:ts}` : A *Record Data*.
+<small>(default: <TokenLinkCode tokens={['invokeRun']} inline>`await invokeRun(){:ts}`</TokenLinkCode></small>
+- `env?{:ts}` : A resolved env object.
+<small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
+- `time?{:ts}` : [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) by milliseconds.
+<small>(default: [`Date.now(){:ts}`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now))</small>
 
 ### `AddRecordOptions`
 
-An argument interface of the function [`addRecord`](#addrecord).
+An argument interface of the function [`addRecord`](#addrecord-1).
 
-<TokenLinkCode tokens={['HaetaeConfig', 'HaetaeStore', 'HaetaeRecord']}>
+<TokenLinkCode tokens={['HaetaeRecord']}>
 ```ts
 interface AddRecordOptions<D extends Rec, E extends Rec> {
-  config?: HaetaeConfig<D, E>
   command?: string
-  store?: HaetaeStore<D, E>
   record?: HaetaeRecord<D, E>
 }
 ```
 </TokenLinkCode>
 
+### `AddRecord`
+
+A type of function [`addRecord`](#addrecord-1).
+
+<TokenLinkCode tokens={['AddRecordOptions', 'HaetaeRecord']}>
+```ts
+<D extends Rec, E extends Rec>(
+  options?: AddRecordOptions<D, E>,
+) => PromiseOr<HaetaeRecord<D, E>>
+```
+</TokenLinkCode>
+
 ### `addRecord`
 
-A function to add a new record under the given command to store.
+A function to add a new record to the store.<br/>
+The record is to be persisted to the store.
 
 **Type**
 
-<TokenLinkCode tokens={['AddRecordOptions', 'HaetaeStore']}>
+<TokenLinkCode tokens={['AddRecord']}>
 ```ts
-<D extends Rec, E extends Rec>(options?: AddRecordOptions<D, E>)
-  => Promise<HaetaeStore<D, E>>
+AddRecord
 ```
 </TokenLinkCode>
 
 **Options?**
 
-- `config?{:ts}` : A config object. <small>(default: [`getConfig(){:ts}`](#getconfig))</small>
-  - `config.recordRemoval.age{:ts}`: Age threshold by milliseconds. Records whose age are older than this value are removed.
-  - `config.recordRemoval.count{:ts}`: The number of total records to keep. When the number of records becomes larger than this value, old records are removed to satisfy the threshold. This task is executed after that of `config.recordRemoval.age{:ts}`.
-- `command?{:ts}` : A command name to add record under.
+- `command?{:ts}` : A command name to add a new record.
 <small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
-- `store?{:ts}` : A store object. <small>(default: [`getStore(){:ts}`](#getstore))</small>
-- `record?{:ts}` : A new record object to add.
-<small>(default: <TokenLinkCode inline tokens={['formRecord', 'invokeRun', 'invokeEnv']}>`formRecord({ data: invokeRun({ command }), env: invokeEnv({ command }) }){:ts}`</TokenLinkCode>)</small>
+- `record?{:ts}` : A new record object to add.<br/>
+<small>(default: <TokenLinkCode inline tokens={['formRecord', 'invokeRun', 'invokeEnv']}>
+`await formRecord({ data: await invokeRun({ command }), env: await invokeEnv({ command }) }){:ts}`
+</TokenLinkCode>)</small>
 
-### `SaveStoreOptions`
+### `GetRecordOptions`
 
-An argument interface of the function [`saveStore`](#savestore).
+An argument interface of a function [`getRecord`](#getrecord-1).
 
-<TokenLinkCode tokens={['HaetaeStore']}>
+<TokenLinkCode tokens={['GetRecordsOptions']}>
 ```ts
-interface SaveStoreOptions {
-  filename?: string
-  store?: HaetaeStore
+interface GetRecordOptions<E extends Rec> {
+  command?: string
+  env?: E
 }
 ```
 </TokenLinkCode>
 
-### `saveStore`
+### `GetRecord`
+
+A type of function [`getRecord`](#getrecord-1).
+
+<TokenLinkCode tokens={['GetRecordsOptions', 'HaetaeRecord']}>
+```ts
+<D extends Rec = Rec, E extends Rec = Rec>(
+  options?: GetRecordOptions<E>,
+) => PromiseOr<HaetaeRecord<D, E> | undefined>
+```
+</TokenLinkCode>
+
+### `getRecord`
+
+A function to get a record of a given command, corresponding to the given env.<br/>
+`undefined` is returned when there's no record.
+
+**Type**
+
+<TokenLinkCode tokens={['GetRecord']}>
+```ts
+GetRecord
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `command?{:ts}` : A command name to get records of.
+<small>(default: [`getCurrentCommand(){:ts}`](#getcurrentcommand))</small>
+- `env?{:ts}` : A resolved env object. <small>
+(default: <TokenLinkCode tokens={['invokeEnv']} inline>
+`await invokeEnv({ command }){:ts}`</TokenLinkCode>)</small>
+
+### `StoreConnector`
+
+An interface of store connector.
+
+<TokenLinkCode tokens={['AddRecord', 'GetRecord']}>
+```ts
+interface StoreConnector {
+  addRecord: AddRecord
+  getRecord: GetRecord
+}
+```
+</TokenLinkCode>
+
+### `LocalStoreConnector`
+
+An interface of local store connector.
+
+<TokenLinkCode tokens={[
+  'LocalStoreConnectorInitNewStore',
+  'LocalStoreConnectorLoadStore',
+  'LocalStoreConnectorSaveStore']}>
+```ts
+interface LocalStoreConnector extends StoreConnector {
+  initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E>
+  loadStore<D extends Rec, E extends Rec>(
+    options?: LoadStoreOptions,
+  ): Promise<LocalStore<D, E>>
+  saveStore(store: LocalStore): Promise<void>
+  localStore: {
+    filename: string
+    recordRemoval: {
+      age: number
+      count: number
+    }
+  }
+}
+```
+</TokenLinkCode>
+
+### `LocalStoreOptions`
+
+An argument interface of a function [`localStore`](#localStore).
+
+```ts
+interface LocalStoreOptions {
+  filename?: string
+  recordRemoval?: {
+    age?: number
+    count?: number
+  }
+}
+```
+
+### `localStore`
+
+A function to create a *Store Connector* that reads and writes to a local file.
+
+**Type**
+
+<TokenLinkCode tokens={['LocalStoreOptions', 'LocalStoreConnector']}>
+```ts
+(options?: LocalStoreOptions): LocalStoreConnector
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `filename?{:ts}` : The store file.
+<small>(default: `core.getConfigDirname() + '/.haetae/store.json'{:ts}`</small>
+- `recordRemoval.age?{:ts}` : Age threshold by milliseconds
+(e.g. 90 * 24 * 60 * 60 * 1000 => 90days).
+Records whose age is older than this value are to be removed when calling [`addRecord`](#addrecord).
+<small>(default: `Number.POSITIVE_INFINITY{:ts}`)</small>
+- `recordRemoval.count?{:ts}` : The number of total records to keep.
+When the number of records becomes larger than this value, old records are removed to satisfy the threshold
+when calling [`addRecord`](#addrecord). This task is executed after `recordRemoval.age{:ts}` is used.
+<small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
+
+### `LocalStoreConnector.initNewStore`
+
+Initializes an empty store. It just returns an object. It does not save it as a file.
+
+**Type**
+
+<TokenLinkCode tokens={['LocalStore']}>
+```ts
+<D extends Rec, E extends Rec>() => LocalStore<D, E>
+```
+</TokenLinkCode>
+
+### `LoadStoreOptions`
+
+An argument interface of the function [`LocalStoreConnector.loadStore{:ts}`](#localstoreconnectorloadstore).
+
+```ts
+interface LoadStoreOptions {
+  initWhenNotFound?: boolean
+}
+```
+
+### `LocalStore`
+
+An interface for the local store file.
+
+<TokenLinkCode tokens={['HaetaeRecord']}>
+```ts
+interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
+  version: string
+  commands: {
+    [command: string]: HaetaeRecord<D, E>[]
+  }
+}
+```
+</TokenLinkCode>
+
+### `LocalStoreConnector.loadStore`
+<br/>
+<Memoized/>
+
+A function to load a store object from the file.
+
+**Type**
+
+<TokenLinkCode tokens={['LoadStoreOptions', 'LocalStore']}>
+```ts
+<D extends Rec, E extends Rec>(options?: LoadStoreOptions<D, E>)
+  => Promise<LocalStore<D, E>>
+```
+</TokenLinkCode>
+
+**Options?**
+
+- `initWhenNotFound?{:ts}` : Whether to throw an error or just initialize a new store object
+when `filename` does not exist in the filesystem.
+If `true{:ts}`, [`LocalStoreConnector.initNewStore(){:ts}`](#localstoreconnectorinitnewstore) is returned,
+and the filesystem is not affected.
+<small>(default: `true{:ts}`)</small>
+
+
+### `LocalStoreConnector.saveStore`
 
 A function to save a store object to a file.<br/>
-Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
-File IO and Memoization cache clear is done sequentially in a synchronous manner, as a transaction.
+Memoization cache of [`LocalStoreConnector.loadStore{:ts}`](#localstoreconnectorloadstore) would be clear automatically.<br/>
 
 **Type**
 
-<TokenLinkCode tokens={['SaveStoreOptions']}>
+<TokenLinkCode tokens={['LocalStore']}>
 ```ts
-(options?: SaveStoreOptions) => Promise<void>
+(store: LocalStore) => Promise<void>
 ```
 </TokenLinkCode>
 
 **Options?**
 
-- `filename?{:ts}` : A file path to write store on. <small>(default: [`getStoreFilename(){:ts}`](#getstorefilename))</small>
-- `store?{:ts}` : A store object to save. <small>(default: [`addRecord(){:ts}`](#addrecord))</small>
-
-### `DeleteStoreOptions`
-
-An argument interface of the function [`deleteStore`](#deleteStore).
-
-```ts
-interface DeleteStoreOptions {
-  filename?: string
-}
-```
-
-### `deleteStore`
-
-A function to delete the entire store by removing the store file.<br/>
-Memoization cache of [`getStore`](#getstore) would be clear automatically.<br/>
-File IO and Memoization cache clear is done sequentially in a synchronous manner, as a transaction.
-
-**Type**
-
-<TokenLinkCode tokens={['DeleteStoreOptions']}>
-```ts
-(options?: DeleteStoreOptions) => Promise<void>
-```
-</TokenLinkCode>
-
-**Options?**
-
-- `filename?{:ts}` : A store file path to delete. <small>(default: [`getStoreFilename(){:ts}`](#getstorefilename))</small>
+- `store?{:ts}` : A store object to save.
+<small>(default: <TokenLinkCode tokens={['addRecord']} inline>`await addRecord(){:ts}`</TokenLinkCode>)</small>

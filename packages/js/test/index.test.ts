@@ -184,33 +184,34 @@ describe('dependsOn', () => {
           dependencies: ['another', 'another2'],
         },
       ],
+      glob: false,
     })
 
     const dependencies = ['f', 'b']
 
     await expect(
       dependsOn({
-        rootDir,
         dependent: 'a',
         dependencies,
+        rootDir,
         additionalGraph,
       }),
     ).resolves.toBe(true)
 
     await expect(
       dependsOn({
-        rootDir,
         dependent: 'c',
         dependencies,
+        rootDir,
         additionalGraph,
       }),
     ).resolves.toBe(true)
 
     await expect(
       dependsOn({
-        rootDir,
         dependent: 'e',
         dependencies,
+        rootDir,
         additionalGraph,
       }),
     ).resolves.toBe(false)
