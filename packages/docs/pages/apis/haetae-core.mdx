@@ -465,19 +465,19 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 
 ### `compareEnvs`
 
-A function to compare two resolved env object.<br/>
-Returns `true{:ts}` if they're equal, `false{:ts}` otherwise.
+A function to calculate a hash of an env object.<br/>
+The object is serialized by a deterministic method no matter how deep it is,
+and calculated as a hash by SHA-1.
 
 **Type**
 
 ```ts
-(one: Rec, theOther: Rec) => boolean
+(env: Rec) => string
 ```
 
 **Arguments**
 
-- `one` : A resolved env object to compare with `theOther`.
-- `theOther` : A resolved env object to compare with `one`.
+- `env` : An `env` object to calculate a hash of.
 
 ### `FormRecordOptions`
 

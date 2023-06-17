@@ -356,7 +356,7 @@ For instance, let's change the config to this.
   '.branch': './apis/haetae-git#branch',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
-import assert from 'node:assert/strict'
+import assert from 'node:assert/strict' // `node:` protocol is optional
 import { $, core, git, utils, js, pkg } from 'haetae'
 import semver from 'semver'
 
@@ -696,97 +696,123 @@ $ haetae myTest
 ```
 
 This information is logged in the store file (*`.haetae/store.json`*), and called *'Record'*.
-The `data` field is called *'Record Data'*. To query *'Records'*, you can use the CLI option [`-r, --record`](./cli#-r---record).
+The `data` field is called *'Record Data'*.
+Let's check them out.
 
 ```fish
-$ haetae myTest --record --json
+$ cat .haetae/store.json
 ```
 
-<Callout>
-  **`-j, --json`** <br/>
-  The option [`-j, --json`](./cli#-j---json) is purely optional.
-  It lets the CLI print the result in JSON format.
-  Check out the CLI docs for more details.
-</Callout>
 
 The output is like this.
 
-```json filename="terminal" {13,24-26,37-39,50-57,68-70}
+```json filename="terminal" {13,25-27,39-41,53-60,72-74}
 {
-  "status": "success",
-  "message": "5 records are found for the command myTest",
-  "result": [
-    {
-      "data": {
-        "@haetae/git": {
-          "commit": "1d17a2f2d75e2ac94f31e53376c549751dca85fb",
+  "version": "0.0.14",
+  "commands": {
+    "myTest": [
+      {
+        "data": {
+          "@haetae/git": {
+            "commit": "1d17a2f2d75e2ac94f31e53376c549751dca85fb",
+            "branch": "main",
+            "pkgVersion": "0.0.12"
+          }
+        },
+        "env": {},
+        "envHash": "bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f",
+        "time": 1685239566483
+      },
+      {
+        "data": {
+          "@haetae/git": {
+            "commit": "a4f4e7e83eedbf2269fbf29d91f08289bdeece91",
+            "branch": "main",
+            "pkgVersion": "0.0.12"
+          }
+        },
+        "env": {
+          "NODE_ENV": "production"
+        },
+        "envHash": "4ed28f8415aeb22c021e588c70d821cb604c7ae0",
+        "time": 1685458529856
+      },
+      {
+        "data": {
+          "@haetae/git": {
+            "commit": "442fefc582889bdaee5ec2bd8b74804680fc30ee",
+            "branch": "main",
+            "pkgVersion": "0.0.12"
+          }
+        },
+        "env": {
+          "NODE_ENV": "development"
+        },
+        "envHash": "2b580e42012efb489cdea43194c9dd6aed6b77d8",
+        "time": 1685452061199
+      },
+      {
+        "data": {
+          "@haetae/git": {
+            "commit": "ef3fdf88e9fad90396080335096a88633fbe893f",
+            "branch": "main",
+            "pkgVersion": "0.0.12"
+          }
+        },
+        "env": {
+          "jestConfig": "642645d6bc72ab14a26eeae881a0fc58e0fb4a25af31e55aa9b0d134160436eb",
+          "jest": 29,
           "branch": "main",
-          "pkgVersion": "0.0.12"
-        }
+          "os": "darwin",
+          "node": 18,
+          "haetae": 0
+        },
+        "envHash": "62517924fb2c6adb38b4f30ba75a513066f5ac80",
+        "time": 1685455507556
       },
-      "env": {},
-      "time": 1685239566483
-    },
-    {
-      "data": {
-        "@haetae/git": {
-          "commit": "a4f4e7e83eedbf2269fbf29d91f08289bdeece91",
-          "branch": "main",
-          "pkgVersion": "0.0.12"
-        }
-      },
-      "env": {
-        "NODE_ENV": "production"
-      },
-      "time": 1685458529856
-    },
-    {
-      "data": {
-        "@haetae/git": {
-          "commit": "442fefc582889bdaee5ec2bd8b74804680fc30ee",
-          "branch": "main",
-          "pkgVersion": "0.0.12"
-        }
-      },
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "time": 1685452061199
-    },
-    {
-      "data": {
-        "@haetae/git": {
-          "commit": "ef3fdf88e9fad90396080335096a88633fbe893f",
-          "branch": "main",
-          "pkgVersion": "0.0.12"
-        }
-      },
-      "env": {
-        "jestConfig": "642645d6bc72ab14a26eeae881a0fc58e0fb4a25af31e55aa9b0d134160436eb",
-        "jest": 29,
-        "branch": "main",
-        "os": "darwin",
-        "node": 18,
-        "haetae": 0
-      },
-      "time": 1685455507556
-    },
-    {
-      "data": {
-        "@haetae/git": {
-          "commit": "7e3b332f0657272cb277c312ff25d4e1145f895c",
-          "branch": "main",
-          "pkgVersion": "0.0.12"
-        }
-      },
-      "env": {
-        "testData": "b87b8be8df58976ee7da391635a7f45d8dc808357ff63fdcda699df937910227"
-      },
-      "time": 1685451151035
-    }
-  ]
+      {
+        "data": {
+          "@haetae/git": {
+            "commit": "7e3b332f0657272cb277c312ff25d4e1145f895c",
+            "branch": "main",
+            "pkgVersion": "0.0.12"
+          }
+        },
+        "env": {
+          "testData": "b87b8be8df58976ee7da391635a7f45d8dc808357ff63fdcda699df937910227"
+        },
+        "envHash": "7ea1923c8bad940a97e1347ab85abd4811e82531",
+        "time": 1685451151035
+      }
+    ]
+  }
 }
+
 ```
+
+<Callout>
+**Env Hash** <br/>
+The field `envHash` is **SHA-1** of `env` object.
+The `env` object is serialized by a deterministic method no matter how deep it is, and calculated as a hash.
+The hash is used to match the current `env` with previous records.
+**SHA-1** is considered insecure, but good enough to prevent collision for history comparison.
+For example, `git` also uses **SHA-1** as a commit ID.
+When your *Env* or *Record Data* contains a confidential field and you're worrying what if the store is leaked,
+you can preprocess secret fields with a stronger cryptographic hash algorithm,
+like **SHA-256** or **SHA-512**.
+The practical guide with [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is explained just in the next section.
+</Callout>
+
+<Callout>
+**`recordRemoval.leaveOnlyLastestPerEnv` of [`localStore`](./apis/haetae-core#localstore)** <br/>
+By default, you're using [`localStore`](./apis/haetae-core#localstore) as a *'Store Connector'*.
+[`localStore`](./apis/haetae-core#localstore) stores records into a file (*`.haetae/store.json`*).
+The option `recordRemoval.leaveOnlyLastestPerEnv{:ts}` is `true{:ts}` by default.
+So only the last records per `env` exist in the store file.
+This is useful when you only depend on the latest *Records*.
+To utilize further past *Records*, you can set the option `false{:ts}`.
+Changing or configuring *'Store Connector'* is guided later.
+</Callout>
 
 5 Records are found in total.
 These are what we've done in this article so far.
@@ -971,8 +997,8 @@ Do you see the last line?
 The value we returned from `myTest.run{:ts}` is recorded in the store file, as part of *Record Data*.
 
 <Callout>
-  **Hash credentials** <br/>
-  [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is good for credentials like a dotenv file.
+  **Hash confidential** <br/>
+  [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is good for secrets like a dotenv file.
   By default, it hashes by SHA-256, and you can simply change the cryptographic hash algorithm by its options, like to SHA-512 for example.
   Thus, you do not need to worry about if the store file is leaked.
 </Callout>
@@ -1247,7 +1273,7 @@ You may want the config file's hash to be automatically recorded into every comm
   '.hash': './apis/haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js" {5-9, 13}
-import * as url from 'node:url' // `node:` protocol is optional
+import * as url from 'node:url'
 import { $, core, git, utils, js } from 'haetae'
 
 export default core.configure({

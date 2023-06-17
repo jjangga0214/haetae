@@ -112,7 +112,7 @@ export async function run(): Promise<void> {
     // 1. Set config file path
 
     // Throws error if config file does not exist.
-    core.setConfigFilename({
+    await core.setConfigFilename({
       filename: argv.c || process.env.HAETAE_CONFIG_FILE,
     })
     await core.getConfig() // Loads config file

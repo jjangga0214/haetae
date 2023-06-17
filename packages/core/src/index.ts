@@ -5,6 +5,7 @@ import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import deepEqual from 'deep-equal'
 import { findUp } from 'find-up'
+import hashObject from 'hash-obj'
 import { PromiseOr, Rec, parsePkg, toAbsolutePath } from '@haetae/common'
 import { produce } from 'immer'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -130,6 +131,7 @@ export const getConfigDirname = () => upath.dirname(getConfigFilename())
 export interface HaetaeRecord<D extends Rec = Rec, E extends Rec = Rec> {
   data: D
   env: E
+  envHash: string
   time: number
 }
 
@@ -347,19 +349,8 @@ export const invokeRun = async <D extends Rec>(
   return recordData
 }
 
-export function compareEnvs(one: Rec, theOther: Rec): boolean {
-  let sOne
-  let sTheOther
-  try {
-    sOne = JSON.stringify(one)
-    sTheOther = JSON.stringify(theOther)
-  } catch {
-    throw new Error('`env` must be able to be stringified.')
-  }
-
-  return deepEqual(JSON.parse(sOne), JSON.parse(sTheOther), {
-    strict: true,
-  })
+export function hashEnv(env: Rec): string {
+  return hashObject(env, { algorithm: 'sha1' })
 }
 
 export interface FormRecordOptions<D extends Rec, E extends Rec> {
@@ -377,6 +368,7 @@ export async function formRecord<D extends Rec, E extends Rec>(
   return {
     data,
     env,
+    envHash: hashEnv(env),
     time,
   }
 }
@@ -480,6 +472,10 @@ export function localStore({
     count >= 0,
     `'recordRemoval.count' is misconfigured. It should be zero or positive value.`,
   )
+  assert(
+    age >= 0,
+    `'recordRemoval.age' is misconfigured. It should be zero or positive value.`,
+  )
   // eslint-disable-next-line no-param-reassign
   filename = toAbsolutePath({ path: filename, rootDir: getConfigDirname })
   const extension = upath.extname(filename)
@@ -501,6 +497,7 @@ export function localStore({
         age,
       },
     },
+
     async addRecord<D extends Rec, E extends Rec>(
       options: AddRecordOptions<D, E> = {},
     ) {
@@ -517,22 +514,29 @@ export function localStore({
         /* eslint-disable no-param-reassign */
         draft.version = pkg.version.value
         draft.commands = draft.commands || {}
-        // Do NOT change the original array! (e.g. use `slice` instead of `splice`)
-        // That's because the store object is memoized by shallow copy.
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         draft.commands[command] = draft.commands[command] || []
         if (leaveOnlyLastestPerEnv) {
           draft.commands[command] = draft.commands[command].filter(
             // remove old record with same env. So there's only one record left for each env.
-            (oldRecord) => !compareEnvs(record.env, oldRecord.env),
+            (oldRecord) => record.envHash !== oldRecord.envHash,
           )
         }
+        // Do NOT change the original array! (e.g. use `slice` instead of `splice`)
+        // That's because the store object is memoized by shallow copy.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         draft.commands[command] = draft.commands[command]
+          .filter(
+            (r) => !leaveOnlyLastestPerEnv || r.envHash !== record.envHash,
+          )
           .filter(
             (r) => Date.now() - r.time < this.localStore.recordRemoval.age,
           )
           .slice(0, this.localStore.recordRemoval.count)
+        // Important Assumption that `getRecord` depend on: always recent records are at the front of the array
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        draft.commands[command].unshift(record)
 
         /* eslint-enable no-param-reassign */
         return draft
@@ -540,21 +544,25 @@ export function localStore({
       await this.saveStore(newStore)
       return record
     },
+
     async getRecord<D extends Rec = Rec, E extends Rec = Rec>(
       options: GetRecordOptions<E> = {},
     ): Promise<HaetaeRecord<D, E> | undefined> {
       const command = options.command || (await getCurrentCommand())
       const env = options.env || (await invokeEnv<E>({ command }))
       const store = await this.loadStore<D, E>()
-      const records = store.commands[command]
+      const records = store.commands[command] || []
 
-      for (const record of records || []) {
-        if (compareEnvs(env, record.env)) {
+      const envHash = hashEnv(env)
+      for (const record of records) {
+        // Important Assumption that `addRecord` makes: always recent records are at the front of the array
+        if (envHash === record.envHash) {
           return record
         }
       }
       return undefined // `undefined` if non-existent
     },
+
     async loadStore<D extends Rec, E extends Rec>({
       initWhenNotFound = true,
     }: LoadStoreOptions = {}) {
@@ -567,10 +575,12 @@ export function localStore({
         throw error
       }
     },
+
     // This does not affect to filesystem, just creates a new store object
     initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E> {
       return { version: pkg.version.value, commands: {} }
     },
+
     async saveStore(store: LocalStore) {
       const dirname = upath.dirname(this.localStore.filename)
       try {

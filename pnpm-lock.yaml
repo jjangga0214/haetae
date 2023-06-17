@@ -250,6 +250,9 @@ importers:
       find-up:
         specifier: ^6.3.0
         version: 6.3.0
+      hash-obj:
+        specifier: ^4.0.0
+        version: 4.0.0
       immer:
         specifier: ^9.0.5
         version: 9.0.21

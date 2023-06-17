@@ -34,6 +34,7 @@
     "deep-equal": "^2.0.5",
     "dirname-filename-esm": "^1.1.1",
     "find-up": "^6.3.0",
+    "hash-obj": "^4.0.0",
     "immer": "^9.0.5",
     "memoizee": "^0.4.15",
     "ms": "^2.1.3",

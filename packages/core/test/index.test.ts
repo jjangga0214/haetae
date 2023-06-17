@@ -49,11 +49,12 @@ describe('localStore()', () => {
       expect(store.localStore.recordRemoval.count).toBe(10)
     })
     test('with negative age or count', () => {
-      const store = localStore({
-        filename: '.',
-        recordRemoval: { age: -1 },
-      })
-      expect(store.localStore.recordRemoval.age).toBe(-1)
+      expect(() =>
+        localStore({
+          filename: '.',
+          recordRemoval: { age: -1 },
+        }),
+      ).toThrow(AssertionError)
       expect(() =>
         localStore({
           filename: '.',
