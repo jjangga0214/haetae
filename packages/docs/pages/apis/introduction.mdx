@@ -16,25 +16,26 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='#path-p
 Types are annotated by typescript syntax.<br/>
 For example, trailing `?{:ts}` means an optional field.
 
-### `PromiseOr`
+### Common utility types
 
-Some APIs depend on a utility type named `PromiseOr{:ts}`.
+Some APIs depend on common utility types.
 
 ```ts
 type PromiseOr<T> = Promise<T> | T
+
+type Rec = {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | Rec
+    | (string | number | boolean | null | undefined | Rec)[]
+}
 ```
 
-`haetae{:ts}` and `@haetae/*{:ts}` does NOT export `PromiseOr{:ts}`, but you'd better know this.
-
-### `Rec`
-
-Some APIs depend on a utility type named `Rec{:ts}`.
-
-```ts
-type Rec = Record<string, unknown>
-```
-
-`haetae{:ts}` and `@haetae/*{:ts}` does NOT export `Rec{:ts}`, but you'd better know this.
+`@haetae/common{:ts}` exports these, and they can be used across multiple packages.
 
 ### Memoization
 
