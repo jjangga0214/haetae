@@ -9,6 +9,8 @@ import {
   invokeRun,
   invokeRootEnv,
   invokeRootRecordData,
+  setCurrentCommand,
+  hashEnv,
 } from '../src/index.js'
 
 describe('localStore()', () => {
@@ -100,7 +102,6 @@ describe('configure(), invoke*(), createRecord()', () => {
       expect(store.hello).toBe('world')
       return {
         ...data,
-        ...env,
         rootRecordData: true,
       }
     },
@@ -178,7 +179,6 @@ describe('configure(), invoke*(), createRecord()', () => {
       }),
     ).resolves.toStrictEqual({ dataKey: 'bar' })
   })
-  // eslint-disable-next-line jest/prefer-lowercase-title
   test('invokeRootEnv()', async () => {
     await expect(
       invokeRootEnv({
@@ -189,7 +189,6 @@ describe('configure(), invoke*(), createRecord()', () => {
       }),
     ).resolves.toStrictEqual({ envKey: 'foo', rootEnv: true })
   })
-  // eslint-disable-next-line jest/prefer-lowercase-title
   test('invokeRootRecordData()', async () => {
     await expect(
       invokeRootRecordData({
@@ -200,26 +199,33 @@ describe('configure(), invoke*(), createRecord()', () => {
         config,
       }),
     ).resolves.toStrictEqual({
-      envKey: 'foo',
-      dataKey: 'foo',
       rootRecordData: true,
-      rootEnv: true,
+      dataKey: 'foo',
     })
   })
   test('createRecord()', async () => {
-    await expect(
-      createRecord({
-        env: { envKey: 'foo', rootEnv: true },
-        recordData: { dataKey: 'foo' },
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        config,
+    const record = await createRecord({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      config,
+      command: 'foo',
+    })
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete record.time
+    expect(record).toStrictEqual({
+      env: {
+        envKey: 'foo',
+        rootEnv: true,
+      },
+      envHash: hashEnv({
+        envKey: 'foo',
+        rootEnv: true,
       }),
-    ).resolves.toStrictEqual({
-      envKey: 'foo',
-      dataKey: 'foo',
-      rootRecordData: true,
-      rootEnv: true,
+      data: {
+        dataKey: 'foo',
+        rootRecordData: true,
+      },
     })
   })
 })

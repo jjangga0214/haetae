@@ -455,10 +455,12 @@ export function hashEnv(env: Rec): string {
 
 export interface CreateRecordOptions<D extends Rec, E extends Rec> {
   config?: HaetaeConfig<D, E>
+  command?: string
 }
 
 export async function createRecord<D extends Rec, E extends Rec>({
   config,
+  command = getCurrentCommand(),
 }: CreateRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E>> {
   // eslint-disable-next-line no-param-reassign
   config = config || (await getConfig())
@@ -466,6 +468,7 @@ export async function createRecord<D extends Rec, E extends Rec>({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     config,
+    command,
   })
   const rootEnv = await invokeRootEnv({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -473,13 +476,19 @@ export async function createRecord<D extends Rec, E extends Rec>({
     config,
     env,
   })
-  const recordData = await invokeRun<D>({ env: rootEnv })
+  const recordData = await invokeRun<D>({
+    env,
+    command,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    config,
+  })
   const rootRecordData = await invokeRootRecordData({
+    env: rootEnv,
     recordData,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     config,
-    env: rootEnv,
   })
   const envHash = hashEnv(rootEnv)
 
