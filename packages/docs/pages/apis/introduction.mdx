@@ -22,16 +22,9 @@ Some APIs depend on common utility types.
 
 ```ts
 type PromiseOr<T> = Promise<T> | T
-
-type Rec = {
-  [key: string]:
-    | string
-    | number
-    | boolean
-    | null
-    | undefined
-    | Rec
-    | (string | number | boolean | null | undefined | Rec)[]
+type RecScalar = string | number | boolean | null | undefined
+interface Rec {
+  [key: string]: RecScalar | Rec | (RecScalar | Rec)[]
 }
 ```
 

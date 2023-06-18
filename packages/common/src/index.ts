@@ -5,15 +5,10 @@ import { readPackageUpSync } from 'read-pkg-up'
 
 export type PromiseOr<T> = Promise<T> | T
 
-export type Rec = {
-  [key: string]:
-    | string
-    | number
-    | boolean
-    | null
-    | undefined
-    | Rec
-    | (string | number | boolean | null | undefined | Rec)[]
+export type RecScalar = string | number | boolean | null | undefined
+
+export interface Rec {
+  [key: string]: RecScalar | Rec | (RecScalar | Rec)[]
 }
 
 export interface ToAbsolutePathOptions {
