@@ -214,10 +214,10 @@ So it can be used to detect which test files (transitively) depend on at least o
 
 <Callout>
 **`js.dependOn` can detect multiple formats**<br/>
-ES6(.js, .mjs), CJS(.js, .cjs), AMD, TypeScript(.ts, .mts, .cts), JSX(.jsx, .tsx), Webpack Loaders, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS, RequireJS are all supported.
-For Node.js, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are supported.
+ES6+, CJS, TypeScript, JSX, Webpack, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS are supported.
+For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
-Check out [the API docs](./apis/haetae-javascript#dependon) and pass additional option(s) if you use Typescript or Webpack.
+If you use Typescript or Webpack, check out [the API docs](./apis/haetae-javascript#dependon) and pass additional options like `options.tsConfig{:ts}` and/or `options.webpackConfig{:ts}`.
 </Callout>
 
 <Callout>
