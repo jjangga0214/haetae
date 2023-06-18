@@ -18,7 +18,7 @@ export const pkg = parsePkg({
 // todo: git submodule test
 
 export interface RecordData extends Rec {
-  [pkgName]: { commit: string; branch: string; pkgVersion: string }
+  [pkgName]: { commit: string; branch: string; specVersion: number }
 }
 
 export interface InstalledOptions {
@@ -96,15 +96,17 @@ const _commit = commit
 export interface RecordDataOptions {
   commit?: string
   branch?: string
-  pkgVersion?: string
+  specVersion?: number
 }
+
+export const recordDataSpecVersion = 1
 
 export async function recordData(
   options: RecordDataOptions = {},
 ): Promise<RecordData> {
   const commit = options.commit || (await _commit())
   const branch = options.branch || (await _branch())
-  const pkgVersion = options.pkgVersion || pkg.version.value
+  const specVersion = options.specVersion || recordDataSpecVersion
 
   if (!(await commit)) {
     throw new Error('Cannot get commit ID of HEAD.')
@@ -113,7 +115,7 @@ export async function recordData(
     [pkgName]: {
       commit: (await commit) as string,
       branch: (await branch) || ('detached HEAD' as string),
-      pkgVersion,
+      specVersion,
     },
   }
 }

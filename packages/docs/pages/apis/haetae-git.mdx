@@ -99,6 +99,16 @@ npm info @haetae/git peerDependencies
 
 Refer to [introduction#pkg](./introduction#pkg).
 
+### `recordDataSpecVersion`
+
+A version of the specification of Record Data `@haetae/git{:ts}` manages.
+
+**Value**
+
+```ts
+1
+```
+
 ### `RecordData`
 
 ```ts
@@ -106,7 +116,7 @@ interface RecordData extends Rec {
   '@haetae/git': {
     commit: string
     branch: string
-    pkgVersion: string
+    specVersion: number
   }
 }
 ```
@@ -126,7 +136,7 @@ An argument interface for [`recordData`](#recorddata)
 interface RecordDataOptions {
   commit?: string
   branch?: string
-  pkgVersion?: string
+  specVersion?: number
 }
 ```
 
@@ -146,7 +156,8 @@ A function to form *Record Data* `@haetae/git{:ts}` manages.
 
 - `commit?{:ts}` : Commit ID of `HEAD`. <small>(default: [`commit(){:ts}`](#commit))</small>
 - `branch?{:ts}` : Current branch. <small>(default: [`branch(){:ts}`](#branch))</small>
-- `pkgVersion?{:ts}` : Version of `@haetae/git{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
+- `specVersion?{:ts}` : A version of the specification of Record Data `@haetae/git{:ts}` manages.
+<small>(default: [`recordDataSpecVersion`](#recorddataspecversion))</small>
 
 ### `InstalledOptions`
 

@@ -533,7 +533,7 @@ interface InvokeRunOptions<D extends Rec> {
   command?: string
   env?: Rec // env before RootEnv
   config?: HaetaeConfig<D, Rec, StoreConnector>
-  applyReservedRecordData?: boolean
+  reservedRecordData?: boolean
 }
 ```
 </TokenLinkCode>
@@ -558,7 +558,7 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 <small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
 - `env?{:ts}` : A `env` object to pass to `run`.
 <small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
-- `applyReservedRecordData?{:ts}` : Whether to apply reserved *Record Data*. <small>(default: `true{:ts}`)</small>
+- `reservedRecordData?{:ts}` : Whether to apply reserved *Record Data*. <small>(default: `true{:ts}`)</small>
 
 ### `InvokeRootRecordDataOptions`
 
@@ -566,11 +566,10 @@ An argument interface of the function [`invokeRootRecordData`](#invokerootrecord
 
 <TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
 ```ts
-interface InvokeRunOptions<D extends Rec> {
-  command?: string
-  env?: Rec // env before RootEnv
-  config?: HaetaeConfig<D, Rec, StoreConnector>
-  applyReservedRecordData?: boolean
+interface InvokeRunOptions<A extends Rec, R extends Rec> {
+  env: Rec
+  recordData: A
+  config?: HaetaeConfig<R, Rec, StoreConnector>
 }
 ```
 </TokenLinkCode>
@@ -589,12 +588,12 @@ A function to invoke (execute) user-defined *Root Record Data* `recordData`.
 
 **Options?**
 
+- `env{:ts}` : A `env` object to pass to `recordData`.
+<small>(default: <TokenLinkCode tokens={['invokeRootEnv']} inline>`await invokeRootEnv(){:ts}`</TokenLinkCode></small>
+- `recordData{:ts}` : A *Record Data* object to pass to `recordData`.
+<small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
 - `config?{:ts}` : A config object.
 <small>(default: <TokenLinkCode tokens={['getConfig']} inline>`await getConfig(){:ts}`</TokenLinkCode></small>
-- `recordData?{:ts}` : A *Record Data* object to pass to `recordData`.
-<small>(default: <TokenLinkCode tokens={['invokeEnv']} inline>`await invokeEnv(){:ts}`</TokenLinkCode></small>
-- `env?{:ts}` : A `env` object to pass to `recordData`.
-<small>(default: <TokenLinkCode tokens={['invokeRootEnv']} inline>`await invokeRootEnv(){:ts}`</TokenLinkCode></small>
 
 ### `hashEnv`
 

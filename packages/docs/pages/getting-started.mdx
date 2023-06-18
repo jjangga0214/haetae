@@ -200,7 +200,7 @@ It will print the result like this.
 ⎜      "@haetae/git":
 ⎜        commit: 979f3c6bcafe9f0b81611139823382d615f415fd
 ⎜        branch: main
-⎣        pkgVersion: 0.0.12
+⎣        specVersion: 1
 ```
 
 As this is the first time of running the command `haetae myTest`,
@@ -280,7 +280,7 @@ as **every file is treated as depending on itself.**
 ⎜      "@haetae/git":
 ⎜        commit: 1d17a2f2d75e2ac94f31e53376c549751dca85fb
 ⎜        branch: main
-⎣        pkgVersion: 0.0.12
+⎣        specVersion: 1
 ```
 
 Accordingly, the new commit `1d17a2f` is logged in the store file.<br/>
@@ -692,7 +692,7 @@ $ haetae myTest
 ⎜      "@haetae/git":
 ⎜        commit: 979f3c6bcafe9f0b81611139823382d615f415fd
 ⎜        branch: main
-⎣        pkgVersion: 0.0.12
+⎣        specVersion: 1
 ```
 
 This information is logged in the store file (*`.haetae/store.json`*), and called *'Record'*.
@@ -708,7 +708,7 @@ The output is like this.
 
 ```json filename="terminal" {13,25-27,39-41,53-60,72-74}
 {
-  "version": "0.0.14",
+  "specVersion": 1,
   "commands": {
     "myTest": [
       {
@@ -716,7 +716,7 @@ The output is like this.
           "@haetae/git": {
             "commit": "1d17a2f2d75e2ac94f31e53376c549751dca85fb",
             "branch": "main",
-            "pkgVersion": "0.0.12"
+            "specVersion": 1
           }
         },
         "env": {},
@@ -728,7 +728,7 @@ The output is like this.
           "@haetae/git": {
             "commit": "a4f4e7e83eedbf2269fbf29d91f08289bdeece91",
             "branch": "main",
-            "pkgVersion": "0.0.12"
+            "specVersion": 1
           }
         },
         "env": {
@@ -742,7 +742,7 @@ The output is like this.
           "@haetae/git": {
             "commit": "442fefc582889bdaee5ec2bd8b74804680fc30ee",
             "branch": "main",
-            "pkgVersion": "0.0.12"
+            "specVersion": 1
           }
         },
         "env": {
@@ -756,7 +756,7 @@ The output is like this.
           "@haetae/git": {
             "commit": "ef3fdf88e9fad90396080335096a88633fbe893f",
             "branch": "main",
-            "pkgVersion": "0.0.12"
+            "specVersion": 1
           }
         },
         "env": {
@@ -775,7 +775,7 @@ The output is like this.
           "@haetae/git": {
             "commit": "7e3b332f0657272cb277c312ff25d4e1145f895c",
             "branch": "main",
-            "pkgVersion": "0.0.12"
+            "specVersion": 1
           }
         },
         "env": {
@@ -989,7 +989,7 @@ $ haetae myTest
 ⎜      "@haetae/git":
 ⎜        commit: ac127da6531efa487b8ee35451f24a70dc58aeea
 ⎜        branch: main
-⎜        pkgVersion: 0.0.12
+⎜        specVersion: 1
 ⎣      dotenv: 7f39224e335994886c26ba8c241fcbe1d474aadaa2bd0a8e842983b098cea894
 ```
 
@@ -1088,11 +1088,11 @@ $ haetae myTest
 ⎜      "@haetae/git":
 ⎜        commit: 018dd7e0c65c3a9d405485df7949ef75ff96e757
 ⎜        branch: main
-⎜        pkgVersion: 0.0.13
+⎜        specVersion: 1
 ⎜      "@haetae/utils":
 ⎜        files:
 ⎜          .env: 7f39224e335994886c26ba8c241fcbe1d474aadaa2bd0a8e842983b098cea894
-⎣        pkgVersion: 0.0.14
+⎣        specVersion: 1
 ```
 
 You can see the hash of *`.env`* is recorded.

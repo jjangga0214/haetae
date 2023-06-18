@@ -8,27 +8,29 @@ export const pkg = parsePkg({
   rootDir: dirname(import.meta),
 })
 
+export const recordDataSpecVersion = 1
+
 export interface RecordData extends Rec {
   [pkgName]: {
     files?: Record<string, string>
-    pkgVersion: string
+    specVersion: number
   }
 }
 
 export interface RecordDataOptions {
   files?: Record<string, string>
-  pkgVersion?: string
+  specVersion?: number
 }
 
 // It's async for future compatibility
 export async function recordData({
   files,
-  pkgVersion = pkg.version.value,
+  specVersion = recordDataSpecVersion,
 }: RecordDataOptions = {}): Promise<RecordData> {
   return {
     [pkgName]: {
       files,
-      pkgVersion,
+      specVersion,
     },
   }
 }

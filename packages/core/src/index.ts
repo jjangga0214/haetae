@@ -239,9 +239,9 @@ export function configure<
   }
 
   return {
-    commands: commands as HaetaeConfig<D, E, S>['commands'],
-    env: env as RootEnv<E, S>,
-    recordData: recordData as RootRecordData<D, E, S>,
+    commands: commands as unknown as HaetaeConfig<D, E, S>['commands'],
+    env: env as unknown as RootEnv<E, S>,
+    recordData: recordData as unknown as RootRecordData<D, E, S>,
     store: store as S,
   }
 }
@@ -325,11 +325,9 @@ export interface InvokeEnvOptions<E extends Rec> {
 }
 
 export const invokeEnv = async <E extends Rec>({
-  command,
+  command = getCurrentCommand(),
   config,
 }: InvokeEnvOptions<E> = {}): Promise<E> => {
-  // eslint-disable-next-line no-param-reassign
-  command = command || (await getCurrentCommand())
   // eslint-disable-next-line no-param-reassign
   config = config || (await getConfig())
   const haetaeCommand = config.commands[command]
@@ -364,7 +362,7 @@ export const invokeRootEnv = async <A extends Rec, R extends Rec>({
   // eslint-disable-next-line no-param-reassign
   config = config || (await getConfig())
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const _env = env || (await invokeEnv())
+  const _env = env || (await invokeEnv({ config }))
   return config.env(_env as R, { store: config.store })
 }
 
@@ -372,19 +370,20 @@ export interface InvokeRunOptions<D extends Rec> {
   command?: string
   env?: Rec // env before RootEnv
   config?: HaetaeConfig<D, Rec, StoreConnector>
-  applyReservedRecordData?: boolean
+  reserveRecordData?: boolean
 }
 
+const _reserveRecordData = reserveRecordData
+
 export const invokeRun = async <D extends Rec>({
-  command,
+  command = getCurrentCommand(),
   config,
   env,
-  applyReservedRecordData = true,
+  reserveRecordData = true,
 }: InvokeRunOptions<D> = {}): Promise<D> => {
   /* eslint-disable no-param-reassign */
-  command = command || (await getCurrentCommand())
   config = config || (await getConfig())
-  env = env || (await invokeEnv())
+  env = env || (await invokeEnv({ command, config }))
   /* eslint-enable no-param-reassign */
   const { store } = config
 
@@ -408,29 +407,27 @@ export const invokeRun = async <D extends Rec>({
     isUndefinedOrObject,
     'The return type of `run` must be a plain object(`{ ... }`) or `void`.',
   )
-  if (applyReservedRecordData) {
-    recordData = reserveRecordData(recordData, { dryRun: true })
+  if (reserveRecordData) {
+    recordData = _reserveRecordData(recordData, { dryRun: true })
   }
 
   return recordData
 }
 
 export interface InvokeRootRecordDataOptions<A extends Rec, R extends Rec> {
+  env: Rec
+  recordData: A
   config?: HaetaeConfig<R, Rec, StoreConnector>
-  recordData?: A
-  env?: Rec
 }
 
 export const invokeRootRecordData = memoizee(
   async <A extends Rec, R extends Rec>({
-    config,
-    recordData,
     env,
-  }: InvokeRootRecordDataOptions<A, R> = {}): Promise<R> => {
+    recordData,
+    config,
+  }: InvokeRootRecordDataOptions<A, R>): Promise<R> => {
     /* eslint-disable no-param-reassign */
     config = config || (await getConfig())
-    env = env || (await invokeRootEnv())
-    recordData = recordData || (await invokeRun<A>())
     /* eslint-enable no-param-reassign */
     return config.recordData(recordData as unknown as R, {
       store: config.store,
@@ -467,8 +464,10 @@ export async function createRecord<D extends Rec, E extends Rec>(): Promise<
   }
 }
 
+export const localStoreSpecVersion = 1
+
 export interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
-  version: string
+  specVersion: number
   commands: {
     [command: string]: HaetaeRecord<D, E>[]
   }
@@ -597,7 +596,7 @@ export function localStore({
       const store = await this.loadStore<D, E>()
       const newStore = produce(store, (draft) => {
         /* eslint-disable no-param-reassign */
-        draft.version = pkg.version.value
+        draft.specVersion = localStoreSpecVersion
         draft.commands = draft.commands || {}
         draft.commands[command] = draft.commands[command] || []
         if (leaveOnlyLastestPerEnv) {
@@ -630,11 +629,9 @@ export function localStore({
     },
 
     async getRecord<D extends Rec = Rec, E extends Rec = Rec>({
-      command,
+      command = getCurrentCommand(),
       envHash,
     }: GetRecordOptions = {}): Promise<HaetaeRecord<D, E> | undefined> {
-      // eslint-disable-next-line no-param-reassign
-      command = command || (await getCurrentCommand())
       // eslint-disable-next-line no-param-reassign
       envHash = envHash || hashEnv(await invokeEnv({ command }))
       const store = await this.loadStore<D, E>()
@@ -663,7 +660,7 @@ export function localStore({
 
     // This does not affect to filesystem, just creates a new store object
     initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E> {
-      return { version: pkg.version.value, commands: {} }
+      return { specVersion: localStoreSpecVersion, commands: {} }
     },
 
     async saveStore(store: LocalStore) {

@@ -101,13 +101,23 @@ npm info @haetae/utils peerDependencies
 
 Refer to [introduction#pkg](./introduction#pkg).
 
+### `recordDataSpecVersion`
+
+A version of the specification of Record Data `@haetae/utils{:ts}` manages.
+
+**Value**
+
+```ts
+1
+```
+
 ### `RecordData`
 
 ```ts
 interface RecordData extends Rec {
   '@haetae/utils': {
     files?: Record<string, string>
-    pkgVersion: string
+    spevVersion: number
   }
 }
 ```
@@ -121,12 +131,12 @@ interface RecordData extends Rec {
 
 ### `RecordDataOptions`
 
-An argument interface for `recordData`
+An argument interface for [`recordData`](#recorddata)
 
 ```ts
 interface RecordDataOptions {
   files?: Record<string, string>
-  pkgVersion?: string
+  specVersion?: number
 }
 ```
 
@@ -145,7 +155,8 @@ A function to form *Record Data* `@haetae/utils{:ts}` manages.
 **Options?**
 
 - `files?{:ts}` : filename-hash pairs.
-- `pkgVersion?{:ts}` : Version of `@haetae/utils{:ts}`. <small>(default: [`pkg.version.value{:ts}`](./introduction#pkg))</small>
+- `specVersion?{:ts}` : A version of the specification of Record Data `@haetae/utils{:ts}` manages.
+<small>(default: [`recordDataSpecVersion`](#recorddataspecversion))</small>
 
 ### `GlobOptions`
 
@@ -819,7 +830,7 @@ changedFiles: [
 ⎜          targets/e: 68dd4ebaba3b6c6a4de18927efbe62da5ebd1bfd720e2ab73bdb3195773fff9c
 ⎜          targets/f: d8eb1fc8e0f5d0c6f4a710ee0bfd27eeb43eb3c9d5e57f338715bf5c5a660f36
 ⎜          targets/i: d7b68040b472acede5847c237f0d5a206caa4f3c4df393ac47ab5f6bd9124a9c
-⎣        pkgVersion: 0.0.14
+⎣        specVersion: 1
 ```
 
 As it's the first time, there're no hashes in the previous *Record Data*.
@@ -846,7 +857,7 @@ changedFiles: []
 ⎜          targets/e: 68dd4ebaba3b6c6a4de18927efbe62da5ebd1bfd720e2ab73bdb3195773fff9c
 ⎜          targets/f: d8eb1fc8e0f5d0c6f4a710ee0bfd27eeb43eb3c9d5e57f338715bf5c5a660f36
 ⎜          targets/i: d7b68040b472acede5847c237f0d5a206caa4f3c4df393ac47ab5f6bd9124a9c
-⎣        pkgVersion: 0.0.14
+⎣        specVersion: 1
 ```
 
 After then, you made some changes on the project.
