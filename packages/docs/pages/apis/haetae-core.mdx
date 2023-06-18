@@ -434,34 +434,28 @@ If given as a relative path, [`process.cwd(){:ts}`](https://nodejs.org/api/proce
 If given as an absolute path, it's used as-is.
 <small>(default: [`getConfigFilename(){:ts}`](#getconfigfilename))</small>
 
-### `ReserveRecordDataOptions`
+### `reservedRecordDataList`
 
-An option interface of the function [`reserveRecordData`](#reserverecorddata).
+A list of *Reserved Record Data*.
+The latter is added more recently, as when [`reserveRecordData`](#reserverecorddata) is called,
+it pushes to `reservedRecordDataList`.
+
+**Type**
 
 ```ts
-interface ReserveRecordDataOptions {
-  dryRun?: boolean
-}
+Rec[]
 ```
 
 ### `reserveRecordData`
 
 A function to reserve *Record Data*.<br/>
-This changes module-level state, the *Reserved Record Data*.<br/>
-It returns a result of the *Reserved Record Data*.
+This pushes the *Record Data* into [`reservedRecordDataList`](#reservedrecorddatalist).
 
 **Type**
 
-<TokenLinkCode tokens={['ReserveRecordDataOptions']}>
 ```ts
-<D extends Rec>(recordData: Rec, options?: ReserveRecordDataOptions) => D
+<D extends Rec>(recordData: Rec) => void
 ```
-</TokenLinkCode>
-
-**Options?**
-
-- `dryRun?{:ts}` : If `true{:ts}`, the arg `recordData` is not reserved, but a return value is given as if it's applied.
-<small>(default: `false{:ts}`)</small>
 
 ### `InvokeEnvOptions`
 

@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@haetae/common": "workspace:*",
+    "deepmerge": "^4.3.1",
     "dirname-filename-esm": "^1.1.1",
     "find-up": "^6.3.0",
     "hash-obj": "^4.0.0",

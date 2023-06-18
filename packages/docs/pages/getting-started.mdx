@@ -1113,6 +1113,12 @@ For that, it's important to avoid naming collision.
 So Haetae uses **a package name as a namespace by convention.**
 `'@haetae/git'{:ts}` and `'@haetae/utils'{:ts}` keys in *Record Data* are namespaces to avoid such a collision.
 
+<Callout>
+**Multiple Reserved Record Data** <br/>
+All *Reserved Record Data* are saved in the list [`reservedRecordDataList`](./apis/haetae-core#reservedrecorddatalist).
+The list is merged by [`deepmerge`](https://www.npmjs.com/package/deepmerge).
+</Callout>
+
 [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) is more useful for multiple files.
 Let's say you have multiple dotenv files per environment, unlike the previous assumption.
 For example, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are targets to test.

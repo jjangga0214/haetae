@@ -5,6 +5,7 @@ import memoizee from 'memoizee'
 import serialize from 'serialize-javascript'
 import { findUp } from 'find-up'
 import hashObject from 'hash-obj'
+import deepmerge from 'deepmerge'
 import { PromiseOr, Rec, parsePkg, toAbsolutePath } from '@haetae/common'
 import { produce } from 'immer'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -17,7 +18,7 @@ export const pkg = parsePkg({
   rootDir: dirname(import.meta),
 })
 
-let reservedRecordData: Rec = {}
+export const reservedRecordDataList: Rec[] = []
 
 let currentCommand: string | undefined
 
@@ -306,19 +307,8 @@ export const getConfig = memoizee(
   },
 )
 
-export interface ReserveRecordDataOptions {
-  dryRun?: boolean
-}
-
-export function reserveRecordData<D extends Rec>(
-  recordData: Rec,
-  { dryRun = false }: ReserveRecordDataOptions = {},
-): D {
-  const result = { ...reservedRecordData, ...recordData }
-  if (!dryRun) {
-    reservedRecordData = result
-  }
-  return result as D
+export function reserveRecordData(recordData: Rec) {
+  reservedRecordDataList.push(recordData)
 }
 
 export interface InvokeEnvOptions<E extends Rec> {
@@ -375,9 +365,6 @@ export interface InvokeRunOptions<D extends Rec> {
   reserveRecordData?: boolean
 }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const _reserveRecordData = reserveRecordData
-
 export const invokeRun = async <D extends Rec>({
   command = getCurrentCommand(),
   config,
@@ -418,7 +405,7 @@ export const invokeRun = async <D extends Rec>({
     'The return type of `run` must be a plain object(`{ ... }`) or `void`.',
   )
   if (reserveRecordData) {
-    recordData = _reserveRecordData(recordData, { dryRun: true })
+    recordData = deepmerge.all([...reservedRecordDataList, recordData]) as D
   }
 
   return recordData
