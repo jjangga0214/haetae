@@ -163,7 +163,7 @@ eslintVersion.untilPatch // '1.2.3'
 import { core, js, utils } from 'haetae'
 
 export default core.configure({
-  // Other options are ommitted for brevity.
+  // Other options are omitted for brevity.
   commands: {
     myLint: {
       env: async () => ({
@@ -187,6 +187,8 @@ An argument interface for [`graph`](#graph).
 interface GraphOptions {
   entrypoint: string
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
 }
 ```
@@ -210,7 +212,12 @@ it's not just for a specific language, but for *any* dependency graph.
 **Options?**
 
 - `entrypoint{:ts}` : A starting point of a file to search the dependency graph.
-- `tsConfig?{:ts}` : A path to Typescript config file. <small>(e.g. tsconfig.json)</small>.
+- `tsConfig?{:ts}` : A path to Typescript config file.
+<small>(default: *`tsconfig.json`* file by walking up parent directories recursively.)</small>.
+- `webpackConfig?{:ts}` : A path to Webpack config file.
+<small>(default: *`webpack.config.js`*, *`webpack.config.mjs`*, or *`webpack.config.cjs`* file
+by walking up parent directories recursively.)</small>.
+- `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to use when `entrypoint` or `tsConfig` is given as relative paths.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
@@ -223,6 +230,8 @@ An argument interface for [`deps`](#deps).
 interface DepsOptions {
   entrypoint: string
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
   additionalGraph?: utils.DepsGraph
 }
@@ -243,7 +252,12 @@ The searched result keeps the order by breath-first approach, without duplicatio
 **Options**
 
 - `entrypoint{:ts}` : An entry point to get all of whose direct and transitive dependencies.
-- `tsConfig?{:ts}` : A path to Typescript config file. <small>(e.g. tsconfig.json)</small>.
+- `tsConfig?{:ts}` : A path to Typescript config file.
+<small>(default: *`tsconfig.json`* file by walking up parent directories recursively.)</small>.
+- `webpackConfig?{:ts}` : A path to Webpack config file.
+<small>(default: *`webpack.config.js`*, *`webpack.config.mjs`*, or *`webpack.config.cjs`* file
+by walking up parent directories recursively.)</small>.
+- `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to join with when `entrypoint` is given as a relative path.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
@@ -268,6 +282,8 @@ interface DependsOnOptions {
   dependent: string
   dependencies: readonly string[]
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
   additionalGraph?: utils.DepsGraph
   glob?: boolean
@@ -303,7 +319,12 @@ There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singula
 
 - `dependent{:ts}` : A target to check if it is a dependent of at least one of `dependencies{:ts}`, directly or transitively.
 - `dependencies{:ts}` : Candidates that may be a dependency of Dependents, directly or transitively.
-- `tsConfig?{:ts}` : A path to typescript config file. <small>(e.g. **tsconfig.json**)</small>.
+- `tsConfig?{:ts}` : A path to Typescript config file.
+<small>(default: *`tsconfig.json`* file by walking up parent directories recursively.)</small>.
+- `webpackConfig?{:ts}` : A path to Webpack config file.
+<small>(default: *`webpack.config.js`*, *`webpack.config.mjs`*, or *`webpack.config.cjs`* file
+by walking up parent directories recursively.)</small>.
+- `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to join with when `dependent`, `dependencies`, or `tsConfig` is given as a relative path.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
@@ -350,6 +371,8 @@ interface DependOnOptions {
   dependents: readonly string[]
   dependencies: readonly string[]
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
   additionalGraph?: utils.DepsGraph
   glob?: boolean
@@ -387,7 +410,12 @@ There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singula
 
 - `dependents{:ts}` : Targets to filter by whether it's a dependent of at least one of `dependencies`, directly or transitively.
 - `dependencies{:ts}` : Candidates that may be a dependency of dependent, directly or transitively.
-- `tsConfig?{:ts}` : A path to typescript config file. <small>(e.g. **tsconfig.json**)</small>.
+- `tsConfig?{:ts}` : A path to Typescript config file.
+<small>(default: *`tsconfig.json`* file by walking up parent directories recursively.)</small>.
+- `webpackConfig?{:ts}` : A path to Webpack config file.
+<small>(default: *`webpack.config.js`*, *`webpack.config.mjs`*, or *`webpack.config.cjs`* file
+by walking up parent directories recursively.)</small>.
+- `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to join with when `dependents`, `dependencies`, or `tsConfig` is given as relative paths.
 <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.

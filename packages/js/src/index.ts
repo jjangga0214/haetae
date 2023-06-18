@@ -1,9 +1,10 @@
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import upath from 'upath'
 import dependencyTree from 'dependency-tree'
 import { dirname } from 'dirname-filename-esm'
-import { parsePkg, toAbsolutePath } from '@haetae/common'
 import filterAsync from 'node-filter-async'
+import { findUp } from 'find-up'
+import { parsePkg, toAbsolutePath } from '@haetae/common'
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
 
@@ -15,9 +16,39 @@ export const pkg = parsePkg({
   rootDir: dirname(import.meta),
 })
 
+async function resolveEcosystemConfig(
+  file: string | undefined,
+  defaultFiles: string[],
+  rootDir: string,
+): Promise<string | undefined> {
+  if (file) {
+    try {
+      await fs.access(file)
+      return file
+    } catch {
+      throw new Error(`file not found: ${file}`)
+    }
+  } else {
+    const founds = await Promise.all(
+      defaultFiles.map((defaultFile) =>
+        findUp(defaultFile, {
+          cwd: rootDir,
+        }),
+      ),
+    )
+    for (const found of founds) {
+      if (found) {
+        return found
+      }
+    }
+  }
+}
+
 interface GraphOptions {
   entrypoint: string
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
 }
 
@@ -25,22 +56,36 @@ interface GraphOptions {
 // That's to prevent breaking change from sync to async in the future.
 export async function graph({
   entrypoint,
-  rootDir = core.getConfigDirname(),
   tsConfig,
+  webpackConfig,
+  skipNodeModules = true,
+  rootDir = core.getConfigDirname(),
 }: GraphOptions): Promise<utils.DepsGraph> {
-  // eslint-disable-next-line no-param-reassign
+  /* eslint-disable no-param-reassign */
   rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
-  if (tsConfig) {
-    // eslint-disable-next-line no-param-reassign
-    tsConfig = upath.resolve(rootDir, tsConfig)
-  } else if (fs.existsSync(upath.resolve(rootDir, 'tsconfig.json'))) {
-    // eslint-disable-next-line no-param-reassign
-    tsConfig = upath.resolve(rootDir, 'tsconfig.json')
-  }
+  tsConfig = await resolveEcosystemConfig(tsConfig, ['tsconfig.json'], rootDir)
+  webpackConfig = await resolveEcosystemConfig(
+    webpackConfig,
+    [
+      'webpack.config.js',
+      'webpack.config.mjs',
+      'webpack.config.cjs',
+      // 'webpack.config.ts', TODO: support webpack.config.ts
+      // 'webpack.config.mts',
+      // 'webpack.config.cts',
+    ],
+    rootDir,
+  )
+  /* eslint-enable no-param-reassign */
+
   const baseTree = dependencyTree({
     // All absolute paths by default
     directory: rootDir,
     filename: upath.resolve(rootDir, entrypoint),
+    tsConfig,
+    webpackConfig,
+    filter: (file) =>
+      skipNodeModules ? !file.includes('/node_modules/') : true,
   })
   const queue: dependencyTree.Tree[] = [baseTree]
   const rawGraph: Record<string, string[]> = {}
@@ -62,14 +107,18 @@ export async function graph({
 
 export interface DepsOptions {
   entrypoint: string
-  rootDir?: string
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
+  rootDir?: string
   additionalGraph?: utils.DepsGraph
 }
 
 export async function deps({
   entrypoint,
   tsConfig,
+  webpackConfig,
+  skipNodeModules,
   rootDir = core.getConfigDirname(),
   additionalGraph,
 }: DepsOptions): Promise<string[]> {
@@ -82,6 +131,8 @@ export async function deps({
   const jsGraph = await graph({
     entrypoint,
     tsConfig,
+    webpackConfig,
+    skipNodeModules,
     rootDir,
   })
   const mergedGraph = utils.mergeGraphs([jsGraph, additionalGraph])
@@ -93,6 +144,8 @@ export interface DependsOnOptions {
   dependent: string
   dependencies: readonly string[]
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
   additionalGraph?: utils.DepsGraph
   glob?: boolean
@@ -102,6 +155,8 @@ export async function dependsOn({
   dependent,
   dependencies,
   tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
+  webpackConfig,
+  skipNodeModules,
   rootDir = core.getConfigDirname(),
   additionalGraph,
   glob = true,
@@ -113,6 +168,8 @@ export async function dependsOn({
     entrypoint: dependent,
     rootDir,
     tsConfig,
+    webpackConfig,
+    skipNodeModules,
   })
   const mergedGraph = utils.mergeGraphs([jsGraph, additionalGraph])
 
@@ -129,6 +186,8 @@ export interface DependOnOptions {
   dependents: readonly string[]
   dependencies: readonly string[]
   tsConfig?: string
+  webpackConfig?: string
+  skipNodeModules?: boolean
   rootDir?: string
   additionalGraph?: utils.DepsGraph
   glob?: boolean
@@ -136,20 +195,12 @@ export interface DependOnOptions {
 
 export async function dependOn({
   dependents,
-  dependencies,
-  tsConfig, // TODO: automatic default tsconfig.json resolution by find-up
-  rootDir,
-  additionalGraph,
-  glob,
+  ...options
 }: DependOnOptions): Promise<string[]> {
   return filterAsync(dependents, (dependent) =>
     dependsOn({
       dependent,
-      dependencies,
-      tsConfig,
-      rootDir,
-      additionalGraph,
-      glob,
+      ...options,
     }),
   )
 }
