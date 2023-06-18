@@ -179,7 +179,7 @@ export type RootRecordData<
   options: HaetaeCommandRunOptions<E, S>,
 ) => PromiseOr<R>
 
-export interface HaetaePreConfig<S extends StoreConnector> {
+export interface HaetaePreConfig<S extends StoreConnector = StoreConnector> {
   commands: Record<string, HaetaePreCommand<Rec, Rec, S>>
   env?: RootEnv<Rec, S>
   recordData?: RootRecordData<Rec, Rec, S>
@@ -187,13 +187,15 @@ export interface HaetaePreConfig<S extends StoreConnector> {
 }
 
 export interface HaetaeConfig<
-  D extends Rec,
-  E extends Rec,
-  S extends StoreConnector,
+  D extends Rec, // Record Data
+  E extends Rec, // Env
+  S extends StoreConnector = StoreConnector,
+  RD extends Rec = D, // Root Record Data
+  RE extends Rec = E, // Root Env
 > {
   commands: Record<string, HaetaeCommand<D, E, S>>
-  env: RootEnv<E, S>
-  recordData: RootRecordData<D, E, S>
+  env: RootEnv<E, S, RE>
+  recordData: RootRecordData<D, RE, S, RD>
   store: S
 }
 
@@ -321,7 +323,7 @@ export function reserveRecordData<D extends Rec>(
 
 export interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<Rec, E, StoreConnector>
+  config?: HaetaeConfig<Rec, E>
 }
 
 export const invokeEnv = async <E extends Rec>({
@@ -352,7 +354,7 @@ export const invokeEnv = async <E extends Rec>({
 
 export interface InvokeRootEnvOptions<A extends Rec, R extends Rec> {
   env?: A
-  config?: HaetaeConfig<Rec, R, StoreConnector>
+  config?: HaetaeConfig<Rec, R>
 }
 
 export const invokeRootEnv = async <A extends Rec, R extends Rec>({
@@ -369,10 +371,11 @@ export const invokeRootEnv = async <A extends Rec, R extends Rec>({
 export interface InvokeRunOptions<D extends Rec> {
   command?: string
   env?: Rec // env before RootEnv
-  config?: HaetaeConfig<D, Rec, StoreConnector>
+  config?: HaetaeConfig<D, Rec>
   reserveRecordData?: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const _reserveRecordData = reserveRecordData
 
 export const invokeRun = async <D extends Rec>({
@@ -383,7 +386,14 @@ export const invokeRun = async <D extends Rec>({
 }: InvokeRunOptions<D> = {}): Promise<D> => {
   /* eslint-disable no-param-reassign */
   config = config || (await getConfig())
-  env = env || (await invokeEnv({ command, config }))
+  env =
+    env ||
+    (await invokeEnv({
+      command,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      config,
+    }))
   /* eslint-enable no-param-reassign */
   const { store } = config
 
@@ -417,7 +427,7 @@ export const invokeRun = async <D extends Rec>({
 export interface InvokeRootRecordDataOptions<A extends Rec, R extends Rec> {
   env: Rec
   recordData: A
-  config?: HaetaeConfig<R, Rec, StoreConnector>
+  config?: HaetaeConfig<R, Rec>
 }
 
 export const invokeRootRecordData = memoizee(
@@ -443,22 +453,39 @@ export function hashEnv(env: Rec): string {
   return hashObject(env, { algorithm: 'sha1' })
 }
 
-export async function createRecord<D extends Rec, E extends Rec>(): Promise<
-  HaetaeRecord<D, E>
-> {
-  const config = await getConfig<D, E>()
-  const env = await invokeEnv<E>()
-  const finalEnv = await config.env(env, { store: config.store })
-  const data = await invokeRun<D>({ env })
-  const finalRecordData = await config.recordData(data, {
-    store: config.store,
-    env: finalEnv,
+export interface CreateRecordOptions<D extends Rec, E extends Rec> {
+  config?: HaetaeConfig<D, E>
+}
+
+export async function createRecord<D extends Rec, E extends Rec>({
+  config,
+}: CreateRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E>> {
+  // eslint-disable-next-line no-param-reassign
+  config = config || (await getConfig())
+  const env = await invokeEnv<E>({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    config,
   })
-  const envHash = hashEnv(finalEnv)
+  const rootEnv = await invokeRootEnv({
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    config,
+    env,
+  })
+  const recordData = await invokeRun<D>({ env: rootEnv })
+  const rootRecordData = await invokeRootRecordData({
+    recordData,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    config,
+    env: rootEnv,
+  })
+  const envHash = hashEnv(rootEnv)
 
   return {
-    env: finalEnv,
-    data: finalRecordData,
+    env: rootEnv,
+    data: rootRecordData,
     envHash,
     time: Date.now(),
   }

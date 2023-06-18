@@ -329,13 +329,17 @@ Also a return type of function [`configure`](#configure).
 <TokenLinkCode tokens={['StoreConnector', 'HaetaeCommand', 'RootEnv', 'RootRecordData']}>
 ```ts
 interface HaetaeConfig<
-  D extends Rec,
-  E extends Rec,
-  S extends StoreConnector,
+  D extends Rec, // Record Data
+  E extends Rec, // Env
+  S extends StoreConnector = StoreConnector,
+  RD extends Rec = D, // Root Record Data
+  RE extends Rec = E, // Root Env
 > {
-  commands: Record<string, HaetaeCommand<D, E, S>>
-  env: RootEnv<E, S>
-  recordData: RootRecordData<D, E, S>
+  commands: {
+    [key: string]: HaetaeCommand<D, E, S>
+  }
+  env: RootEnv<E, S, RE>
+  recordData: RootRecordData<D, RE, S, RD>
   store: S
 }
 ```
@@ -467,7 +471,7 @@ An argument interface of the function [`invokeEnv`](#invokeenv).
 ```ts
 interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<Rec, E, StoreConnector>
+  config?: HaetaeConfig<Rec, E>
 }
 ```
 </TokenLinkCode>
@@ -495,11 +499,11 @@ A function to invoke(execute) user-defined `env` of the given `command`.
 
 An argument interface of the function [`invokeRootEnv`](#invokerootenv).
 
-<TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
+<TokenLinkCode tokens={['HaetaeConfig']}>
 ```ts
 interface InvokeRootEnvOptions<A extends Rec, R extends Rec> {
   env?: A
-  config?: HaetaeConfig<Rec, R, StoreConnector>
+  config?: HaetaeConfig<Rec, R>
 }
 ```
 </TokenLinkCode>
@@ -527,12 +531,12 @@ A function to invoke(execute) user-defined `env` of the given `command`.
 
 An argument interface of the function [`invokeRun`](#invokerun).
 
-<TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
+<TokenLinkCode tokens={['HaetaeConfig']}>
 ```ts
 interface InvokeRunOptions<D extends Rec> {
   command?: string
   env?: Rec // env before RootEnv
-  config?: HaetaeConfig<D, Rec, StoreConnector>
+  config?: HaetaeConfig<D, Rec>
   reservedRecordData?: boolean
 }
 ```
@@ -564,12 +568,12 @@ A function to invoke (execute) user-defined `run` of the given `command`.
 
 An argument interface of the function [`invokeRootRecordData`](#invokerootrecorddata).
 
-<TokenLinkCode tokens={['HaetaeConfig', 'StoreConnector']}>
+<TokenLinkCode tokens={['HaetaeConfig']}>
 ```ts
 interface InvokeRunOptions<A extends Rec, R extends Rec> {
   env: Rec
   recordData: A
-  config?: HaetaeConfig<R, Rec, StoreConnector>
+  config?: HaetaeConfig<R, Rec>
 }
 ```
 </TokenLinkCode>
@@ -609,6 +613,18 @@ A function to calculate a deterministic cryptographic hash of an `env` object.
 
 - `env?{:ts}` : An `env` object*.
 
+### `CreateRecordOptions`
+
+An argument interface of the function [`createRecord`](#createrecord).
+
+<TokenLinkCode tokens={['HaetaeConfig']}>
+```ts
+interface CreateRecordOptions<D extends Rec, E extends Rec> {
+  config?: HaetaeConfig<D, E>
+}
+```
+</TokenLinkCode>
+
 ### `createRecord`
 
 A function to create a new record object.<br/>
@@ -616,9 +632,9 @@ This only returns an object, not saves it.
 
 **Type**
 
-<TokenLinkCode tokens={['HaetaeRecord']}>
+<TokenLinkCode tokens={['CreateRecordOptions', 'HaetaeRecord']}>
 ```ts
-<D extends Rec, E extends Rec>() => Promise<HaetaeRecord<D, E>>
+<D extends Rec, E extends Rec>(options?: CreateRecordOptions<D, E>) => Promise<HaetaeRecord<D, E>>
 ```
 </TokenLinkCode>
 
