@@ -57,9 +57,9 @@ npx install-peerdeps --pnpm --dev @haetae/git
 ```
 </PkgManagerTabs>
 
-### To manually handle installation
+### To manually handle the installation
 
-You might want to manually deal with installation.<br/>
+You might want to manually deal with the installation.<br/>
 First, install `@haetae/git{:ts}` itself.
 
 <br/>
@@ -184,7 +184,7 @@ A function to check whether git is installed on the system.
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute a shell command.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `InitializedOptions`
 
@@ -211,8 +211,7 @@ A function to check whether a git repository is initialized (by `git init{:sh}`)
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
-
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 ### `BranchOptions`
 
 An argument interface for [`branch{:ts}`](#branch).
@@ -238,7 +237,7 @@ A function to get the current branch name.
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `CommitOptions`
 
@@ -267,7 +266,7 @@ The return value would be the full 40-character commit hash.
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `UntrackedFilesOptions`
 
@@ -297,7 +296,7 @@ A function to get a list of [untracked files](https://stackoverflow.com/question
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: [`getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `IgnoredFilesOptions`
 
@@ -327,7 +326,7 @@ A function to get a list of ignored (by .gitignore) files.<br/>
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
 ### `ChangedFilesOptions`
 
@@ -363,11 +362,11 @@ A function to get a list of changed files.<br/>
 **Options?**
 
 - `from?{:ts}` : A commit ID as a starting point of comparison.
-  <small>(default: Previous record's `commit`.
-  `undefined{:ts}` if there's no previous record's `commit`.)</small>
-- `to?{:ts}` : A commit ID as an ending point of comparision.
-  <small>(default: `undefined{:ts}`)</small>
-- `rootDir?{:ts}` : A directory to execute `git`. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Previous record's commit ID. `undefined{:ts}` if there's no previous record's `commit`.)</small>
+- `to?{:ts}` : A commit ID as an ending point of comparison.
+<small>(default: `undefined{:ts}`)</small>
+- `rootDir?{:ts}` : A directory to execute `git`.
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 - `includeUntracked?{:ts}` : Whether to include [untracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
  files in the result. If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
 <small>(default: `true{:ts}`)</small>
@@ -382,7 +381,7 @@ If `true{:ts}`, [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata)
 If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata).
 <small>(default: `true{:ts}`)</small>
 
-Note that *untracked* files <small>(usually newly added files not commited yet)</small> and *ignored* files are different.
+Note that *untracked* files <small>(usually newly added files not committed yet)</small> and *ignored* files are different.
 They don't have any intersections. A file is either *untracked* or *ignored* or *tracked*.
 
 **When both `from` and `to` are string** <small>(NOT `undefined{:ts}`)</small>
@@ -394,7 +393,7 @@ All changed files between the two commits are included.<br/>
 
 All changed files since the commit ID `from` are included.<br/>
 `git diff --name-only <from>{:sh}` is executed under the hood.<br/>
-<small>(Note: This also contains modified or deleted files which're not commited yet
+<small>(Note: This also contains modified or deleted files which are not committed yet
 as long as they're *tracked*, no matter whether *[staged](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)* or not,
 unless `filterByExistence{:ts}` is `true{:ts}`.)</small>
 
@@ -411,46 +410,6 @@ All [tracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the
 `git ls-tree --full-tree --name-only -r HEAD{:sh}` is executed under the hood.<br/>
 <small>(Note: This does NOT contain files deleted in past commits because they became *untracked* and non-existent.)</small>
 
-#### Usage With `js.dependsOn`
+#### Usage
 
-If your project is based on javascript ecosystem, it is a good practice to use `changedFiles` with [`js.dependsOn`](./haetae-javascript#dependson) of `@haetae/javascript{:ts}`.
-
-<Callout>
-  **Usage with `dependsOn`**<br />
-  Using with [`js.dependsOn`](./haetae-javascript#dependson) is just an example.
-  You can use it with others, like [`utils.dependsOn`](./haetae-utils#dependson).
-</Callout>
-
-<TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
-  '.glob': './haetae-utils#glob',
-  '$': './haetae-utils#dollar',
-  '.dependsOn': './haetae-javascript#dependson',
-}}>
-```js filename="haetae.config.js"
-import { $, core, utils, git, js } from 'haetae'
-
-export default core.configure({
-  // Other options are omitted for brevity.
-  commands: {
-    myTest: {
-      run: async () => {
-        const changedFiles = await git.changedFiles()
-        const testFiles = await utils.glob(['**/*.test.js'])
-        // An array of test files that (transitively) depend on changed files
-        const affectedTestFiles = testFiles.filter((testFile) =>
-          js.dependsOn({
-            dependent: testFile,
-            dependencies: changedFiles,
-          }),
-        )
-
-        if (affectedTestFiles.length > 0) {
-          // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          await $`pnpm jest ${affectedTestFiles}`
-      },
-    }
-  },
-})
-```
-</TokenLinkCode>
+The [Getting Started](../getting-started) guide explains the basic usage.

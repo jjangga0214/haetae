@@ -9,7 +9,6 @@ import {
   invokeRun,
   invokeRootEnv,
   invokeRootRecordData,
-  setCurrentCommand,
   hashEnv,
 } from '../src/index.js'
 

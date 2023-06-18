@@ -4,6 +4,7 @@ import serialize from 'serialize-javascript'
 import { dirname } from 'dirname-filename-esm'
 import upath from 'upath'
 import filterAsync from 'node-filter-async'
+import { findUp } from 'find-up'
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
 import { Rec, parsePkg, toAbsolutePath } from '@haetae/common'
@@ -20,6 +21,19 @@ export const pkg = parsePkg({
 export interface RecordData extends Rec {
   [pkgName]: { commit: string; branch: string; specVersion: number }
 }
+async function resolveRootDir(rootDir?: string): Promise<string> {
+  if (!rootDir) {
+    const gitDir = await findUp('.git', {
+      cwd: core.getConfigDirname(),
+      type: 'directory',
+    })
+    return gitDir ? upath.dirname(gitDir) : core.getConfigDirname()
+  }
+  return toAbsolutePath({
+    path: rootDir,
+    rootDir: core.getConfigDirname,
+  })
+}
 
 export interface InstalledOptions {
   rootDir?: string
@@ -29,7 +43,7 @@ export async function installed({
   rootDir = core.getConfigDirname(),
 }: InstalledOptions = {}): Promise<boolean> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  rootDir = await resolveRootDir(rootDir)
   try {
     await utils.exec('git --version', {
       cwd: rootDir,
@@ -48,7 +62,7 @@ export async function initialized({
   rootDir = core.getConfigDirname(),
 }: InitializedOptions = {}) {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  rootDir = await resolveRootDir(rootDir)
   try {
     const res = await utils.exec('git rev-parse --is-inside-work-tree', {
       cwd: rootDir,
@@ -67,7 +81,7 @@ export async function branch({
   rootDir = core.getConfigDirname(),
 }: BranchOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  rootDir = await resolveRootDir(rootDir)
   return utils.exec('git branch --show-current', {
     cwd: rootDir,
   })
@@ -81,7 +95,7 @@ export async function commit({
   rootDir = core.getConfigDirname(),
 }: CommitOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  rootDir = await resolveRootDir(rootDir)
   return utils.exec('git rev-parse --verify HEAD', {
     cwd: rootDir,
   })
@@ -128,7 +142,7 @@ export async function untrackedFiles({
   rootDir = core.getConfigDirname(),
 }: UntrackedFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  rootDir = await resolveRootDir(rootDir)
   const files = []
   try {
     files.push(
@@ -158,7 +172,7 @@ export async function ignoredFiles({
   rootDir = core.getConfigDirname(),
 }: IgnoredFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
-  rootDir = toAbsolutePath({ path: rootDir, rootDir: core.getConfigDirname })
+  rootDir = await resolveRootDir(rootDir)
   return (
     await utils.exec('git ls-files --others --exclude-standard --ignored', {
       cwd: rootDir,
@@ -183,24 +197,21 @@ export const changedFiles = memoizee(
   async ({
     from,
     to,
-    rootDir = core.getConfigDirname(),
+    rootDir,
     includeUntracked = true,
     includeIgnored = false,
     filterByExistence = true,
     reserveRecordData = true,
   }: ChangedFilesOptions = {}): Promise<string[]> => {
+    // eslint-disable-next-line no-param-reassign
+    rootDir = await resolveRootDir(rootDir)
+
     if (from === undefined) {
       const config = await core.getConfig()
       const record = await config.store.getRecord<RecordData>()
       // eslint-disable-next-line no-param-reassign
       from = record?.data?.[pkg.name]?.commit
     }
-
-    // eslint-disable-next-line no-param-reassign
-    rootDir = toAbsolutePath({
-      path: rootDir,
-      rootDir: core.getConfigDirname,
-    })
 
     if (!(await installed())) {
       throw new Error(
