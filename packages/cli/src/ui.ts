@@ -45,21 +45,32 @@ export function asBlock<T>(value: T): string | T {
   return lines.join('\n')
 }
 
-export function processRecord({ time, env, data }: HaetaeRecord): string {
+export function processRecord({
+  time,
+  env,
+  envHash,
+  data,
+}: HaetaeRecord): string {
   const indentation = ' '.repeat(3)
-  const rawLines = yaml.stringify({ time, env, data }).trim().split('\n')
+  const rawLines = yaml
+    .stringify({ time, env, envHash, data })
+    .trim()
+    .split('\n')
   const lines = rawLines
     .map((line) =>
       line.startsWith('time:')
         ? `time: ${dayjs(time).format(
             'YYYY MMM DD HH:mm:ss', // REF: https://day.js.org/docs/en/parse/string-format
-          )} ${chalk.dim(`(timestamp: ${time})`)}`
+          )} ${Intl.DateTimeFormat().resolvedOptions().timeZone} ${chalk.dim(
+            `(timestamp: ${time})`,
+          )}`
         : line,
     )
     .map((line) =>
       line
         .replace(/^time:/, `🕗 ${chalk.cyan('time')}:`)
         .replace(/^env:/, `🌱 ${chalk.green('env')}:`)
+        .replace(/^envHash:/, `#️⃣  ${chalk.rgb(153, 51, 255)('envHash')}:`)
         .replace(/^data:/, `💾 ${chalk.yellow('data')}:`),
     )
     .map((line) => (line.startsWith(' ') ? `${indentation}${line}` : line))
