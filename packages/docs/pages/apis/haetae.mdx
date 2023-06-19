@@ -53,11 +53,11 @@ The package `haetae{:ts}` exports other `@haetae/*{:ts}` packages all at once. <
 Its source code is _roughly_ like the snippet below.
 
 <TokenLinkCode tokens={{
-  "'@haetae/core'": './haetae-core#configure',
-  "'@haetae/utils'": './haetae-utils#configure',
-  "'@haetae/javascript'": './haetae-javascript#configure',
-  "'@haetae/git'": './haetae-git#configure',
-  "'@haetae/cli'": './haetae-cli#configure',
+  "'@haetae/core'": './haetae-core',
+  "'@haetae/utils'": './haetae-utils',
+  "'@haetae/javascript'": './haetae-javascript',
+  "'@haetae/git'": './haetae-git',
+  "'@haetae/cli'": './haetae-cli',
   }}>
 ```ts
 export * as core from '@haetae/core'
@@ -71,11 +71,11 @@ export const pkg = { ... }
 
 So you probably use `haetae` on the config file like this.
 
-<TokenLinkCode tokens={{'.configure': './haetae-core#configure'}}>
+<TokenLinkCode tokens={{'configure': './haetae#configure'}}>
 ```js filename="haetae.config.js"
-import { core, utils, js, git, cli, pkg } from 'haetae'
+import { configure, utils, js, git, cli, pkg } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are omitted for brevity.
   commands: {
     // ...
@@ -104,6 +104,10 @@ This is identical to [`utils.$Exec{:ts}`](./haetae-utils#dollar-exec).
 ### <Link id="dollar" href="#dollar">`$`</Link>
 
 This is identical to [`utils.${:ts}`](./haetae-utils#dollar).
+
+### `configure`
+
+This is identical to [`core.configure{:ts}`](./haetae-core#configure).
 
 ### `core`
 

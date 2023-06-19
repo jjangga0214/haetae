@@ -156,13 +156,13 @@ eslintVersion.untilPatch // '1.2.3'
 `env` in the config file can be a good place to use `version`.
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae#configure',
   '.hash': './haetae-utils#hash',
 }}>
 ```js filename="haetae.config.js"
-import { core, js, utils } from 'haetae'
+import { configure, js, utils } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are omitted for brevity.
   commands: {
     myLint: {

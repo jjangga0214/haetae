@@ -7,6 +7,8 @@ export * as js from '@haetae/javascript'
 export * as git from '@haetae/git'
 export * as cli from '@haetae/cli'
 
+export { configure } from '@haetae/core'
+
 export { $ } from '@haetae/utils'
 export type { $Exec } from '@haetae/utils' // We should separate type export to avoid swc's complaining
 

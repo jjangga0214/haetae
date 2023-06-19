@@ -133,11 +133,11 @@ This is true even when the path is not a returned entity itself but a part of it
 
     For example,
 
-    <TokenLinkCode tokens={{ '.configure': './haetae-core#configure' }}>
+    <TokenLinkCode tokens={{ 'configure': './haetae#configure' }}>
     ```ts
-    import { core } from 'haetae'
+    import { configure } from 'haetae'
 
-    const config = await core.configure({ storeFile: '..\..\.haetae\store.json', /* ... */ })
+    const config = await configure({ storeFile: '..\..\.haetae\store.json', /* ... */ })
     // Relative path is transformed to an absolute path.
     // `\` is transformed to `/`.
     console.log(config.storeFile) // => '/path/to/.haetae/store.json'
@@ -170,11 +170,11 @@ pkg.version.untilPatch // '1.2.3'
 
 `pkg.version.*{:ts}` could be a good choice for `env`.
 
-<TokenLinkCode tokens={{ '.configure': './haetae-core#configure' }}>
+<TokenLinkCode tokens={{ 'configure': './haetae#configure' }}>
 ```js filename="haetae.config.js"
-import { core, pkg } from 'haetae'
+import { configure, pkg } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are omitted for brevity.
   commands: {
     myAwesomeCommand: {

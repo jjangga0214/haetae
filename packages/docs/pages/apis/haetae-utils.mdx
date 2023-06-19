@@ -367,13 +367,13 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
 `env` in the config file can be a good place to use `hash`.
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae#configure',
   '.version': './haetae-javascript#version',
   }}>
 ```js filename="haetae.config.js"
-import { core, utils, js } from 'haetae'
+import { configure, utils, js } from 'haetae'
 
-export default core.configure({
+export default configure({
   // Other options are omitted for brevity.
   commands: {
     myTest: {
@@ -784,13 +784,13 @@ Let's say your project is like this.
 ```
 
 <TokenLinkCode tokens={{
-  '.configure': './haetae-core#configure',
+  'configure': './haetae#configure',
   '.changedFiles': './haetae-git#changedfiles',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
-import { $, core, git, utils, js } from 'haetae'
+import { $, configure, git, utils, js } from 'haetae'
 
-export default core.configure({
+export default configure({
   commands: {
     myCommand: {
       run: async () => {
