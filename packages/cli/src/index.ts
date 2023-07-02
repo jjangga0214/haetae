@@ -58,22 +58,29 @@ export async function run(): Promise<void> {
           type: 'boolean',
           description: 'Print output in JSON format (for programmatic use)',
         },
+        s: {
+          alias: 'silent',
+          type: 'boolean',
+          description: 'Whether to print stdout',
+        },
         'dry-run': {
-          // alias: 'json',
           type: 'boolean',
           description: 'Skip storing record, but print the result',
         },
       })
       .conflicts('r', 'd')
       .conflicts('r ', 'e')
+      .conflicts('r', 's')
       .conflicts('r', 'dry-run')
       .conflicts('d', 'e')
+      .conflicts('d', 's')
       .conflicts('d', 'dry-run')
       .conflicts('e', 'dry-run')
       .conflicts('i', 'c')
       .conflicts('i', 'r')
       .conflicts('i', 'd')
       .conflicts('i', 'e')
+      .conflicts('i', 's')
       .conflicts('i', 'dry-run')
       .example([
         [
@@ -210,6 +217,9 @@ export async function run(): Promise<void> {
           !!record,
           'Oops! Something went wrong. The new Record is not found from the store even though the command was just executed.',
         )
+        if (argv.s) {
+          return
+        }
         const message = `${chalk.dim('Command')} ${chalk.bold.underline(
           command,
         )} ${chalk.dim('is successfully executed.')}`
