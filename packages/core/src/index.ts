@@ -204,6 +204,9 @@ export function configure<
   D extends Rec,
   E extends Rec,
   S extends StoreConnector = LocalStoreConnector,
+  RD extends Rec = D,
+  RE extends Rec = E,
+  C extends HaetaeConfig<D, E, S, RD, RE> = HaetaeConfig<D, E, S, RD, RE>,
 >({
   commands,
   env = (envFromCommand) => envFromCommand,
@@ -212,7 +215,7 @@ export function configure<
   // @ts-ignore
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   store = localStore(),
-}: HaetaePreConfig<S>): HaetaeConfig<D, E, S> {
+}: HaetaePreConfig<S>): C {
   // Convert it to a function if not
   assert(
     typeof env === 'function',
@@ -242,11 +245,11 @@ export function configure<
   }
 
   return {
-    commands: commands as unknown as HaetaeConfig<D, E, S>['commands'],
-    env: env as unknown as RootEnv<E, S>,
-    recordData: recordData as unknown as RootRecordData<D, E, S>,
+    commands: commands as unknown as HaetaeConfig<D, E, S, RD, RE>['commands'],
+    env: env as unknown as RootEnv<E, S, RE>,
+    recordData: recordData as unknown as RootRecordData<D, E, S, RD>,
     store: store as S,
-  }
+  } as unknown as C
 }
 
 // memoize to prevent duplicated registration
@@ -291,16 +294,17 @@ export const getConfig = memoizee(
     D extends Rec,
     E extends Rec,
     S extends StoreConnector = StoreConnector,
-  >({ filename = getConfigFilename() }: GetConfigOptions = {}): Promise<
-    HaetaeConfig<D, E, S>
-  > => {
+    RD extends Rec = D,
+    RE extends Rec = E,
+    C extends HaetaeConfig<D, E, S, RD, RE> = HaetaeConfig<D, E, S, RD, RE>,
+  >({ filename = getConfigFilename() }: GetConfigOptions = {}): Promise<C> => {
     // eslint-disable-next-line no-param-reassign
     filename = upath.resolve(filename)
     const preConfigModule = await (filename.endsWith('.ts')
       ? importTs(filename)
       : import(filename))
 
-    return configure<D, E, S>(preConfigModule.default || preConfigModule)
+    return configure<D, E, S, RD, RE, C>(preConfigModule.default)
   },
   {
     normalizer: serialize,
@@ -313,7 +317,7 @@ export function reserveRecordData(recordData: Rec) {
 
 export interface InvokeEnvOptions<E extends Rec> {
   command?: string
-  config?: HaetaeConfig<Rec, E>
+  config?: HaetaeConfig<Rec, E, StoreConnector, Rec, Rec>
 }
 
 export const invokeEnv = async <E extends Rec>({
@@ -321,7 +325,7 @@ export const invokeEnv = async <E extends Rec>({
   config,
 }: InvokeEnvOptions<E> = {}): Promise<E> => {
   // eslint-disable-next-line no-param-reassign
-  config = config || (await getConfig())
+  config = config || (await getConfig<Rec, E, StoreConnector, Rec, Rec>())
   const haetaeCommand = config.commands[command]
   assert(!!haetaeCommand, `Command "${command}" is not configured.`)
   const env = (await haetaeCommand.env({ store: config.store })) || ({} as E)
@@ -344,7 +348,7 @@ export const invokeEnv = async <E extends Rec>({
 
 export interface InvokeRootEnvOptions<A extends Rec, R extends Rec> {
   env?: A
-  config?: HaetaeConfig<Rec, R>
+  config?: HaetaeConfig<Rec, A, StoreConnector, Rec, R>
 }
 
 export const invokeRootEnv = async <A extends Rec, R extends Rec>({
@@ -352,10 +356,16 @@ export const invokeRootEnv = async <A extends Rec, R extends Rec>({
   env,
 }: InvokeRootEnvOptions<A, R> = {}): Promise<R> => {
   // eslint-disable-next-line no-param-reassign
-  config = config || (await getConfig())
+  config = config || (await getConfig<Rec, A, StoreConnector, Rec, R>())
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const _env = env || (await invokeEnv({ config }))
-  return config.env(_env as R, { store: config.store })
+  const _env =
+    env ||
+    (await invokeEnv<A>({
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      config,
+    }))
+  return config.env(_env, { store: config.store })
 }
 
 export interface InvokeRunOptions<D extends Rec> {
@@ -372,7 +382,7 @@ export const invokeRun = async <D extends Rec>({
   reserveRecordData = true,
 }: InvokeRunOptions<D> = {}): Promise<D> => {
   /* eslint-disable no-param-reassign */
-  config = config || (await getConfig())
+  config = config || (await getConfig<D, Rec>())
   env =
     env ||
     (await invokeEnv({
@@ -414,7 +424,7 @@ export const invokeRun = async <D extends Rec>({
 export interface InvokeRootRecordDataOptions<A extends Rec, R extends Rec> {
   env: Rec
   recordData: A
-  config?: HaetaeConfig<R, Rec>
+  config?: HaetaeConfig<A, Rec, StoreConnector, R>
 }
 
 export const invokeRootRecordData = memoizee(
@@ -424,9 +434,9 @@ export const invokeRootRecordData = memoizee(
     config,
   }: InvokeRootRecordDataOptions<A, R>): Promise<R> => {
     /* eslint-disable no-param-reassign */
-    config = config || (await getConfig())
+    config = config || (await getConfig<A, Rec, StoreConnector, R>())
     /* eslint-enable no-param-reassign */
-    return config.recordData(recordData as unknown as R, {
+    return config.recordData(recordData, {
       store: config.store,
       env,
     })
@@ -450,7 +460,7 @@ export async function createRecord<D extends Rec, E extends Rec>({
   command = getCurrentCommand(),
 }: CreateRecordOptions<D, E> = {}): Promise<HaetaeRecord<D, E>> {
   // eslint-disable-next-line no-param-reassign
-  config = config || (await getConfig())
+  config = config || (await getConfig<D, E>())
   const env = await invokeEnv<E>({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -463,7 +473,7 @@ export async function createRecord<D extends Rec, E extends Rec>({
     config,
     env,
   })
-  const recordData = await invokeRun<D>({
+  const recordData = await invokeRun({
     env,
     command,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
