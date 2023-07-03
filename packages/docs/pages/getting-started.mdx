@@ -196,6 +196,7 @@ It will print the result like this.
 
 ⎡ 🕗 time: 2023 May 28 11:06:06 Asia/Seoul 1(timestamp: 1685239566483)
 ⎜ 🌱 env: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
 ⎜ 💾 data:
 ⎜      "@haetae/git":
 ⎜        commit: 979f3c6bcafe9f0b81611139823382d615f415fd
@@ -276,6 +277,7 @@ as **every file is treated as depending on itself.**
 
 ⎡ 🕗 time: 2023 May 28 19:03:25 Asia/Seoul (timestamp: 1685268205443)
 ⎜ 🌱 env: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
 ⎜ 💾 data:
 ⎜      "@haetae/git":
 ⎜        commit: 1d17a2f2d75e2ac94f31e53376c549751dca85fb
@@ -397,15 +399,17 @@ This does not write to the store file, but just prints the value.
 ```fish filename="terminal"
 $ haetae myTest --env
 
-✔  success   Current environment is successfully executed for the command myTest
+✔  success   Current environment is successfully evaluated for the command myTest
 
-⎡ NODE_ENV: development
-⎜ jestConfig: 642645d6bc72ab14a26eeae881a0fc58e0fb4a25af31e55aa9b0d134160436eb
-⎜ jest: 29
-⎜ branch: main
-⎜ os: darwin
-⎜ node: 18
-⎣ haetae: 0
+⎡ env:
+⎜   NODE_ENV: development
+⎜   jestConfig: 642645d6bc72ab14a26eeae881a0fc58e0fb4a25af31e55aa9b0d134160436eb
+⎜   jest: 29
+⎜   branch: main
+⎜   os: darwin
+⎜   node: 18
+⎜   haetae: 0
+⎣ envHash: 203ceac1714279231e82d91614f2ebe50f5b1a7a
 ```
 
 ## Additional dependency graph
@@ -688,6 +692,7 @@ $ haetae myTest
 
 ⎡ 🕗 time: 2023 May 28 11:06:06 Asia/Seoul (timestamp: 1685239566483)
 ⎜ 🌱 env: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
 ⎜ 💾 data:
 ⎜      "@haetae/git":
 ⎜        commit: 979f3c6bcafe9f0b81611139823382d615f415fd
@@ -978,13 +983,14 @@ export default configure({
 Now, **we return an object** from `myTest.run{:ts}`.
 Let's execute it.
 
-```fish filename="terminal" {12}
+```fish filename="terminal" {13}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 Jun 08 09:23:07 Asia/Seoul (timestamp: 1686183787453)
 ⎜ 🌱 env: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
 ⎜ 💾 data:
 ⎜      "@haetae/git":
 ⎜        commit: ac127da6531efa487b8ee35451f24a70dc58aeea
@@ -1077,13 +1083,14 @@ We return nothing here.<br/>
 We do not calculate hash by ourselves.<br/>
 But this has the same effect as what we've done in the previous section.
 
-```fish filename="terminal" {12-15}
+```fish filename="terminal" {13-16}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 Jun 11 00:27:40 Asia/Seoul (timestamp: 1686410860187)
 ⎜ 🌱 env: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
 ⎜ 💾 data:
 ⎜      "@haetae/git":
 ⎜        commit: 018dd7e0c65c3a9d405485df7949ef75ff96e757
@@ -1267,6 +1274,7 @@ $ haetae myGreeting
 
 ⎡ 🕗 time: 2023 Jun 14 15:49:52 Asia/Seoul (timestamp: 1686725392672)
 ⎜ 🌱 env: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
 ⎜ 💾 data:
 ⎣      hello: WORLD # <--- capitalized
 ```
@@ -1305,10 +1313,12 @@ By *Root Env*, it's done in a single place.
 ```fish filename="terminal" {6}
 $ haetae myGreeting --env
 
-✔  success   Current environment is successfully executed for the command myGreeting
+✔  success   Current environment is successfully evaluated for the command myGreeting
 
-⎡ NODE_ENV: development
-⎣ haetaeConfig: f7c12d5131846a5db496b87cda59d3e07766ed1bde8ed159538e85f42f3a8dae
+⎡ env:
+⎜   NODE_ENV: development
+⎜   haetaeConfig: f7c12d5131846a5db496b87cda59d3e07766ed1bde8ed159538e85f42f3a8dae
+⎣ envHash: e9422335258f9338b7205d11aafdb329bb008f7a
 ```
 
 By the way, you can go even thoroughly.

@@ -82,6 +82,7 @@ export async function run(): Promise<void> {
       .conflicts('i', 'e')
       .conflicts('i', 's')
       .conflicts('i', 'dry-run')
+      .conflicts('s', 'dry-run')
       .example([
         [
           `$0 -c ./${core.defaultConfigFiles[0]} <...>`,
@@ -117,12 +118,6 @@ export async function run(): Promise<void> {
     }
     if (argv.e) {
       assert(argv._.length > 0, 'Option `-e` must be given with <command>.')
-    }
-    if (argv.j) {
-      assert(
-        argv.r || argv.d || argv.e || argv.i,
-        'Option `-j` must be given with at least one of `-r`, `-d`, `-e`, `-i`.',
-      )
     }
 
     // 1. Set config file path
@@ -200,12 +195,12 @@ export async function run(): Promise<void> {
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
-            'Current environment is successfully executed for the command',
+            'Current environment is successfully evaluated for the command',
           )} ${chalk.bold.underline(command)}`,
           noResultMessage: `${chalk.dim(
             'Env is defined in config (on command level or root level), but returned `undefined` for the command',
           )} ${chalk.bold.underline(command)}`,
-          result: env,
+          result: { env, envHash: await core.hashEnv(env) },
           render: (result) => ui.asBlock(result),
         })
       } else {

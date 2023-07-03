@@ -3,7 +3,7 @@ import TokenLinkCode from '../components/TokenLinkCode'
 
 # CLI
 
-```sh
+```fish
 $ haetae [<options>] [<command>]
 $ ht [<options>] [<command>]
 ```
@@ -12,7 +12,7 @@ $ ht [<options>] [<command>]
 
 For example:
 
-```sh
+```fish
 $ ht --help # Equal to `haetae --help`
 $ ht --version # Equal to `haetae --version`
 ```
@@ -64,7 +64,8 @@ hello world!
 
 ⎡ 🕗 time: 2023 Jun 08 09:23:07 Asia/Seoul (timestamp: 1686183787453)
 ⎜ 🌱 env: {}
-⎜ 💾 data: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
+⎣ 💾 data: {}
 ```
 
 ```fish
@@ -76,7 +77,8 @@ hi, there!
 
 ⎡ 🕗 time: 2023 Jun 08 09:23:10 Asia/Seoul (timestamp: 1686183790481)
 ⎜ 🌱 env: {}
-⎜ 💾 data: {}
+⎜ #️⃣ envHash: bf21a9e8fbc5a3846fb05b4fa0859e0917b2202f
+⎣ 💾 data: {}
 ```
 
 ## Options
@@ -101,7 +103,7 @@ This option should not be used with other options.
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
-If specified, the version of cli is shown.
+If specified, the version of CLI is shown.
 
 <Callout>
 It is version of [`@haetae/cli{:ts}`](./apis/haetae-cli), not version of other `@haetae/*{:ts}` (e.g. `@haetae/core{:ts}`) or the package [`haetae{:ts}`](./apis/haetae).
@@ -165,6 +167,7 @@ This option should not be used with these options.
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 - [`--dry-run{:sh}`](#--dry-run)
+- [`-s, --silent{:sh}`](#-s---silent)
 - [`-r, --record{:sh}`](#-r---record )
 - [`-d, --record-data{:sh}`](#-d---record-data)
 
@@ -190,6 +193,7 @@ This option should not be used with these options.
 - [`-i, --info{:sh}`](#-i---info)
 - [`-e, --env{:sh}`](#-e---env)
 - [`--dry-run{:sh}`](#--dry-run)
+- [`-s, --silent{:sh}`](#-s---silent)
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 
@@ -219,29 +223,34 @@ This option should not be used with these options.
 - [`-i, --info{:sh}`](#-i---info)
 - [`-e, --env{:sh}`](#-e---env)
 - [`--dry-run{:sh}`](#--dry-run)
+- [`-s, --silent{:sh}`](#-s---silent)
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 
-### `-i, --info`
+### `-s, --silent`
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
 
-If specified, comprehensive information about the running environment is shown.<br/>
-The information is also automatically copied to the clipboard, without ANSI color code.<br/>
-**You can attach the result when [reporting an issue](https://github.com/jjangga0214/haetae/issues)**.
-
-<Callout>
-**Why auto-copied without ANSI color code?**<br/>
-ANSI color code is good for readability on terminal.
-However, many sites (e.g. GitHub), chat apps (e.g. Slack), and note-taking apps (e.g. Notion) do not support ANSI color code.
-This hinders ease of sharing and reporting. That's why plain text is copied to the clipboard.
-</Callout>
+If specified, result of execution is not printed.
+**stderr** will still be printed.
 
 #### Usage
 
-```sh
-$ haetae --info
+```fish
+$ haetae --silent [<other-options>] [<command>]
 ```
+
+#### Conflicts
+
+This option should not be used with these options.
+
+- [`-r, --record{:sh}`](#-r---record)
+- [`-d, --record-data{:sh}`](#-d---record-data)
+- [`-e, --env{:sh}`](#-e---env)
+- [`-i, --info{:sh}`](#-i---info)
+- [`--dry-run{:sh}`](#--dry-run)
+- [`-h, --help{:sh}`](#-h---help)
+- [`-v, --version{:sh}`](#-v---version)
 
 ### `--dry-run`
 <br/>
@@ -251,7 +260,7 @@ If specified, a new record is not stored, but the result is printed.
 
 #### Usage
 
-```sh
+```fish
 $ haetae --dry-run [<other-options>] <command>
 ```
 
@@ -263,6 +272,7 @@ This option should not be used with these options.
 - [`-d, --record-data{:sh}`](#-d---record-data)
 - [`-e, --env{:sh}`](#-e---env)
 - [`-i, --info{:sh}`](#-i---info)
+- [`-s, --silent{:sh}`](#-s---silent)
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
 
@@ -298,3 +308,28 @@ This option should not be used with these options.
 
 - [`-h, --help{:sh}`](#-h---help)
 - [`-v, --version{:sh}`](#-v---version)
+
+### `-i, --info`
+<br/>
+<small>(**Type** : `boolean`, **Default**: `false{:ts}`)</small>
+
+If specified, comprehensive information about the running environment is shown.<br/>
+The information is also automatically copied to the clipboard, without ANSI color code.<br/>
+**You can attach the result when [reporting an issue](https://github.com/jjangga0214/haetae/issues)**.
+
+<Callout>
+**Why auto-copied without ANSI color code?**<br/>
+ANSI color code is good for readability on the terminal.
+However, many sites (e.g. GitHub), chat apps (e.g. Slack), and note-taking apps (e.g. Notion) do not support ANSI color code.
+This hinders ease of sharing and reporting. That's why the plain text is copied to the clipboard.
+</Callout>
+
+#### Usage
+
+```fish
+$ haetae --info
+```
+
+#### Conflicts
+
+This option should not be used with other options.
