@@ -809,9 +809,9 @@ The practical guide with [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is expl
 </Callout>
 
 <Callout>
-**`recordRemoval.leaveOnlyLastestPerEnv` of [`localStore`](./apis/haetae-core#localstore)** <br/>
-By default, you're using [`localStore`](./apis/haetae-core#localstore) as a *'Store Connector'*.
-[`localStore`](./apis/haetae-core#localstore) stores records into a file (*`.haetae/store.json`*).
+**`recordRemoval.leaveOnlyLastestPerEnv` of [`localFileStore`](./apis/haetae-core#localfilestore)** <br/>
+By default, you're using [`localFileStore`](./apis/haetae-core#localfilestore) as a *'Store Connector'*.
+[`localFileStore`](./apis/haetae-core#localfilestore) stores records into a file (*`.haetae/store.json`*).
 The option `recordRemoval.leaveOnlyLastestPerEnv{:ts}` is `true{:ts}` by default.
 So only the last records per `env` exist in the store file.
 This is useful when you only depend on the latest *Records*.

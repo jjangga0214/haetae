@@ -358,11 +358,11 @@ interface HaetaeConfig<
 
 **Type**
 
-<TokenLinkCode tokens={['StoreConnector', 'LocalStoreConnector', 'HaetaePreConfig', 'HaetaeConfig']}>
+<TokenLinkCode tokens={['StoreConnector', 'LocalFileStoreConnector', 'HaetaePreConfig', 'HaetaeConfig']}>
 ```ts
 < D extends Rec,
   E extends Rec,
-  S extends StoreConnector = LocalStoreConnector,
+  S extends StoreConnector = LocalFileStoreConnector,
 >(options: HaetaePreConfig<S>) => HaetaeConfig<D, E, S>
 ```
 </TokenLinkCode>
@@ -372,7 +372,7 @@ interface HaetaeConfig<
 - `commands{:ts}` : Your commands as an object.
 - `env?{:ts}` : An env-to-env transformer. <small>(default: `(arg) => arg{:ts}`)</small>
 - `recordData?{:ts}` : A recordData-to-recordData transformer. <small>(default: `(arg) => arg{:ts}`)</small>
-- `store?{:ts}` : A store connector. <small>(default: [`localStore(){:ts}`](#localstore))</small>
+- `store?{:ts}` : A store connector. <small>(default: [`localFileStore(){:ts}`](#localfilestore))</small>
 
 #### Type-check for your config
 
@@ -632,13 +632,13 @@ This only returns an object, not saves it.
 ```
 </TokenLinkCode>
 
-### `LocalStore`
+### `LocalFileStore`
 
 An interface for the local store file.
 
 <TokenLinkCode tokens={['HaetaeRecord']}>
 ```ts
-interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
+interface LocalFileStore<D extends Rec = Rec, E extends Rec = Rec> {
   version: string
   commands: {
     [command: string]: HaetaeRecord<D, E>[]
@@ -756,25 +756,25 @@ interface LoadStoreOptions {
 }
 ```
 
-### `LocalStoreConnector`
+### `LocalFileStoreConnector`
 
 An interface of local *Store Connector*.
 
 <TokenLinkCode tokens={{
   'StoreConnector': '#storeconnector',
-  'LocalStore': '#localstore',
-  'LoadStoreOptions': '#localstoreoptions',
-  'initNewStore': '#localstoreconnectorinitnewstore',
-  'loadStore': '#localstoreconnectorloadstore',
-  'saveStore': '#localstoreconnectorsavestore',
+  'LocalFileStore': '#localfilestore',
+  'LoadStoreOptions': '#localfilestoreoptions',
+  'initNewStore': '#localfilestoreconnectorinitnewstore',
+  'loadStore': '#localfilestoreconnectorloadstore',
+  'saveStore': '#localfilestoreconnectorsavestore',
 }}>
 ```ts
-interface LocalStoreConnector extends StoreConnector {
-  initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E>
+interface LocalFileStoreConnector extends StoreConnector {
+  initNewStore<D extends Rec, E extends Rec>(): LocalFileStore<D, E>
   loadStore<D extends Rec, E extends Rec>
-    (options?: LoadStoreOptions): Promise<LocalStore<D, E>>
-  saveStore(store: LocalStore): Promise<void>
-  localStore: {
+    (options?: LoadStoreOptions): Promise<LocalFileStore<D, E>>
+  saveStore(store: LocalFileStore): Promise<void>
+  localFileStore: {
     filename: string
     recordRemoval: {
       age: number
@@ -785,12 +785,12 @@ interface LocalStoreConnector extends StoreConnector {
 ```
 </TokenLinkCode>
 
-### `LocalStoreOptions`
+### `LocalFileStoreOptions`
 
-An argument interface of a function [`localStore`](#localStore).
+An argument interface of a function [`localFileStore`](#localFileStore).
 
 ```ts
-interface LocalStoreOptions {
+interface LocalFileStoreOptions {
   filename?: string
   recordRemoval?: {
     age?: number | string
@@ -800,15 +800,15 @@ interface LocalStoreOptions {
 }
 ```
 
-### `localStore`
+### `localFileStore`
 
 A function to create a *Store Connector* that reads and writes to a local file.
 
 **Type**
 
-<TokenLinkCode tokens={['LocalStoreOptions', 'LocalStoreConnector']}>
+<TokenLinkCode tokens={['LocalFileStoreOptions', 'LocalFileStoreConnector']}>
 ```ts
-(options?: LocalStoreOptions): LocalStoreConnector
+(options?: LocalFileStoreOptions): LocalFileStoreConnector
 ```
 </TokenLinkCode>
 
@@ -828,21 +828,21 @@ when calling [`addRecord`](#addrecord). This task is executed after `recordRemov
 This is useful if you only depend on the latest record per `env`.
 <small>(default: `true{:ts}`) </small>
 
-### `LocalStoreConnector.initNewStore`
+### `LocalFileStoreConnector.initNewStore`
 
 Initializes an empty store. It just returns an object. It does not save it as a file.
 
 **Type**
 
-<TokenLinkCode tokens={['LocalStoreConnector']}>
+<TokenLinkCode tokens={['LocalFileStoreConnector']}>
 ```ts
-LocalStoreConnector.initNewStore
+LocalFileStoreConnector.initNewStore
 ```
 </TokenLinkCode>
 
 ### `LoadStoreOptions`
 
-An argument interface of the function [`LocalStoreConnector.loadStore{:ts}`](#localstoreconnectorloadstore).
+An argument interface of the function [`LocalFileStoreConnector.loadStore{:ts}`](#localfilestoreconnectorloadstore).
 
 ```ts
 interface LoadStoreOptions {
@@ -850,7 +850,7 @@ interface LoadStoreOptions {
 }
 ```
 
-### `LocalStoreConnector.loadStore`
+### `LocalFileStoreConnector.loadStore`
 <br/>
 <Memoized/>
 
@@ -858,9 +858,9 @@ A function to load a store object from the file.
 
 **Type**
 
-<TokenLinkCode tokens={['LocalStoreConnector']}>
+<TokenLinkCode tokens={['LocalFileStoreConnector']}>
 ```ts
-LocalStoreConnector.loadStore
+LocalFileStoreConnector.loadStore
 ```
 </TokenLinkCode>
 
@@ -868,21 +868,21 @@ LocalStoreConnector.loadStore
 
 - `initWhenNotFound?{:ts}` : Whether to throw an error or just initialize a new store object
 when `filename` does not exist in the filesystem.
-If `true{:ts}`, [`LocalStoreConnector.initNewStore(){:ts}`](#localstoreconnectorinitnewstore) is returned,
+If `true{:ts}`, [`LocalFileStoreConnector.initNewStore(){:ts}`](#localfilestoreconnectorinitnewstore) is returned,
 and the filesystem is not affected.
 <small>(default: `true{:ts}`)</small>
 
 
-### `LocalStoreConnector.saveStore`
+### `LocalFileStoreConnector.saveStore`
 
 A function to save a store object to a file.<br/>
-Memoization cache of [`LocalStoreConnector.loadStore{:ts}`](#localstoreconnectorloadstore) would be clear automatically.<br/>
+Memoization cache of [`LocalFileStoreConnector.loadStore{:ts}`](#localfilestoreconnectorloadstore) would be clear automatically.<br/>
 
 **Type**
 
-<TokenLinkCode tokens={['LocalStoreConnector']}>
+<TokenLinkCode tokens={['LocalFileStoreConnector']}>
 ```ts
-LocalStoreConnector.saveStore
+LocalFileStoreConnector.saveStore
 ```
 </TokenLinkCode>
 

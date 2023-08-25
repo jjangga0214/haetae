@@ -3,7 +3,7 @@ import { dirname } from 'dirname-filename-esm'
 import {
   configure,
   setConfigFilename,
-  localStore,
+  localFileStore,
   createRecord,
   invokeEnv,
   invokeRun,
@@ -12,55 +12,62 @@ import {
   hashEnv,
 } from '../src/index.js'
 
-describe('localStore()', () => {
+describe('localFileStore()', () => {
   test('when filename does not end with .json', () => {
-    const store = localStore({ filename: '/path/to' })
-    expect(store.localStore.filename).toBe('/path/to/store.json')
+    const store = localFileStore({ filename: '/path/to' })
+    expect(store.localFileStore.filename).toBe('/path/to/store.json')
   })
   test('when filename ends with .json', () => {
-    const store = localStore({ filename: '/path/to/store.json' })
-    expect(store.localStore.filename).toBe('/path/to/store.json')
+    const store = localFileStore({ filename: '/path/to/store.json' })
+    expect(store.localFileStore.filename).toBe('/path/to/store.json')
   })
   describe('when recordRemoval is given', () => {
     test('as undefined', () => {
-      const store = localStore({ filename: '.' })
-      expect(store.localStore.recordRemoval.age).toBe(Number.POSITIVE_INFINITY)
-      expect(store.localStore.recordRemoval.count).toBe(
+      const store = localFileStore({ filename: '.' })
+      expect(store.localFileStore.recordRemoval.age).toBe(
+        Number.POSITIVE_INFINITY,
+      )
+      expect(store.localFileStore.recordRemoval.count).toBe(
         Number.POSITIVE_INFINITY,
       )
     })
     test('without age', () => {
-      const store = localStore({ filename: '.', recordRemoval: { count: 10 } })
-      expect(store.localStore.recordRemoval.age).toBe(Number.POSITIVE_INFINITY)
-      expect(store.localStore.recordRemoval.count).toBe(10)
+      const store = localFileStore({
+        filename: '.',
+        recordRemoval: { count: 10 },
+      })
+      expect(store.localFileStore.recordRemoval.age).toBe(
+        Number.POSITIVE_INFINITY,
+      )
+      expect(store.localFileStore.recordRemoval.count).toBe(10)
     })
     test('without count', () => {
-      const store = localStore({
+      const store = localFileStore({
         filename: '.',
         recordRemoval: { age: 60 * 60 * 24 * 30 },
       })
-      expect(store.localStore.recordRemoval.age).toBe(60 * 60 * 24 * 30)
-      expect(store.localStore.recordRemoval.count).toBe(
+      expect(store.localFileStore.recordRemoval.age).toBe(60 * 60 * 24 * 30)
+      expect(store.localFileStore.recordRemoval.count).toBe(
         Number.POSITIVE_INFINITY,
       )
     })
     test('with age and count', () => {
-      const store = localStore({
+      const store = localFileStore({
         filename: '.',
         recordRemoval: { age: 60 * 60 * 24 * 30, count: 10 },
       })
-      expect(store.localStore.recordRemoval.age).toBe(60 * 60 * 24 * 30)
-      expect(store.localStore.recordRemoval.count).toBe(10)
+      expect(store.localFileStore.recordRemoval.age).toBe(60 * 60 * 24 * 30)
+      expect(store.localFileStore.recordRemoval.count).toBe(10)
     })
     test('with negative age or count', () => {
       expect(() =>
-        localStore({
+        localFileStore({
           filename: '.',
           recordRemoval: { age: -1 },
         }),
       ).toThrow(AssertionError)
       expect(() =>
-        localStore({
+        localFileStore({
           filename: '.',
           recordRemoval: { count: -1 },
         }),
@@ -68,7 +75,7 @@ describe('localStore()', () => {
     })
     test('with zero age or count', () => {
       expect(() =>
-        localStore({
+        localFileStore({
           filename: '.',
           recordRemoval: { count: 0, age: 0 },
         }),
@@ -84,7 +91,7 @@ describe('configure(), invoke*(), createRecord()', () => {
     cwd: dirname(import.meta),
     checkExistence: false,
   })
-  const store = localStore()
+  const store = localFileStore()
   const config = configure({
     env: (env, { store }) => {
       assert(['foo', 'bar'].includes(env.envKey as string))

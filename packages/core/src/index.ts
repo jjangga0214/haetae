@@ -82,6 +82,7 @@ export async function setConfigFilename({
     const candidates = (
       await Promise.all(defaultConfigFiles.map((f) => findUp(f, { cwd })))
     )
+      // eslint-disable-next-line unicorn/no-await-expression-member
       .filter((v) => v)
       .map((f) => upath.resolve(f))
     candidates.sort((a, b) => {
@@ -203,7 +204,7 @@ export interface HaetaeConfig<
 export function configure<
   D extends Rec,
   E extends Rec,
-  S extends StoreConnector = LocalStoreConnector,
+  S extends StoreConnector = LocalFileStoreConnector,
   RD extends Rec = D,
   RE extends Rec = E,
   C extends HaetaeConfig<D, E, S, RD, RE> = HaetaeConfig<D, E, S, RD, RE>,
@@ -214,7 +215,7 @@ export function configure<
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  store = localStore(),
+  store = localFileStore(),
 }: HaetaePreConfig<S>): C {
   // Convert it to a function if not
   assert(
@@ -497,9 +498,9 @@ export async function createRecord<D extends Rec, E extends Rec>({
   }
 }
 
-export const localStoreSpecVersion = 1
+export const localFileStoreSpecVersion = 1
 
-export interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
+export interface LocalFileStore<D extends Rec = Rec, E extends Rec = Rec> {
   specVersion: number
   commands: {
     [command: string]: HaetaeRecord<D, E>[]
@@ -510,7 +511,7 @@ export interface LocalStore<D extends Rec = Rec, E extends Rec = Rec> {
 const _loadStore = memoizee(
   async <D extends Rec, E extends Rec>(
     filename: string,
-  ): Promise<LocalStore<D, E>> => {
+  ): Promise<LocalFileStore<D, E>> => {
     // This will throw an error if the file does not exist.
     const rawStore = await fs.readFile(filename, {
       encoding: 'utf8',
@@ -548,13 +549,13 @@ export interface LoadStoreOptions {
   initWhenNotFound?: boolean
 }
 
-export interface LocalStoreConnector extends StoreConnector {
-  initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E>
+export interface LocalFileStoreConnector extends StoreConnector {
+  initNewStore<D extends Rec, E extends Rec>(): LocalFileStore<D, E>
   loadStore<D extends Rec, E extends Rec>(
     options?: LoadStoreOptions,
-  ): Promise<LocalStore<D, E>>
-  saveStore(store: LocalStore): Promise<void>
-  localStore: {
+  ): Promise<LocalFileStore<D, E>>
+  saveStore(store: LocalFileStore): Promise<void>
+  localFileStore: {
     filename: string // It should be an absolute or relative path (relative to config file path)
     recordRemoval: {
       age: number // by milliseconds if number // e.g. 90 * 24 * 60 * 60 * 1000 => 90days
@@ -563,7 +564,7 @@ export interface LocalStoreConnector extends StoreConnector {
   }
 }
 
-export interface LocalStoreOptions {
+export interface LocalFileStoreOptions {
   filename?: string
   recordRemoval?: {
     age?: number | string
@@ -574,7 +575,7 @@ export interface LocalStoreOptions {
 }
 
 // State does not change after initialization.
-export function localStore({
+export function localFileStore({
   recordRemoval: {
     age = Number.POSITIVE_INFINITY,
     // countPerEnv = Number.POSITIVE_INFINITY, // TODO: Implement this
@@ -582,7 +583,7 @@ export function localStore({
     leaveOnlyLastestPerEnv = true,
   } = {},
   filename = '.haetae/store.json',
-}: LocalStoreOptions = {}): LocalStoreConnector {
+}: LocalFileStoreOptions = {}): LocalFileStoreConnector {
   if (typeof age === 'string') {
     // eslint-disable-next-line no-param-reassign
     age = ms(age) as number // TODO: rm ts-ignore once https://github.com/vercel/ms/issues/189 is resolved.
@@ -613,8 +614,8 @@ export function localStore({
   }
 
   return {
-    // This `localStore` field is a namespace to preserve properties for mixin.
-    localStore: {
+    // This `localFileStore` field is a namespace to preserve properties for mixin.
+    localFileStore: {
       filename,
       recordRemoval: {
         count,
@@ -629,7 +630,7 @@ export function localStore({
       const store = await this.loadStore<D, E>()
       const newStore = produce(store, (draft) => {
         /* eslint-disable no-param-reassign */
-        draft.specVersion = localStoreSpecVersion
+        draft.specVersion = localFileStoreSpecVersion
         draft.commands = draft.commands || {}
         draft.commands[command] = draft.commands[command] || []
         if (leaveOnlyLastestPerEnv) {
@@ -647,9 +648,9 @@ export function localStore({
             (r) => !leaveOnlyLastestPerEnv || r.envHash !== record.envHash,
           )
           .filter(
-            (r) => Date.now() - r.time < this.localStore.recordRemoval.age,
+            (r) => Date.now() - r.time < this.localFileStore.recordRemoval.age,
           )
-          .slice(0, this.localStore.recordRemoval.count)
+          .slice(0, this.localFileStore.recordRemoval.count)
         // Important Assumption that `getRecord` depend on: always recent records are at the front of the array
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -682,7 +683,7 @@ export function localStore({
       initWhenNotFound = true,
     }: LoadStoreOptions = {}) {
       try {
-        return await _loadStore<D, E>(this.localStore.filename)
+        return await _loadStore<D, E>(this.localFileStore.filename)
       } catch (error) {
         if (initWhenNotFound) {
           return this.initNewStore<D, E>()
@@ -692,19 +693,19 @@ export function localStore({
     },
 
     // This does not affect to filesystem, just creates a new store object
-    initNewStore<D extends Rec, E extends Rec>(): LocalStore<D, E> {
-      return { specVersion: localStoreSpecVersion, commands: {} }
+    initNewStore<D extends Rec, E extends Rec>(): LocalFileStore<D, E> {
+      return { specVersion: localFileStoreSpecVersion, commands: {} }
     },
 
-    async saveStore(store: LocalStore) {
-      const dirname = upath.dirname(this.localStore.filename)
+    async saveStore(store: LocalFileStore) {
+      const dirname = upath.dirname(this.localFileStore.filename)
       try {
         await fs.access(dirname)
       } catch {
         await fs.mkdir(dirname, { recursive: true })
       }
       await fs.writeFile(
-        this.localStore.filename,
+        this.localFileStore.filename,
         `${JSON.stringify(store, undefined, 2)}\n`, // trailing empty line
         {
           encoding: 'utf8',
