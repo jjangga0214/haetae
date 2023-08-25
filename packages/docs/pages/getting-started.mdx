@@ -946,9 +946,9 @@ export default configure({
   commands: {
     myTest: {
       env: { /* ... */ },
-      run: async () => {
+      run: async ({ store }) => {
         const changedFiles = await git.changedFiles()
-        const previousRecord = await core.getRecord()
+        const previousRecord = await store.getRecord()
         const dotenvHash = await utils.hash(['.env'])
         if (previousRecord?.data?.dotenv !== dotenvHash) {
           changedFiles.push('.env')
@@ -1038,7 +1038,6 @@ We can enhance the workflow further.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.getRecord': './apis/haetae-core#getrecord',
   '.glob': './apis/haetae-utils#glob',
   '.graph': './apis/haetae-utils#graph',
   '.dependOn': './apis/haetae-javascript#dependon',
