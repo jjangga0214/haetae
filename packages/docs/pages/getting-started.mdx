@@ -5,11 +5,11 @@ import TokenLinkCode from '../components/TokenLinkCode'
 
 # Getting Started
 
-Haetae is incremental task runner.<br/>
+Haetae is **incremental** task runner.<br/>
 The task can be test, lint, build, or anything.
 It can be used in any project, no matter what language, framework, test runner, linter/formatter, build system, or CI you use.<br/>
 
-For now, in this 'Getting Started' article, we are starting from an example of incremental testing.
+For now, in this *Getting Started* article, we are starting from an example of incremental testing.
 
 ## Why?
 
@@ -42,12 +42,12 @@ Rather, **we should do it incrementally, which means testing only files affected
 
 For example, when *`multiply.js`* is changed, test only *`exponent.test.js`* and *`multiply.test.js`*.<br/>
 When *`add.js`* is changed, test all files (<small>*`exponent.test.js`*, *`multiply.test.js`*, *`subtract.test.js`* and *`add.test.js`*</small>).<br/>
-When test file <small>(e.g. *`add.test.js`*)</small> is changed, then just only execute the test file itself <small>(e.g. *`add.test.js`*)</small>.
+When test file <small>(e.g. *`add.test.js`*)</small> is changed, then just execute the test file itself <small>(e.g. *`add.test.js`*)</small>.
 
 Then how can we do it, automatically?<br/>
 Here's where **Haetae** comes in.<br/>
 By just a simple config, Haetae can automatically detect the dependency graph and test only affected files.<br/>
-<small>(You do not have to change your test runner. In this article, [Jest](https://jestjs.io) is used just as an example.)</small>
+<small>(In this article, [Jest](https://jestjs.io) is used just as an example. You can use any test runner. )</small>
 
 ## Installation
 
@@ -75,7 +75,7 @@ pnpm add --save-dev haetae
   You can depend on [`@haetae/core{:ts}`](apis/haetae-core), [`@haetae/utils{:ts}`](apis/haetae-utils),
   [`@haetae/git{:ts}`](apis/haetae-git), [`@haetae/javascript{:ts}`](apis/haetae-javascript),
   [`@haetae/cli{:ts}`](apis/haetae-cli) independently. Note that the package [`haetae{:ts}`](apis/haetae)
-  include all of them.
+  includes all of them.
 </Callout>
 
 ## Basic configuration
@@ -94,9 +94,8 @@ my-calculator
 <Callout>
   **Typescript Support** <br/>
   If you want to write the config in typescript, name it *`haetae.config.ts`*.
-  Then install [`ts-node`](https://www.npmjs.com/package/ts-node) as `peerDependencies`.
-  You need `ts-node` no matter if you actually use it directly or not.
-  The `peerDependencies` is marked as optional, which means non-typescript users don't have to install it.
+  Then install [`ts-node`](https://www.npmjs.com/package/ts-node),
+  which is an optional `peerDependencies` of `haetae{:ts}` (from `@haetae/core{:ts}`).
 </Callout>
 
 <Callout>
@@ -149,7 +148,7 @@ They all have various options <small>(Check out API docs)</small>.
 But we are going to use their sensible defaults for now.<br/>
 
 The [Tagged Template Literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)
-[`${:ts}`](./apis/haetae#dollar) on line number 27 can run arbitrary shell commands.
+[`${:ts}`](./apis/haetae#dollar) on line number 19 can run arbitrary shell commands.
 If it receives a placeholder (`${...}`) being an array, it automatically joins a whitespace (`' '`) between elements.
 It has other traits and options as well. Check out the [API docs](./apis/haetae#dollar) for more detail.
 
@@ -232,22 +231,22 @@ There are severel APIs of simliar purposes.
 Check out the API docs later for more detail.
 </Callout>
 
-Note that it cannot parse dynamic imports.
+Note that it cannot parse dynamic imports (`import(){:ts}`).
 Dynamic or extra dependencies can be specified as `additionalGraph` option, explained later in this article.
-
-May you have noticed, the store file *`.haetae/store.json`* is generated.
-It stores history of Haetae executions, which makes incremental tasks possible.
-For example, the commit ID `979f3c6` printed from the above output is the current git HEAD `haetae myTest` ran on.
-This information is logged in the store file to be used later.
 
 ```fish
 my-calculator
-├── .haetae/store.json # <--- Generated
+├── .haetae/store.json # <--- Generated. Haetae store file
 ├── haetae.config.js
 ├── package.json
 ├── src
 └── test
 ```
+
+May you have noticed, the store file *`.haetae/store.json`* is generated.
+It stores history of Haetae executions, which makes incremental tasks possible.
+For example, the commit ID `979f3c6` printed from our first execution example above is the current git HEAD `haetae myTest` ran on.
+This information is logged in the store file to be used later.
 
 ## Detecting the last commit Haetae ran on successfully
 
@@ -256,6 +255,7 @@ Let's say we made some changes and added 2 commits.
 <Image src="/getting-started/commit-history.svg" alt="Commit history after the first running of Haetae"/>
 
 `979f3c6` is the last commit Haetae ran on successfully.<br/>
+`0c3b3cc` and `1d17a2f` are new commits after that.<br/>
 What will happen when we run Haetae again?
 
 ```fish
@@ -342,7 +342,7 @@ So there will be 3 `env`s to be recorded in the store file:
 Though we changed the schema of `env` in the config from `{}` to `{ NODE_ENV: 'development' | 'production' }{:ts}`,
 the history of `env: {}` already recorded in the store file is NOT automatically deleted.
 It just stays in the store file.
-This behavior is completely safe so don't worry about the past's vestige.
+This behavior is safe because incremental histories are managed **per env**. So don't worry about the past's vestige.
 If you care about disk space, configuring the auto-removal of some obsolete history is guided later in this article.
 
 ### Multiple keys
@@ -385,13 +385,13 @@ export default configure({
 </TokenLinkCode>
 
 The object has more keys than before, named `jestConfig`, `jest`, `branch` and so on.
-If any of `$NODE_ENV`, Jest config file, major version of Jest, git branch, OS platform, major version of Node.js,
+In this example, if any of `$NODE_ENV`, Jest config file, major version of Jest, git branch, OS platform, major version of Node.js,
 or major version of the package `haetae` is changed, it's treated as a different environment.
 
 And now `env` becomes a function. You can even freely write any additional code in it,
 like assertion (`assert(){:ts}`) in line number 9 above. `myTest.env(){:ts}` is executed before `myTest.run(){:ts}`.
-Just as like `myTest.run(){:ts}`, when an error is thrown in `myTest.env(){:ts}`,
-the store file is not renewed, which is intended design for incremental tasks.
+When an error is thrown in `myTest.env(){:ts}`, `myTest.run(){:ts}` is not executed, and the store file is not renewed.
+This is intended design for incremental tasks.
 
 If you just want to check the value the `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
 This does not write to the store file, but just prints the value.
@@ -442,8 +442,8 @@ The explicit dependency graph is like this.<br/>
 
 <Image src="/getting-started/dependency-graph-with-sql.svg" alt="Dependency graph"/>
 
-But there is a SQL file named *`data.sql`* for an integration test.
-It's not (can't be) imported (e.g. `import`, `require()`) by any source code file.
+But there is an SQL file named *`data.sql`* for an integration test.
+It's not (can't be) imported (e.g. `import`, `require()`) by any source code file obviously.
 
 Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
 
@@ -800,7 +800,7 @@ The output is like this.
 The field `envHash` is **SHA-1** of `env` object.
 The `env` object is serialized by a deterministic method no matter how deep it is, and calculated as a hash.
 The hash is used to match the current `env` with previous records.
-**SHA-1** is considered insecure, but good enough to prevent collision for history comparison.
+**SHA-1** is considered insecure to hide information, but good enough to prevent collision for history comparison.
 For example, `git` also uses **SHA-1** as a commit ID.
 When your *Env* or *Record Data* contains a confidential field and you're worrying what if the store is leaked,
 you can preprocess secret fields with a stronger cryptographic hash algorithm,
@@ -924,7 +924,7 @@ Then the implicit dependency graph becomes explicit.
 
 <Image src="/getting-started/dependency-graph-with-dotenv-focus.svg" alt="Dependency graph with .env"/>
 
-But that's now enough, because *`.env`* is ignored by git.
+But that's not enough, because *`.env`* is ignored by git.
 [`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) cannot detect if *`.env`* changed or not.
 
 Let's use *'Record Data'* to solve this problem.
@@ -1123,7 +1123,7 @@ So Haetae uses **a package name as a namespace by convention.**
 <Callout>
 **Multiple Reserved Record Data** <br/>
 All *Reserved Record Data* are saved in the list [`reservedRecordDataList`](./apis/haetae-core#reservedrecorddatalist).
-The list is merged by [`deepmerge`](https://www.npmjs.com/package/deepmerge).
+The list is to be merged by [`deepmerge`](https://www.npmjs.com/package/deepmerge).
 </Callout>
 
 [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) is more useful for multiple files.
@@ -1150,7 +1150,7 @@ export default configure({
       run: async () => {
         const changedFiles = await git.changedFiles()
         const changedFilesByHash = await utils.changedFiles(
-          ['.env.*'], // or ['.env.{local,development,staging}']
+          ['.env.*'], // or explicit glob pattern ['.env.{local,development,staging}']
           {
             renew: [`.env.${process.env.ENV}`],
           },
@@ -1190,21 +1190,21 @@ Obviously, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are compar
 If changes are detected, included in the result array.
 
 But regardless of it, *`.env.development`*, and *`.env.staging`* are not renewed in the new Record Data.
-Their previous hashes are recorded instead of current hashes.
+Their previous hashes will be written in the new Record instead of current hashes.
 
 This behavior can be good for our test in many scenarios.
 
-For instance, *`.env.development`* can be modified when `$ENV` is `'local'`.
+For instance, you may modify *`.env.development`* when `$ENV` is `'local'`.
 As it's not in `renew` list, the hash of *`.env.development`* is not updated.
 When later `$ENV` becomes `'development'`, [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles)
 would still think *`.env.development`* is a changed file,
 as the current hash and previously recorded hash are different.
-This makes sure test files are to be re-executed when `$ENV` becomes `'development'`.
+This makes sure test files are to be executed when `$ENV` becomes `'development'`.
 **[`renew`](./apis/haetae-utils#changedfiles) exists for the discrepancy between
 when the physical change actually happens and when the detection of the change is needed.**
 
 [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) has many more options,
-and acts in a bit complicated way.
+and acts in a sophisticated way.
 
 For example, by an option `keepRemovedFiles`, which is not introduced above,
 you can handle cases like when not all of the files might exist on the filesystem at the same time
@@ -1267,7 +1267,7 @@ export default configure({
 </TokenLinkCode>
 
 
-```fish filename="terminal" {8}
+```fish filename="terminal" {9}
 $ haetae myGreeting
 
 ✔  success   Command myGreeting is successfully executed.
@@ -1310,7 +1310,7 @@ export default configure({
 
 By *Root Env*, it's done in a single place.
 
-```fish filename="terminal" {6}
+```fish filename="terminal" {7}
 $ haetae myGreeting --env
 
 ✔  success   Current environment is successfully evaluated for the command myGreeting
@@ -1337,4 +1337,8 @@ haetaeConfig: await utils.hash(
 </TokenLinkCode>
 
 This snippet calculates a hash of the config file and its dependencies.
+For example, if you import *`a.js`* into *`haetae.config.js`*, and *`a.js`* depends on *`b.js`*,
+then the hash is calculated against the three files: *`haetae.config.js`*, *`a.js`*, and *`b.js`*.
+When hashing multiple files, a single-depth Sorted Merkle Tree is used.
+Check out the [API docs](./apis/haetae-utils#hash) for more detail.
 If you don't import other modules in the config, this is not necessary.
