@@ -78,52 +78,6 @@ export function processRecord({
   return processColons(wrapBlock(lines)).join('\n')
 }
 
-export async function processStore(store: LocalFileStore): Promise<string> {
-  const uuid = '4f9360a0-9920-4159-a68d-8b151699d7a7'
-  const patchedStore = await produce(store, async (draft) => {
-    for (const command in draft.commands) {
-      if (
-        Object.prototype.hasOwnProperty.call(draft.commands, command) &&
-        draft.commands[command]
-      ) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        // eslint-disable-next-line no-param-reassign
-        draft.commands[command] = draft.commands[command].map((_, index) =>
-          JSON.stringify({ uuid, command, index }),
-        )
-      }
-    }
-    return draft
-  })
-
-  const patchedYaml = yaml.stringify(patchedStore)
-
-  const indentation = ' '.repeat(4)
-
-  const lines = patchedYaml.split('\n').flatMap((line) => {
-    if (line.includes(uuid)) {
-      // `line` would be like
-      //    - '{"uuid":"4f9360a0-9920-4159-a68d-8b151699d7a7","command":"test","index":3}'
-      const sjson = line
-        .trim()
-        .replace(/^- /, '')
-        .replace(/^'/, '')
-        .replace(/'$/, '')
-
-      // `sjson` would be like
-      // {"uuid":"4f9360a0-9920-4159-a68d-8b151699d7a7","command":"test","index":3}
-      const { command, index } = JSON.parse(sjson)
-      const record = store.commands[command][index]
-      return `${index === 0 ? '\n' : ''}${processRecord(record)}\n`
-        .split('\n')
-        .map((line) => `${indentation}${line}`)
-    }
-    return line
-  })
-  return processColons(lines).join('\n')
-}
-
 export function processInfo(info: Awaited<ReturnType<typeof getInfo>>) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
