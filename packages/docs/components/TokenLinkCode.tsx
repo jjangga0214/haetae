@@ -1,3 +1,4 @@
+import { t } from 'nextra/dist/types-fa5ec8b0'
 import { useRef, useEffect } from 'react'
 
 interface Children {
@@ -39,10 +40,20 @@ export default function TokenLinkCode({
       const textContent = element?.textContent?.trim()
       const link = tokenLinkMap[textContent as string]
       if (link) {
-        const prefix = element?.textContent?.startsWith('.') ? '.' : ''
-        element.innerHTML = `${prefix}<a href="${link}" style=" color: inherit; text-decoration: underline; cursor: pointer;">${element.textContent?.slice(
-          prefix.length,
-        )}</a>`
+        let textContent: string | undefined | null = element?.textContent
+        if (!textContent) {
+          // eslint-disable-next-line no-continue
+          continue
+        }
+        let prefix = ''
+        const lTrimmed = textContent.trimStart()
+        prefix += ' '.repeat(textContent.length - lTrimmed.length)
+        textContent = lTrimmed
+        if (textContent?.startsWith('.')) {
+          prefix += '.'
+          textContent = textContent?.slice('.'.length)
+        }
+        element.innerHTML = `${prefix}<a href="${link}" style=" color: inherit; text-decoration: underline; cursor: pointer;">${textContent}</a>`
       }
     }
   }, [children, tokens, containerRef])
