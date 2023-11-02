@@ -201,122 +201,54 @@ Refer to [globby v13 docs](https://github.com/sindresorhus/globby/tree/v13.1.4) 
   Its role is same as globby's `cwd` option, but make sure to use `rootDir`, not `cwd`.
   <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
 
-
-### `ExecOptions`
-
-An argument interface for [`exec`](#exec).
-
-```ts
-interface ExecOptions {
-  uid?: number | undefined
-  gid?: number | undefined
-  cwd?: string | URL | undefined
-  env?: NodeJS.ProcessEnv | undefined
-  windowsHide?: boolean | undefined
-  timeout?: number | undefined
-  shell?: string | undefined
-  maxBuffer?: number | undefined
-  killSignal?: NodeJS.Signals | number | undefined
-  trim?: boolean // An option added from Haetae side. (Not for `childProcess.exec`)
-}
-```
-
-### `exec`
-
-A function to execute a script.<br/>
-Internally, nodejs's [`childProcess.exec{:ts}`](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback) is used.
-
-**Type**
-
-<TokenLinkCode tokens={['ExecOptions']}>
-```ts
-(command: string, options?: ExecOptions) => Promise<string>
-```
-</TokenLinkCode>
-
-**Arguments**
-
-- `command` : An arbitrary command to execute on shell.
-This command does NOT mean haetae's **command** concept.
-- `options?{:ts}` : Options for `childProcess.exec{:ts}`.
-Refer to [the nodejs official docs](https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback).
-  - `trim?{:ts}` : Some commands' result (**stdout**, **stderr**) ends with whitespace(s) or line terminator character (e.g. `\n{:ts}`).
-  If `true{:ts}`, the result would be automatically [trimmed](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/Trim).
-  If `false{:ts}`, the result would be returned as-is.
-  `trim{:ts}` is the only option that is not a part of `childProcess.exec{:ts}`'s original options.
-
-### <Link id="dollar-exec" href="#dollar-exec">`$Exec`</Link>
-
-Type of [`$`](#dollar).<br/>
-It's an interface for function, but simultaneously [`ExecOptions`](#execoptions).
-
-**Type**
-
-<TokenLinkCode tokens={['ExecOptions']}>
-```ts
-interface $Exec extends ExecOptions {
-  (
-    statics: TemplateStringsArray,
-    ...dynamics: readonly PromiseOr<
-      string | number | PromiseOr<string | number>[]
-    >[]
-  ): Promise<string>
-}
-```
-</TokenLinkCode>
-
 ### <Link id="dollar" href="#dollar">`$`</Link>
 
-A wrapper of [`exec`](#exec) as a [Tagged Template](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates).<br/>
-It can have properties as options ([`ExecOptions`](#execoptions)) of [`exec`](#exec).
+A preconfigured Tagged Template Literal of [`execa`](https://github.com/sindresorhus/execa)
 
-**Type**
+The only differences from the original `execa` is these.
 
-<TokenLinkCode tokens={{ '$Exec': '#dollar-exec' }}>
-```ts
-$Exec
-```
-</TokenLinkCode>
+1. [`stdio`](https://github.com/sindresorhus/execa#stdio) is preconfigured as `'inherit'`.
+1. [`cwd`](https://github.com/sindresorhus/execa#cwd-1) is preconfigured as [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname). If it's not available, `process.cwd()` is used instead.
 
 #### Usage
 
 You can execute any shell command.
 
 ```js
-const stdout = await $`echo hello world`
+await $`echo hello world`
+// "hello world" is printed.
+```
+
+When a placeholder is an array, a white space (`' '{:ts}`) is joined between the elements.
+
+```js
+let stdout = await $`echo ${['hello', 'world']}`
+// "hello world" is printed
+```
+
+You can give it a options directly,
+
+```js {7}
+const {
+  stdout,
+  stderr,
+  failed,
+  exitCode,
+  /* ... and more */
+} = await $({ stdio: 'pipe' })`echo hello world`
+assert(stdout === 'hello world')
+// It's not printed, but returned, due to `stdio: 'pipe'`.
+```
+
+or create a new tagged template literal function with the options.
+
+```js {1}
+const $$ = $({ stdio: 'pipe' })
+const { stdout, stderr, failed, exitCode, /* ... and more */ } = await $$`echo hello world`
 assert(stdout === 'hello world')
 ```
 
-Placeholders can be used. `Promise` is automatically awaited internally.
-
-```js
-const stdout = await $`echo ${123} ${'hello'} ${Promise.resolve('world')}`
-assert(stdout === '123 hello world')
-```
-
-When a placeholder is an array, a white space (`' '`) is joined between the elements.
-
-```js
-// Array
-let stdout = await $`echo ${[Promise.resolve('hello'), 'world']}`
-assert(stdout === 'hello world')
-
-// Promise<Array>
-stdout = await $`echo ${Promise.resolve([
-  Promise.resolve('hello'),
-  'world',
-])}`
-assert(stdout === 'hello world')
-```
-
-It can have properties as options ([`ExecOptions`](#execoptions)) of [`exec`](#exec).<br/>
-The state of properties of `$` does not take effect when independently calling [`exec`](#exec).
-
-```js
-$.cwd = '/path/to/somewhere'
-const stdout = await $`pwd`
-assert(stdout === '/path/to/somewhere')
-```
+Refer to [execa](https://github.com/sindresorhus/execa) for more details.
 
 ### `HashOptions`
 

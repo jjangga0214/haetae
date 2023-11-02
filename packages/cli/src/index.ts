@@ -178,7 +178,8 @@ export async function run(): Promise<void> {
           render: ui.processRecord,
         })
       } else if (argv.d) {
-        const recordData = (await config.store.getRecord())?.data
+        const record = await config.store.getRecord()
+        const recordData = record?.data
         ui.conditional({
           toJson: !!argv.j,
           message: `${chalk.dim(
@@ -230,7 +231,8 @@ export async function run(): Promise<void> {
       throw new Error('Too many commands. Only one command is allowed.')
     }
   } catch (error) {
-    if ((await y?.argv)?.j) {
+    const argv = await y?.argv
+    if (argv?.j) {
       if (error instanceof Error) {
         ui.json.fatal(error.message, error.stack)
       } else if (typeof error === 'string') {

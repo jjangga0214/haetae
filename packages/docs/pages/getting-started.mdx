@@ -53,7 +53,7 @@ By just a simple config, Haetae can automatically detect the dependency graph an
 
 So, let's install Haetae. (<small>Node 16 or higher is required.</small>)<br/>
 It doesn't matter whether your project is new or existing <small>(Haetae can be incrementally adapted)</small>.<br/>
-It's so good for monorepo as well. <small>(Guided later in other part of docs.)</small><br/>
+It's good for monorepo as well. <small>(Guided later in other part of docs.)</small><br/>
 Literally **any project** is proper.
 
 <br/>
@@ -90,6 +90,7 @@ my-calculator
 ├── src # contents are omitted for brevity
 └── test # contents are omitted for brevity
 ```
+
 
 <Callout>
   **Typescript Support** <br/>
@@ -133,7 +134,7 @@ export default configure({
 
         if (affectedTestFiles.length > 0) {
           // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
-          // Change 'pnpm' and 'jest' to your package manager and test runner.
+          // Change 'pnpm jest' to your test runner.
           await $`pnpm jest ${affectedTestFiles}`
         }
       },
@@ -149,32 +150,26 @@ But we are going to use their sensible defaults for now.<br/>
 
 The [Tagged Template Literal](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)
 [`${:ts}`](./apis/haetae#dollar) on line number 19 can run arbitrary shell commands.
-If it receives a placeholder (`${...}`) being an array, it automatically joins a whitespace (`' '`) between elements.
-It has other traits and options as well. Check out the [API docs](./apis/haetae#dollar) for more detail.
+It is [execa](https://github.com/sindresorhus/execa)'s [`$` function](https://github.com/sindresorhus/execa#command),
+and haetae preconfigured its `cwd` as haetae config file's directory, and [`stdio`](affectedTestFiles) as `'inherit'`, all of which you can override of course.
+If it receives a placeholder (e.g. `${affectedTestFiles}`) being an array, it automatically joins a whitespace (`' '`) between elements.
+It has other traits and options as well. Check out `execa`'s API docs for more detail.
 
 <TokenLinkCode tokens={{
   '$': './apis/haetae#dollar',
-  '.exec': './apis/haetae-utils#exec',
 }}>
 ```js
-import { $, utils } from 'haetae'
+import { $ } from 'haetae'
 
-// The following three lines of code have same effects respectively
+// The following two lines of code have same effects respectively
 await $`pnpm jest ${affectedTestFiles}`
 await $`pnpm jest ${affectedTestFiles.join(' ')}`
-// $ is a wrapper of utils.exec.
-// Use utils.exec if you need a function.
-// utils.exec may be easier to pass non-default options
-await utils.exec(`pnpm jest ${affectedTestFiles.join(' ')}`)
 ```
 </TokenLinkCode>
 
-In the above config, `pnpm jest` is used in [`${:ts}`](./apis/haetae#dollar).
-Just change them to your package manager and test runner.<br/>
-
 <Callout>
 **Credit to `google/zx`**<br/>
-`$` as a Tagged Template Literal is inspired by [`google/zx`](https://github.com/google/zx). Thanks!
+`$` as a Tagged Template Literal is first inspired by [`google/zx`](https://github.com/google/zx). Thanks!
 </Callout>
 
 Then run `haetae` like below.
@@ -295,6 +290,14 @@ So `myTest.run(){:ts}` is not completed successfully, causing the store file is 
 
 This behavior is useful for incremental tasks.
 The failed test (or any incremental task) will be re-executed later again until the problem is fixed.
+
+<Callout>
+**`stdio`**<br/>
+[`stdio`](https://nodejs.org/dist/latest-v6.x/docs/api/child_process.html#child_process_options_stdio) of [`${:ts}`](./apis/haetae#dollar) is `'inherit'` by default.
+This makes Promise rejected when it's [failed](https://github.com/sindresorhus/execa#childprocessresult) (e.g. non-zero exit code).
+If you set `stdio` differently, you should manually make sure whether to throw an error.
+For example, when `stdio` is set to `'pipe'`, assert [`failed`](https://github.com/sindresorhus/execa#failed) and/or [`stderr`](https://github.com/sindresorhus/execa#stderr) properties by yourself.
+</Callout>
 
 ## `env` configuration
 

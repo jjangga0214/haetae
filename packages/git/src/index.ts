@@ -6,10 +6,12 @@ import upath from 'upath'
 import filterAsync from 'node-filter-async'
 import { findUp } from 'find-up'
 import * as core from '@haetae/core'
-import * as utils from '@haetae/utils'
+import { $ } from '@haetae/utils'
 import { Rec, parsePkg, toAbsolutePath } from '@haetae/common'
+import assert from 'node:assert/strict'
 
 const pkgName = '@haetae/git'
+const $$ = $({ stdio: 'pipe' })
 
 export const pkg = parsePkg({
   name: pkgName,
@@ -44,14 +46,9 @@ export async function installed({
 }: InstalledOptions = {}): Promise<boolean> {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  try {
-    await utils.exec('git --version', {
-      cwd: rootDir,
-    })
-    return true
-  } catch {
-    return false
-  }
+  const { failed } = await $$({ cwd: rootDir })`git --version`
+  assert(!failed)
+  return true
 }
 
 export interface InitializedOptions {
@@ -63,14 +60,11 @@ export async function initialized({
 }: InitializedOptions = {}) {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  try {
-    const res = await utils.exec('git rev-parse --is-inside-work-tree', {
-      cwd: rootDir,
-    })
-    return res === 'true'
-  } catch {
-    return false
-  }
+  const { stdout, failed } = await $$({
+    cwd: rootDir,
+  })`git rev-parse --is-inside-work-tree`
+  assert(!failed)
+  return stdout === 'true'
 }
 
 export interface BranchOptions {
@@ -82,9 +76,11 @@ export async function branch({
 }: BranchOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  return utils.exec('git branch --show-current', {
+  const { stdout, failed } = await $$({
     cwd: rootDir,
-  })
+  })`git branch --show-current`
+  assert(!failed)
+  return stdout
 }
 
 export interface CommitOptions {
@@ -96,9 +92,11 @@ export async function commit({
 }: CommitOptions = {}): Promise<string> {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  return utils.exec('git rev-parse --verify HEAD', {
+  const { stdout, failed } = await $$({
     cwd: rootDir,
-  })
+  })`git rev-parse --verify HEAD`
+  assert(!failed)
+  return stdout
 }
 
 // This is to avoid naming collision for `recordData`.
@@ -144,21 +142,11 @@ export async function untrackedFiles({
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
   const files = []
-  try {
-    files.push(
-      ...(
-        await utils.exec('git ls-files --others --exclude-standard', {
-          cwd: rootDir,
-        })
-      ).split('\n'),
-    )
-  } catch (error) {
-    // When there is no untracked files,
-    // an error (with exactly empty string '') occurs, but it is not a problem.
-    if (error !== '') {
-      throw error
-    }
-  }
+  const { stdout, failed } = await $$({
+    cwd: rootDir,
+  })`git ls-files --others --exclude-standard`
+  assert(!failed)
+  files.push(...stdout.split('\n'))
   return files
     .filter((f) => f) // this removes empty string
     .map((f) => toAbsolutePath({ path: f, rootDir }))
@@ -173,11 +161,11 @@ export async function ignoredFiles({
 }: IgnoredFilesOptions = {}): Promise<string[]> {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  return (
-    await utils.exec('git ls-files --others --exclude-standard --ignored', {
-      cwd: rootDir,
-    })
-  )
+  const { stdout, failed } = await $$({
+    cwd: rootDir,
+  })`git ls-files --others --exclude-standard --ignored`
+  assert(!failed)
+  return stdout
     .split('\n')
     .filter((f) => f) // this removes empty strings
     .map((f) => toAbsolutePath({ path: f, rootDir }))
@@ -222,33 +210,20 @@ export const changedFiles = memoizee(
       throw new Error('git is not initialized. This is not a git repository.')
     }
 
-    const execute = (command: string): Promise<string[]> =>
-      utils
-        .exec(command, { cwd: rootDir })
-        .then((res: string) => res.split('\n'))
-
     let result = []
 
     if (from) {
-      try {
-        result.push(
-          ...(await execute(
-            `git --no-pager diff --name-only ${from} ${to || ''}`.trim(),
-          )),
-        )
-      } catch (error) {
-        // When there is nothing to diff (e.g. when `_from` and `_to` are the same),
-        // an error (with exactly empty string '') occurs but it is not a problem.
-        if (error !== '') {
-          throw error
-        }
-      }
+      const { stdout, failed } = await $$({
+        cwd: rootDir,
+      })`git --no-pager diff --name-only ${from} ${to || ''}`
+      assert(!failed)
+      result.push(...stdout.split('\n'))
     } else {
-      result.push(
-        ...(await execute(
-          `git ls-tree --full-tree --name-only -r ${to || 'HEAD'}`,
-        )),
-      )
+      const { stdout, failed } = await $$({
+        cwd: rootDir,
+      })`git ls-tree --full-tree --name-only -r ${to || 'HEAD'}`
+      assert(!failed)
+      result.push(...stdout.split('\n'))
     }
 
     if (includeUntracked) {
