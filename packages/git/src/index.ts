@@ -208,23 +208,33 @@ export const changedFiles = memoizee(
       from = record?.data?.[pkg.name]?.commit
     }
 
-    if (!(await installed())) {
+    if (!(await installed({ rootDir }))) {
       throw new Error(
         'git is not installed on the system, or $PATH is not set.',
       )
     }
-    if (!(await initialized())) {
+    if (!(await initialized({ rootDir }))) {
       throw new Error('git is not initialized. This is not a git repository.')
     }
 
     let result = []
 
     if (from) {
-      const { stdout, failed } = await $$({
-        cwd: rootDir,
-      })`git --no-pager diff --name-only ${from} ${to || ''}`
-      assert(!failed)
-      result.push(...stdout.split('\n'))
+      if (to) {
+        const { stdout, failed } = await $$({
+          cwd: rootDir,
+        })`git --no-pager diff --name-only ${from} ${to}`
+        assert(!failed)
+        result.push(...stdout.split('\n'))
+      } else {
+        // Do not write ${to || ''} because it will be escaped.
+        // Rather, write string template literal as-is.
+        const { stdout, failed } = await $$({
+          cwd: rootDir,
+        })`git --no-pager diff --name-only ${from}`
+        assert(!failed)
+        result.push(...stdout.split('\n'))
+      }
     } else {
       const { stdout, failed } = await $$({
         cwd: rootDir,

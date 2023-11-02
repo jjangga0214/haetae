@@ -89,12 +89,16 @@ describe('ignoredFiles', () => {
 })
 
 describe('changedFiles', () => {
-  // test('check this repo', async () => {
-  //   const files = await changedFiles({
-  //     rootDir,
-  //   })
-  //   expect(Array.isArray(files)).toBe(true)
-  // })
+  test('check this repo', async () => {
+    const files = await changedFiles({
+      rootDir,
+      from: 'c41b41d',
+      to: '7416820',
+      reserveRecordData: false,
+    })
+    expect(Array.isArray(files)).toBe(true)
+    expect(files).toHaveLength(7)
+  })
   test('check parent directory of the repo', async () => {
     await expect(
       changedFiles({
