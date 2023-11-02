@@ -46,25 +46,32 @@ export async function installed({
 }: InstalledOptions = {}): Promise<boolean> {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  const { failed } = await $$({ cwd: rootDir })`git --version`
-  assert(!failed)
-  return true
+  try {
+    const { stdout, failed } = await $$({ cwd: rootDir })`git --version`
+    return !!stdout && !failed
+  } catch {
+    return false
+  }
 }
 
 export interface InitializedOptions {
   rootDir?: string
 }
 
+// @throws when git is not installed
 export async function initialized({
   rootDir = core.getConfigDirname(),
-}: InitializedOptions = {}) {
+}: InitializedOptions = {}): Promise<boolean> {
   // eslint-disable-next-line no-param-reassign
   rootDir = await resolveRootDir(rootDir)
-  const { stdout, failed } = await $$({
-    cwd: rootDir,
-  })`git rev-parse --is-inside-work-tree`
-  assert(!failed)
-  return stdout === 'true'
+  try {
+    const { stdout, failed } = await $$({
+      cwd: rootDir,
+    })`git rev-parse --is-inside-work-tree`
+    return stdout === 'true' && !failed
+  } catch {
+    return false
+  }
 }
 
 export interface BranchOptions {
