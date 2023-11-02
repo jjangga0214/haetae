@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@haetae/common": "workspace:*",
-    "dependency-tree": "^8.1.1",
+    "@jjangga0214/dependency-tree": "8.1.1-pull-135-c9759f9",
     "dirname-filename-esm": "^1.1.1",
     "find-up": "^6.3.0",
     "memoizee": "^0.4.15",

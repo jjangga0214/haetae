@@ -7,8 +7,8 @@ import { dependsOn, graph } from '../src/index.js'
 const rootDir = upath.join(dirname(import.meta), '../../../test-project')
 
 /*
- Actually, test for `graph()` is not so much necessary because the function `dependsOn()` rely on `graph()`,
- and test of `dependsOn()` does through test.
+  Actually, test for `graph()` is not so much necessary because the function `dependsOn()` relies on `graph()`.
+  Test of `dependsOn()` also does transitive test of `graph()`.
  */
 describe('graph', () => {
   test('basic usage', async () => {
@@ -42,24 +42,24 @@ describe('graph', () => {
   })
   // TODO: uncomment this test once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
   // eslint-disable-next-line jest/no-commented-out-tests
-  // test('against test file', async () => {
-  //   const result = await graph({
-  //     entrypoint: 'packages/bar/test/unit/index.test.ts',
-  //     rootDir,
-  //   })
-  //   expect(result).toStrictEqual({
-  //     [`${rootDir}/packages/bar/test/unit/index.test.ts`]: new Set([
-  //       `${rootDir}/packages/bar/src/index.ts`,
-  //     ]),
-  //     [`${rootDir}/packages/bar/src/index.ts`]: new Set([
-  //       `${rootDir}/packages/foo/src/index.ts`,
-  //     ]),
-  //     [`${rootDir}/packages/foo/src/index.ts`]: new Set([
-  //       `${rootDir}/packages/foo/src/hello.ts`,
-  //     ]),
-  //     [`${rootDir}/packages/foo/src/hello.ts`]: new Set([]),
-  //   })
-  // })
+  test('against test file', async () => {
+    const result = await graph({
+      entrypoint: 'packages/bar/test/unit/index.test.ts',
+      rootDir,
+    })
+    expect(result).toStrictEqual({
+      [`${rootDir}/packages/bar/test/unit/index.test.ts`]: new Set([
+        `${rootDir}/packages/bar/src/index.ts`,
+      ]),
+      [`${rootDir}/packages/bar/src/index.ts`]: new Set([
+        `${rootDir}/packages/foo/src/index.ts`,
+      ]),
+      [`${rootDir}/packages/foo/src/index.ts`]: new Set([
+        `${rootDir}/packages/foo/src/hello.ts`,
+      ]),
+      [`${rootDir}/packages/foo/src/hello.ts`]: new Set([]),
+    })
+  })
   test('non-existent file', async () => {
     const result = await graph({
       entrypoint: 'packages/bar/src/non-existent.ts',
@@ -72,15 +72,15 @@ describe('graph', () => {
 describe('dependsOn', () => {
   // TODO: uncomment this test once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
   // eslint-disable-next-line jest/no-commented-out-tests
-  // test('through typescript path mapping', async () => {
-  //   await expect(
-  //     dependsOn({
-  //       rootDir,
-  //       dependent: 'packages/bar/test/index.test.ts',
-  //       dependencies: ['packages/bar/src/index.ts'],
-  //     }),
-  //   ).resolves.toBe(true)
-  // })
+  test('through typescript path mapping', async () => {
+    await expect(
+      dependsOn({
+        rootDir,
+        dependent: 'packages/bar/test/unit/index.test.ts',
+        dependencies: ['packages/bar/src/index.ts'],
+      }),
+    ).resolves.toBe(true)
+  })
 
   test('from a same package', async () => {
     await expect(
@@ -114,20 +114,20 @@ describe('dependsOn', () => {
     ).resolves.toBe(false)
 
     // TODO: uncomment these expectation once `path mapping` is resolved by PR: https://github.com/dependents/node-dependency-tree/pull/138
-    // await expect(
-    //   dependsOn({
-    //     rootDir,
-    //     dependent: 'packages/bar/src/index.ts',
-    //     dependencies: ['packages/foo/src/hello.ts'],
-    //   }),
-    // ).resolves.toBe(true)
-    // await expect(
-    //   dependsOn({
-    //     rootDir,
-    //     dependent: 'packages/bar/test/unit/index.test.ts',
-    //     dependencies: ['packages/foo/src/hello.ts'],
-    //   }),
-    // ).resolves.toBe(true)
+    await expect(
+      dependsOn({
+        rootDir,
+        dependent: 'packages/bar/src/index.ts',
+        dependencies: ['packages/foo/src/hello.ts'],
+      }),
+    ).resolves.toBe(true)
+    await expect(
+      dependsOn({
+        rootDir,
+        dependent: 'packages/bar/test/unit/index.test.ts',
+        dependencies: ['packages/foo/src/hello.ts'],
+      }),
+    ).resolves.toBe(true)
   })
 
   test('itself', async () => {

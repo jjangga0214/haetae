@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import upath from 'upath'
-import dependencyTree from 'dependency-tree'
+import dependencyTree from '@jjangga0214/dependency-tree'
 import { dirname } from 'dirname-filename-esm'
 import filterAsync from 'node-filter-async'
 import { findUp } from 'find-up'
