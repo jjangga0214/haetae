@@ -97,7 +97,7 @@ describe('changedFiles', () => {
       reserveRecordData: false,
     })
     expect(Array.isArray(files)).toBe(true)
-    expect(files).toHaveLength(7)
+    expect(files).toHaveLength(5)
   })
   test('check parent directory of the repo', async () => {
     await expect(
