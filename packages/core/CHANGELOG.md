@@ -1,5 +1,22 @@
 # @haetae/core
 
+## 0.0.15
+
+### Patch Changes
+
+- [`67e40ad`](https://github.com/jjangga0214/haetae/commit/67e40adc6df3d65f64b79af55cc2e0ef1ad1f08c) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `formRecordOptions` is removed and `formRecord` is renamed to `createRecord`. `invokeEnv` and `invokeRun` are changed. `invokeRootRecordData` and `invokeRootEnv` is newly introduced.
+
+- [`f514ae4`](https://github.com/jjangga0214/haetae/commit/f514ae4ecc95201fda2fc86abfb5ccfea4402057) Thanks [@jjangga0214](https://github.com/jjangga0214)! - -
+
+  - `envHash` and `hashEnv` are newly introduced.
+  - **BREAKING CHANGE**: `compareEnvs` is removed.
+
+- [`abe2f2d`](https://github.com/jjangga0214/haetae/commit/abe2f2d19adc38fd9eec8b8573b9a78691ef3528) Thanks [@jjangga0214](https://github.com/jjangga0214)! - `reserveRecordData` and `ReserveRecordDataOptions` are newly introduced.
+
+  **BREAKING CHANGE**: `CommandFromConfig` is removed in favor of new `InvokeEnvOptions` and `InvokeRunOptions`. Options for `invokeEnv` and `invokeRun` have changed.
+
+- [`b7f6294`](https://github.com/jjangga0214/haetae/commit/b7f6294c640add6c2633ad782eb24df84c55f882) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `defaultStoreFile`, `storeFilename`,`SetStoreFilenameOptions`,`setStoreFilename`,`getStoreFilename`, `HaetaeConfig.recordRemoval`, `HaetaeConfig.storeFile`, `HaetaePreConfig.recordRemoval`, `HaetaePreConfig.storeFile`, `initNewStore`,`GetStoreOptions`,`getStore`,`GetRecordsOptions`,`getRecords`, `GetRecordOptions`, `GetRecordsOptions`, `getRecords`, `SaveStoreOptions`, `saveStore`, `DeleteStoreOptions`, `deleteStore` are removed and (some of them are) replaced by the new store system. `HaetaeStore` is renamed to `LocalFileStore`.
+
 ## 0.0.14
 
 ### Patch Changes
@@ -8,7 +25,7 @@
 
 - [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: A string constant `defaultConfigFile` is replaced by an contant array `defaultConfigFiles`. From now on, `haetae.config.js`, `haetae.config.mjs`, `haetae.config.ts`, `haetae.config.mts` are automatically searched. For typescript file, a peer dependency `ts-node` should be installed first.
 
-- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Types of env and *Record Data* should extend `Record<string, unknown>` from now on. (Anything was allowed before.)
+- [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Types of env and _Record Data_ should extend `Record<string, unknown>` from now on. (Anything was allowed before.)
 
 - [`475aaa8`](https://github.com/jjangga0214/haetae/commit/475aaa82d4850932b248ff69491d75ee9c0c0ed1) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `fallback` option is replaced by `initWhenNotFound` in `GetStoreOptions`.
 

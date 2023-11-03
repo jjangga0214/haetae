@@ -1,5 +1,16 @@
 # @haetae/cli
 
+## 0.0.16
+
+### Patch Changes
+
+- [`d189e6d`](https://github.com/jjangga0214/haetae/commit/d189e6d7c4aec8e831b23a6bd0140268d2c2bdec) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Add `--dry-run` option.
+
+- [`b7f6294`](https://github.com/jjangga0214/haetae/commit/b7f6294c640add6c2633ad782eb24df84c55f882) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: Behaviors of `-r` and `-d` is changed. They should be used alone, and acts like `-e` is given along with it in the previous versions.
+
+- Updated dependencies [[`67e40ad`](https://github.com/jjangga0214/haetae/commit/67e40adc6df3d65f64b79af55cc2e0ef1ad1f08c), [`f514ae4`](https://github.com/jjangga0214/haetae/commit/f514ae4ecc95201fda2fc86abfb5ccfea4402057), [`abe2f2d`](https://github.com/jjangga0214/haetae/commit/abe2f2d19adc38fd9eec8b8573b9a78691ef3528), [`b7f6294`](https://github.com/jjangga0214/haetae/commit/b7f6294c640add6c2633ad782eb24df84c55f882)]:
+  - @haetae/core@0.0.15
+
 ## 0.0.15
 
 ### Patch Changes
@@ -63,7 +74,7 @@
 
 ### Patch Changes
 
-- [`9bcea20`](https://github.com/jjangga0214/haetae/commit/9bcea2009f933dface69a226909d2afa047d1a93) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Empty object(including array) and non-object literal are printed out properly when they are *Record Data*'s env or data.
+- [`9bcea20`](https://github.com/jjangga0214/haetae/commit/9bcea2009f933dface69a226909d2afa047d1a93) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Empty object(including array) and non-object literal are printed out properly when they are _Record Data_'s env or data.
 
 - [`22da759`](https://github.com/jjangga0214/haetae/commit/22da75948486b8ecb780b1d07f13426a82d91c87) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Timestamp in `time` field of Record is now printed in a human-friendly format.
 
@@ -83,7 +94,7 @@
 
 - [`23eb1f3`](https://github.com/jjangga0214/haetae/commit/23eb1f3dad8e55e178c6375064b41b5a2e33fe6e) Thanks [@jjangga0214](https://github.com/jjangga0214)! - (BREAKING CHANGE) Moved `$HAETAE_CONFIG_FILE` handling from `@haetae/core` to `@haetae/cli`. From now on, `@haetae/core` does not detect `$HAETAE_CONFIG_FILE` automatically.
 
-- [`e547e18`](https://github.com/jjangga0214/haetae/commit/e547e18f5c43da3df059b4467010a831656a32a7) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Added `-d` option for *Record Data*.
+- [`e547e18`](https://github.com/jjangga0214/haetae/commit/e547e18f5c43da3df059b4467010a831656a32a7) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Added `-d` option for _Record Data_.
 
 - [`08bdcea`](https://github.com/jjangga0214/haetae/commit/08bdceac128ac3d58fc281385bbbf12fe581084c) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Introduced `-i, --info` option.
 
