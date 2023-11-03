@@ -1,5 +1,12 @@
 # @haetae/utils
 
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [[`c9847c3`](https://github.com/jjangga0214/haetae/commit/c9847c3bc6a84711ad17c4cf9b69c504ccb1ca6c)]:
+  - @haetae/core@0.0.17
+
 ## 0.0.16
 
 ### Patch Changes
