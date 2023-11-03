@@ -1,6 +1,6 @@
 {
   "name": "@haetae/common",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Common internal utilities for Haetae",
   "license": "MIT",
   "private": false,
