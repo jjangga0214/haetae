@@ -21,6 +21,7 @@ export async function run(): Promise<void> {
   let y
   try {
     y = await yargs(hideBin(process.argv))
+      .version(pkg.version.value)
       .scriptName('haetae')
       .usage('$0 [options] <command>')
       .alias('h', 'help')
