@@ -78,7 +78,7 @@ export const $ = $$({
     try {
       return core.getConfigDirname()
     } catch {
-      process.cwd()
+      return process.cwd()
     }
   })(),
 })
