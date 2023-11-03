@@ -1,5 +1,11 @@
 # @haetae/common
 
+## 0.0.4
+
+### Patch Changes
+
+- [`55f520f`](https://github.com/jjangga0214/haetae/commit/55f520f374b411b40e7efac04d6edb6a1751cd23) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Publish what should be published before.
+
 ## 0.0.3
 
 ### Patch Changes
