@@ -95,9 +95,11 @@ describe('changedFiles', () => {
       from: 'c41b41d',
       to: '7416820',
       reserveRecordData: false,
+      includeUntracked: false,
+      filterByExistence: false,
     })
     expect(Array.isArray(files)).toBe(true)
-    expect(files).toHaveLength(5)
+    expect(files).toHaveLength(4)
   })
   test('check parent directory of the repo', async () => {
     await expect(
