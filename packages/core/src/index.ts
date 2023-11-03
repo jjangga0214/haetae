@@ -251,7 +251,9 @@ const registerTsNode = memoizee(async () => {
     // import optional peerDependency 'ts-node'
     // Register TypeScript compiler instance
     const tsNode = await import('ts-node')
-    return tsNode.register()
+    return tsNode.register({
+      esm: true,
+    })
   } catch (error) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
