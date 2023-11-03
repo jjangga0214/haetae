@@ -1,6 +1,7 @@
 import { Callout } from 'nextra-theme-docs'
 import Image from '../components/Image';
 import PkgManagerTabs from '../components/PkgManagerTabs'
+import ProjectTypeTabs from '../components/ProjectTypeTabs'
 import TokenLinkCode from '../components/TokenLinkCode'
 
 # Getting Started
@@ -61,12 +62,32 @@ Literally **any project** is proper.
 <PkgManagerTabs>
 ```bash
 npm install --save-dev haetae
+
+# execute haetae
+npx haetae --help
+
+# ht is shorthand for haetae
+npx ht --help
 ```
+
 ```bash
 yarn add --dev haetae
+
+# execute haetae
+yarn haetae --help
+
+# ht is shorthand for haetae
+yarn ht --help
 ```
+
 ```bash
 pnpm add --save-dev haetae
+
+# execute haetae
+pnpm haetae --help
+
+# ht is shorthand for haetae
+pnpm ht --help
 ```
 </PkgManagerTabs>
 
@@ -81,34 +102,124 @@ pnpm add --save-dev haetae
 ## Basic configuration
 
 Now, we are ready to configure Haetae.<br/>
-Let's create a config file *`haetae.config.js`*.<br/>
+Let's create a config file.
+Its name and execution setting are different depending on whether your project is ESM/CJS, or JS/TypeScript.
+
+<Callout>
+  **CJS/ESM** <br/>
+  Haetae supports both CJS and ESM project. <br/>
+  Haetae itself is written in ESM, but it can be used for CJS projects as well, as long as the config file is ESM.
+</Callout>
+
+<br/>
+
+<ProjectTypeTabs>
+<>
+If `"type": "module"` is set in your *`package.json`*, name the config file *`haetae.config.js`*.
 
 ```fish
 my-calculator
 ├── haetae.config.js # <--- Haetae config file
 ├── package.json
-├── src # contents are omitted for brevity
-└── test # contents are omitted for brevity
+├── src/ # contents are omitted for brevity
+└── test/ # contents are omitted for brevity
+```
+</>
+<>
+If `"type"` key is omitted(default), or `"type": "commonjs"` is set in your *`package.json`*, name the config file *`haetae.config.mjs`*.
+
+```fish
+my-calculator
+├── haetae.config.mjs # <--- Haetae config file
+├── package.json
+├── src/ # contents are omitted for brevity
+└── test/ # contents are omitted for brevity
+```
+</>
+<>
+If `"type": "module"` is set in your *`package.json`*,
+and you're using Typescript compiled to ESM,
+name the config file *`haetae.config.ts`*.
+
+```fish
+my-calculator
+├── haetae.config.ts # <--- Haetae config file
+├── package.json
+├── tsconfig.json
+├── src/ # contents are omitted for brevity
+└── test/ # contents are omitted for brevity
 ```
 
-<Callout>
-  **Typescript Support** <br/>
-  If you want to write the config in typescript, name it *`haetae.config.ts`*.
-  Then install [`ts-node`](https://www.npmjs.com/package/ts-node),
-  which is an optional `peerDependencies` of `haetae{:ts}` (from `@haetae/core{:ts}`).
-  Finally, provide an environment variable `NODE_OPTIONS='--loader=ts-node/esm'`.
-</Callout>
+Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
+It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/haetae-core), which is an internal dependency of `haetae`.
 
-<Callout>
-  **CJS/ESM** <br/>
-  Haetae supports both CJS and ESM project. <br/>
-  Haetae is written in ESM, but it can be used in CJS projects as well, as long as the config file is ESM.
-  If your project is CJS, name the config file *`haetae.config.mjs`* or *`haetae.config.mts`*.
-  If your project is ESM, name the config file *`haetae.config.js`* or *`haetae.config.ts`*.
-</Callout>
+```bash
+pnpm add -D ts-node
+```
 
-We can write it down like this.<br/>
-Make sure you initialized git. Haetae can be used with any other version control systems, but using git is assumed in this article.
+Finally, provide an environment variable `$NODE_OPTIONS`.
+
+```bash
+NODE_OPTIONS='--loader=ts-node/esm' haetae --help
+```
+
+Registering scripts in *`package.json`* is a recommended good practice.
+
+```jsonc
+{
+  "scripts": {
+    "haetae": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae",
+    "ht": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae"
+  }
+}
+```
+</>
+<>
+If `"type"` key is omitted(default), or `"type": "commonjs"` is set in your *`package.json`*,
+and you're using Typescript compiled to CJS, name the config file *`haetae.config.mts`*.
+
+```fish
+my-calculator
+├── haetae.config.mts # <--- Haetae config file
+├── package.json
+├── tsconfig.json
+├── src/ # contents are omitted for brevity
+└── test/ # contents are omitted for brevity
+```
+
+Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
+It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/haetae-core), which is an internal dependency of `haetae`.
+
+```bash
+pnpm add -D ts-node
+```
+
+Finally, provide environment variables `$TS_NODE_COMPILER_OPTIONS` and `$NODE_OPTIONS`.
+Because your *`tsconfig.json`* is CJS, `$TS_NODE_COMPILER_OPTIONS` makes sure haetae's config file is ESM.
+
+```bash
+# Instead of 'node16', you can choose other values like 'nodenext', etc.
+TS_NODE_COMPILER_OPTIONS='{"module": "node16", "moduleResolution": "node16"}' \
+NODE_OPTIONS='--loader=ts-node/esm' \
+haetae --help
+```
+
+Registering scripts in *`package.json`* is a recommended good practice.
+
+```jsonc
+{
+  "scripts": {
+    "haetae": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae",
+    "ht": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae"
+  }
+}
+```
+</>
+</ProjectTypeTabs>
+
+We can write down the config file like this.<br/>
+You should initialized git.
+Haetae can be used with any other version control systems, but using git is assumed in this article.
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
@@ -218,8 +329,8 @@ If you use Typescript or Webpack, check out [the API docs](./apis/haetae-javascr
 <Callout>
 **`js.dependOn`** vs **`js.dependsOn`** vs **`utils.dependOn`** vs **`utils.dependsOn`** <br/>
 There are severel APIs of simliar purposes.
-- [`js.dependOn{:ts}`](./apis/haetae-jss#dependon) : For multiple dependents. On js ecosystem.
-- [`js.dependsOn{:ts}`](./apis/haetae-jss#dependson) : For a single dependent. On js ecosystem.
+- [`js.dependOn{:ts}`](./apis/haetae-javascript#dependon) : For multiple dependents. On js ecosystem.
+- [`js.dependsOn{:ts}`](./apis/haetae-javascript#dependson) : For a single dependent. On js ecosystem.
 - [`utils.dependOn{:ts}`](./apis/haetae-utils#dependon) : For multiple dependents. General-purpose.
 - [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson) : For a single dependent. General-purpose.
 
@@ -1054,8 +1165,7 @@ export default configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
-        const changedFilesByHash = await utils.changedFiles(['.env'])
-        changedFiles.push(...changedFilesByHash)
+
         const additionalGraph = await utils.graph({
           edges: [
             {
@@ -1250,7 +1360,7 @@ for the return value of `env` and `run` of every command.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '.hash': './apis/haetae-utils#hash',
-  '.deps': './apis/haetae-js#deps',
+  '.deps': './apis/haetae-javascript#deps',
 }}>
 ```js filename="haetae.config.js" {4-6, 9}
 import { $, configure, git, utils, js } from 'haetae'
@@ -1328,7 +1438,7 @@ By the way, you can go even thoroughly.
 
 <TokenLinkCode tokens={{
   '.hash': './apis/haetae-utils#hash',
-  '.deps': './apis/haetae-js#deps',
+  '.deps': './apis/haetae-javascript#deps',
 }}>
 ```js filename="haetae.config.js" {3}
 // Other content is omitted for brevity
