@@ -1,6 +1,6 @@
 {
   "name": "@haetae/cli",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "A CLI for Haetae",
   "license": "MIT",
   "private": false,
