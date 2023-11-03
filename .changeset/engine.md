@@ -2,7 +2,7 @@
 '@haetae/common': patch
 '@haetae/core': patch
 '@haetae/git': patch
-'@haetae/js': patch
+'@haetae/javascript': patch
 '@haetae/utils': patch
 'haetae': patch
 ---
