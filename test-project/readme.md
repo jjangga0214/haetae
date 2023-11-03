@@ -70,7 +70,7 @@ There is `engines` restriction in package.json, as `subpath imports` is added fr
 // package.json
 {
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   }
 }
 ```

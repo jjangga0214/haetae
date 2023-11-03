@@ -6,7 +6,7 @@
   "private": false,
   "type": "module",
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "exports": "./dist/index.js",
   "types": "./dist/index.d.ts",
