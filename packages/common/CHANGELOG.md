@@ -1,5 +1,11 @@
 # @haetae/common
 
+## 0.0.5
+
+### Patch Changes
+
+- [`15c2b32`](https://github.com/jjangga0214/haetae/commit/15c2b3250ed54b813bc9587ebfbd202324490795) Thanks [@jjangga0214](https://github.com/jjangga0214)! - BREAKING CHANGE: Set `"node": ">=20"` for engine.
+
 ## 0.0.4
 
 ### Patch Changes
