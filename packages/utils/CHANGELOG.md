@@ -1,5 +1,32 @@
 # @haetae/utils
 
+## 0.0.15
+
+### Patch Changes
+
+- [`a376a51`](https://github.com/jjangga0214/haetae/commit/a376a512999e93048070f6ce9c6a92ec50e1938c) Thanks [@jjangga0214](https://github.com/jjangga0214)! - A new Tagged Template Literal `# @haetae/utils is introduced. It replaces `utils.exec`.
+
+- [`2c8956b`](https://github.com/jjangga0214/haetae/commit/2c8956b9b0c401abeed160ae2706fbe68b14e091) Thanks [@jjangga0214](https://github.com/jjangga0214)! - `deps` and `DepsOptions` are introduced.
+
+- [`98b2715`](https://github.com/jjangga0214/haetae/commit/98b2715363761ae638a970e9a5bb1386d6ac75bd) Thanks [@jjangga0214](https://github.com/jjangga0214)! - `renew`, and `previousFiles` are added to `ChangedFilesOptions`.
+
+- [`bcdfecb`](https://github.com/jjangga0214/haetae/commit/bcdfecb90518aad73efcf4f306c5d410224d0c66) Thanks [@jjangga0214](https://github.com/jjangga0214)! - -
+
+  - `RecordData`, `recordData`, `RecordDataOptions`, `changedFiles`, `ChangedFilesOptions` are newly introduced.
+  - A new option `ChangedFileOptions.reserveRecordData` is introduced.
+
+- [`6c1fb9c`](https://github.com/jjangga0214/haetae/commit/6c1fb9cfb84fde4753b5740085563dfe993b7fee) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `DependsOnOptions.dependencies` only receives array.
+
+- [`0b7cb17`](https://github.com/jjangga0214/haetae/commit/0b7cb17002ca7c1a62a395f6107ba77867d5c476) Thanks [@jjangga0214](https://github.com/jjangga0214)! - **BREAKING CHANGE**: `globbyOption` is removed and integrated into `GlobOptions` directly.
+
+- [`a1a4527`](https://github.com/jjangga0214/haetae/commit/a1a45275e1f0d040e14a1f10be99b11e8bdfa810) Thanks [@jjangga0214](https://github.com/jjangga0214)! - -
+  - **BREAKING CHANGE**: `graph` became an async function.
+  - Fixed `glob` throwing error when `gitignore: true` and `patterns` are out of `roodDir`. Related to: [globby#168](https://github.com/sindresorhus/globby/issues/168)
+  - `dependOn` and `DependOnOptions` are newly introduced. (Note: Different from `dependsOn` and `DependsOnOptions`)
+  - `hash`, `graph`, `depend`, and `changedFiles` support glob pattern.
+- Updated dependencies [[`67e40ad`](https://github.com/jjangga0214/haetae/commit/67e40adc6df3d65f64b79af55cc2e0ef1ad1f08c), [`f514ae4`](https://github.com/jjangga0214/haetae/commit/f514ae4ecc95201fda2fc86abfb5ccfea4402057), [`abe2f2d`](https://github.com/jjangga0214/haetae/commit/abe2f2d19adc38fd9eec8b8573b9a78691ef3528), [`b7f6294`](https://github.com/jjangga0214/haetae/commit/b7f6294c640add6c2633ad782eb24df84c55f882)]:
+  - @haetae/core@0.0.15
+
 ## 0.0.14
 
 ### Patch Changes
