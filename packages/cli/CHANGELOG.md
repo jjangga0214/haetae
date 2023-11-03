@@ -1,5 +1,11 @@
 # @haetae/cli
 
+## 0.0.19
+
+### Patch Changes
+
+- [`7fc6d8d`](https://github.com/jjangga0214/haetae/commit/7fc6d8de6ebc8869979695818f40921c211d28b8) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Fix `-v, --version`.
+
 ## 0.0.18
 
 ### Patch Changes
