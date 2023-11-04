@@ -82,9 +82,10 @@ const config2 = await getConfig()
 
 config1.foo = 'bar'
 // `config2` is also modified when `config1` is modified
-console.log(config2.foo) // 'bar'
+assert(config2.foo === 'bar')
+
 const config3 = await getConfig()
-console.log(config3.foo) // 'bar'
+assert(config3.foo === 'bar')
 ```
 
 If you want to avoid the side effect, you can clear the cache before calling `getConfig`.<br/>

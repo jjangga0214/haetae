@@ -152,6 +152,9 @@ importers:
       '@haetae/common':
         specifier: workspace:*
         version: link:../common
+      '@haetae/core':
+        specifier: workspace:*
+        version: link:../core
       chalk:
         specifier: ^5.2.0
         version: 5.2.0
@@ -201,9 +204,6 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
     devDependencies:
-      '@haetae/core':
-        specifier: workspace:*
-        version: link:../core
       '@types/envinfo':
         specifier: ^7.8.1
         version: 7.8.1
@@ -342,6 +342,12 @@ importers:
       '@haetae/common':
         specifier: workspace:*
         version: link:../common
+      '@haetae/core':
+        specifier: workspace:*
+        version: link:../core
+      '@haetae/utils':
+        specifier: workspace:*
+        version: link:../utils
       dirname-filename-esm:
         specifier: ^1.1.1
         version: 1.1.1
@@ -361,12 +367,6 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
     devDependencies:
-      '@haetae/core':
-        specifier: workspace:*
-        version: link:../core
-      '@haetae/utils':
-        specifier: workspace:*
-        version: link:../utils
       '@types/memoizee':
         specifier: ^0.4.8
         version: 0.4.8
@@ -409,6 +409,12 @@ importers:
       '@haetae/common':
         specifier: workspace:*
         version: link:../common
+      '@haetae/core':
+        specifier: workspace:*
+        version: link:../core
+      '@haetae/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@jjangga0214/dependency-tree':
         specifier: 8.1.1-pull-135-c9759f9
         version: 8.1.1-pull-135-c9759f9
@@ -436,19 +442,15 @@ importers:
       yaml:
         specifier: ^2.1.1
         version: 2.3.1
-    devDependencies:
-      '@haetae/core':
-        specifier: workspace:*
-        version: link:../core
-      '@haetae/utils':
-        specifier: workspace:*
-        version: link:../utils
 
   packages/utils:
     dependencies:
       '@haetae/common':
         specifier: workspace:*
         version: link:../common
+      '@haetae/core':
+        specifier: workspace:*
+        version: link:../core
       '@jest/globals':
         specifier: ^29.5.0
         version: 29.5.0
@@ -486,9 +488,6 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
     devDependencies:
-      '@haetae/core':
-        specifier: workspace:*
-        version: link:../core
       '@types/lodash.isequal':
         specifier: ^4.5.6
         version: 4.5.6

@@ -17,7 +17,7 @@ For now, in this *Getting Started* article, we are starting from an example of i
 
 Let's say you're building a calculator project, named *'my-calculator'*.
 
-```fish
+```fish filename="Your Project"
 my-calculator
 ├── package.json
 ├── src
@@ -61,7 +61,7 @@ Literally **any project** is proper.
 <br/>
 
 <PkgManagerTabs>
-```bash
+```bash filename="Terminal"
 npm install --save-dev haetae
 
 # Execute `haetae`
@@ -71,7 +71,7 @@ npx haetae --help
 npx ht --help
 ```
 
-```bash
+```bash filename="Terminal"
 yarn add --dev haetae
 
 # Execute `haetae`
@@ -81,7 +81,7 @@ yarn haetae --help
 yarn ht --help
 ```
 
-```bash
+```bash filename="Terminal"
 pnpm add --save-dev haetae
 
 # Execute `haetae`
@@ -116,10 +116,10 @@ Its name and execution setting are different depending on whether your project i
 
 <ProjectTypeTabs>
 <>
-If your *`package.json`* is configured to ESM,
+If your *`package.json`* is configured as ESM,
 name the config file *`haetae.config.js`*.
 
-```fish
+```fish filename="Your Project" {2}
 my-calculator
 ├── haetae.config.js # <--- Haetae config file
 ├── package.json # <--- "type": "module"
@@ -128,10 +128,10 @@ my-calculator
 ```
 </>
 <>
-If your *`package.json`* is configured to CJS,
+If your *`package.json`* is configured as CJS,
 name the config file *`haetae.config.mjs`*.
 
-```fish
+```fish filename="Your Project" {2}
 my-calculator
 ├── haetae.config.mjs # <--- Haetae config file
 ├── package.json # <--- "type": "commonjs" or "type" is omitted
@@ -143,11 +143,11 @@ my-calculator
 Note that you can still name it *`haetae.config.js`*.
 But you may want to write the config in TypeScript.
 
-If your *`package.json`* and *`tsconfig.json`* are configured to ESM,
+If your *`package.json`* and *`tsconfig.json`* are configured as ESM,
 name the config file *`haetae.config.ts`*.
 
 
-```fish
+```fish filename="Your Project" {2}
 my-calculator
 ├── haetae.config.ts # <--- Haetae config file
 ├── package.json # <--- "type": "module"
@@ -160,29 +160,30 @@ Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
 It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/haetae-core), which is an internal dependency of `haetae`.
 
 <PkgManagerChildren>
-```bash
+```bash filename="Terminal"
 npm install --save-dev ts-node
 ```
-```bash
+```bash filename="Terminal"
 yarn add --dev ts-node
 ```
-```bash
+```bash filename="Terminal"
 pnpm add --save-dev ts-node
 ```
 </PkgManagerChildren>
 
 Finally, provide an environment variable `$NODE_OPTIONS`.
 
-```bash
+```bash filename="Terminal"
 NODE_OPTIONS='--loader=ts-node/esm' haetae --help
 ```
 
 Registering scripts in *`package.json`* is a recommended good practice.
 
-```jsonc
+```jsonc filename="package.json"
 {
   "scripts": {
     "haetae": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae",
+    // or
     "ht": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae"
   }
 }
@@ -193,10 +194,10 @@ Registering scripts in *`package.json`* is a recommended good practice.
 Note that you can still name it *`haetae.config.mjs`*.
 But you may want to write the config in TypeScript.
 
-If your *`package.json`* and *`tsconfig.json`* are configured to CJS,
+If your *`package.json`* and *`tsconfig.json`* are configured as CJS,
 name the config file *`haetae.config.mts`*.
 
-```fish
+```fish filename="Your Project" {2}
 my-calculator
 ├── haetae.config.mts # <--- Haetae config file
 ├── package.json # <--- "type": "commonjs" or "type" is omitted
@@ -209,13 +210,13 @@ Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
 It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/haetae-core), which is an internal dependency of `haetae`.
 
 <PkgManagerChildren>
-```bash
+```bash filename="Terminal"
 npm install --save-dev ts-node
 ```
-```bash
+```bash filename="Terminal"
 yarn add --dev ts-node
 ```
-```bash
+```bash filename="Terminal"
 pnpm add --save-dev ts-node
 ```
 </PkgManagerChildren>
@@ -223,7 +224,7 @@ pnpm add --save-dev ts-node
 Finally, provide environment variables `$TS_NODE_COMPILER_OPTIONS` and `$NODE_OPTIONS`.
 Because your *`tsconfig.json`* is CJS, `$TS_NODE_COMPILER_OPTIONS` makes sure haetae's config file is ESM.
 
-```bash
+```bash filename="Terminal"
 # Instead of 'node16', you can choose other values like 'nodenext', etc.
 TS_NODE_COMPILER_OPTIONS='{"module": "node16", "moduleResolution": "node16"}' \
 NODE_OPTIONS='--loader=ts-node/esm' \
@@ -232,10 +233,11 @@ haetae --help
 
 Registering scripts in *`package.json`* is a recommended good practice.
 
-```jsonc
+```jsonc filename="package.json"
 {
   "scripts": {
     "haetae": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae",
+    // or
     "ht": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae"
   }
 }
@@ -318,8 +320,8 @@ await $`pnpm jest ${affectedTestFiles.join(' ')}`
 
 Then run `haetae` like below.
 
-```fish
-$ haetae myTest
+```fish filename="Terminal"
+haetae myTest
 ```
 <small>(Unless you installed `haetae` globally, you should execute it through package manager (e.g. `pnpm haetae myTest`))</small>
 
@@ -329,7 +331,7 @@ You can name it whatever you want. And as you might guess, you can define multip
 
 It will print the result like this.
 
-```fish filename="terminal"
+```fish filename="Terminal"
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 May 28 11:06:06 Asia/Seoul 1(timestamp: 1685239566483)
@@ -373,7 +375,7 @@ Check out the API docs later for more detail.
 Note that it cannot parse dynamic imports (`import(){:ts}`).
 Dynamic or extra dependencies can be specified as `additionalGraph` option, explained later in this article.
 
-```fish
+```fish filename="Your Project" {2}
 my-calculator
 ├── .haetae/store.json # <--- Generated. Haetae store file
 ├── haetae.config.js
@@ -397,8 +399,8 @@ Let's say we made some changes and added 2 commits.
 `0c3b3cc` and `1d17a2f` are new commits after that.<br/>
 What will happen when we run Haetae again?
 
-```fish
-$ haetae myTest
+```fish filename="Terminal"
+haetae myTest
 ```
 
 This time, only *`exponent.test.js`* and *`multiply.test.js`* are executed.
@@ -411,7 +413,7 @@ because [`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) **detects depe
 If you modify `add.test.js`, only the test file itself `add.test.js` will be executed,
 as **every file is treated as depending on itself.**
 
-```fish filename="terminal"
+```fish filename="Terminal"
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 May 28 19:03:25 Asia/Seoul (timestamp: 1685268205443)
@@ -540,10 +542,10 @@ like assertion (`assert(){:ts}`) in line number 9 above. `myTest.env(){:ts}` is 
 When an error is thrown in `myTest.env(){:ts}`, `myTest.run(){:ts}` is not executed, and the store file is not renewed.
 This is intended design for incremental tasks.
 
-If you just want to check the value the `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
-This does not write to the store file, but just prints the value.
+If you just want to evaluate the value `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
+This does not modify the store, but just prints out to the console.
 
-```fish filename="terminal"
+```fish filename="Terminal"
 $ haetae myTest --env
 
 ✔  success   Current environment is successfully evaluated for the command myTest
@@ -568,7 +570,7 @@ But sometimes, you need to specify some dependencies manually.<br/>
 
 For example, let's say you're developing a project communicating with a database.
 
-```fish
+```fish filename="Your Project"
 your-project
 ├── haetae.config.js
 ├── package.json
@@ -832,7 +834,7 @@ and *'Record Data'* (type: `core.HaetaeRecord.data{:ts}`).
 
 In the previous sections, we've already seen terminal outputs like this.
 
-```fish filename="terminal"
+```fish filename="Terminal"
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -851,14 +853,14 @@ This information is logged in the store file (*`.haetae/store.json`*), and calle
 The `data` field is called *'Record Data'*.
 Let's check them out.
 
-```fish
-$ cat .haetae/store.json
+```fish filename="Terminal"
+cat .haetae/store.json
 ```
 
 
 The output is like this.
 
-```json filename="terminal" {13,25-27,39-41,53-60,72-74}
+```json filename="Terminal" {13,25-27,39-41,53-60,72-74}
 {
   "specVersion": 1,
   "commands": {
@@ -991,7 +993,7 @@ Let's see how it works, with a simple example project using *`.env`* as the appl
 *`.env`* is a configuration file for environment variables, and NOT related to Haetae's `env` at all.
 </Callout>
 
-```fish
+```fish filename="Your Project"
 your-project
 ├── .env # <--- dotenv file
 ├── .gitignore # <--- ignores '.env' file
@@ -1130,7 +1132,7 @@ export default configure({
 Now, **we return an object** from `myTest.run{:ts}`.
 Let's execute it.
 
-```fish filename="terminal" {13}
+```fish filename="Terminal" {13}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -1169,8 +1171,8 @@ Therefore, *`index.test.js`* and *`logic.test.js`*, which transitively depend on
 
 If you run Haetae again immediately,
 
-```fish filename="terminal" {12}
-$ haetae myTest
+```fish filename="Terminal" {12}
+haetae myTest
 ```
 
 This time, no test is executed, as nothing is considered changed. *`.env`* is treated as not changed, thanks to the *Record Data*.
@@ -1228,7 +1230,7 @@ We return nothing here.<br/>
 We do not calculate hash by ourselves.<br/>
 But this has the same effect as what we've done in the previous section.
 
-```fish filename="terminal" {13-16}
+```fish filename="Terminal" {13-16}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -1412,7 +1414,7 @@ export default configure({
 </TokenLinkCode>
 
 
-```fish filename="terminal" {9}
+```fish filename="Terminal" {9}
 $ haetae myGreeting
 
 ✔  success   Command myGreeting is successfully executed.
@@ -1455,7 +1457,7 @@ export default configure({
 
 By *Root Env*, it's done in a single place.
 
-```fish filename="terminal" {7}
+```fish filename="Terminal" {7}
 $ haetae myGreeting --env
 
 ✔  success   Current environment is successfully evaluated for the command myGreeting
@@ -1484,6 +1486,6 @@ haetaeConfig: await utils.hash(
 This snippet calculates a hash of the config file and its dependencies.
 For example, if you import *`a.js`* into *`haetae.config.js`*, and *`a.js`* depends on *`b.js`*,
 then the hash is calculated against the three files: *`haetae.config.js`*, *`a.js`*, and *`b.js`*.
-When hashing multiple files, a single-depth Sorted Merkle Tree is used.
+When hashing multiple files, a single-depth sorted Merkle Tree is used.
 Check out the [API docs](./apis/haetae-utils#hash) for more detail.
 If you don't import other modules in the config, this is not necessary.

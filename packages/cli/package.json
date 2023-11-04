@@ -47,7 +47,6 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "@haetae/core": "workspace:*",
     "@types/envinfo": "^7.8.1",
     "@types/lodash.isempty": "^4.4.7",
     "@types/lodash.isobject": "^3.0.7",

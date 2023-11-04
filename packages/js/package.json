@@ -37,10 +37,6 @@
     "upath": "^2.0.1",
     "yaml": "^2.1.1"
   },
-  "devDependencies": {
-    "@haetae/core": "workspace:*",
-    "@haetae/utils": "workspace:*"
-  },
   "keywords": [
     "haetae",
     "haetae-javascript",
