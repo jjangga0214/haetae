@@ -35,17 +35,13 @@ export default configure({
   commands: {
     myAwesomeCommand: {
       run: async () => {
-        const { stdout } = await $`echo hello, world!`
-        console.log(stdout)
+        await $`echo hello, world!`
       },
-      env: { /* ommitted for brevity. */ }
     },
     myAnotherCommand: {
       run: async () => {
-        const { stdout } = await $`echo hi, there!`
-        console.log(stdout)
+        await $`echo hi, there!`
       },
-      env: { /* ommitted for brevity. */ }
     },
     // ... more commands
   },
