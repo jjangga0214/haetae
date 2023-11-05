@@ -118,9 +118,6 @@ Any functions linked to from here by <PathPrinciples/> label satisfy the princip
 **1. Absolute Return Value**
 
 Returned file or directory path is always **absolute** path (NOT relative).<br/>
-This is true even when the path is not a directly returned entity, like even when it's an element of an array or object field.
-For instance, [`glob`](./haetae-utils#glob) of [`@haetae/utils{:ts}`](./haetae-utils) and [`changedFiles`](./haetae-git#changedfiles) of [`@haetae/git{:ts}`](./haetae-git)
-are such functions.
 
 <TokenLinkCode tokens={{ '.glob': './haetae-utils#glob' }}>
 ```ts
@@ -138,30 +135,16 @@ In fact, for arguments or options, relative paths would probably be more suitabl
 
 Haetae only officially uses/supports `/{:ts}` as a delimiter for a path.
 
-`/{:ts}` is traditionally used in POSIX <small>(e.g. Linux, macOS)</small>.
-However, `/{:ts}` works well on Windows in Node.js (and other languages or runtimes as well).
-Thus, Haetae does NOT officially use/support Windows legacy <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> delimiter.
+Traditionally, POSIX <small>(e.g. Linux, macOS)</small> uses `/{:ts}`, while Windows uses `\{:ts}`.
+However, `/{:ts}` works well on modern Windows with Node.js (and other languages or runtimes as well).
+Haetae does NOT officially support `\{:ts}` as path delimiter.
 
-This is a better decision for cross-platform design as well as convenience of usage and development.
+This is a better decision for convenience of usage and development.
 
 - **Return Value**: Delimiter is always `/{:ts}`.
-This is true even when the path is not a returned entity itself but a part of it, like an element of an array or a field of object.
 
-    For example,
-
-    <TokenLinkCode tokens={{ 'configure': './haetae#configure' }}>
-    ```ts
-    import { configure } from 'haetae'
-
-    const config = await configure({ storeFile: '..\..\.haetae\store.json', /* ... */ })
-    // Relative path is transformed to an absolute path.
-    // `\` is transformed to `/`.
-    console.log(config.storeFile) // => '/path/to/.haetae/store.json'
-    ```
-    </TokenLinkCode>
-
-- **Function Argument or Option**: It MAY PROBABLY work, while not guaranteed officially, even when an (part of) argument or an option's path delimiter is <code style={{'color':'var(--shiki-token-keyword)'}}>\\</code> on Windows.
-But using `/{:ts}` is always officially recommended.
+- **Function Argument or Option**: `\{:ts}` MAY PROBABLY work on Windows, but not guaranteed officially.
+`/{:ts}` is always officially recommended.
 
 ### `pkg`
 
