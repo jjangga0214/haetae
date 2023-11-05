@@ -1200,7 +1200,8 @@ export default configure({
       env: { /* ... */ },
       run: async () => {
         const changedFiles = await git.changedFiles()
-
+        const changedFilesByHash = await utils.changedFiles(['.env'])
+        changedFiles.push(...changedFilesByHash)
         const additionalGraph = await utils.graph({
           edges: [
             {
