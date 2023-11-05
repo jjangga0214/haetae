@@ -16,13 +16,13 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='./intro
 
 **Note**: This might not be exhaustive and lists only Haetae's packages.
 
-- [`@haetae/core{:ts}`](./haetae-core)
+- [`@haetae/core{:ts}`](./core)
 
 ## Dependents
 
 - [`haetae{:ts}`](./haetae)
-- [`@haetae/javascript{:ts}`](./haetae-javascript)
-- [`@haetae/git{:ts}`](./haetae-git)
+- [`@haetae/javascript{:ts}`](./javascript)
+- [`@haetae/git{:ts}`](./git)
 
 ## Installation
 
@@ -199,7 +199,7 @@ Refer to [globby v13 docs](https://github.com/sindresorhus/globby/tree/v13.1.4) 
 - `options?{:ts}` :
   - `rootDir?{:ts}` : A directory to start search.
   Its role is same as globby's `cwd` option, but make sure to use `rootDir`, not `cwd`.
-  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  <small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### <Link id="dollar" href="#dollar">`$`</Link>
 
@@ -208,7 +208,7 @@ A preconfigured Tagged Template Literal of [`execa`](https://github.com/sindreso
 The only differences from the original `execa` is these.
 
 1. [`stdio`](https://github.com/sindresorhus/execa#stdio) is preconfigured as `'inherit'`.
-1. [`cwd`](https://github.com/sindresorhus/execa#cwd-1) is preconfigured as [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname). If it's not available, `process.cwd()` is used instead.
+1. [`cwd`](https://github.com/sindresorhus/execa#cwd-1) is preconfigured as [`core.getConfigDirname(){:ts}`](./core#getconfigdirname). If it's not available, `process.cwd()` is used instead.
 
 #### Usage
 
@@ -290,7 +290,7 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
   - `algorithm?{:ts}` : An hash algorithm to use. <small>(default: `'sha256'{:ts}`)</small>
   - `rootDir?{:ts}` : A directory to start file search.
   When an element of `files{:ts}` is relative (not absolute), this value is used. Ignored otherwise.
-  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  <small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
   - `glob?{:ts}` : Whether to enable glob pattern.
   <small>(default: `true{:ts}`)</small>
 
@@ -300,7 +300,7 @@ For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.t
 
 <TokenLinkCode tokens={{
   'configure': './haetae#configure',
-  '.version': './haetae-javascript#version',
+  '.version': './javascript#version',
   }}>
 ```js filename="haetae.config.js"
 import { configure, utils, js } from 'haetae'
@@ -383,7 +383,7 @@ interface DepsGraph {
 <PathPrinciples/>
 
 A function to create a dependency graph.<br/>
-Unlike [`js.graph{:ts}`](./haetae-javascript#graph), it's not just for a specific language, but for *any* dependency graph.
+Unlike [`js.graph{:ts}`](./javascript#graph), it's not just for a specific language, but for *any* dependency graph.
 
 **Type**
 
@@ -400,7 +400,7 @@ The `dependents` and `dependencies` have to be file paths, not directories.
 Each of them supports glob pattern when `glob` is true.
 - `rootDir?{:ts}` : When an element of `dependents` and `dependencies` is given as a relative path,
 `rootDir{:ts}` is joined to transform it to an absolute path.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `glob?{:ts}` : Whether to enable glob pattern.
 <small>(default: `true{:ts}`)</small>
 
@@ -491,7 +491,7 @@ The searched result keeps the order by breath-first approach, without duplicatio
 - `entrypoint{:ts}` : An entry point to get all of whose direct and transitive dependencies.
 - `graph{:ts}` : A dependency graph. Return value of [`graph`](#graph) is proper.
 - `rootDir?{:ts}` : A directory to join with when `entrypoint` is given as a relative path.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `DependsOnOptions`
 
@@ -536,7 +536,7 @@ There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singula
 - `dependencies{:ts}` : Candidates that may be a dependency of Dependents, directly or transitively.
 - `graph{:ts}` : A dependency graph. Return value of [`graph`](#graph) is proper.
 - `rootDir?{:ts}` : A directory to join with when `dependent` or `dependencies` is given as a relative path.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `glob?{:ts}` : Whether to enable glob pattern.
 <small>(default: `true{:ts}`)</small>
 
@@ -622,13 +622,13 @@ There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singula
 - `dependencies{:ts}` : Candidates that may be a dependency of dependent, directly or transitively.
 - `graph{:ts}` : A dependency graph. Return value of [`graph`](#graph) is proper.
 - `rootDir?{:ts}` : A directory to join with when `dependents`, or `dependencies` are given as relative paths.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `glob?{:ts}` : Whether to enable glob pattern.
 <small>(default: `true{:ts}`)</small>
 
 #### Usage
 
-Basic usage is very similar to [`js.dependOn{:ts}`](./haetae-javascript#dependon),
+Basic usage is very similar to [`js.dependOn{:ts}`](./javascript#dependon),
 which is guided in the [Getting Started](../getting-started) article.
 
 ### `ChangedFilesOptions`
@@ -636,7 +636,7 @@ which is guided in the [Getting Started](../getting-started) article.
 An argument interface for [`changedFiles{:ts}`](#changedfiles).
 
 <TokenLinkCode tokens={{
-  '.HaetaeRecord': './haetae-core#haetaerecord',
+  '.HaetaeRecord': './core#haetaerecord',
  }}>
 ```ts
 interface ChangedFilesOptions {
@@ -673,7 +673,7 @@ A function to get a list of changed files by hash comparison.<br/>
 - `files{:ts}` : Files to detect if changed.
 - `options?{:ts}`
   - `rootDir?{:ts}` : When an element of `files` is given as a relative path, rootDir is used to calculate the path.
-  <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname).)</small>
+  <small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname).)</small>
   - `renew?{:ts}` : A list of files that will be renewed by their current hash.
   If some elements in the `files{:ts}` are missing in `renew{:ts}`, they are just subject
   to compare current and previous hashes to detect if changed.
@@ -690,11 +690,11 @@ A function to get a list of changed files by hash comparison.<br/>
   But if `filterByExistence` is `true{:ts}`, they aren't included.
   <small>(default: `false{:ts}`)</small>
   - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
-  If `true{:ts}`, [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata) is called internally.
-  If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata).
+  If `true{:ts}`, [`core.reserveRecordData{:ts}`](./core#reserverecorddata) is called internally.
+  If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./core#reserverecorddata).
   <small>(default: `true{:ts}`)</small>
   - `previousFiles?{:ts}` : File-hash pair dictionary that's in the previous *Record Data*.<br/>
-  <small>(default: <TokenLinkCode tokens={{'getConfig': './haetae-core#getconfig', 'RecordData': '#recorddata', 'pkg': '#pkg'}} inline>
+  <small>(default: <TokenLinkCode tokens={{'getConfig': './core#getconfig', 'RecordData': '#recorddata', 'pkg': '#pkg'}} inline>
   `(await (await getConfig()).store.getRecord<RecordData>())?.data['@haetae/utils'].files{:ts}`</TokenLinkCode>)</small>
   - `glob?{:ts}` : Whether to enable glob pattern.
   <small>(default: `true{:ts}`)</small>
@@ -717,7 +717,7 @@ Let's say your project is like this.
 
 <TokenLinkCode tokens={{
   'configure': './haetae#configure',
-  '.changedFiles': './haetae-git#changedfiles',
+  '.changedFiles': './git#changedfiles',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import { $, configure, git, utils, js } from 'haetae'
@@ -813,7 +813,7 @@ After then, you made some changes on the project.
 You modified the config file as well.
 
 <TokenLinkCode tokens={{
-  '.changedFiles': './haetae-git#changedfiles',
+  '.changedFiles': './git#changedfiles',
 }}>
 ```js filename="haetae.config.js"
 // Other content is omitted for brevity.

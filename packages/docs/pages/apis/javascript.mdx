@@ -12,8 +12,8 @@ If your project do not use javascript-related languages, you don't need this pac
 
 **Note**: This might not be exhaustive and lists only Haetae's packages.
 
-- [`@haetae/core{:ts}`](./haetae-core)
-- [`@haetae/utils{:ts}`](./haetae-utils)
+- [`@haetae/core{:ts}`](./core)
+- [`@haetae/utils{:ts}`](./utils)
 
 ## Dependents
 
@@ -132,7 +132,7 @@ It supports npm, yarn classic(v1), yarn berry(v2, v3) and pnpm.
 - `packageName{:ts}` : A package name to get the version of.
 - `options?{:ts}`
   - `options.rootDir?{:ts}` : A directory to start search.
-  This should be your project root or its inner directory. <small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+  This should be your project root or its inner directory. <small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 #### Usage
 
@@ -157,7 +157,7 @@ eslintVersion.untilPatch // '1.2.3'
 
 <TokenLinkCode tokens={{
   'configure': './haetae#configure',
-  '.hash': './haetae-utils#hash',
+  '.hash': './utils#hash',
 }}>
 ```js filename="haetae.config.js"
 import { configure, js, utils } from 'haetae'
@@ -202,7 +202,7 @@ it's not just for a specific language, but for *any* dependency graph.
 
 <TokenLinkCode tokens={{
   'GraphOptions': './GraphOptions',
-  '.DepsGraph': './haetae-utils#depsgraph'
+  '.DepsGraph': './utils#depsgraph'
 }}>
 ```ts
 (options: GraphOptions) => Promise<utils.DepsGraph>
@@ -219,13 +219,13 @@ it's not just for a specific language, but for *any* dependency graph.
 by walking up parent directories recursively.)</small>.
 - `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to use when `entrypoint` or `tsConfig` is given as relative paths.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `DepsOptions`
 
 An argument interface for [`deps`](#deps).
 
-<TokenLinkCode tokens={{'.DepsGraph': './haetae-utils#depsgraph'}}>
+<TokenLinkCode tokens={{'.DepsGraph': './utils#depsgraph'}}>
 ```ts
 interface DepsOptions {
   entrypoint: string
@@ -259,10 +259,10 @@ The searched result keeps the order by breath-first approach, without duplicatio
 by walking up parent directories recursively.)</small>.
 - `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to join with when `entrypoint` is given as a relative path.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
 This is purely additional, not an override or replacement of the source code dependency graph.
-<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 
 ### `DependsOnOptions`
 
@@ -276,7 +276,7 @@ Don't confuse!
 
 **Type**
 
-<TokenLinkCode tokens={{ '.DepsGraph': './haetae-utils#depsgraph' }}>
+<TokenLinkCode tokens={{ '.DepsGraph': './utils#depsgraph' }}>
 ```ts
 interface DependsOnOptions {
   dependent: string
@@ -326,10 +326,10 @@ There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singula
 by walking up parent directories recursively.)</small>.
 - `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to join with when `dependent`, `dependencies`, or `tsConfig` is given as a relative path.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
 This is purely additional, not an override or replacement of the source code dependency graph.
-<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 - `glob?{:ts}` : Whether to enable glob pattern.
 <small>(default: `true{:ts}`)</small>
 
@@ -365,7 +365,7 @@ Don't confuse!
 
 **Type**
 
-<TokenLinkCode tokens={{ '.DepsGraph': './haetae-utils#depsgraph' }}>
+<TokenLinkCode tokens={{ '.DepsGraph': './utils#depsgraph' }}>
 ```ts
 interface DependOnOptions {
   dependents: readonly string[]
@@ -417,14 +417,14 @@ There're [`dependOn`](#dependon) (plural) and [`dependsOn`](#dependson) (singula
 by walking up parent directories recursively.)</small>.
 - `skipNodeModules?{:ts}` : Whether to exclude dependencies in *`node_modules`*. <small>(default: `true{:ts}`)</small>.
 - `rootDir?{:ts}` : A directory to join with when `dependents`, `dependencies`, or `tsConfig` is given as relative paths.
-<small>(default: [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `additionalGraph?{:ts}` : A graph to manually specify explicit dependency relationships.
 This is purely additional, not an override or replacement of the source code dependency graph.
-<small>(default: <TokenLinkCode inline tokens={{'graph' : './haetae-utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
+<small>(default: <TokenLinkCode inline tokens={{'graph' : './utils#graph'}}>`await graph({ edges: [], rootDir }){:ts}`</TokenLinkCode>)</small>
 - `glob?{:ts}` : Whether to enable glob pattern.
 <small>(default: `true{:ts}`)</small>
 
 #### Usage
 
 Basic usage is guided in the [Getting Started](../getting-started) article.
-For example, combination with [`git.changedFiles`](./haetae-git#changedfiles) or how to utilize `additionalGraph`.
+For example, combination with [`git.changedFiles`](./git#changedfiles) or how to utilize `additionalGraph`.

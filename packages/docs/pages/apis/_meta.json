@@ -1,9 +1,9 @@
 {
   "introduction": "Introduction",
   "haetae": "haetae",
-  "haetae-core": "@haetae/core",
-  "haetae-utils": "@haetae/utils",
-  "haetae-javascript": "@haetae/javascript",
-  "haetae-git": "@haetae/git",
-  "haetae-cli": "@haetae/cli"
+  "core": "@haetae/core",
+  "utils": "@haetae/utils",
+  "javascript": "@haetae/javascript",
+  "git": "@haetae/git",
+  "cli": "@haetae/cli"
 }

@@ -15,8 +15,8 @@ If you don't use git as a version control system, you don't need this package.
 
 **Note**: This might not be exhaustive and lists only Haetae's packages.
 
-- [`@haetae/core{:ts}`](./haetae-core)
-- [`@haetae/utils{:ts}`](./haetae-utils)
+- [`@haetae/core{:ts}`](./core)
+- [`@haetae/utils{:ts}`](./utils)
 
 ## Dependents
 
@@ -184,7 +184,7 @@ A function to check whether git is installed on the system.
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute a shell command.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `InitializedOptions`
 
@@ -211,7 +211,7 @@ A function to check whether a git repository is initialized (by `git init{:sh}`)
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 ### `BranchOptions`
 
 An argument interface for [`branch{:ts}`](#branch).
@@ -237,7 +237,7 @@ A function to get the current branch name.
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `CommitOptions`
 
@@ -266,7 +266,7 @@ The return value would be the full 40-character commit hash.
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `UntrackedFilesOptions`
 
@@ -296,7 +296,7 @@ A function to get a list of [untracked files](https://stackoverflow.com/question
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `IgnoredFilesOptions`
 
@@ -326,7 +326,7 @@ A function to get a list of ignored (by .gitignore) files.<br/>
 **Options?**
 
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 
 ### `ChangedFilesOptions`
 
@@ -366,7 +366,7 @@ A function to get a list of changed files.<br/>
 - `to?{:ts}` : A commit ID as an ending point of comparison.
 <small>(default: `undefined{:ts}`)</small>
 - `rootDir?{:ts}` : A directory to execute `git`.
-<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./haetae-core#getconfigdirname))</small>
+<small>(default: Where *`.git`* resides. If not found, [`core.getConfigDirname(){:ts}`](./core#getconfigdirname))</small>
 - `includeUntracked?{:ts}` : Whether to include [untracked](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
  files in the result. If `true{:ts}`, [`untrackedFiles(){:ts}`](#untrackedfiles) is added to the result.
 <small>(default: `true{:ts}`)</small>
@@ -377,8 +377,8 @@ If `true{:ts}`, [`ignoredFiles(){:ts}`](#ignoredfiles) is added to the result.
 If you want to get removed files as well, set it `false{:ts}`.
 <small>(default: `true{:ts}`)</small>
 - `reserveRecordData?{:ts}` : Whether to reserve *Record Data*.
-If `true{:ts}`, [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata) is called internally.
-If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./haetae-core#reserverecorddata).
+If `true{:ts}`, [`core.reserveRecordData{:ts}`](./core#reserverecorddata) is called internally.
+If a function, not a boolean, is given, the function is called instead of [`core.reserveRecordData{:ts}`](./core#reserverecorddata).
 <small>(default: `true{:ts}`)</small>
 
 Note that *untracked* files <small>(usually newly added files not committed yet)</small> and *ignored* files are different.

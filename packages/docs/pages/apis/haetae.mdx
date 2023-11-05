@@ -14,8 +14,8 @@ It's intended to be used alone. Every `@haetae/*{:ts}` packages are already prei
 
 <Callout>
   **Are you developing a library (e.g. plugin) for Haetae?** <br />
-  You can use [`@haetae/core{:ts}`](./haetae-core), [`@haetae/utils{:ts}`](./haetae-utils),
-  [`@haetae/javascript{:ts}`](./haetae-javascript), [`@haetae/git{:ts}`](./haetae-git), [`@haetae/cli{:ts}`](./haetae-cli)
+  You can use [`@haetae/core{:ts}`](./core), [`@haetae/utils{:ts}`](./utils),
+  [`@haetae/javascript{:ts}`](./javascript), [`@haetae/git{:ts}`](./git), [`@haetae/cli{:ts}`](./cli)
   independently, if you depend on just partial features of some of them.
 </Callout>
 
@@ -25,11 +25,11 @@ Unlike other `@haetae/*{:ts}` packages, `haetae{:ts}` does not have `peerDepende
 
 **Note**: This might not be exhaustive and lists only Haetae's packages.
 
-- [`@haetae/core{:ts}`](./haetae-core)
-- [`@haetae/utils{:ts}`](./haetae-utils)
-- [`@haetae/javascript{:ts}`](./haetae-javascript)
-- [`@haetae/git{:ts}`](./haetae-git)
-- [`@haetae/cli{:ts}`](./haetae-cli)
+- [`@haetae/core{:ts}`](./core)
+- [`@haetae/utils{:ts}`](./utils)
+- [`@haetae/javascript{:ts}`](./javascript)
+- [`@haetae/git{:ts}`](./git)
+- [`@haetae/cli{:ts}`](./cli)
 
 ## Installation
 
@@ -53,11 +53,11 @@ The package `haetae{:ts}` exports other `@haetae/*{:ts}` packages all at once. <
 Its source code is _roughly_ like the snippet below.
 
 <TokenLinkCode tokens={{
-  "'@haetae/core'": './haetae-core',
-  "'@haetae/utils'": './haetae-utils',
-  "'@haetae/javascript'": './haetae-javascript',
-  "'@haetae/git'": './haetae-git',
-  "'@haetae/cli'": './haetae-cli',
+  "'@haetae/core'": './core',
+  "'@haetae/utils'": './utils',
+  "'@haetae/javascript'": './javascript',
+  "'@haetae/git'": './git',
+  "'@haetae/cli'": './cli',
   }}>
 ```ts
 export * as core from '@haetae/core'
@@ -87,7 +87,7 @@ export default configure({
 ## CLI
 
 `haetae{:ts}` is CLI as well as API.<br/>
-`haetae{:ts}` provides exactly same CLI features as [`@haetae/cli{:ts}`](./haetae-cli).
+`haetae{:ts}` provides exactly same CLI features as [`@haetae/cli{:ts}`](./cli).
 
 **For detailed usage and description as CLI, refer to [CLI](../cli).**
 
@@ -99,31 +99,31 @@ Refer to [introduction#pkg](./introduction#pkg).
 
 ### <Link id="dollar" href="#dollar">`$`</Link>
 
-This is identical to [`utils.${:ts}`](./haetae-utils#dollar).
+This is identical to [`utils.${:ts}`](./utils#dollar).
 
 ### `configure`
 
-This is identical to [`core.configure{:ts}`](./haetae-core#configure).
+This is identical to [`core.configure{:ts}`](./core#configure).
 
 ### `core`
 
-Refer to [`@haetae/core{:ts}`](./haetae-core).
+Refer to [`@haetae/core{:ts}`](./core).
 
 ### `utils`
 
-Refer to [`@haetae/utils{:ts}`](./haetae-utils).
+Refer to [`@haetae/utils{:ts}`](./utils).
 
 ### `js`
 
-Refer to [`@haetae/javascript{:ts}`](./haetae-javascript).
+Refer to [`@haetae/javascript{:ts}`](./javascript).
 
 ### `git`
 
-Refer to [`@haetae/git{:ts}`](./haetae-git).
+Refer to [`@haetae/git{:ts}`](./git).
 
 ### `cli`
 
-The exported `cli{:ts}` is API of [`@haetae/cli{:ts}`](./haetae-cli).<br/>
+The exported `cli{:ts}` is API of [`@haetae/cli{:ts}`](./cli).<br/>
 You probably don't need it.<br/>
 Because, in general, the CLI features are used as CLI, not as API.<br/>
-If you really need the API, refer to [`@haetae/cli{:ts}`](./haetae-cli).<br/>
+If you really need the API, refer to [`@haetae/cli{:ts}`](./cli).<br/>

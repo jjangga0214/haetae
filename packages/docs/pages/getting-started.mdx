@@ -94,9 +94,9 @@ pnpm ht --help
 
 <Callout>
   **Are you developing a library (e.g. plugin) for Haetae?** <br/>
-  You can depend on [`@haetae/core{:ts}`](apis/haetae-core), [`@haetae/utils{:ts}`](apis/haetae-utils),
-  [`@haetae/git{:ts}`](apis/haetae-git), [`@haetae/javascript{:ts}`](apis/haetae-javascript),
-  [`@haetae/cli{:ts}`](apis/haetae-cli) independently. Note that the package [`haetae{:ts}`](apis/haetae)
+  You can depend on [`@haetae/core{:ts}`](apis/core), [`@haetae/utils{:ts}`](apis/utils),
+  [`@haetae/git{:ts}`](apis/git), [`@haetae/javascript{:ts}`](apis/javascript),
+  [`@haetae/cli{:ts}`](apis/cli) independently. Note that the package [`haetae{:ts}`](apis/haetae)
   includes all of them.
 </Callout>
 
@@ -157,7 +157,7 @@ my-calculator
 ```
 
 Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
-It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/haetae-core), which is an internal dependency of `haetae`.
+It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/core), which is an internal dependency of `haetae`.
 
 <PkgManagerChildren>
 ```bash filename="Terminal"
@@ -207,7 +207,7 @@ my-calculator
 ```
 
 Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
-It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/haetae-core), which is an internal dependency of `haetae`.
+It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/core), which is an internal dependency of `haetae`.
 
 <PkgManagerChildren>
 ```bash filename="Terminal"
@@ -259,8 +259,8 @@ We can write down the config file like this.<br/>
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.changedFiles': './apis/haetae-git#changedfiles',
-  '.dependOn': './apis/haetae-javascript#dependon',
+  '.changedFiles': './apis/git#changedfiles',
+  '.dependOn': './apis/javascript#dependon',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import { $, configure, git, utils, js } from 'haetae'
@@ -345,11 +345,11 @@ It will print the result like this.
 ```
 
 As this is the first time of running the command `haetae myTest`,
-[`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) in the config returns every file tracked by git in your project as changed files
-<small>(There are [options](./apis/haetae-git#changedfiles). Check out API docs after reading this article)</small>.
+[`git.changedFiles(){:ts}`](./apis/git#changedfiles) in the config returns every file tracked by git in your project as changed files
+<small>(There are [options](./apis/git#changedfiles). Check out API docs after reading this article)</small>.
 This behavior results in running all of the tests.<br/>
 
-[`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) understands direct or transitive dependencies between files,
+[`js.dependOn(){:ts}`](./apis/javascript#dependon) understands direct or transitive dependencies between files,
  by parsing `import` or `require()`, etc.
 So it can be used to detect which test files (transitively) depend on at least one of the changed files.<br/>
 
@@ -358,16 +358,16 @@ So it can be used to detect which test files (transitively) depend on at least o
 ES6+, CJS, TypeScript, JSX, Webpack, CSS Preprocessors(Sass, Scss, Stylus, Less), PostCSS are supported.
 For node, [Subpath Imports](https://nodejs.org/api/packages.html#subpath-imports) and [Subpath Exports](https://nodejs.org/api/packages.html#subpath-exports) are also supported.
 For TypeScript, [Path Mapping](https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping) is also supported.
-If you use Typescript or Webpack, check out [the API docs](./apis/haetae-javascript#dependon) and pass additional options like `options.tsConfig{:ts}` and/or `options.webpackConfig{:ts}`.
+If you use Typescript or Webpack, check out [the API docs](./apis/javascript#dependon) and pass additional options like `options.tsConfig{:ts}` and/or `options.webpackConfig{:ts}`.
 </Callout>
 
 <Callout>
 **`js.dependOn`** vs **`js.dependsOn`** vs **`utils.dependOn`** vs **`utils.dependsOn`** <br/>
 There are severel APIs of simliar purposes.
-- [`js.dependOn{:ts}`](./apis/haetae-javascript#dependon) : For multiple dependents. On js ecosystem.
-- [`js.dependsOn{:ts}`](./apis/haetae-javascript#dependson) : For a single dependent. On js ecosystem.
-- [`utils.dependOn{:ts}`](./apis/haetae-utils#dependon) : For multiple dependents. General-purpose.
-- [`utils.dependsOn{:ts}`](./apis/haetae-utils#dependson) : For a single dependent. General-purpose.
+- [`js.dependOn{:ts}`](./apis/javascript#dependon) : For multiple dependents. On js ecosystem.
+- [`js.dependsOn{:ts}`](./apis/javascript#dependson) : For a single dependent. On js ecosystem.
+- [`utils.dependOn{:ts}`](./apis/utils#dependon) : For multiple dependents. General-purpose.
+- [`utils.dependsOn{:ts}`](./apis/utils#dependson) : For a single dependent. General-purpose.
 
 Check out the API docs later for more detail.
 </Callout>
@@ -404,11 +404,11 @@ haetae myTest
 ```
 
 This time, only *`exponent.test.js`* and *`multiply.test.js`* are executed.
-That's because [`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) automatically
+That's because [`git.changedFiles(){:ts}`](./apis/git#changedfiles) automatically
 returns only the files changed since the last successful execution of Haetae.
 
 For another example, if you modify `add.js`, then all tests will be executed,
-because [`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) **detects dependency transitively**.
+because [`js.dependOn(){:ts}`](./apis/javascript#dependon) **detects dependency transitively**.
 
 If you modify `add.test.js`, only the test file itself `add.test.js` will be executed,
 as **every file is treated as depending on itself.**
@@ -502,9 +502,9 @@ For instance, let's change the config to this.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   'pkg': './apis/haetae#pkg',
-  '.hash': './apis/haetae-utils#hash',
-  '.version': './apis/haetae-javascript#version',
-  '.branch': './apis/haetae-git#branch',
+  '.hash': './apis/utils#hash',
+  '.version': './apis/javascript#version',
+  '.branch': './apis/git#branch',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import assert from 'node:assert/strict' // `node:` protocol is optional
@@ -563,7 +563,7 @@ $ haetae myTest --env
 
 ## Additional dependency graph
 
-Until now, [`js.dependOn(){:ts}`](./apis/haetae-javascript#dependon) is used for automatic detection of dependency graph.
+Until now, [`js.dependOn(){:ts}`](./apis/javascript#dependon) is used for automatic detection of dependency graph.
 But sometimes, you need to specify some dependencies manually.<br/>
 
 ### Simple integration test
@@ -599,9 +599,9 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.changedFiles': './apis/haetae-git#changedfiles',
-  '.graph': './apis/haetae-utils#graph',
-  '.dependOn': './apis/haetae-javascript#dependon',
+  '.changedFiles': './apis/git#changedfiles',
+  '.graph': './apis/utils#graph',
+  '.dependOn': './apis/javascript#dependon',
 }}>
 ```js filename="haetae.config.js" {10-17,21}
 import { $, configure, git, utils, js } from 'haetae'
@@ -647,7 +647,7 @@ Unlike this general and natural flow, if you decide that *`index.test.js`* shoul
 you can change the config.
 
 <TokenLinkCode tokens={{
-  '.graph': './apis/haetae-utils#graph',
+  '.graph': './apis/utils#graph',
 }}>
 ```js filename="haetae.config.js" {5,}
 // Other content is omitted for brevity
@@ -671,7 +671,7 @@ Because, otherwise, you should update the config again when the relation is chan
 The effect of `addtionalGraph` is different from `env`.
 `env` is like defining parallel universes, where history is recorded separately.
 
-If you place *`data.sql`* in `env` (e.g. with [`utils.hash(){:ts}`](./apis/haetae-utils#hash)) instead of `additonalGraph`,
+If you place *`data.sql`* in `env` (e.g. with [`utils.hash(){:ts}`](./apis/utils#hash)) instead of `additonalGraph`,
 every test file will be executed when *`data.sql`* changes,
 unless the change is a rollback to past content which can be matched with a past value of `env` logged in the store file (*`.haetae/store.json`*).
 
@@ -694,7 +694,7 @@ then `env` is a good place.
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
-  '.hash': './apis/haetae-utils#hash',
+  '.hash': './apis/utils#hash',
 }}>
 ```js filename="haetae.config.js" {7}
 import { $, configure, git, utils, js } from 'haetae'
@@ -717,7 +717,7 @@ export default configure({
 You can specify the dependency graph from a chunk of files to another chunk.
 
 <TokenLinkCode tokens={{
-  '.graph': './apis/haetae-utils#graph',
+  '.graph': './apis/utils#graph',
 }}>
 ```js filename="haetae.config.js"
 // Other content is omitted for brevity
@@ -745,7 +745,7 @@ You don't have to specify a dependent's dependencies all at once.
 It can be done in a distributed manner.
 
 <TokenLinkCode tokens={{
-  '.graph': './apis/haetae-utils#graph',
+  '.graph': './apis/utils#graph',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 // Other content is omitted for brevity
@@ -786,7 +786,7 @@ it's fully up to you to decide whether to define it.
 Haetae does not prevent you from defining it.
 
 <TokenLinkCode tokens={{
-  '.graph': './apis/haetae-utils#graph',
+  '.graph': './apis/utils#graph',
 }}>
 ```js filename="haetae.config.js"
 // Other content is omitted for brevity
@@ -820,16 +820,16 @@ On the other hand, *`utils.test.js`* is executed only when *`utils.js`* or *`uti
 <Callout>
   **More APIs not covered** <br/>
   There're more APIs related to dependency graph, like
-  [`js.graph{:ts}`](./apis/haetae-javascript#graph),
-  [`js.deps{:ts}`](./apis/haetae-javascript#deps),
-  [`utils.deps{:ts}`](./apis/haetae-utils#deps),
-  [`utils.mergeGraph{:ts}`](./apis/haetae-utils#mergegraph), etc.
+  [`js.graph{:ts}`](./apis/javascript#graph),
+  [`js.deps{:ts}`](./apis/javascript#deps),
+  [`utils.deps{:ts}`](./apis/utils#deps),
+  [`utils.mergeGraph{:ts}`](./apis/utils#mergegraph), etc.
   This article doesn't cover them all. Check out the API docs for more detail.
 </Callout>
 
 ## Record Data
 
-Haetae has a concept of *'Record'* (type: [`core.HaetaeRecord`](./apis/haetae-core#haetaerecord))
+Haetae has a concept of *'Record'* (type: [`core.HaetaeRecord`](./apis/core#haetaerecord))
 and *'Record Data'* (type: `core.HaetaeRecord.data{:ts}`).
 
 In the previous sections, we've already seen terminal outputs like this.
@@ -954,13 +954,13 @@ For example, `git` also uses **SHA-1** as a commit ID.
 When your *Env* or *Record Data* contains a confidential field and you're worrying what if the store is leaked,
 you can preprocess secret fields with a stronger cryptographic hash algorithm,
 like **SHA-256** or **SHA-512**.
-The practical guide with [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is explained just in the next section.
+The practical guide with [`utils.hash(){:ts}`](./apis/utils#hash) is explained just in the next section.
 </Callout>
 
 <Callout>
-**`recordRemoval.leaveOnlyLastestPerEnv` of [`localFileStore`](./apis/haetae-core#localfilestore)** <br/>
-By default, you're using [`localFileStore`](./apis/haetae-core#localfilestore) as a *'Store Connector'*.
-[`localFileStore`](./apis/haetae-core#localfilestore) stores records into a file (*`.haetae/store.json`*).
+**`recordRemoval.leaveOnlyLastestPerEnv` of [`localFileStore`](./apis/core#localfilestore)** <br/>
+By default, you're using [`localFileStore`](./apis/core#localfilestore) as a *'Store Connector'*.
+[`localFileStore`](./apis/core#localfilestore) stores records into a file (*`.haetae/store.json`*).
 The option `recordRemoval.leaveOnlyLastestPerEnv{:ts}` is `true{:ts}` by default.
 So only the last records per `env` exist in the store file.
 This is useful when you only depend on the latest *Records*.
@@ -1033,9 +1033,9 @@ Let Haetae think *`config.js`* depends on *`.env`*.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.changedFiles': './apis/haetae-git#changedfiles',
-  '.graph': './apis/haetae-utils#graph',
-  '.dependOn': './apis/haetae-javascript#dependon',
+  '.changedFiles': './apis/git#changedfiles',
+  '.graph': './apis/utils#graph',
+  '.dependOn': './apis/javascript#dependon',
 }}>
 ```js filename="haetae.config.js" {12-13,}
 import { $, configure, git, utils, js } from 'haetae'
@@ -1074,7 +1074,7 @@ Then the implicit dependency graph becomes explicit.
 <Image src="/getting-started/dependency-graph-with-dotenv-focus.svg" alt="Dependency graph with .env"/>
 
 But that's not enough, because *`.env`* is ignored by git.
-[`git.changedFiles(){:ts}`](./apis/haetae-git#changedfiles) cannot detect if *`.env`* changed or not.
+[`git.changedFiles(){:ts}`](./apis/git#changedfiles) cannot detect if *`.env`* changed or not.
 
 Let's use *'Record Data'* to solve this problem.
 Add these into the config file like this.
@@ -1082,11 +1082,11 @@ Add these into the config file like this.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.changedFiles': './apis/haetae-git#changedfiles',
-  '.getRecord': './apis/haetae-core#getrecord',
-  '.graph': './apis/haetae-utils#graph',
-  '.dependOn': './apis/haetae-javascript#dependon',
-  '.hash': './apis/haetae-utils#hash',
+  '.changedFiles': './apis/git#changedfiles',
+  '.getRecord': './apis/core#getrecord',
+  '.graph': './apis/utils#graph',
+  '.dependOn': './apis/javascript#dependon',
+  '.hash': './apis/utils#hash',
 }}>
 ```js filename="haetae.config.js" {7,9-13,31-33}
 import { $, configure, git, utils, js } from 'haetae'
@@ -1153,7 +1153,7 @@ The value we returned from `myTest.run{:ts}` is recorded in the store file, as p
 
 <Callout>
   **Hash confidential** <br/>
-  [`utils.hash(){:ts}`](./apis/haetae-utils#hash) is good for secrets like a dotenv file.
+  [`utils.hash(){:ts}`](./apis/utils#hash) is good for secrets like a dotenv file.
   By default, it hashes by SHA-256, and you can simply change the cryptographic hash algorithm by its options, like to SHA-512 for example.
   Thus, you do not need to worry about if the store file is leaked.
 </Callout>
@@ -1187,9 +1187,9 @@ We can enhance the workflow further.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.glob': './apis/haetae-utils#glob',
-  '.graph': './apis/haetae-utils#graph',
-  '.dependOn': './apis/haetae-javascript#dependon',
+  '.glob': './apis/utils#glob',
+  '.graph': './apis/utils#graph',
+  '.dependOn': './apis/javascript#dependon',
 }}>
 ```js filename="haetae.config.js" {9-10,28}
 import { $, configure, git, utils, js } from 'haetae'
@@ -1250,16 +1250,16 @@ $ haetae myTest
 ```
 
 You can see the hash of *`.env`* is recorded.
-[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) automatically writes hash in *Record Data*,
+[`utils.changedFiles{:ts}`](./apis/utils#changedfiles) automatically writes hash in *Record Data*,
 and compares the current hash with the previous one.
 
 How is this possible?
 There's a concept of *Reseved Record Data*.
-If you call [`core.reserveRecordData{:ts}`](./apis/haetae-core#reserverecorddata),
+If you call [`core.reserveRecordData{:ts}`](./apis/core#reserverecorddata),
 you can 'reserve' *Record Data* without directly returning custom *Record Data* from the command's `run` function.
-[`git.changedFiles{:ts}`](./apis/haetae-git#changedfiles)
-and [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles)
-call [`core.reserveRecordData{:ts}`](./apis/haetae-core#reserverecorddata) internally.
+[`git.changedFiles{:ts}`](./apis/git#changedfiles)
+and [`utils.changedFiles{:ts}`](./apis/utils#changedfiles)
+call [`core.reserveRecordData{:ts}`](./apis/core#reserverecorddata) internally.
 
 This mechanism can be especially useful for sharable generic features, like a 3rd-party library for Haetae.
 For that, it's important to avoid naming collision.
@@ -1269,11 +1269,11 @@ So Haetae uses **a package name as a namespace by convention.**
 
 <Callout>
 **Multiple Reserved Record Data** <br/>
-All *Reserved Record Data* are saved in the list [`reservedRecordDataList`](./apis/haetae-core#reservedrecorddatalist).
+All *Reserved Record Data* are saved in the list [`reservedRecordDataList`](./apis/core#reservedrecorddatalist).
 The list is to be merged by [`deepmerge`](https://www.npmjs.com/package/deepmerge).
 </Callout>
 
-[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) is more useful for multiple files.
+[`utils.changedFiles{:ts}`](./apis/utils#changedfiles) is more useful for multiple files.
 Let's say you have multiple dotenv files per environment, unlike the previous assumption.
 For example, *`.env.local`*, *`.env.development`*, and *`.env.staging`* are targets to test.
 Now, *`config.js`* reads *`.env.${process.env.ENV}{:ts}`*,
@@ -1284,8 +1284,8 @@ Then we can modify the config file like this.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
-  '.graph': './apis/haetae-utils#graph',
-  '.dependOn': './apis/haetae-javascript#dependon',
+  '.graph': './apis/utils#graph',
+  '.dependOn': './apis/javascript#dependon',
 }}>
 ```js filename="haetae.config.js" {9-14,20} showLineNumbers
 import { $, configure, git, utils, js } from 'haetae'
@@ -1327,7 +1327,7 @@ export default configure({
 ```
 </TokenLinkCode>
 
-[`renew`](./apis/haetae-utils#changedfiles) is a list of files (or glob pattern)
+[`renew`](./apis/utils#changedfiles) is a list of files (or glob pattern)
 that will be renewed (if changed) by their current hash.
 By default, `renew` is equal to all files(`['env.*']{:ts}`) we gave as the argument.
 In our config, by limiting it to `.env.${process.env.ENV}{:ts}`, you only renew the single dotenv file.
@@ -1343,14 +1343,14 @@ This behavior can be good for our test in many scenarios.
 
 For instance, you may modify *`.env.development`* when `$ENV` is `'local'`.
 As it's not in `renew` list, the hash of *`.env.development`* is not updated.
-When later `$ENV` becomes `'development'`, [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles)
+When later `$ENV` becomes `'development'`, [`utils.changedFiles{:ts}`](./apis/utils#changedfiles)
 would still think *`.env.development`* is a changed file,
 as the current hash and previously recorded hash are different.
 This makes sure test files are to be executed when `$ENV` becomes `'development'`.
-**[`renew`](./apis/haetae-utils#changedfiles) exists for the discrepancy between
+**[`renew`](./apis/utils#changedfiles) exists for the discrepancy between
 when the physical change actually happens and when the detection of the change is needed.**
 
-[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) has many more options,
+[`utils.changedFiles{:ts}`](./apis/utils#changedfiles) has many more options,
 and acts in a sophisticated way.
 
 For example, by an option `keepRemovedFiles`, which is not introduced above,
@@ -1361,15 +1361,15 @@ while it might have access to only *`.env.staging`* at another time.
 And you may still want the incremental history not separated but shared between the two cases.
 That's where `keepRemovedFiles` comes in.
 
-[`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles) is not covered thoroughly here.
+[`utils.changedFiles{:ts}`](./apis/utils#changedfiles) is not covered thoroughly here.
 Check out the API docs for more detail.
 
-There's one more thing to take care of [`utils.changedFiles{:ts}`](./apis/haetae-utils#changedfiles).
+There's one more thing to take care of [`utils.changedFiles{:ts}`](./apis/utils#changedfiles).
 You should NOT give a dynamic files argument to it.
 Otherwise, a file would be treated as changed every time the dynamic argument changes.
 
 <TokenLinkCode tokens={{
-  '.changedFiles': './apis/haetae-utils#changedfiles',
+  '.changedFiles': './apis/utils#changedfiles',
 }}>
 ```js filename="haetae.config.js" {9-13,19} showLineNumbers
 // Other content is omitted for brevity
@@ -1387,15 +1387,15 @@ Therefore you should list all of the candidates, like `['.env.*']{:ts}`.
 
 ## Root Env and Root Record Data
 
-Haetae has a concept of *'Root Env'* (type: [`core.RootEnv{:ts}`](./apis/haetae-core#rootenv))
-and *'Root Record Data'* (type: [`core.RootRecordData{:ts}`](./apis/haetae-core#rootrecorddata)).
+Haetae has a concept of *'Root Env'* (type: [`core.RootEnv{:ts}`](./apis/core#rootenv))
+and *'Root Record Data'* (type: [`core.RootRecordData{:ts}`](./apis/core#rootrecorddata)).
 They are [decorater](https://en.wikipedia.org/wiki/Decorator_pattern)-like transformers
 for the return value of `env` and `run` of every command.
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
-  '.hash': './apis/haetae-utils#hash',
-  '.deps': './apis/haetae-javascript#deps',
+  '.hash': './apis/utils#hash',
+  '.deps': './apis/javascript#deps',
 }}>
 ```js filename="haetae.config.js" {4-6, 9}
 import { $, configure, git, utils, js } from 'haetae'
@@ -1431,7 +1431,7 @@ You may want the config file's hash to be automatically recorded into every comm
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
-  '.hash': './apis/haetae-utils#hash',
+  '.hash': './apis/utils#hash',
 }}>
 ```js filename="haetae.config.js" {5-9, 13}
 import * as url from 'node:url'
@@ -1469,11 +1469,11 @@ $ haetae myGreeting --env
 ```
 
 By the way, you can go even thoroughly.
-[`js.deps{:ts}`](./apis/haetae-javascript#deps) lists every direct and transitive dependency.
+[`js.deps{:ts}`](./apis/javascript#deps) lists every direct and transitive dependency.
 
 <TokenLinkCode tokens={{
-  '.hash': './apis/haetae-utils#hash',
-  '.deps': './apis/haetae-javascript#deps',
+  '.hash': './apis/utils#hash',
+  '.deps': './apis/javascript#deps',
 }}>
 ```js filename="haetae.config.js" {3}
 // Other content is omitted for brevity
@@ -1487,5 +1487,5 @@ This snippet calculates a hash of the config file and its dependencies.
 For example, if you import *`a.js`* into *`haetae.config.js`*, and *`a.js`* depends on *`b.js`*,
 then the hash is calculated against the three files: *`haetae.config.js`*, *`a.js`*, and *`b.js`*.
 When hashing multiple files, a single-depth sorted Merkle Tree is used.
-Check out the [API docs](./apis/haetae-utils#hash) for more detail.
+Check out the [API docs](./apis/utils#hash) for more detail.
 If you don't import other modules in the config, this is not necessary.

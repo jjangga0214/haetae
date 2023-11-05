@@ -13,7 +13,7 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='#path-p
 ## Internal `dependencies` graph
 
 The package [`haetae{:ts}`](./haetae) is composed of multiple internal packages.<br/>
-It depends on [`@haetae/core{:ts}`](./haetae-utils), [`@haetae/utils{:ts}`](./haetae-utils), ... and so on.
+It depends on [`@haetae/core{:ts}`](./utils), [`@haetae/utils{:ts}`](./utils), ... and so on.
 
 <Image src="./intro/haetae-deps-graph.svg" alt="Dependeny graph of haetae's internal packages"/>
 
@@ -48,7 +48,7 @@ interface Rec {
 ### Memoization
 
 [Memoization](https://en.wikipedia.org/wiki/Memoization) is a technique returning the cached result.
-Some functions (e.g. [`getConfig`](./haetae-core#getconfig), [`getStore`](./haetae-core#getstore)) are memoized.
+Some functions (e.g. [`getConfig`](./core#getconfig), [`getStore`](./core#getstore)) are memoized.
 The cache only exists in the same process's memory and is cleared when the process is terminated.
 
 <Callout>
@@ -60,7 +60,7 @@ Any functions linked to from here by <Memoized/> label satisfy the principles be
 #### Cache hit and clear
 
 To clear the memoization cache, you can call `<function>.clear(){:ts}`.
-For example, [`core.getConfig{:ts}`](./haetae-core#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
+For example, [`core.getConfig{:ts}`](./core#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
 
 ```ts
 import { getConfig } from '@haetae/core'
@@ -119,7 +119,7 @@ Any functions linked to from here by <PathPrinciples/> label satisfy the princip
 
 Returned file or directory path is always **absolute** path (NOT relative).<br/>
 
-<TokenLinkCode tokens={{ '.glob': './haetae-utils#glob' }}>
+<TokenLinkCode tokens={{ '.glob': './utils#glob' }}>
 ```ts
 import { utils } from 'haetae'
 
