@@ -1,4 +1,5 @@
 import { Callout } from 'nextra-theme-docs'
+import Image from '../../components/Image';
 import TokenLinkCode from '../../components/TokenLinkCode'
 import Chip from '../../components/Chip'
 
@@ -8,6 +9,20 @@ export const PathPrinciples = () => (<Chip label='Path Principles' href='#path-p
 # Introduction
 
 "Haetae" represents its packages, `haetae{:ts}` and `@haetae/*{:ts}`.
+
+## Internal `dependencies` graph
+
+The package [`haetae{:ts}`](./haetae) is composed of multiple internal packages.<br/>
+It depends on [`@haetae/core{:ts}`](./haetae-utils), [`@haetae/utils{:ts}`](./haetae-utils), ... and so on.
+
+<Image src="./intro/haetae-deps-graph.svg" alt="Dependeny graph of haetae's internal packages"/>
+
+## Internal `peerDependencies` graph
+
+If you want to use only partial features of Haetae, you can choose the packages you need.<br/>
+Keep in mind that you have to satisfy the semver of `peerDependencies`.
+
+<Image src="./intro/haetae-peerDeps-graph.svg" alt="PeerDependeny graph of haetae's internal packages"/>
 
 ## API
 
@@ -173,7 +188,7 @@ pkg.version.untilPatch // '1.2.3'
 
 <TokenLinkCode tokens={{ 'configure': './haetae#configure' }}>
 ```js filename="haetae.config.js"
-import { configure, pkg } from 'haetae'
+import { configure, pkg, git, utils } from 'haetae'
 
 export default configure({
   // Other options are omitted for brevity.
@@ -183,7 +198,11 @@ export default configure({
         // Different OS are to be treated as different environments.
         os: process.platform
         // Different major versions of `haetae` as well.
-        haetae: pkg.version.major
+        haetae: pkg.version.major,
+        // Or sub-features of `haetae` as well.
+        haetaeGit: git.pkg.version.major,
+        haetaeUtils: utils.pkg.version.major,
+        // ...
       },
       run: () => { /* ... */ }
     }
