@@ -1,4 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "references": [{ "path": "../../packages/haetae/tsconfig.build.json" }]
-}
