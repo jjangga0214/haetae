@@ -984,14 +984,14 @@ The practical guide with [`utils.hash(){:ts}`](./apis/utils#hash) is explained j
 </Callout>
 
 <Callout>
-**`recordRemoval.leaveOnlyLastestPerEnv` of [`localFileStore`](./apis/core#localfilestore)** <br/>
+**`recordRemoval.keepOnlyLatest` of [`LocalFileStore`](./apis/core#localfilestore)** <br/>
 By default, you're using [`localFileStore`](./apis/core#localfilestore) as a *'Store Connector'*.
-[`localFileStore`](./apis/core#localfilestore) stores records into a file (*`.haetae/store.json`*).
-The option `recordRemoval.leaveOnlyLastestPerEnv{:ts}` is `true{:ts}` by default.
-So only the last records per `env` exist in the store file.
-This is useful when you only depend on the latest *Records*.
+[`localFileStore`](./apis/core#localfilestore) stores records into the local file *`.haetae/store.json`*.
+The option `recordRemoval.keepOnlyLatest{:ts}` is `true{:ts}` by default.
+So only the single lastest *Record*s per *Env* per *Command* exist in the store file.
+This is sensible when you only need the latest *Record*.
 To utilize further past *Records*, you can set the option `false{:ts}`.
-Changing or configuring *'Store Connector'* is guided later.
+Changing or configuring *'Store Connector'* is guided from the [Custom Store](#custom-store) section.
 </Callout>
 
 5 Records are found in total.
@@ -1606,7 +1606,7 @@ export default configure({
     // You can pass custom `LocalFileStoreOptions`
     filename: '.haetae/store.json'
     recordRemoval: {
-      leaveOnlyLastestPerEnv: true,
+      keepOnlyLatest: true,
       // and more ...
     }
   ),

@@ -564,7 +564,7 @@ export interface LocalFileStoreOptions {
     age?: number | string
     count?: number
     // countPerEnv?: number // TODO: Implement this
-    leaveOnlyLastestPerEnv?: boolean
+    keepOnlyLatest?: boolean
   }
 }
 
@@ -574,7 +574,7 @@ export function localFileStore({
     age = Number.POSITIVE_INFINITY,
     // countPerEnv = Number.POSITIVE_INFINITY, // TODO: Implement this
     count = Number.POSITIVE_INFINITY,
-    leaveOnlyLastestPerEnv = true,
+    keepOnlyLatest = true,
   } = {},
   filename = '.haetae/store.json',
 }: LocalFileStoreOptions = {}): LocalFileStoreConnector {
@@ -627,7 +627,7 @@ export function localFileStore({
         draft.specVersion = localFileStoreSpecVersion
         draft.commands = draft.commands || {}
         draft.commands[command] = draft.commands[command] || []
-        if (leaveOnlyLastestPerEnv) {
+        if (keepOnlyLatest) {
           draft.commands[command] = draft.commands[command].filter(
             // remove old record with same env. So there's only one record left for each env.
             (oldRecord) => record.envHash !== oldRecord.envHash,
@@ -639,7 +639,7 @@ export function localFileStore({
         // @ts-ignore
         draft.commands[command] = draft.commands[command]
           .filter(
-            (r) => !leaveOnlyLastestPerEnv || r.envHash !== record.envHash,
+            (r) => !keepOnlyLatest || r.envHash !== record.envHash,
           )
           .filter(
             (r) => Date.now() - r.time < this.localFileStore.recordRemoval.age,

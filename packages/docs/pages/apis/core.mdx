@@ -795,7 +795,7 @@ interface LocalFileStoreOptions {
   recordRemoval?: {
     age?: number | string
     count?: number
-    leaveOnlyLastestPerEnv?: boolean
+    keepOnlyLatest?: boolean
   }
 }
 ```
@@ -824,7 +824,7 @@ Records whose age is older than this value are to be removed when calling [`addR
 When the number of records becomes larger than this value, old records are removed to satisfy the threshold
 when calling [`addRecord`](#addrecord). This task is executed after `recordRemoval.age{:ts}` is used.
 <small>(default: `Number.POSITIVE_INFINITY{:ts}`) </small>
-- `recordRemoval.leaveOnlyLastestPerEnv?{:ts}` : If `true{:ts}`, only the lastet records per `env` exist in the store file.
+- `recordRemoval.keepOnlyLatest?{:ts}` : If `true{:ts}`, only the latest records per `env` exist in the store file.
 This is useful if you only depend on the latest record per `env`.
 <small>(default: `true{:ts}`) </small>
 
