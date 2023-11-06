@@ -1,4 +1,4 @@
-import { t } from 'nextra/dist/types-fa5ec8b0'
+import { s, t } from 'nextra/dist/types-fa5ec8b0'
 import { useRef, useEffect } from 'react'
 
 interface Children {
@@ -37,18 +37,29 @@ export default function TokenLinkCode({
     const allTokenElements = container?.querySelectorAll('code > .line > span')
 
     for (const element of allTokenElements || []) {
-      const textContent = element?.textContent?.trim()
-      const link = tokenLinkMap[textContent as string]
-      if (link) {
-        let textContent: string | undefined | null = element?.textContent
-        if (!textContent) {
-          // eslint-disable-next-line no-continue
-          continue
-        }
-        let prefix = ''
+      let textContent: string | undefined | null = element?.textContent
+      if (!textContent) {
+        // eslint-disable-next-line no-continue
+        continue
+      }
+      let prefix = ''
+      if (textContent.includes('stdio')) {
+        console.log(textContent)
+      }
+      const lTrimmed = textContent.trimStart()
+      prefix += ' '.repeat(textContent.length - lTrimmed.length)
+      textContent = lTrimmed
+      if (textContent?.startsWith('{')) {
+        prefix += '{'
+        textContent = textContent?.slice('{'.length)
+
         const lTrimmed = textContent.trimStart()
         prefix += ' '.repeat(textContent.length - lTrimmed.length)
         textContent = lTrimmed
+      }
+
+      const link = tokenLinkMap[textContent as string]
+      if (link) {
         if (textContent?.startsWith('.')) {
           prefix += '.'
           textContent = textContent?.slice('.'.length)
