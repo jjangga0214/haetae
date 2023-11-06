@@ -147,6 +147,72 @@ importers:
         specifier: ^7.5.1
         version: 7.5.1
 
+  examples/cjs-js:
+    devDependencies:
+      haetae:
+        specifier: workspace:*
+        version: link:../../packages/haetae
+
+  examples/cjs-ts:
+    devDependencies:
+      '@types/node':
+        specifier: ^18.6.0
+        version: 18.6.0
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      haetae:
+        specifier: workspace:*
+        version: link:../../packages/haetae
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@swc/core@1.2.125)(@types/node@18.6.0)(typescript@4.8.2)
+      typescript:
+        specifier: ^4.8.2
+        version: 4.8.2
+
+  examples/cjs-ts-2:
+    devDependencies:
+      '@types/node':
+        specifier: ^18.6.0
+        version: 18.6.0
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      haetae:
+        specifier: workspace:*
+        version: link:../../packages/haetae
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@swc/core@1.2.125)(@types/node@18.6.0)(typescript@4.8.2)
+      typescript:
+        specifier: ^4.8.2
+        version: 4.8.2
+
+  examples/esm-js:
+    devDependencies:
+      haetae:
+        specifier: workspace:*
+        version: link:../../packages/haetae
+
+  examples/esm-ts:
+    devDependencies:
+      '@types/node':
+        specifier: ^18.6.0
+        version: 18.6.0
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      haetae:
+        specifier: workspace:*
+        version: link:../../packages/haetae
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@swc/core@1.2.125)(@types/node@18.6.0)(typescript@4.8.2)
+      typescript:
+        specifier: ^4.8.2
+        version: 4.8.2
+
   packages/cli:
     dependencies:
       '@haetae/common':
