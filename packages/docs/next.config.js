@@ -6,4 +6,15 @@ const withNextra = nextra({
   staticImage: true,
 })
 
-export default withNextra()
+export default {
+  ...withNextra(),
+  async redirects() {
+    return [
+      {
+        source: '/getting-started',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
+}
