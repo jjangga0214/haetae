@@ -177,6 +177,78 @@ export default configure({
 ```
 </TokenLinkCode>
 
+### `majorVersion`
+
+A [Facade pattern](https://en.wikipedia.org/wiki/Facade_pattern) for the major version from [`version()`](#version).
+
+**Implementation**
+
+<TokenLinkCode tokens={['version', 'VersionOptions']}>
+```ts
+async function majorVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<number> {
+  const { major } = await version(packageName, options)
+  return major
+}
+```
+</TokenLinkCode>
+
+### `untilMinorVersion`
+
+A [Facade pattern](https://en.wikipedia.org/wiki/Facade_pattern) for the until-minor(`x.y`) version of [`version()`](#version).
+
+**Implementation**
+
+<TokenLinkCode tokens={['version', 'VersionOptions']}>
+```ts
+async function untilMinorVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<string> {
+  const { untilMinor } = await version(packageName, options)
+  return untilMinor
+}
+```
+</TokenLinkCode>
+
+### `untilPatchVersion`
+
+A [Facade pattern](https://en.wikipedia.org/wiki/Facade_pattern) for the until-patch(`x.y.z`) version from [`version()`](#version).
+
+**Implementation**
+
+<TokenLinkCode tokens={['version', 'VersionOptions']}>
+```ts
+async function untilPatchVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<string> {
+  const { untilPatch } = await version(packageName, options)
+  return untilPatch
+}
+```
+</TokenLinkCode>
+
+### `fullVersion`
+
+A [Facade pattern](https://en.wikipedia.org/wiki/Facade_pattern) for the full version from [`version()`](#version).
+
+**Implementation**
+
+<TokenLinkCode tokens={['version', 'VersionOptions']}>
+```ts
+async function fullVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<string> {
+  const { value } = await version(packageName, options)
+  return value
+}
+```
+</TokenLinkCode>
+
 ### `GraphOptions`
 
 An argument interface for [`graph`](#graph).

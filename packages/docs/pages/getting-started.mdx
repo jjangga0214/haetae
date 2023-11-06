@@ -529,7 +529,7 @@ For instance, let's change the config to this.
   'configure': './apis/haetae#configure',
   'pkg': './apis/haetae#pkg',
   '.hash': './apis/utils#hash',
-  '.version': './apis/javascript#version',
+  '.majorVersion': './apis/javascript#majorversion',
   '.branch': './apis/git#branch',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
@@ -545,7 +545,7 @@ export default configure({
         return {
           NODE_ENV: process.env.NODE_ENV,
           jestConfig: await utils.hash(['jest.config.js']),
-          jest: (await js.version('jest')).major,
+          jest: await js.majorVersion('jest'),
           branch: await git.branch(),
           os: process.platform,
           node: semver.major(process.version),
@@ -1516,7 +1516,7 @@ haetaeConfig: await utils.hash(
 ```
 </TokenLinkCode>
 
-Evaluated `env` is passed from each command's `env` to upper levels.
+Evaluated `env` object is propagated to upper levels.
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
@@ -1527,7 +1527,7 @@ import { configure } from 'haetae'
 
 export default configure({
   env: async (env) => {
-    // Evaluated `env` from each command
+    // Env from each command
     assert(env.hello === 'world')
     return {
       ...env,
@@ -1535,7 +1535,7 @@ export default configure({
     }
   },
   recordData: async (data, { env }) => {
-    // Evaluated `env` from root env
+    // Eenv from RootEnv
     assert(env.hi === 'there')
     assert(env.hello === 'world')
     // ...
@@ -1544,7 +1544,7 @@ export default configure({
     myCommand: {
       env: { hello: 'world' },,
       run: async ({ env }) => {
-        // Evaluated `env` of "myCommand"
+        // Env from "myCommand"
         assert(env.hello === 'world')
         // ...
       }

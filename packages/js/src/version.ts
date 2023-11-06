@@ -98,3 +98,35 @@ export async function version(
     return parseVersion(await versionFromYarnBerry(packageName, { rootDir }))
   }
 }
+
+export async function majorVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<number> {
+  const { major } = await version(packageName, options)
+  return major
+}
+
+export async function untilMinorVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<string> {
+  const { untilMinor } = await version(packageName, options)
+  return untilMinor
+}
+
+export async function untilPatchVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<string> {
+  const { untilPatch } = await version(packageName, options)
+  return untilPatch
+}
+
+export async function fullVersion(
+  packageName: string,
+  options: VersionOptions = {},
+): Promise<string> {
+  const { value } = await version(packageName, options)
+  return value
+}
