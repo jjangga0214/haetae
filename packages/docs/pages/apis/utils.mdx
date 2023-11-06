@@ -717,7 +717,6 @@ Let's say your project is like this.
 
 <TokenLinkCode tokens={{
   'configure': './haetae#configure',
-  '.changedFiles': './git#changedfiles',
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import { $, configure, git, utils, js } from 'haetae'
@@ -812,16 +811,12 @@ After then, you made some changes on the project.
 
 You modified the config file as well.
 
-<TokenLinkCode tokens={{
-  '.changedFiles': './git#changedfiles',
-}}>
 ```js filename="haetae.config.js"
 // Other content is omitted for brevity.
 const changedFiles = await utils.changedFiles(['targets/{a,b,c,d,e,f,h}'], {
   renew: ['c', 'd', 'f', 'g']
 })
 ```
-</TokenLinkCode>
 
 So, the positional argument `files` is `['targets/{a,b,c,d,e,f,h}']{:ts}`,
 and the named option `renew` is `['c', 'd', 'f', 'g']{:ts}`.

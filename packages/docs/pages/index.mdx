@@ -283,8 +283,8 @@ Haetae can be used with any other version control systems, but using git is assu
 We can write down the config file like this.<br/>
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
+  'configure': './apis/haetae#configure',
   '.changedFiles': './apis/git#changedfiles',
   '.dependOn': './apis/javascript#dependon',
 }}>
@@ -464,10 +464,14 @@ This behavior is useful for incremental tasks.
 The failed test (or any incremental task) will be re-executed later again until the problem is fixed.
 
 <Callout>
-**`stdio`**<br/>
-[`stdio`](https://nodejs.org/dist/latest-v6.x/docs/api/child_process.html#child_process_options_stdio) of [`${:ts}`](./apis/haetae#dollar) is `'inherit'` by default.
-This makes Promise rejected when it's [failed](https://github.com/sindresorhus/execa#childprocessresult) (e.g. non-zero exit code).
-If you set `stdio` differently, you should manually make sure whether to throw an error.
+**`stdio`** and/or **`reject`**<br/>
+<TokenLinkCode tokens={{
+  'stdio': 'https://github.com/sindresorhus/execa#stdio',
+  'reject': 'https://github.com/sindresorhus/execa#reject',
+}} inline>`{ stdio: 'inherit', reject: true /*, and more */ }{:ts}`</TokenLinkCode> is default options for [`${:ts}`](./apis/haetae#dollar).
+This makes `Promise` rejected when [failed](https://github.com/sindresorhus/execa#childprocessresult) (e.g. non-zero exit code).
+If you set `stdio` or `reject` differently, it may not automatically be rejected when failed.
+So you should manually make sure whether to throw an error.
 For example, when `stdio` is set to `'pipe'`, assert [`failed`](https://github.com/sindresorhus/execa#failed) and/or [`stderr`](https://github.com/sindresorhus/execa#stderr) properties by yourself.
 </Callout>
 
@@ -485,7 +489,7 @@ Let's add `env` to the config file to achieve this.
   'configure': './apis/haetae#configure',
 }}>
 ```js filename="haetae.config.js" {6-8}
-import { $, configure, git, utils, js } from 'haetae'
+import { configure } from 'haetae'
 
 export default configure({
   commands: {
@@ -526,6 +530,7 @@ You can add more keys in `env` object.<br/>
 For instance, let's change the config to this.
 
 <TokenLinkCode tokens={{
+  '$': './apis/haetae#dollar',
   'configure': './apis/haetae#configure',
   'pkg': './apis/haetae#pkg',
   '.hash': './apis/utils#hash',
@@ -534,7 +539,7 @@ For instance, let's change the config to this.
 }}>
 ```js filename="haetae.config.js" showLineNumbers
 import assert from 'node:assert/strict' // `node:` protocol is optional
-import { $, configure, git, utils, js, pkg } from 'haetae'
+import { configure, git, js, utils, pkg } from 'haetae'
 import semver from 'semver'
 
 export default configure({
@@ -623,8 +628,8 @@ It's not (can't be) imported (e.g. `import`, `require()`) by any source code fil
 Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
+  'configure': './apis/haetae#configure',
   '.changedFiles': './apis/git#changedfiles',
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
@@ -723,7 +728,7 @@ then `env` is a good place.
   '.hash': './apis/utils#hash',
 }}>
 ```js filename="haetae.config.js" {7}
-import { $, configure, git, utils, js } from 'haetae'
+import { configure, utils } from 'haetae'
 
 export default configure({
   commands: {
@@ -1057,8 +1062,8 @@ The explicit source code dependency graph is like this.
 Let Haetae think *`config.js`* depends on *`.env`*.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
+  'configure': './apis/haetae#configure',
   '.changedFiles': './apis/git#changedfiles',
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
@@ -1106,8 +1111,8 @@ Let's use *'Record Data'* to solve this problem.
 Add these into the config file like this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
+  'configure': './apis/haetae#configure',
   '.changedFiles': './apis/git#changedfiles',
   '.getRecord': './apis/core#getrecord',
   '.graph': './apis/utils#graph',
@@ -1211,8 +1216,8 @@ So it can be used in incremental tasks.
 We can enhance the workflow further.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
+  'configure': './apis/haetae#configure',
   '.glob': './apis/utils#glob',
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
@@ -1309,8 +1314,8 @@ where `$ENV` is an indicater of environment: `'local'{:ts}`, `'development'{:ts}
 Then we can modify the config file like this.
 
 <TokenLinkCode tokens={{
-  'configure': './apis/haetae#configure',
   '$': './apis/haetae#dollar',
+  'configure': './apis/haetae#configure',
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
 }}>
@@ -1421,11 +1426,9 @@ for the return value of `env` and `run` of every command.
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
-  '.hash': './apis/utils#hash',
-  '.deps': './apis/javascript#deps',
 }}>
 ```js filename="haetae.config.js" {4-6, 9}
-import { configure, git, utils, js } from 'haetae'
+import { configure } from 'haetae'
 
 export default configure({
   recordData: async (data) => ({ // <--- 'Root Record Data'
@@ -1592,8 +1595,8 @@ which stores *Record*s into *`.haetae/store.json`*.
 You can configure its behavior by passing custom [`LocalFileStoreOptions`](./apis/core#localfilestoreoptions).
 
 <TokenLinkCode tokens={{
-  '.localFileStore': './apis/core#localfilestore',
   'configure': './apis/haetae#configure',
+  '.localFileStore': './apis/core#localfilestore',
 
 }}>
 ```ts filename="haetae.config.ts" {5-13}
@@ -1617,9 +1620,9 @@ export default configure({
 Or let's implement a custom `StoreConnector` that utilizes a RDB through SQL.
 
 <TokenLinkCode tokens={{
+  'configure': './apis/haetae#configure',
   'AddRecordOptions': './apis/core#addrecordoptions',
   'GetRecordOptions': './apis/core#getrecordoptions',
-  'configure': './apis/haetae#configure',
 }}>
 ```ts filename="haetae.config.ts"
 import { configure, core } from 'haetae'
@@ -1659,7 +1662,7 @@ The `store` object is accessible from everywhere as well.
   'configure': './apis/haetae#configure',
 }}>
 ```js filename="haetae.config.ts" {5,6,8,9,20-22}
-import { configure, core } from 'haetae'
+import { configure } from 'haetae'
 
 export default configure({
   commands: {
