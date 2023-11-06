@@ -157,7 +157,7 @@ my-calculator
 ```
 
 Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
-It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/core), which is an internal dependency of `haetae`.
+It's optional `peerDependencies` of [`@haetae/core{:ts}`](./apis/core), which is an internal dependency of `haetae`.
 
 <PkgManagerChildren>
 ```bash filename="Terminal"
@@ -171,7 +171,7 @@ pnpm add --save-dev ts-node
 ```
 </PkgManagerChildren>
 
-Finally, provide an environment variable `$NODE_OPTIONS`.
+Finally, provide an environment variable [`$NODE_OPTIONS`](https://nodejs.org/api/cli.html#node_optionsoptions).
 
 ```bash filename="Terminal"
 NODE_OPTIONS='--loader=ts-node/esm' haetae --help
@@ -207,7 +207,7 @@ my-calculator
 ```
 
 Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
-It's optional `peerDependencies` of [`@heatae/core{:ts}`](./apis/core), which is an internal dependency of `haetae`.
+It's optional `peerDependencies` of [`@haetae/core{:ts}`](./apis/core), which is an internal dependency of [`haetae{:ts}`](./apis/haetae).
 
 <PkgManagerChildren>
 ```bash filename="Terminal"
@@ -221,7 +221,8 @@ pnpm add --save-dev ts-node
 ```
 </PkgManagerChildren>
 
-Finally, provide environment variables `$TS_NODE_COMPILER_OPTIONS` and `$NODE_OPTIONS`.
+Finally, provide environment variables [`$TS_NODE_COMPILER_OPTIONS`](https://typestrong.org/ts-node/docs/options/#compileroptions)
+ and [`$NODE_OPTIONS`](https://nodejs.org/api/cli.html#node_optionsoptions).
 Because your *`tsconfig.json`* is CJS, `$TS_NODE_COMPILER_OPTIONS` makes sure haetae's config file is ESM.
 
 ```bash filename="Terminal"
@@ -239,6 +240,31 @@ Registering scripts in *`package.json`* is a recommended good practice.
     "haetae": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae",
     // or
     "ht": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae"
+  }
+}
+```
+
+Or you can create a dedicated tsconfig for Haetae.
+
+```fish filename="Your Project" {4}
+my-calculator
+├── haetae.config.mts # <--- Haetae config file
+├── package.json # <--- "type": "commonjs" or "type" is omitted
+├── tsconfig.haetae.json # <--- "module": "node16" or "es6" or ... and so on
+├── tsconfig.json # <--- "module": "commonjs"
+├── src/ # contents are omitted for brevity
+└── test/ # contents are omitted for brevity
+```
+
+Then, provide an environment variable [`$TS_NODE_PROJECT`](https://typestrong.org/ts-node/docs/options/#project)
+instead of [`$TS_NODE_COMPILER_OPTIONS`](https://typestrong.org/ts-node/docs/options/#compileroptions).
+
+```jsonc filename="package.json"
+{
+  "scripts": {
+    "haetae": "cross-env TS_NODE_PROJECT=tsconfig.haetae.json NODE_OPTIONS='--loader=ts-node/esm' haetae",
+    // or
+    "ht": "cross-env TS_NODE_PROJECT=tsconfig.haetae.json NODE_OPTIONS='--loader=ts-node/esm' haetae"
   }
 }
 ```
@@ -1578,7 +1604,7 @@ export default configure({
   // Default `StoreConnector`
   store: core.localFileStore(
     // You can pass custom `LocalFileStoreOptions`
-    filename: '.heatae/store.json'
+    filename: '.haetae/store.json'
     recordRemoval: {
       leaveOnlyLastestPerEnv: true,
       // and more ...
