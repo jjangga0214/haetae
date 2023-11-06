@@ -1555,13 +1555,13 @@ Haetae calls `addRecord` after a command is successfully executed.
 
 On the other hand, `getRecord` is called when Haetae needs to know the latest previous *Record* of a command per *Env*.
 For example,
-[`-r, --record{:ts}`](./cli/-r---record),
-[`-d, --data{:ts}`](./cli/-d---data),
+[`-r, --record{:ts}`](./cli#-r---record),
+[`-d, --record-data{:ts}`](./cli#-d---record-data),
 [`git.changedFiles(){:ts}`](./apis/git#changedfiles),
 [`utils.changedFiles(){:ts}`](./apis/utils#changedfiles),
 and etc use `getRecord` internally.
 
-The default `StoreConnector` is [`core.localFileStore(){:ts}`](./apis/core#localfilestore-1),
+The default `StoreConnector` implementation is [`core.localFileStore(){:ts}`](./apis/core#localfilestore-1),
 which stores *Record*s into *`.haetae/store.json`*.
 You can configure its behavior by passing custom [`LocalFileStoreOptions`](./apis/core#localfilestoreoptions).
 
@@ -1616,7 +1616,7 @@ export default configure({
       ORDER BY time DESC
       LIMIT 1;`
 
-      // It's allowed to be `undefined` if no previous record exists
+      // It's allowed to be `undefined` when no previous Record exists
       return previousRecord
     },
   },
