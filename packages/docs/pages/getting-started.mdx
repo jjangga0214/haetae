@@ -1399,7 +1399,7 @@ for the return value of `env` and `run` of every command.
   '.deps': './apis/javascript#deps',
 }}>
 ```js filename="haetae.config.js" {4-6, 9}
-import { $, configure, git, utils, js } from 'haetae'
+import { configure, git, utils, js } from 'haetae'
 
 export default configure({
   recordData: async (data) => ({ // <--- 'Root Record Data'
@@ -1434,9 +1434,9 @@ You may want the config file's hash to be automatically recorded into every comm
   'configure': './apis/haetae#configure',
   '.hash': './apis/utils#hash',
 }}>
-```js filename="haetae.config.js" {5-9, 13}
+```js filename="haetae.config.js" {5-9}
 import * as url from 'node:url'
-import { $, configure, git, utils, js } from 'haetae'
+import { configure, utils } from 'haetae'
 
 export default configure({
   env: async (env) => ({ // <--- 'Root Env'
@@ -1472,21 +1472,171 @@ $ haetae myGreeting --env
 By the way, you can go even thoroughly.
 [`js.deps{:ts}`](./apis/javascript#deps) lists every direct and transitive dependency.
 
+The snippet below calculates a hash of the config file and its dependencies.
+For example, if you import *`a.js`* into *`haetae.config.js`*, and *`a.js`* depends on *`b.js`*,
+then the hash is calculated against the three files: *`haetae.config.js`*, *`a.js`*, and *`b.js`*.
+When hashing multiple files, a [single-depth sorted Merkle Tree](./apis/utils#hash) is used.
+
 <TokenLinkCode tokens={{
   '.hash': './apis/utils#hash',
   '.deps': './apis/javascript#deps',
 }}>
-```js filename="haetae.config.js" {3}
+```js filename="haetae.config.js" {4}
 // Other content is omitted for brevity
 haetaeConfig: await utils.hash(
+  // More strict than [url.fileURLToPath(import.meta.url)]
   await js.deps({ entrypoint: url.fileURLToPath(import.meta.url) }),
 ),
 ```
 </TokenLinkCode>
 
-This snippet calculates a hash of the config file and its dependencies.
-For example, if you import *`a.js`* into *`haetae.config.js`*, and *`a.js`* depends on *`b.js`*,
-then the hash is calculated against the three files: *`haetae.config.js`*, *`a.js`*, and *`b.js`*.
-When hashing multiple files, a single-depth sorted Merkle Tree is used.
-Check out the [API docs](./apis/utils#hash) for more detail.
-If you don't import other modules in the config, this is not necessary.
+Evaluated `env` is passed from each command's `env` to upper levels.
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetae#configure',
+}}>
+```js filename="haetae.config.js"
+import assert from 'node:assert/strict'
+import { configure } from 'haetae'
+
+export default configure({
+  env: async (env) => {
+    // Evaluated `env` from each command
+    assert(env.hello === 'world')
+    return {
+      ...env,
+      hi: 'there',
+    }
+  },
+  recordData: async (data, { env }) => {
+    // Evaluated `env` from root env
+    assert(env.hi === 'there')
+    assert(env.hello === 'world')
+    // ...
+  },
+  commands: {
+    myCommand: {
+      env: { hello: 'world' },,
+      run: async ({ env }) => {
+        // Evaluated `env` of "myCommand"
+        assert(env.hello === 'world')
+        // ...
+      }
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+## Custom Store
+
+We've been using a local file *`.haetae/store.json`* as a store.
+It's a good default choice.
+But other kind of stores can be used as well.
+
+For instance, you may want to persist *Record*s into a database, or object storage like AWS S3.
+Or maybe you can operate a dedicated API server.
+
+By implementing [`core.StoreConnector{:ts}`](./apis/core#storeconnector) interface, you can customize the store.
+
+<TokenLinkCode tokens={{
+  'AddRecord': './apis/core#addrecord',
+  'GetRecord': './apis/core#getrecord',
+}}>
+```ts
+interface StoreConnector {
+  addRecord: AddRecord
+  getRecord: GetRecord
+}
+```
+</TokenLinkCode>
+
+The default `StoreConnector` is [`core.localFileStore(){:ts}`](./apis/core#localfilestore-1),
+which stores records into *`.haetae/store.json`*.
+You can configure its behavior by passing custom [`LocalFileStoreOptions`](./apis/core#localfilestoreoptions).
+
+<TokenLinkCode tokens={{
+  '.localFileStore': './apis/core#localfilestore',
+  'configure': './apis/haetae#configure',
+
+}}>
+```ts filename="haetae.config.ts" {5-6}
+import { configure, core } from 'haetae'
+
+export default configure({
+  commands: { /* ... */ },
+  // Default `StoreConnector`
+  store: core.localFileStore(/* You can pass custom options */),
+})
+```
+</TokenLinkCode>
+
+Let's implement a custom `StoreConnector` that utilizes a RDB through SQL.
+
+<TokenLinkCode tokens={{
+  'AddRecordOptions': './apis/core#addrecordoptions',
+  'GetRecordOptions': './apis/core#getrecordoptions',
+  'configure': './apis/haetae#configure',
+}}>
+```ts filename="haetae.config.ts"
+import { configure, core } from 'haetae'
+import db from 'your-database'
+
+export default configure({
+  commands: { /* ... */ },
+  store: {
+    // Typescript is used to help you see function signatures
+    async addRecord({ command, record }: core.AddRecordOptions) {
+      await db.sql`
+      INSERT INTO record VALUES
+      (${command}, ${record.time}, ${record.envHash}, ${record.env}, ${record.data});`
+    },
+    async getRecord({ command, envHash }: core.GetRecordOptions = {}) {
+      const previousRecord = await db.sql`
+      SELECT * FROM record
+      WHERE command = ${command}
+      AND envHash = ${envHash}
+      ORDER BY time DESC
+      LIMIT 1;`
+
+      // It's allowed to be `undefined` if no previous record exists
+      return previousRecord
+    },
+  },
+})
+```
+</TokenLinkCode>
+
+You can extend `StoreConnector` interface.
+Add any custom properties or functions you want.
+
+<TokenLinkCode tokens={{
+  'configure': './apis/haetae#configure',
+}}>
+```js filename="haetae.config.ts"
+import { configure, core } from 'haetae'
+
+export default configure({
+  commands: {
+    env: async (env, { store }) => { /* ... */ },
+    recordData: async (data, { store }) => { /* ... */ },
+    myCommand: {
+      env: async ({ store }) => { /* ... */ },
+      run: async ({ store }) => {
+        // const previousRecord = await store.getRecord()
+        // const previousRecords = await store.getRecords()
+        // await store.deleteRecord(/* ... */)
+        // ... any custom store logic you want
+      },
+    },
+  },
+  store: {
+    async addRecord(options) { /* ... */ },
+    async getRecord(options) { /* ... */ },
+    // custom functions
+    async getRecords(options) { /* ... */ },
+    async deleteRecord(options) { /* ... */ },
+  },
+})
+```
+</TokenLinkCode>

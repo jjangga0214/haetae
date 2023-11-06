@@ -270,8 +270,8 @@ It reads the content of single or multiple files and returns a cryptographic has
 <Callout>
 **Sorted Merkle Tree** <br />
 When multiple files are given, they are treated as a single depth [Merkle Tree](https://en.wikipedia.org/wiki/Merkle_tree).
-However, the files are sorted by their path before hashed,
-resulting in the same result even when different order is given.
+What's important is that the files are sorted by their path before hashed.
+So the result would be the same even when a different order is given.
 For example, `hash(['foo.txt', 'bar.txt'])` is equal to `hash(['bar.txt', 'foo.txt'])`.
 </Callout>
 
