@@ -378,7 +378,7 @@ interface Config<
 
 The below example is 100% valid. <br/>
 The exported raw json will be processed by `configure` internally.<br/>
-But you'd not get a type-check from the IDE.
+But you'd not get a type-check from IDE.
 
 ```js filename="haetae.config.js"
 export default { /* ... */ }
@@ -815,7 +815,7 @@ A function to create a *Store Connector* that reads and writes to a local file.
 **Options?**
 
 - `filename?{:ts}` : The store file.
-<small>(default: `core.getConfigDirname() + '/.haetae/store.json'{:ts}`</small>
+<small>(default: <TokenLinkCode tokens={{'getConfigDirname': '#getconfigdirname'}} inline>`getConfigDirname() + '/.haetae/store.json'{:ts}`</TokenLinkCode></small>
 - `recordRemoval.age?{:ts}` : Age threshold by milliseconds (e.g. `90 * 24 * 60 * 60 * 1000` => 90 days).
 [*vercel/ms*](https://github.com/vercel/ms)-compatible string is allowed (e.g. `'90 days'{:ts}` => 90 days).
 Records whose age is older than this value are to be removed when calling [`addRecord`](#addrecord).

@@ -385,7 +385,7 @@ my-calculator
 ```
 
 May you have noticed, the store file *`.haetae/store.json`* is generated.
-It stores history of Haetae executions, which makes incremental tasks possible.
+It stores histories of Haetae executions, which makes incremental tasks possible.
 For example, the commit ID `979f3c6` printed from our first execution example above is the current git HEAD `haetae myTest` ran on.
 This information is logged in the store file to be used later.
 
@@ -1551,8 +1551,18 @@ interface StoreConnector {
 ```
 </TokenLinkCode>
 
+Haetae calls `addRecord` after a command is successfully executed.
+
+On the other hand, `getRecord` is called when Haetae needs to know the latest previous *Record* of a command per *Env*.
+For example,
+[`-r, --record{:ts}`](./cli/-r---record),
+[`-d, --data{:ts}`](./cli/-d---data),
+[`git.changedFiles(){:ts}`](./apis/git#changedfiles),
+[`utils.changedFiles(){:ts}`](./apis/utils#changedfiles),
+and etc use `getRecord` internally.
+
 The default `StoreConnector` is [`core.localFileStore(){:ts}`](./apis/core#localfilestore-1),
-which stores records into *`.haetae/store.json`*.
+which stores *Record*s into *`.haetae/store.json`*.
 You can configure its behavior by passing custom [`LocalFileStoreOptions`](./apis/core#localfilestoreoptions).
 
 <TokenLinkCode tokens={{
@@ -1560,18 +1570,25 @@ You can configure its behavior by passing custom [`LocalFileStoreOptions`](./api
   'configure': './apis/haetae#configure',
 
 }}>
-```ts filename="haetae.config.ts" {5-6}
+```ts filename="haetae.config.ts" {5-13}
 import { configure, core } from 'haetae'
 
 export default configure({
   commands: { /* ... */ },
   // Default `StoreConnector`
-  store: core.localFileStore(/* You can pass custom options */),
+  store: core.localFileStore(
+    // You can pass custom `LocalFileStoreOptions`
+    filename: '.heatae/store.json'
+    recordRemoval: {
+      leaveOnlyLastestPerEnv: true,
+      // and more ...
+    }
+  ),
 })
 ```
 </TokenLinkCode>
 
-Let's implement a custom `StoreConnector` that utilizes a RDB through SQL.
+Or let's implement a custom `StoreConnector` that utilizes a RDB through SQL.
 
 <TokenLinkCode tokens={{
   'AddRecordOptions': './apis/core#addrecordoptions',
@@ -1610,10 +1627,12 @@ export default configure({
 You can extend `StoreConnector` interface.
 Add any custom properties or functions you want.
 
+The `store` object is accessible from everywhere as well.
+
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
 }}>
-```js filename="haetae.config.ts"
+```js filename="haetae.config.ts" {5,6,8,9,20-22}
 import { configure, core } from 'haetae'
 
 export default configure({
@@ -1633,7 +1652,7 @@ export default configure({
   store: {
     async addRecord(options) { /* ... */ },
     async getRecord(options) { /* ... */ },
-    // custom functions
+    // Extending the `StoreConnector` interface by custom functions
     async getRecords(options) { /* ... */ },
     async deleteRecord(options) { /* ... */ },
   },
