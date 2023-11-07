@@ -18,6 +18,7 @@ For now, in this *Getting Started* article, we are starting from an example of i
 Let's say you're building a calculator project, named *'my-calculator'*.
 
 ```fish filename="Your Project"
+# Entrypoint (index.js) is omitted for brevity
 my-calculator
 ├── package.json
 ├── src
@@ -304,7 +305,7 @@ export default configure({
           dependencies: changedFiles,
         })
 
-        if (affectedTestFiles.length > 0) {
+        if (affectedTestFiles.length) {
           // Equals to "pnpm jest /path/to/foo.test.ts /path/to/bar.test.ts ..."
           // Change 'pnpm jest' to your test runner.
           await $`pnpm jest ${affectedTestFiles}`
@@ -657,7 +658,7 @@ export default configure({
           dependencies: changedFiles,
           additionalGraph, // <--- New option
         })
-        if (affectedTestFiles.length > 0) {
+        if (affectedTestFiles.length) {
           await $`pnpm jest ${affectedTestFiles}`
         }
       },
@@ -1090,7 +1091,7 @@ export default configure({
           dependencies: changedFiles,
           additionalGraph,
         })
-        if (affectedTestFiles.length > 0) {
+        if (affectedTestFiles.length) {
           await $`pnpm jest ${affectedTestFiles}`
         }
       },
@@ -1147,7 +1148,7 @@ export default configure({
           additionalGraph,
         })
 
-        if (affectedTestFiles.length > 0) {
+        if (affectedTestFiles.length) {
           await $`pnpm jest ${affectedTestFiles}`
         }
         return {
@@ -1247,7 +1248,7 @@ export default configure({
           additionalGraph,
         })
 
-        if (affectedTestFiles.length > 0) {
+        if (affectedTestFiles.length) {
           await $`pnpm jest ${affectedTestFiles}`
         }
         // No return value
@@ -1349,7 +1350,7 @@ export default configure({
           additionalGraph,
         })
 
-        if (affectedTestFiles.length > 0) {
+        if (affectedTestFiles.length) {
           await $`pnpm jest ${affectedTestFiles}`
         }
       },
