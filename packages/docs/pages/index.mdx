@@ -1301,7 +1301,7 @@ So Haetae uses **a package name as a namespace by convention.**
 
 <Callout>
 **Multiple Reserved Record Data** <br/>
-All *Reserved Record Data* are saved in the list [`reservedRecordDataList`](./apis/core#reservedrecorddatalist).
+All *Reserved Record Data* are saved in the list [`core.reservedRecordDataList{:ts}`](./apis/core#reservedrecorddatalist).
 The list is to be merged by [`deepmerge`](https://www.npmjs.com/package/deepmerge).
 </Callout>
 
@@ -1456,8 +1456,12 @@ $ haetae myGreeting
 ⎣      hello: WORLD # <--- capitalized
 ```
 
+### Hashing *`haetae.config.js`* example
+
 Let's get into a more practical example.<br/>
 You may want the config file's hash to be automatically recorded into every command's `env`.
+By *Root Env*, it's done in a single place.
+You don't have to duplicate the code in every command's `env`.
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
@@ -1484,8 +1488,6 @@ export default configure({
 })
 ```
 </TokenLinkCode>
-
-By *Root Env*, it's done in a single place.
 
 ```fish filename="Terminal" {7}
 $ haetae myGreeting --env
@@ -1519,7 +1521,11 @@ haetaeConfig: await utils.hash(
 ```
 </TokenLinkCode>
 
-Evaluated `env` object is propagated to upper levels.
+### Progagation
+
+Dependency graph between *Root Env*, *Root Run*, *Command*'s *Run* and *Command*'s *Env* is like this.
+
+<Image src="/getting-started/root-env-root-run-deps-graph.svg" alt="Dependeny graph of 'Root Run' and 'Root Env'"/>
 
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
@@ -1547,7 +1553,6 @@ export default configure({
     myCommand: {
       env: { hello: 'world' },,
       run: async ({ env }) => {
-        // Env from "myCommand"
         assert(env.hello === 'world')
         // ...
       }
@@ -1556,6 +1561,8 @@ export default configure({
 })
 ```
 </TokenLinkCode>
+
+
 
 ## Custom Store
 
