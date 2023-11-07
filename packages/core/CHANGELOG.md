@@ -1,5 +1,11 @@
 # @haetae/core
 
+## 0.0.19
+
+### Patch Changes
+
+- [`4ea13ec`](https://github.com/jjangga0214/haetae/commit/4ea13ecdb332fdce1b2714be0f2b9502c27a1739) Thanks [@jjangga0214](https://github.com/jjangga0214)! - BREAKING CHANGE: Rename `LocalFileStore.recordRemoval.leaveOnlyLastestPerEnv` to `LocalFileStore.recordRemoval.keepOnlyLatest`
+
 ## 0.0.18
 
 ### Patch Changes
