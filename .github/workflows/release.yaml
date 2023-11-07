@@ -33,6 +33,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # 0 indicates all history for all branches and tags.
+          fetch-depth: 0 # For git history test
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
