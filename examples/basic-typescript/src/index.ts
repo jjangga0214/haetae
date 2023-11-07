@@ -1,3 +1,3 @@
-import hello from './hello.js'
+export { name as depName } from './hello.js'
 
-console.log(hello)
+export const name = 'index'

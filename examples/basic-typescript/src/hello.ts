@@ -1,7 +1,4 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { pkg } from 'haetae'
+export { pkg } from 'haetae'
 
-export default {
-  name: 'hello',
-  pkg,
-}
+export const name = 'hello'

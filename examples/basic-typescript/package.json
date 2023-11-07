@@ -1,7 +1,7 @@
 {
   "name": "@haetae/example-basic-typescript",
   "version": "0.0.1",
-  "description": "A basic example project using Haetae",
+  "description": "A bassic example project using Haetae",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -10,6 +10,8 @@
     "ts": "node --loader ts-node/esm --loader ../../loader.js",
     "lint": "eslint --ext .js,.cjs,.mjs,.jsx,.ts,.tsx,.md .",
     "lint:md": "markdownlint .",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage -c ../../jest.config.js ./examples/basic-typescript/",
+    "test:haetae": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage -c ../../jest.config.js",
     "haetae": "pnpm ts ../../packages/haetae/src/cli.ts",
     "ht": "pnpm ts ../../packages/haetae/src/cli.ts"
   },
@@ -17,18 +19,5 @@
     "@types/semver": "^7.5.0",
     "haetae": "workspace:*",
     "semver": "^7.5.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jjangga0214/haetae.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jjangga0214/haetae/issues"
-  },
-  "homepage": "https://github.com/jjangga0214/haetae/examples/basic",
-  "author": {
-    "name": "Gil B. Chan",
-    "email": "bnbcmindnpass@gmail.com",
-    "url": "https://github.com/jjangga0214"
   }
 }
