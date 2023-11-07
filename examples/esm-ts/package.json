@@ -1,0 +1,17 @@
+{
+  "name": "esm-ts",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "haetae": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae",
+    "ht": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae"
+  },
+  "devDependencies": {
+    "@types/node": "^18.6.0",
+    "cross-env": "^7.0.3",
+    "haetae": "workspace:*",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.2"
+  }
+}
