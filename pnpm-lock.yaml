@@ -129,18 +129,6 @@ importers:
         specifier: ^4.8.2
         version: 4.8.2
 
-  examples/basic-typescript:
-    devDependencies:
-      '@types/semver':
-        specifier: ^7.5.0
-        version: 7.5.0
-      haetae:
-        specifier: workspace:*
-        version: link:../../packages/haetae
-      semver:
-        specifier: ^7.5.1
-        version: 7.5.1
-
   examples/cjs-js:
     devDependencies:
       haetae:
