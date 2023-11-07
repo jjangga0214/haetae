@@ -8,7 +8,13 @@ import { parsePkg, toAbsolutePath } from '@haetae/common'
 import * as core from '@haetae/core'
 import * as utils from '@haetae/utils'
 
-export { version } from './version.js'
+export {
+  version,
+  majorVersion,
+  untilMinorVersion,
+  untilPatchVersion,
+  fullVersion,
+} from './version.js'
 export type { VersionOptions } from './version.js' // We should separate type export to avoid swc's complaining
 
 export const pkg = parsePkg({

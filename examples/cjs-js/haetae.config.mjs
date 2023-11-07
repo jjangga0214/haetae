@@ -5,5 +5,11 @@ export default configure({
     foo: {
       run: () => ({ hello: 'world' }),
     },
+    bar: {
+      env: {
+        hi: 'there',
+      },
+      run: () => ({ hello: 'world' }),
+    },
   },
 })
