@@ -6,9 +6,9 @@
   "private": true,
   "engines": {
     "node": ">=20",
-    "pnpm": ">=8.6.2"
+    "pnpm": ">=8.10.2"
   },
-  "packageManager": "pnpm@8.6.2",
+  "packageManager": "pnpm@8.10.2",
   "scripts": {
     "ts": "node --loader ts-node/esm --loader ./loader.js",
     "dev": "pnpm turbo dev --concurrency 11",

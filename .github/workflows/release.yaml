@@ -37,7 +37,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8.6.2
+          version: 8.10.2
           run_install: false # For cache
 
       - name: Read .nvmrc
@@ -52,10 +52,7 @@ jobs:
           cache: pnpm
 
       - name: Install Dependencies
-        # rollback to --frozen-lockfile when the issue is fixed
-        # REF: https://github.com/pnpm/pnpm/issues/5144
-        # run: pnpm install --frozen-lockfile
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Create Release PR or Publish
         uses: changesets/action@v1
@@ -73,20 +70,20 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           HUSKY: 0 # For changesets/action to commit, let's ignore husky
 
-      - name: Add deployed docs url
-        # Vercel GitHub bot automatically deploy docs pushed to production branch (`main`), regardless of GitHub Actions.
-        # This step finds out the deployed docs "Preview URL".
-        # Note that Vercel's "Preview URL" is static and permanent unless deleted manually.
-        if: steps.changesets.outputs.published == 'true'
-        run: pnpm --filter '@haetae/docs' run add-url
-        env:
-          VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
-          VERCEL_DEPLOYMENT_NAME: haetae
+      # - name: Add deployed docs url
+      #   # Vercel GitHub bot automatically deploy docs pushed to production branch (`main`), regardless of GitHub Actions.
+      #   # This step finds out the deployed docs "Preview URL".
+      #   # Note that Vercel's "Preview URL" is static and permanent unless deleted manually.
+      #   if: steps.changesets.outputs.published == 'true'
+      #   run: pnpm --filter '@haetae/docs' run add-url
+      #   env:
+      #     VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
+      #     VERCEL_DEPLOYMENT_NAME: haetae
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        if: steps.changesets.outputs.published == 'true'
-        with:
-          commit_message: 'docs: add url'
-          token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }} # For Protected branch. REF: https://github.com/stefanzweifel/git-auto-commit-action#push-to-protected-branches
-        env:
-          HUSKY: 0 # To commit, let's ignore husky
+      # - uses: stefanzweifel/git-auto-commit-action@v4
+      #   if: steps.changesets.outputs.published == 'true'
+      #   with:
+      #     commit_message: 'docs: add url'
+      #     token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }} # For Protected branch. REF: https://github.com/stefanzweifel/git-auto-commit-action#push-to-protected-branches
+      #   env:
+      #     HUSKY: 0 # To commit, let's ignore husky
