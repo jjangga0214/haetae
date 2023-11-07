@@ -1,5 +1,15 @@
 # @haetae/javascript
 
+## 0.0.18
+
+### Patch Changes
+
+- [`5ba82bb`](https://github.com/jjangga0214/haetae/commit/5ba82bb8a359530fb3c6811030d7c4e94bff1bbf) Thanks [@jjangga0214](https://github.com/jjangga0214)! - Add new functions `majorVersion`, `untilMinorVersion`, `untilPatchVersion`, and `fullVersion`.
+
+- Updated dependencies [[`4ea13ec`](https://github.com/jjangga0214/haetae/commit/4ea13ecdb332fdce1b2714be0f2b9502c27a1739)]:
+  - @haetae/core@0.0.19
+  - @haetae/utils@0.0.19
+
 ## 0.0.17
 
 ### Patch Changes
