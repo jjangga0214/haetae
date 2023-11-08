@@ -1327,7 +1327,7 @@ Then we can modify the config file like this.
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
 }}>
-```js copy filename="haetae.config.js" {9-14,20} showLineNumbers
+```js copy filename="haetae.config.js" {9-14,20}
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -1411,7 +1411,7 @@ Otherwise, a file would be treated as changed every time the dynamic argument ch
 <TokenLinkCode tokens={{
   '.changedFiles': './apis/utils#changedfiles',
 }}>
-```js copy filename="haetae.config.js" {9-13,19} showLineNumbers
+```js copy filename="haetae.config.js"
 // Other content is omitted for brevity
 const changedFilesByHash = await utils.changedFiles(
   [`.env.${process.env.ENV}`] // <--- Anti-pattern
