@@ -39,24 +39,30 @@ You may want to install `@haetae/utils{:ts}` and its `peerDependencies` all at o
 <br/>
 
 <PkgManagerTabs>
-```bash
-# As dependencies
+<>
+```bash copy filename="dependency"
 npx install-peerdeps @haetae/utils
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npx install-peerdeps --dev @haetae/utils
 ```
-```bash
-# As dependencies
+</>
+<>
+```bash copy filename="dependency"
 npx install-peerdeps --yarn @haetae/utils
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npx install-peerdeps --yarn --dev @haetae/utils
 ```
-```bash
-# As dependencies
+</>
+<>
+```bash copy filename="dependency"
 npx install-peerdeps --pnpm @haetae/utils
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npx install-peerdeps --pnpm --dev @haetae/utils
 ```
+</>
 </PkgManagerTabs>
 
 ### To manually handle the installation
@@ -67,30 +73,36 @@ First, install `@haetae/utils{:ts}` itself.
 <br/>
 
 <PkgManagerTabs>
-```bash
-# As dependencies
-npm install @haetae/utils
-# As devDependencies
-npm install --save-dev @haetae/utils
+<>
+```bash copy filename="dependency"
+npm install @haetae/core
 ```
-```bash
-# As dependencies
-yarn add @haetae/utils
-# As devDependencies
-yarn add --dev @haetae/utils
+```bash copy filename="devDependency"
+npm install --save-dev @haetae/core
 ```
-```bash
-# As dependencies
-pnpm add @haetae/utils
-# As devDependencies
-pnpm add --save-dev @haetae/utils
+</>
+<>
+```bash copy filename="dependency"
+yarn add @haetae/core
 ```
+```bash copy filename="devDependency"
+yarn add --dev @haetae/core
+```
+</>
+<>
+```bash copy filename="dependency"
+pnpm add @haetae/core
+```
+```bash copy filename="devDependency"
+pnpm add --save-dev @haetae/core
+```
+</>
 </PkgManagerTabs>
 
 Then, check out `peerDependencies` and manually handle them.<br/>
 (e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
-```bash
+```bash copy filename="Terminal"
 # This does not install, but just show peerDependencies.
 npm info @haetae/utils peerDependencies
 ```
@@ -738,7 +750,7 @@ export default configure({
 
 If you run `myCommand` for the first time, the result would be like this.
 
-```fish filename="terminal"
+```fish filename="Terminal"
 $ haetae myCommand
 
 changedFiles: [
@@ -772,7 +784,7 @@ And their hashes are recorded in the new *Record Data*.
 If we run it again immediately, no file is detected as changed.
 The hashes are recorded the same as well.
 
-```fish filename="terminal"
+```fish filename="Terminal"
 $ haetae myCommand
 
 changedFiles: []
@@ -825,8 +837,8 @@ and the named option `renew` is `['c', 'd', 'f', 'g']{:ts}`.
 
 What would be the result if we run the command again?
 
-```fish filename="terminal"
-$ haetae myCommand
+```fish copy filename="Terminal"
+haetae myCommand
 ```
 
 It will be partially different relying on `options` and whether the content is changed.

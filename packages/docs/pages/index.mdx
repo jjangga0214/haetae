@@ -17,7 +17,7 @@ For now, in this *Getting Started* article, we are starting from an example of i
 
 Let's say you're building a calculator project, named *'my-calculator'*.
 
-```fish filename="Your Project"
+```fish copy filename="Your Project"
 # Entrypoint (index.js) is omitted for brevity
 my-calculator
 ├── package.json
@@ -62,35 +62,42 @@ Literally **any project** is proper.
 <br/>
 
 <PkgManagerTabs>
-```bash filename="Terminal"
+<>
+```bash copy filename="Installation"
 npm install --save-dev haetae
+```
 
-# Execute `haetae`
+```bash copy filename="Execution"
 npx haetae --help
 
 # `ht` is shorthand for `haetae`
 npx ht --help
 ```
-
-```bash filename="Terminal"
+</>
+<>
+```bash copy filename="Installation"
 yarn add --dev haetae
+```
 
-# Execute `haetae`
+```bash copy filename="Execution"
 yarn haetae --help
 
 # `ht` is shorthand for `haetae`
 yarn ht --help
 ```
-
-```bash filename="Terminal"
+</>
+<>
+```bash copy filename="Installation"
 pnpm add --save-dev haetae
+```
 
-# Execute `haetae`
+```bash copy filename="Execution"
 pnpm haetae --help
 
 # `ht` is shorthand for `haetae`
 pnpm ht --help
 ```
+</>
 </PkgManagerTabs>
 
 <Callout>
@@ -120,7 +127,7 @@ Its name and execution setting are different depending on whether your project i
 If your *`package.json`* is configured as ESM,
 name the config file *`haetae.config.js`*.
 
-```fish filename="Your Project" {2}
+```fish copy filename="Your Project" {2}
 my-calculator
 ├── haetae.config.js # <--- Haetae config file
 ├── package.json # <--- "type": "module"
@@ -132,7 +139,7 @@ my-calculator
 If your *`package.json`* is configured as CJS,
 name the config file *`haetae.config.mjs`*.
 
-```fish filename="Your Project" {2}
+```fish copy filename="Your Project" {2}
 my-calculator
 ├── haetae.config.mjs # <--- Haetae config file
 ├── package.json # <--- "type": "commonjs" or "type" is omitted
@@ -148,7 +155,7 @@ If your *`package.json`* and *`tsconfig.json`* are configured as ESM,
 name the config file *`haetae.config.ts`*.
 
 
-```fish filename="Your Project" {2}
+```fish copy filename="Your Project" {2}
 my-calculator
 ├── haetae.config.ts # <--- Haetae config file
 ├── package.json # <--- "type": "module"
@@ -161,26 +168,26 @@ Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
 It's optional `peerDependencies` of [`@haetae/core{:ts}`](./apis/core), which is an internal dependency of `haetae`.
 
 <PkgManagerChildren>
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 npm install --save-dev ts-node
 ```
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 yarn add --dev ts-node
 ```
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 pnpm add --save-dev ts-node
 ```
 </PkgManagerChildren>
 
 Finally, provide an environment variable [`$NODE_OPTIONS`](https://nodejs.org/api/cli.html#node_optionsoptions).
 
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 NODE_OPTIONS='--loader=ts-node/esm' haetae --help
 ```
 
 Registering scripts in *`package.json`* is a recommended good practice.
 
-```jsonc filename="package.json"
+```json copy filename="package.json"
 {
   "scripts": {
     "haetae": "cross-env NODE_OPTIONS='--loader=ts-node/esm' haetae",
@@ -198,7 +205,7 @@ But you may want to write the config in TypeScript.
 If your *`package.json`* and *`tsconfig.json`* are configured as CJS,
 name the config file *`haetae.config.mts`*.
 
-```fish filename="Your Project" {2}
+```fish copy filename="Your Project" {2}
 my-calculator
 ├── haetae.config.mts # <--- Haetae config file
 ├── package.json # <--- "type": "commonjs" or "type" is omitted
@@ -211,13 +218,13 @@ Next, install [`ts-node`](https://www.npmjs.com/package/ts-node).
 It's optional `peerDependencies` of [`@haetae/core{:ts}`](./apis/core), which is an internal dependency of [`haetae{:ts}`](./apis/haetae).
 
 <PkgManagerChildren>
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 npm install --save-dev ts-node
 ```
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 yarn add --dev ts-node
 ```
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 pnpm add --save-dev ts-node
 ```
 </PkgManagerChildren>
@@ -226,7 +233,7 @@ Finally, provide environment variables [`$TS_NODE_COMPILER_OPTIONS`](https://typ
  and [`$NODE_OPTIONS`](https://nodejs.org/api/cli.html#node_optionsoptions).
 Because your *`tsconfig.json`* is CJS, `$TS_NODE_COMPILER_OPTIONS` makes sure haetae's config file is ESM.
 
-```bash filename="Terminal"
+```bash copy filename="Terminal"
 # Instead of 'node16', you can choose other values like 'nodenext', etc.
 TS_NODE_COMPILER_OPTIONS='{"module": "node16", "moduleResolution": "node16"}' \
 NODE_OPTIONS='--loader=ts-node/esm' \
@@ -235,7 +242,7 @@ haetae --help
 
 Registering scripts in *`package.json`* is a recommended good practice.
 
-```jsonc filename="package.json"
+```json copy filename="package.json"
 {
   "scripts": {
     "haetae": "cross-env TS_NODE_COMPILER_OPTIONS='{\"module\": \"node16\", \"moduleResolution\": \"node16\"}' NODE_OPTIONS='--loader=ts-node/esm' haetae",
@@ -247,7 +254,7 @@ Registering scripts in *`package.json`* is a recommended good practice.
 
 Or you can create a dedicated tsconfig for Haetae.
 
-```fish filename="Your Project" {4}
+```fish copy filename="Your Project" {4}
 my-calculator
 ├── haetae.config.mts # <--- Haetae config file
 ├── package.json # <--- "type": "commonjs" or "type" is omitted
@@ -260,7 +267,7 @@ my-calculator
 Then, provide an environment variable [`$TS_NODE_PROJECT`](https://typestrong.org/ts-node/docs/options/#project)
 instead of [`$TS_NODE_COMPILER_OPTIONS`](https://typestrong.org/ts-node/docs/options/#compileroptions).
 
-```jsonc filename="package.json"
+```json copy filename="package.json"
 {
   "scripts": {
     "haetae": "cross-env TS_NODE_PROJECT=tsconfig.haetae.json NODE_OPTIONS='--loader=ts-node/esm' haetae",
@@ -289,7 +296,7 @@ We can write down the config file like this.<br/>
   '.changedFiles': './apis/git#changedfiles',
   '.dependOn': './apis/javascript#dependon',
 }}>
-```js filename="haetae.config.js" showLineNumbers
+```js copy filename="haetae.config.js" showLineNumbers
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -331,7 +338,7 @@ It has other traits and options as well. Check out `execa`'s API docs for more d
 <TokenLinkCode tokens={{
   '$': './apis/haetae#dollar',
 }}>
-```js
+```js copy
 import { $ } from 'haetae'
 
 // The following two lines of code have same effects respectively
@@ -347,7 +354,7 @@ await $`pnpm jest ${affectedTestFiles.join(' ')}`
 
 Then run `haetae` like below.
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 haetae myTest
 ```
 <small>(Unless you installed `haetae` globally, you should execute it through package manager (e.g. `pnpm haetae myTest`))</small>
@@ -358,7 +365,7 @@ You can name it whatever you want. And as you might guess, you can define multip
 
 It will print the result like this.
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 May 28 11:06:06 Asia/Seoul 1(timestamp: 1685239566483)
@@ -402,7 +409,7 @@ Check out the API docs later for more detail.
 Note that it cannot parse dynamic imports (`import(){:ts}`).
 Dynamic or extra dependencies can be specified as `additionalGraph` option, explained later in this article.
 
-```fish filename="Your Project" {2}
+```fish copy filename="Your Project" {2}
 my-calculator
 ├── .haetae/store.json # <--- Generated. Haetae store file
 ├── haetae.config.js
@@ -426,7 +433,7 @@ Let's say we made some changes and added 2 commits.
 `0c3b3cc` and `1d17a2f` are new commits after that.<br/>
 What will happen when we run Haetae again?
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 haetae myTest
 ```
 
@@ -440,7 +447,7 @@ because [`js.dependOn(){:ts}`](./apis/javascript#dependon) **detects dependency 
 If you modify `add.test.js`, only the test file itself `add.test.js` will be executed,
 as **every file is treated as depending on itself.**
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 ✔  success   Command myTest is successfully executed.
 
 ⎡ 🕗 time: 2023 May 28 19:03:25 Asia/Seoul (timestamp: 1685268205443)
@@ -489,7 +496,7 @@ Let's add `env` to the config file to achieve this.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
 }}>
-```js filename="haetae.config.js" {6-8}
+```js copy filename="haetae.config.js" {6-8}
 import { configure } from 'haetae'
 
 export default configure({
@@ -538,7 +545,7 @@ For instance, let's change the config to this.
   '.majorVersion': './apis/javascript#majorversion',
   '.branch': './apis/git#branch',
 }}>
-```js filename="haetae.config.js" showLineNumbers
+```js copy filename="haetae.config.js" showLineNumbers
 import assert from 'node:assert/strict' // `node:` protocol is optional
 import { configure, git, js, utils, pkg } from 'haetae'
 import semver from 'semver'
@@ -577,7 +584,7 @@ This is intended design for incremental tasks.
 If you just want to evaluate the value `env` function returns, you can use [`-e, --env`](./cli#-e---env) option.
 This does not modify the store, but just prints out to the console.
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 $ haetae myTest --env
 
 ✔  success   Current environment is successfully evaluated for the command myTest
@@ -602,7 +609,7 @@ But sometimes, you need to specify some dependencies manually.<br/>
 
 For example, let's say you're developing a project communicating with a database.
 
-```fish filename="Your Project"
+```fish copy filename="Your Project"
 your-project
 ├── haetae.config.js
 ├── package.json
@@ -635,7 +642,7 @@ Let Haetae think *`logic.js`* depends on *`data.sql`*, by `additionalGraph`.
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
 }}>
-```js filename="haetae.config.js" {10-17,21}
+```js copy filename="haetae.config.js" {10-17,21}
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -681,7 +688,7 @@ you can change the config.
 <TokenLinkCode tokens={{
   '.graph': './apis/utils#graph',
 }}>
-```js filename="haetae.config.js" {5,}
+```js copy filename="haetae.config.js" {5,}
 // Other content is omitted for brevity
 const additionalGraph = await utils.graph({
   edges: [
@@ -728,7 +735,7 @@ then `env` is a good place.
   'configure': './apis/haetae#configure',
   '.hash': './apis/utils#hash',
 }}>
-```js filename="haetae.config.js" {7}
+```js copy filename="haetae.config.js" {7}
 import { configure, utils } from 'haetae'
 
 export default configure({
@@ -751,7 +758,7 @@ You can specify the dependency graph from a chunk of files to another chunk.
 <TokenLinkCode tokens={{
   '.graph': './apis/utils#graph',
 }}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 // Other content is omitted for brevity
 const additionalGraph = await utils.graph({
   edges: [
@@ -779,7 +786,7 @@ It can be done in a distributed manner.
 <TokenLinkCode tokens={{
   '.graph': './apis/utils#graph',
 }}>
-```js filename="haetae.config.js" showLineNumbers
+```js copy filename="haetae.config.js" showLineNumbers
 // Other content is omitted for brevity
 const additionalGraph = await utils.graph({
   edges: [
@@ -820,7 +827,7 @@ Haetae does not prevent you from defining it.
 <TokenLinkCode tokens={{
   '.graph': './apis/utils#graph',
 }}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 // Other content is omitted for brevity
 const additionalGraph = await utils.graph({
   edges: [
@@ -866,7 +873,7 @@ and *'Record Data'* (type: `core.HaetaeRecord.data{:ts}`).
 
 In the previous sections, we've already seen terminal outputs like this.
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -885,7 +892,7 @@ This information is logged in the store file (*`.haetae/store.json`*), and calle
 The `data` field is called *'Record Data'*.
 Let's check them out.
 
-```fish filename="Terminal"
+```fish copy filename="Terminal"
 cat .haetae/store.json
 ```
 
@@ -1025,7 +1032,7 @@ Let's see how it works, with a simple example project using *`.env`* as the appl
 *`.env`* is a configuration file for environment variables, and NOT related to Haetae's `env` at all.
 </Callout>
 
-```fish filename="Your Project"
+```fish copy filename="Your Project"
 your-project
 ├── .env # <--- dotenv file
 ├── .gitignore # <--- ignores '.env' file
@@ -1044,7 +1051,7 @@ your-project
 
 *`src/config.js`* reads the file *`.env`*, by a library [dotenv](https://www.npmjs.com/package/dotenv) for example.
 
-```js filename="src/config.js"
+```js copy filename="src/config.js"
 import { config } from 'dotenv'
 
 config()
@@ -1069,7 +1076,7 @@ Let Haetae think *`config.js`* depends on *`.env`*.
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
 }}>
-```js filename="haetae.config.js" {12-13,}
+```js copy filename="haetae.config.js" {12-13,}
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -1120,7 +1127,7 @@ Add these into the config file like this.
   '.dependOn': './apis/javascript#dependon',
   '.hash': './apis/utils#hash',
 }}>
-```js filename="haetae.config.js" {7,9-13,31-33}
+```js copy filename="haetae.config.js" {7,9-13,31-33}
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -1164,7 +1171,7 @@ export default configure({
 Now, **we return an object** from `myTest.run{:ts}`.
 Let's execute it.
 
-```fish filename="Terminal" {13}
+```fish copy filename="Terminal" {13}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -1192,7 +1199,7 @@ The value we returned from `myTest.run{:ts}` is recorded in the store file, as p
 
 This time, *`.env`* was treated as a changed file, as the key `dotenv` did not exist from `previousRecord`.
 
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 // Other content is omitted for brevity
 if (previousRecord?.data?.dotenv !== dotenvHash) {
   changedFiles.push('.env')
@@ -1203,7 +1210,7 @@ Therefore, *`index.test.js`* and *`logic.test.js`*, which transitively depend on
 
 If you run Haetae again immediately,
 
-```fish filename="Terminal" {12}
+```fish copy filename="Terminal" {12}
 haetae myTest
 ```
 
@@ -1223,7 +1230,7 @@ We can enhance the workflow further.
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
 }}>
-```js filename="haetae.config.js" {9-10,28}
+```js copy filename="haetae.config.js" {9-10,28}
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -1263,7 +1270,7 @@ We return nothing here.<br/>
 We do not calculate hash by ourselves.<br/>
 But this has the same effect as what we've done in the previous section.
 
-```fish filename="Terminal" {13-16}
+```fish copy filename="Terminal" {13-16}
 $ haetae myTest
 
 ✔  success   Command myTest is successfully executed.
@@ -1320,7 +1327,7 @@ Then we can modify the config file like this.
   '.graph': './apis/utils#graph',
   '.dependOn': './apis/javascript#dependon',
 }}>
-```js filename="haetae.config.js" {9-14,20} showLineNumbers
+```js copy filename="haetae.config.js" {9-14,20} showLineNumbers
 import { $, configure, git, utils, js } from 'haetae'
 
 export default configure({
@@ -1404,7 +1411,7 @@ Otherwise, a file would be treated as changed every time the dynamic argument ch
 <TokenLinkCode tokens={{
   '.changedFiles': './apis/utils#changedfiles',
 }}>
-```js filename="haetae.config.js" {9-13,19} showLineNumbers
+```js copy filename="haetae.config.js" {9-13,19} showLineNumbers
 // Other content is omitted for brevity
 const changedFilesByHash = await utils.changedFiles(
   [`.env.${process.env.ENV}`] // <--- Anti-pattern
@@ -1428,7 +1435,7 @@ for the return value of `env` and `run` of every command.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
 }}>
-```js filename="haetae.config.js" {4-6, 9}
+```js copy filename="haetae.config.js" {4-6, 9}
 import { configure } from 'haetae'
 
 export default configure({
@@ -1445,7 +1452,7 @@ export default configure({
 </TokenLinkCode>
 
 
-```fish filename="Terminal" {9}
+```fish copy filename="Terminal" {9}
 $ haetae myGreeting
 
 ✔  success   Command myGreeting is successfully executed.
@@ -1468,7 +1475,7 @@ You don't have to duplicate the code in every command's `env`.
   'configure': './apis/haetae#configure',
   '.hash': './apis/utils#hash',
 }}>
-```js filename="haetae.config.js" {5-9}
+```js copy filename="haetae.config.js" {5-9}
 import * as url from 'node:url'
 import { configure, utils } from 'haetae'
 
@@ -1490,7 +1497,7 @@ export default configure({
 ```
 </TokenLinkCode>
 
-```fish filename="Terminal" {7}
+```fish copy filename="Terminal" {7}
 $ haetae myGreeting --env
 
 ✔  success   Current environment is successfully evaluated for the command myGreeting
@@ -1513,7 +1520,7 @@ When hashing multiple files, a [single-depth sorted Merkle Tree](./apis/utils#ha
   '.hash': './apis/utils#hash',
   '.deps': './apis/javascript#deps',
 }}>
-```js filename="haetae.config.js" {4}
+```js copy filename="haetae.config.js" {4}
 // Other content is omitted for brevity
 haetaeConfig: await utils.hash(
   // More strict than [url.fileURLToPath(import.meta.url)]
@@ -1531,7 +1538,7 @@ A dependency graph between *Root Env*, *Root Run*, *Command*'s *Run* and *Comman
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
 }}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 import assert from 'node:assert/strict'
 import { configure } from 'haetae'
 
@@ -1669,7 +1676,7 @@ The `store` object is accessible from everywhere as well.
 <TokenLinkCode tokens={{
   'configure': './apis/haetae#configure',
 }}>
-```js filename="haetae.config.ts" {5,6,8,9,20-22}
+```js copy filename="haetae.config.ts" {5,6,8,9,20-22}
 import { configure } from 'haetae'
 
 export default configure({

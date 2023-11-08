@@ -35,7 +35,7 @@ For example, trailing `?{:ts}` means an optional field.
 
 Some APIs depend on common utility types.
 
-```ts
+```ts copy
 type PromiseOr<T> = Promise<T> | T
 type RecScalar = string | number | boolean | null | undefined
 interface Rec {
@@ -62,7 +62,7 @@ Any functions linked to from here by <Memoized/> label satisfy the principles be
 To clear the memoization cache, you can call `<function>.clear(){:ts}`.
 For example, [`core.getConfig{:ts}`](./core#getconfig) is a memoized function, and `getConfig.clear(){:ts}` would clear its cache.
 
-```ts
+```js copy
 import { getConfig } from '@haetae/core'
 
 // `getConfig` is executed.
@@ -90,7 +90,7 @@ const config5 = await getConfig({ filename: '/foo/haetae.config.js' })
 
 The memoization cache is based on shallow copy.
 
-```ts
+```js copy
 // `config1` and `config2` would have same memory address.
 const config1 = await getConfig()
 const config2 = await getConfig()
@@ -120,7 +120,7 @@ Any functions linked to from here by <PathPrinciples/> label satisfy the princip
 Returned file or directory path is always **absolute** path (NOT relative).<br/>
 
 <TokenLinkCode tokens={{ '.glob': './utils#glob' }}>
-```ts
+```js copy
 import { utils } from 'haetae'
 
 const files = await utils.glob(['**/*.test.ts', '**/*.test.tsx'])
@@ -154,7 +154,7 @@ This is a better decision for convenience of usage and development.
 For example, let's assume the package version is ***`1.2.3-beta.4`***.<br/>
 Then the value would be like this.
 
-```ts
+```js copy
 const { pkg } = require('haetae' /* or '@haetae/<package>' */)
 
 pkg.name // 'haetae' or '@haetae/<package>'
@@ -170,7 +170,7 @@ pkg.version.untilPatch // '1.2.3'
 `pkg.version.*{:ts}` could be a good choice for `env`.
 
 <TokenLinkCode tokens={{ 'configure': './haetae#configure' }}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 import { configure, pkg, git, utils } from 'haetae'
 
 export default configure({

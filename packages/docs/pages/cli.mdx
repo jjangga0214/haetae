@@ -27,7 +27,7 @@ For example,
   'configure': './apis/haetae#configure',
   '$': './apis/utils#dollar'
 }}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 import { $, configure } from 'haetae'
 
 export default configure({
@@ -51,7 +51,7 @@ export default configure({
 
 Then the commands become available from the CLI.<br/>
 
-```fish
+```fish copy
 $ haetae myAwesomeCommand
 
 hello world!
@@ -64,7 +64,7 @@ hello world!
 ⎣ 💾 data: {}
 ```
 
-```fish
+```fish copy
 $ haetae myAnotherCommand
 
 hi, there!
@@ -87,8 +87,8 @@ If specified, usage help is shown.
 
 #### Usage
 
-```fish
-$ haetae --help
+```fish copy
+haetae --help
 ```
 
 #### Conflicts
@@ -108,8 +108,8 @@ If you want to know comprehensive versions, use [`-i, --info{:sh}`](#-i---info).
 
 #### Usage
 
-```fish
-$ haetae --version
+```fish copy
+haetae --version
 ```
 
 #### Conflicts
@@ -124,8 +124,8 @@ A config file path.
 
 #### Usage
 
-```fish
-$ haetae --config path/to/haetae.config.js [<other-options>] <command>
+```fish copy
+haetae --config path/to/haetae.config.js [<other-options>] <command>
 ```
 
 <Callout>
@@ -151,8 +151,8 @@ This option should not be used with these options.
 
 `env` of the `<command>{:sh}` in the config file is evaluated.<br/>
 The evaluated value, which is the current `env`, is shown on the shell.
-```fish
-$ haetae --env <command>
+```fish copy
+haetae --env <command>
 ```
 
 #### Conflicts
@@ -177,8 +177,8 @@ The `<command>{:sh}`'s *Record* for the current `env` is shown.<br/>
 This means, `env` in the config file is evaluated,
 and the command's *Record* matching with the evaluated `env` is searched from the *Store*.
 
-```fish
-$ haetae --record <command>
+```fish copy
+haetae --record <command>
 ```
 
 #### Conflicts
@@ -197,8 +197,8 @@ This option should not be used with these options.
 <br/>
 <small>(**Type** : `boolean`, **Default**: `false`)</small>
 
-```fish
-$ haetae --record-data <command>
+```fish copy
+haetae --record-data <command>
 ```
 
 #### Usage
@@ -207,8 +207,8 @@ The `<command>{:sh}`'s *Record Data* for current `env` is shown.<br/>
 This means, `env` in the config file is evaluated,
 and the command's *Record Data* matching with the evaluated `env` is searched from the *Store*.
 
-```fish
-$ haetae --record-data <command>
+```fish copy
+haetae --record-data <command>
 ```
 
 #### Conflicts
@@ -232,8 +232,8 @@ If specified, result of execution is not printed.
 
 #### Usage
 
-```fish
-$ haetae --silent [<other-options>] [<command>]
+```fish copy
+haetae --silent [<other-options>] [<command>]
 ```
 
 #### Conflicts
@@ -256,8 +256,8 @@ If specified, a new record is not stored, but the result is printed.
 
 #### Usage
 
-```fish
-$ haetae --dry-run [<other-options>] <command>
+```fish copy
+haetae --dry-run [<other-options>] <command>
 ```
 
 #### Conflicts
@@ -283,8 +283,8 @@ If specified, the result (**stdout**, **stderr**) would be expressed in JSON for
 
 You can freely use this option to transform any result into JSON.
 
-```fish
-$ haetae --json [<other-options>] [<command>]
+```fish copy
+haetae --json [<other-options>] [<command>]
 ```
 
 For examples,
@@ -322,8 +322,8 @@ This hinders ease of sharing and reporting. That's why the plain text is copied 
 
 #### Usage
 
-```fish
-$ haetae --info
+```fish copy
+haetae --info
 ```
 
 #### Conflicts

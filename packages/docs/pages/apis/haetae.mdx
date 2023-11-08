@@ -36,13 +36,13 @@ Unlike other `@haetae/*{:ts}` packages, `haetae{:ts}` does not have `peerDepende
 <br/>
 
 <PkgManagerTabs>
-```bash
+```bash copy filename="Terminal"
 npm install --save-dev haetae
 ```
-```bash
+```bash copy filename="Terminal"
 yarn add --dev haetae
 ```
-```bash
+```bash copy filename="Terminal"
 pnpm add --save-dev haetae
 ```
 </PkgManagerTabs>
@@ -59,7 +59,7 @@ Its source code is _roughly_ like the snippet below.
   "'@haetae/git'": './git',
   "'@haetae/cli'": './cli',
   }}>
-```ts
+```js copy
 export * as core from '@haetae/core'
 export * as utils from '@haetae/utils'
 export * as js from '@haetae/javascript'
@@ -72,7 +72,7 @@ export const pkg = { ... }
 So you probably use `haetae` on the config file like this.
 
 <TokenLinkCode tokens={{'configure': './haetae#configure'}}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 import { configure, utils, js, git, cli, pkg } from 'haetae'
 
 export default configure({

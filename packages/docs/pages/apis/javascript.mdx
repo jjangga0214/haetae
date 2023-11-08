@@ -34,24 +34,30 @@ You may want to install `@haetae/javascript{:ts}` and its `peerDependencies` all
 <br/>
 
 <PkgManagerTabs>
-```bash
-# As dependencies
+<>
+```bash copy filename="dependency"
 npx install-peerdeps @haetae/javascript
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npx install-peerdeps --dev @haetae/javascript
 ```
-```bash
-# As dependencies
+</>
+<>
+```bash copy filename="dependency"
 npx install-peerdeps --yarn @haetae/javascript
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npx install-peerdeps --yarn --dev @haetae/javascript
 ```
-```bash
-# As dependencies
+</>
+<>
+```bash copy filename="dependency"
 npx install-peerdeps --pnpm @haetae/javascript
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npx install-peerdeps --pnpm --dev @haetae/javascript
 ```
+</>
 </PkgManagerTabs>
 
 ### To manually handle the installation
@@ -62,30 +68,36 @@ First, install `@haetae/javascript{:ts}` itself.
 <br/>
 
 <PkgManagerTabs>
-```bash
-# As dependencies
+<>
+```bash copy filename="dependency"
 npm install @haetae/javascript
-# As devDependencies
+```
+```bash copy filename="devDependency"
 npm install --save-dev @haetae/javascript
 ```
-```bash
-# As dependencies
+</>
+<>
+```bash copy filename="dependency"
 yarn add @haetae/javascript
-# As devDependencies
+```
+```bash copy filename="devDependency"
 yarn add --dev @haetae/javascript
 ```
-```bash
-# As dependencies
+</>
+<>
+```bash copy filename="dependency"
 pnpm add @haetae/javascript
-# As devDependencies
+```
+```bash copy filename="devDependency"
 pnpm add --save-dev @haetae/javascript
 ```
+</>
 </PkgManagerTabs>
 
 Then, check out `peerDependencies` and manually handle them.<br/>
 (e.g. Install them as `dependencies` or set them as `peerDependencies`)
 
-```bash
+```bash copy filename="Terminal"
 # This does not install, but just shows peerDependencies.
 npm info @haetae/javascript peerDependencies
 ```
@@ -139,7 +151,7 @@ It supports npm, yarn classic(v1), yarn berry(v2, v3) and pnpm.
 You can get parsed object of any package's version by `version{:ts}`.<br/>
 For example, let's assume eslint's version is ***`1.2.3-beta.4`***.
 
-```ts
+```js copy
 import * as js from '@haetae/javascript'
 
 const eslintVersion = await js.version('eslint')
@@ -159,7 +171,7 @@ eslintVersion.untilPatch // '1.2.3'
   'configure': './haetae#configure',
   '.hash': './utils#hash',
 }}>
-```js filename="haetae.config.js"
+```js copy filename="haetae.config.js"
 import { configure, js, utils } from 'haetae'
 
 export default configure({
@@ -416,7 +428,7 @@ Let's say,
 
 then the result would be like this.
 
-```ts
+```js copy
 const dependencies = ['f.ts', 'b.ts']
 
 await dependsOn({ dependent: 'a.ts', dependencies }) // true
